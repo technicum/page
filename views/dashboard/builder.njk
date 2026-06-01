@@ -95,6 +95,11 @@ body{overflow:hidden;background:var(--off);}
 .save-dot{width:8px;height:8px;border-radius:50%;background:var(--ink-faint);display:inline-block;margin-right:4px;}
 .save-dot.dirty{background:#d97706;}
 .save-dot.saved{background:#16a34a;}
+/* Page tabs */
+.page-tabs{display:flex;gap:2px;padding:6px 8px;border-bottom:1px solid var(--border);background:var(--off);flex-shrink:0;}
+.page-tab{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--ink-muted);background:transparent;border:none;font-family:"DM Sans",sans-serif;transition:all 0.15s;}
+.page-tab:hover{background:var(--white);}
+.page-tab.active{background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,0.08);}
 </style>
 {% endblock %}
 
@@ -130,6 +135,15 @@ body{overflow:hidden;background:var(--off);}
         {% endfor %}
       </div>
     </div>
+    {% if themePages %}
+    <div class="page-tabs" id="pageTabs">
+      {% for page in themePages %}
+      <button class="page-tab {% if loop.first %}active{% endif %}"
+              data-page="{{ page.id }}"
+              onclick="switchPage('{{ page.id }}', this)">{{ page.label }}</button>
+      {% endfor %}
+    </div>
+    {% endif %}
     <div class="panel-label" style="padding:12px 16px 0;">Sections</div>
     <div class="sections-scroll" id="sectionsList"></div>
     <div class="add-section-wrap">

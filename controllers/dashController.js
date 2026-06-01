@@ -35,9 +35,25 @@ exports.builder = async (req, res) => {
   const settings     = JSON.parse(site.settings || '{}')
   const themeSlug    = settings.template_id || site.template_id || 'minimal'
   const themeData    = themeManager.loadTheme(themeSlug) || themeManager.loadTheme('minimal')
-  // Pass the full theme schema so the builder UI can be driven by theme.json
   const themeSections = themeData ? themeData.sections : []
   const themeColors   = themeData ? (themeData.settings && themeData.settings.colors) || [] : []
+  // Multi-page: theme declares pages array; single-page themes have none
+  const themePages    = themeData && Array.isArray(themeData.pages) ? themeData.pages : null
+
+  // Build allPagesData: { home: { sections: [] }, about: { sections: [] }, ... }
+  // Migrate legacy settings.sections → settings.pages.home.sections if needed
+  let allPagesData = null
+  if (themePages) {
+    if (settings.pages) {
+      allPagesData = settings.pages
+    } else {
+      // Migrate: put existing sections under 'home'
+      allPagesData = {}
+      themePages.forEach(p => {
+        allPagesData[p.id] = { sections: p.id === 'home' ? (settings.sections || []) : [] }
+      })
+    }
+  }
 
   res.render('dashboard/builder.njk', {
     title: 'Builder',
@@ -47,6 +63,8 @@ exports.builder = async (req, res) => {
     themeSections,
     themeColors,
     themeSlug,
+    themePages,
+    allPagesData,
     baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
   })
 }

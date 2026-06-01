@@ -146,6 +146,59 @@
       ]
     },
     {
+      "id": "hero_slider",
+      "label": "Hero Slider",
+      "emoji": "🎠",
+      "description": "A full-width hero that cycles through multiple slides.",
+      "fields": [
+        {
+          "id": "slides",
+          "label": "Slides",
+          "type": "list",
+          "item_fields": [
+            { "id": "headline",   "label": "Headline",        "type": "text",     "default": "Amazing Headline" },
+            { "id": "subheading", "label": "Subheading",      "type": "textarea", "default": "A short supporting line." },
+            { "id": "btn_text",   "label": "Button Text",     "type": "text",     "default": "Learn More" },
+            { "id": "btn_link",   "label": "Button Link",     "type": "url",      "default": "#contact" },
+            { "id": "emoji",      "label": "Background Icon", "type": "text",     "default": "✨" }
+          ]
+        },
+        { "id": "interval", "label": "Auto-play speed (ms)", "type": "text", "default": "4000" }
+      ]
+    },
+    {
+      "id": "testimonials_slider",
+      "label": "Testimonials Slider",
+      "emoji": "🎤",
+      "description": "Scrolling carousel of client reviews.",
+      "fields": [
+        { "id": "title", "label": "Section Title", "type": "text", "default": "What Clients Say" },
+        {
+          "id": "items",
+          "label": "Reviews",
+          "type": "list",
+          "item_fields": [
+            { "id": "name",  "label": "Client Name",  "type": "text",     "default": "Jane Doe" },
+            { "id": "role",  "label": "Role/Company", "type": "text",     "default": "CEO, Acme" },
+            { "id": "text",  "label": "Quote",        "type": "textarea", "default": "This service changed our business!" },
+            { "id": "emoji", "label": "Avatar Emoji", "type": "text",     "default": "😊" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "whatsapp_widget",
+      "label": "WhatsApp Widget",
+      "emoji": "💬",
+      "description": "Floating WhatsApp chat button shown on every page.",
+      "fields": [
+        { "id": "phone",    "label": "WhatsApp Number", "type": "tel",  "default": "" },
+        { "id": "message",  "label": "Pre-filled Message", "type": "text", "default": "Hi! I'd like to know more." },
+        { "id": "position", "label": "Position (left/right)", "type": "text", "default": "right" },
+        { "id": "label",    "label": "Bubble Label", "type": "text", "default": "Chat with us" }
+      ]
+    },
+    {
       "id": "contact",
       "label": "Contact",
       "emoji": "📞",

@@ -41,10 +41,14 @@ async function serveSite(req, res, next, lookup) {
       return res.status(404).send('<h1>404 — Site not found</h1>')
     }
 
-    const settings  = JSON.parse(site.settings || '{}')
-    const slug      = settings.template_id || site.template_id || 'minimal'
-    const html      = await themeManager.render(slug, site, settings)
+    const settings = JSON.parse(site.settings || '{}')
+    const slug     = settings.template_id || site.template_id || 'minimal'
 
+    // Extract page from URL path: / → 'home', /about → 'about', /services → 'services'
+    const rawPath = req.path.replace(/^\/+|\/+$/g, '') || 'home'
+    const pageId  = rawPath.split('/')[0] || 'home'
+
+    const html = await themeManager.render(slug, site, settings, pageId)
     res.send(html)
   } catch (err) {
     console.error('Site serve error:', err)

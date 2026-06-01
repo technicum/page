@@ -66,18 +66,26 @@ exports.setTemplate = async (req, res) => {
 
 exports.builderPreview = async (req, res) => {
   const user = req.session.user
-  const { site_id, sections, theme } = req.body
+  const { site_id, sections, theme, all_pages, page_id } = req.body
 
   const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [site_id, user.id])
   if (!site) return res.status(404).send('<h1>Not found</h1>')
 
-  const settings         = JSON.parse(site.settings || '{}')
-  settings.sections      = JSON.parse(sections || '[]')
-  settings.theme         = theme || settings.theme || 'blue'
+  const settings    = JSON.parse(site.settings || '{}')
+  settings.theme    = theme || settings.theme || 'blue'
+  const pageId      = page_id || 'home'
+
+  if (all_pages) {
+    // Multi-page mode: full pages payload
+    settings.pages = JSON.parse(all_pages)
+  } else {
+    // Single-page / legacy
+    settings.sections = JSON.parse(sections || '[]')
+  }
 
   const slug = settings.template_id || site.template_id || 'minimal'
   try {
-    const html = await themeManager.render(slug, site, settings)
+    const html = await themeManager.render(slug, site, settings, pageId)
     res.send(html)
   } catch(e) {
     res.status(500).send('<p>Preview error: ' + e.message + '</p>')
@@ -86,15 +94,22 @@ exports.builderPreview = async (req, res) => {
 
 exports.builderSave = async (req, res) => {
   const user = req.session.user
-  const { site_id, sections, theme, font } = req.body
+  const { site_id, sections, theme, font, all_pages } = req.body
 
   const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [site_id, user.id])
   if (!site) return res.json({ ok: false })
 
-  const settings       = JSON.parse(site.settings || '{}')
-  settings.sections    = JSON.parse(sections || '[]')
-  settings.theme       = theme  || settings.theme  || 'blue'
-  settings.font        = font   || settings.font   || 'sans'
+  const settings    = JSON.parse(site.settings || '{}')
+  settings.theme    = theme || settings.theme || 'blue'
+  settings.font     = font  || settings.font  || 'sans'
+
+  if (all_pages) {
+    // Multi-page mode
+    settings.pages = JSON.parse(all_pages)
+    delete settings.sections // clean up legacy field
+  } else {
+    settings.sections = JSON.parse(sections || '[]')
+  }
 
   await db.execute('UPDATE ms_pages SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
   res.json({ ok: true })

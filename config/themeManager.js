@@ -113,12 +113,26 @@ function getSection(slug, sectionId) {
   return getSections(resolveSlug(slug)).find(s => s.id === sectionId) || null
 }
 
-async function render(slug, site, settings) {
+async function render(slug, site, settings, pageId = 'home') {
   const theme = loadTheme(resolveSlug(slug)) || loadTheme('minimal')
   if (!theme) throw new Error('No themes found')
 
-  const tplFile = path.join(theme.path, 'index.liquid')
-  const source  = fs.readFileSync(tplFile, 'utf8')
+  // Multi-page: look for {pageId}.liquid, fall back to index.liquid
+  const pageFile  = path.join(theme.path, pageId + '.liquid')
+  const indexFile = path.join(theme.path, 'index.liquid')
+  const tplFile   = fs.existsSync(pageFile) ? pageFile : indexFile
+  const source    = fs.readFileSync(tplFile, 'utf8')
+
+  // Resolve sections for this page
+  // Multi-page mode: settings.pages[pageId].sections
+  // Single-page mode (legacy): settings.sections
+  let pageSections
+  if (settings.pages && typeof settings.pages === 'object') {
+    pageSections = (settings.pages[pageId] && settings.pages[pageId].sections) || []
+  } else {
+    pageSections = settings.sections || []
+  }
+  settings = { ...settings, sections: pageSections }
 
   // Resolve accent color from theme's own palette, then global fallback
   const colorMap    = theme._colorMap || DEFAULT_COLORS
@@ -137,6 +151,9 @@ async function render(slug, site, settings) {
   engine.registerFilter('wa',  (phone)     => (phone || '').replace(/\D/g, ''))
   engine.registerFilter('hex', (colorSlug) => colorMap[colorSlug] || accentColor)
 
+  // Build page list for nav links in multi-page themes
+  const themePages = Array.isArray(theme.pages) ? theme.pages : []
+
   const context = {
     site: {
       title:     site.title,
@@ -154,11 +171,13 @@ async function render(slug, site, settings) {
       colors:    theme._colorMap,
       fonts:     fontMap
     },
-    sections:  settings.sections || [],
-    site_type: settings.site_type || 'business',
-    city:      settings.city || '',
-    app_name:  process.env.APP_NAME || 'PageZapper',
-    app_url:   process.env.APP_URL  || 'https://pagezapper.com'
+    sections:   settings.sections || [],
+    page_id:    pageId,
+    site_pages: themePages,
+    site_type:  settings.site_type || 'business',
+    city:       settings.city || '',
+    app_name:   process.env.APP_NAME || 'PageZapper',
+    app_url:    process.env.APP_URL  || 'https://pagezapper.com'
   }
 
   return engine.parseAndRender(source, context)

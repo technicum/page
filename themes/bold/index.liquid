@@ -85,10 +85,43 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:20px 4
 /* Footer */
 footer{padding:28px 48px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;color:rgba(240,237,230,0.3);}
 footer a{color:var(--c);}
-
+/* Hero Slider */
+.hslider{position:relative;overflow:hidden;background:#111;min-height:480px;display:flex;align-items:center;}
+.hslider-track{display:flex;transition:transform 0.6s cubic-bezier(.4,0,.2,1);}
+.hslide{min-width:100%;padding:100px 48px;display:flex;flex-direction:column;}
+.hslide-icon{font-size:56px;margin-bottom:16px;}
+.hslide-title{font-family:'DM Serif Display',serif;font-size:clamp(36px,6vw,72px);font-weight:400;line-height:1.05;letter-spacing:-2px;margin-bottom:18px;color:#f0ede6;}
+.hslide-sub{font-size:18px;color:rgba(240,237,230,0.6);max-width:520px;font-weight:300;margin-bottom:36px;}
+.hslider-dots{position:absolute;bottom:20px;left:48px;display:flex;gap:7px;}
+.hslider-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.25);cursor:pointer;transition:background 0.2s;}
+.hslider-dot.active{background:var(--c);}
+.hslider-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:#f0ede6;z-index:2;}
+.hslider-arrow.prev{left:48px;top:auto;bottom:56px;transform:none;}
+.hslider-arrow.next{left:96px;top:auto;bottom:56px;transform:none;}
+/* Testimonials slider */
+.tslider-wrap{padding:80px 48px;overflow:hidden;}
+.tslider-title{font-family:'DM Serif Display',serif;font-size:clamp(24px,3vw,40px);font-weight:400;letter-spacing:-0.5px;margin-bottom:32px;}
+.tslider-track{display:flex;gap:20px;transition:transform 0.5s cubic-bezier(.4,0,.2,1);}
+.tslide-card{min-width:320px;max-width:320px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:28px;flex-shrink:0;}
+.tslide-avatar{font-size:32px;margin-bottom:12px;}
+.tslide-text{font-size:14px;color:rgba(240,237,230,0.7);line-height:1.8;margin-bottom:16px;font-style:italic;}
+.tslide-name{font-size:14px;font-weight:600;}
+.tslide-role{font-size:12px;color:rgba(240,237,230,0.4);}
+.tslider-nav{display:flex;gap:8px;margin-top:20px;}
+.tslider-btn{padding:7px 16px;border:1.5px solid rgba(255,255,255,0.15);border-radius:4px;background:transparent;color:#f0ede6;cursor:pointer;font-size:13px;}
+.tslider-btn:hover{border-color:var(--c);color:var(--c);}
+/* WhatsApp widget */
+.wa-widget{position:fixed;bottom:24px;z-index:9999;display:flex;flex-direction:column;}
+.wa-widget.right{right:24px;align-items:flex-end;}
+.wa-widget.left{left:24px;align-items:flex-start;}
+.wa-bubble{display:flex;align-items:center;gap:10px;background:#25d366;color:#fff;padding:11px 20px;border-radius:50px;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 4px 18px rgba(37,211,102,0.4);transition:transform 0.2s,box-shadow 0.2s;}
+.wa-bubble:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(37,211,102,0.5);}
+.wa-icon{font-size:20px;}
 @media(max-width:640px){
-  nav,.hero,.section,.section-alt .section,.contact-wrap,.links-wrap{padding-left:20px;padding-right:20px;}
-  .hero{padding-top:60px;padding-bottom:60px;}
+  nav,.hero,.section,.section-alt .section,.contact-wrap,.links-wrap,.tslider-wrap{padding-left:20px;padding-right:20px;}
+  .hero,.hslide{padding-top:60px;padding-bottom:60px;padding-left:20px;padding-right:20px;}
+  .hslider-dots,.hslider-arrow{left:20px;}
+  .hslider-arrow.next{left:68px;}
   .cards{grid-template-columns:1fr;}
 }
 </style>
@@ -109,7 +142,90 @@ footer a{color:var(--c);}
 {% for section in sections %}
   {% assign f = section.fields %}
 
-  {% if section.id == 'hero' %}
+  {% if section.id == 'hero_slider' %}
+  {% assign interval = f.interval | default: 4000 %}
+  <div class="hslider" id="hslider-{{ forloop.index }}">
+    <div class="hslider-track" id="htrack-{{ forloop.index }}">
+      {% for slide in f.slides %}
+      <div class="hslide">
+        {% if slide.emoji != '' and slide.emoji != nil %}<div class="hslide-icon">{{ slide.emoji }}</div>{% endif %}
+        <h2 class="hslide-title">{{ slide.headline }}</h2>
+        <p class="hslide-sub">{{ slide.subheading }}</p>
+        {% if slide.btn_text != '' and slide.btn_text != nil %}
+          <a class="btn-solid" href="{{ slide.btn_link | default: '#contact' }}">{{ slide.btn_text }}</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% if f.slides.size > 1 %}
+    <div class="hslider-arrow prev" onclick="hSlide('{{ forloop.index }}',-1)">‹</div>
+    <div class="hslider-arrow next" onclick="hSlide('{{ forloop.index }}',1)">›</div>
+    <div class="hslider-dots" id="hdots-{{ forloop.index }}">
+      {% for slide in f.slides %}
+      <div class="hslider-dot {% if forloop.first %}active{% endif %}" onclick="hGoTo('{{ forloop.parentloop.index }}',{{ forloop.index0 }})"></div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  <script>
+  (function(){
+    var id="{{ forloop.index }}",cur=0,total={{ f.slides.size }},iv={{ interval }};
+    window.hSlide=window.hSlide||function(i,d){};
+    window.hGoTo=window.hGoTo||function(i,n){};
+    function go(n){cur=(n+total)%total;document.getElementById('htrack-'+id).style.transform='translateX(-'+cur*100+'%)';var dots=document.getElementById('hdots-'+id);if(dots){dots.querySelectorAll('.hslider-dot').forEach(function(d,i){d.classList.toggle('active',i===cur);});}}
+    var _hs=window.hSlide;window.hSlide=function(i,d){if(i===id)go(cur+d);else _hs(i,d);};
+    var _hg=window.hGoTo;window.hGoTo=function(i,n){if(i===id)go(n);else _hg(i,n);};
+    if(total>1)setInterval(function(){go(cur+1);},iv);
+  })();
+  </script>
+
+  {% elsif section.id == 'testimonials_slider' %}
+  {% assign tid = forloop.index %}
+  <div class="section-alt">
+    <div class="tslider-wrap" id="tslider-{{ tid }}">
+      <div class="section-tag">Testimonials</div>
+      <div class="tslider-title">{{ f.title }}</div>
+      <div style="overflow:hidden;">
+        <div class="tslider-track" id="ttrack-{{ tid }}">
+          {% for item in f.items %}
+          <div class="tslide-card">
+            <div class="tslide-avatar">{{ item.emoji | default: '😊' }}</div>
+            <p class="tslide-text">"{{ item.text }}"</p>
+            <div class="tslide-name">{{ item.name }}</div>
+            <div class="tslide-role">{{ item.role }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% if f.items.size > 1 %}
+      <div class="tslider-nav">
+        <button class="tslider-btn" onclick="tSlide('{{ tid }}',-1)">← Prev</button>
+        <button class="tslider-btn" onclick="tSlide('{{ tid }}',1)">Next →</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <script>
+  (function(){
+    var id="{{ tid }}",cur=0,total={{ f.items.size }},cardW=340;
+    var _ts=window.tSlide||function(){};
+    window.tSlide=function(i,d){if(i===id){cur=Math.max(0,Math.min(cur+d,total-1));document.getElementById('ttrack-'+id).style.transform='translateX(-'+(cur*cardW)+'px)';}else _ts(i,d);};
+  })();
+  </script>
+
+  {% elsif section.id == 'whatsapp_widget' %}
+  {% if f.phone != '' and f.phone != nil %}
+  {% assign wa_pos = f.position | default: 'right' %}
+  {% assign wa_msg = f.message | default: 'Hi! I would like to know more.' | url_encode %}
+  <div class="wa-widget {{ wa_pos }}">
+    <a class="wa-bubble" href="https://wa.me/{{ f.phone | wa }}?text={{ wa_msg }}" target="_blank" rel="noopener">
+      <span class="wa-icon">💬</span>
+      <span>{{ f.label | default: 'Chat with us' }}</span>
+    </a>
+  </div>
+  {% endif %}
+
+  {% elsif section.id == 'hero' %}
   <div class="hero" id="hero">
     <div class="hero-eyebrow">{{ site_type }}{% if city %} · {{ city }}{% endif %}</div>
     <h1 class="hero-title">{{ f.headline | default: site.title | replace: ' ', ' <em>' | append: '</em>' }}</h1>
