@@ -4,6 +4,17 @@ const { Liquid } = require('liquidjs')
 
 const THEMES_DIR = path.join(__dirname, '../themes')
 
+// Maps old PHP template IDs → new theme slugs so existing DB records don't break
+const LEGACY_TEMPLATE_MAP = {
+  'template1': 'minimal',
+  'template2': 'bold',
+  'template3': 'modern'
+}
+
+function resolveSlug(slug) {
+  return LEGACY_TEMPLATE_MAP[slug] || slug
+}
+
 let cache = null
 
 // Built-in color palette (used as fallback if theme doesn't define colors)
@@ -43,6 +54,7 @@ function loadAll() {
 }
 
 function loadTheme(slug) {
+  slug = resolveSlug(slug)
   const jsonFile = path.join(THEMES_DIR, slug, 'theme.json')
   const tplFile  = path.join(THEMES_DIR, slug, 'index.liquid')
 
@@ -88,6 +100,7 @@ function loadTheme(slug) {
  * This is what the builder UI reads to render its field editor.
  */
 function getSections(slug) {
+  slug = resolveSlug(slug)
   const theme = loadTheme(slug)
   if (!theme) return []
   return theme.sections || []
@@ -97,7 +110,7 @@ function getSections(slug) {
  * Get a single section definition by id.
  */
 function getSection(slug, sectionId) {
-  return getSections(slug).find(s => s.id === sectionId) || null
+  return getSections(resolveSlug(slug)).find(s => s.id === sectionId) || null
 }
 
 async function render(slug, site, settings) {
