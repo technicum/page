@@ -175,6 +175,7 @@ body{overflow:hidden;background:var(--off);}
 const SITE_ID      = {{ site.id }};
 const THEME_SLUG   = {{ themeSlug | dump | safe }};
 const SITE_TYPE    = {{ (settings.site_type or 'business') | dump | safe }};
+const WIZARD_DATA  = {{ settings | dump | safe }};
 
 // Theme section schema — driven entirely by theme.json, no hardcoding
 const THEME_SECTIONS = {{ themeSections | dump | safe }};
@@ -185,9 +186,59 @@ let activeSectionIdx = -1;
 let dragSrc         = null;
 let previewTimer;
 
+// ── Default sections per site type ───────────────────────────────────────────
+const DEFAULTS_BY_TYPE = {
+  business:   ['hero', 'about', 'services', 'testimonials', 'contact'],
+  freelancer: ['hero', 'about', 'services', 'portfolio', 'contact'],
+  linktree:   ['hero', 'links', 'contact'],
+  blog:       ['hero', 'about', 'contact'],
+  product:    ['hero', 'about', 'services', 'faq', 'contact'],
+  other:      ['hero', 'about', 'contact']
+};
+
+// Field pre-fills from wizard data
+const WIZARD_PREFILLS = {
+  contact: { phone: WIZARD_DATA.phone, whatsapp: WIZARD_DATA.whatsapp, address: WIZARD_DATA.address, email: '' },
+  about:   { title: 'About Us', text: WIZARD_DATA.description || WIZARD_DATA.bio || '' },
+  hero:    { headline: WIZARD_DATA.title || '', subheading: WIZARD_DATA.description || '' },
+  links:   {}
+};
+
+function makeSectionFromSchema(schema) {
+  const fields = {};
+  (schema.fields || []).forEach(f => {
+    if (f.type === 'list') {
+      fields[f.id] = [];
+    } else {
+      // Use wizard prefill if available, else default
+      const prefill = (WIZARD_PREFILLS[schema.id] || {})[f.id];
+      fields[f.id] = (prefill !== undefined && prefill !== null && prefill !== '') ? prefill : (f.default || '');
+    }
+  });
+  return { id: schema.id, fields };
+}
+
+function seedDefaultSections() {
+  const ids      = DEFAULTS_BY_TYPE[SITE_TYPE] || DEFAULTS_BY_TYPE.other;
+  const seeded   = [];
+  ids.forEach(id => {
+    const schema = THEME_SECTIONS.find(s => s.id === id);
+    if (schema) seeded.push(makeSectionFromSchema(schema));
+  });
+  return seeded;
+}
+
+// If no sections yet, auto-seed defaults from theme + wizard data
+if (!sections || !sections.length) {
+  sections = seedDefaultSections();
+  // Mark dirty so user can save the seeded state
+  setTimeout(() => markDirty(), 100);
+}
+
 // Boot
 renderSectionsList();
 buildAddDropdown();
+if (sections.length > 0) selectSection(0);
 refreshPreview();
 
 // ── Dirty state ───────────────────────────────────────────────────────────────
