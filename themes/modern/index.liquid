@@ -149,16 +149,27 @@ footer{padding:28px 48px;background:#f9fafb;border-top:1px solid #f3f4f6;display
     {{ site.title }}
   </div>
   <div class="nav-links">
-    {% for section in sections %}
-      {% unless section.id == 'hero' or section.id == 'links' %}
-        <a href="#{{ section.id }}">{{ section.fields.title | default: section.id }}</a>
-      {% endunless %}
-    {% endfor %}
-    {% for section in sections %}
-      {% if section.id == 'contact' %}
-        <a class="nav-cta" href="#contact">{{ section.fields.title | default: 'Contact' }}</a>
-      {% endif %}
-    {% endfor %}
+    {% if site_pages.size > 0 %}
+      {% for page in site_pages %}
+        {% assign href = page.id == 'home' ? '/' : '/' | append: page.id %}
+        {% if page.id == 'contact' %}
+          <a class="nav-cta" href="{{ href }}">{{ page.label }}</a>
+        {% else %}
+          <a href="{{ href }}" {% if page.id == page_id %}style="color:#111827;font-weight:600;"{% endif %}>{{ page.label }}</a>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      {% for section in sections %}
+        {% unless section.id == 'hero' or section.id == 'links' or section.id == 'hero_slider' or section.id == 'whatsapp_widget' %}
+          <a href="#{{ section.id }}">{{ section.fields.title | default: section.id }}</a>
+        {% endunless %}
+      {% endfor %}
+      {% for section in sections %}
+        {% if section.id == 'contact' %}
+          <a class="nav-cta" href="#contact">{{ section.fields.title | default: 'Contact' }}</a>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
   </div>
 </nav>
 

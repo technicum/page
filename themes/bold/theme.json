@@ -8,6 +8,13 @@
   "for": ["all"],
   "order": 2,
 
+  "pages": [
+    { "id": "home",      "label": "Home",      "default_sections": ["hero", "about", "services", "testimonials", "contact"] },
+    { "id": "portfolio", "label": "Portfolio",  "default_sections": ["portfolio", "contact"] },
+    { "id": "services",  "label": "Services",   "default_sections": ["services", "faq", "contact"] },
+    { "id": "contact",   "label": "Contact",    "default_sections": ["contact"] }
+  ],
+
   "settings": {
     "colors": [
       { "id": "blue",   "label": "Blue",   "hex": "#3b82f6" },

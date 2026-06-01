@@ -1,0 +1,99 @@
+{
+  "name": "BioLink",
+  "slug": "biolink",
+  "author": "PageZapper",
+  "version": "1.0",
+  "description": "Narrow, mobile-first link-in-bio page. Perfect for creators, influencers, and personal brands.",
+  "tags": ["biolink", "linktree", "narrow", "mobile", "creator"],
+  "for": ["linktree", "other"],
+  "order": 4,
+
+  "settings": {
+    "colors": [
+      { "id": "violet",  "label": "Violet",  "hex": "#7c3aed" },
+      { "id": "rose",    "label": "Rose",    "hex": "#e11d48" },
+      { "id": "sky",     "label": "Sky",     "hex": "#0284c7" },
+      { "id": "emerald", "label": "Emerald", "hex": "#059669" },
+      { "id": "amber",   "label": "Amber",   "hex": "#d97706" },
+      { "id": "ink",     "label": "Ink",     "hex": "#1a1a18" },
+      { "id": "slate",   "label": "Slate",   "hex": "#475569" },
+      { "id": "pink",    "label": "Pink",    "hex": "#db2777" }
+    ],
+    "fonts": [
+      { "id": "sans",  "label": "DM Sans" },
+      { "id": "serif", "label": "DM Serif" }
+    ]
+  },
+
+  "sections": [
+    {
+      "id": "profile",
+      "label": "Profile",
+      "emoji": "👤",
+      "description": "Your avatar, name, and bio at the top.",
+      "fields": [
+        { "id": "avatar_emoji", "label": "Avatar (emoji or letter)", "type": "text",     "default": "✨" },
+        { "id": "name",         "label": "Display Name",             "type": "text",     "default": "Your Name" },
+        { "id": "tagline",      "label": "Tagline / Username",       "type": "text",     "default": "@yourhandle" },
+        { "id": "bio",          "label": "Bio",                      "type": "textarea", "default": "Creator · Photographer · Based in India" }
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links",
+      "emoji": "🔗",
+      "description": "Your main link buttons.",
+      "fields": [
+        {
+          "id": "items",
+          "label": "Links",
+          "type": "list",
+          "item_fields": [
+            { "id": "emoji", "label": "Icon (emoji)", "type": "text", "default": "🌐" },
+            { "id": "label", "label": "Label",        "type": "text", "default": "My Website" },
+            { "id": "url",   "label": "URL",          "type": "url",  "default": "https://" },
+            { "id": "style", "label": "Style (solid/outline)", "type": "text", "default": "solid" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "socials",
+      "label": "Social Icons",
+      "emoji": "📱",
+      "description": "Small icon row for social platforms.",
+      "fields": [
+        { "id": "instagram", "label": "Instagram URL", "type": "url", "default": "" },
+        { "id": "youtube",   "label": "YouTube URL",   "type": "url", "default": "" },
+        { "id": "twitter",   "label": "Twitter/X URL", "type": "url", "default": "" },
+        { "id": "tiktok",    "label": "TikTok URL",    "type": "url", "default": "" },
+        { "id": "linkedin",  "label": "LinkedIn URL",  "type": "url", "default": "" },
+        { "id": "github",    "label": "GitHub URL",    "type": "url", "default": "" }
+      ]
+    },
+    {
+      "id": "featured",
+      "label": "Featured Card",
+      "emoji": "⭐",
+      "description": "A highlighted card — great for a product, book, or offer.",
+      "fields": [
+        { "id": "emoji",    "label": "Icon",        "type": "text",     "default": "🚀" },
+        { "id": "title",    "label": "Title",       "type": "text",     "default": "My Latest Project" },
+        { "id": "subtitle", "label": "Subtitle",    "type": "text",     "default": "Check it out →" },
+        { "id": "url",      "label": "Link URL",    "type": "url",      "default": "https://" },
+        { "id": "desc",     "label": "Description", "type": "textarea", "default": "A short description of what this is." }
+      ]
+    },
+    {
+      "id": "whatsapp_widget",
+      "label": "WhatsApp Widget",
+      "emoji": "💬",
+      "description": "Floating WhatsApp button.",
+      "fields": [
+        { "id": "phone",   "label": "WhatsApp Number",     "type": "tel",  "default": "" },
+        { "id": "message", "label": "Pre-filled Message",  "type": "text", "default": "Hi! I'd like to know more." },
+        { "id": "label",   "label": "Bubble Label",        "type": "text", "default": "Chat" }
+      ]
+    }
+  ]
+}

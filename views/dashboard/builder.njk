@@ -186,18 +186,24 @@ body{overflow:hidden;background:var(--off);}
 </div>
 
 <script>
-const SITE_ID      = {{ site.id }};
-const THEME_SLUG   = {{ themeSlug | dump | safe }};
-const SITE_TYPE    = {{ (settings.site_type or 'business') | dump | safe }};
-const WIZARD_DATA  = {{ settings | dump | safe }};
-
-// Theme section schema — driven entirely by theme.json, no hardcoding
+const SITE_ID        = {{ site.id }};
+const THEME_SLUG     = {{ themeSlug | dump | safe }};
+const SITE_TYPE      = {{ (settings.site_type or 'business') | dump | safe }};
+const WIZARD_DATA    = {{ settings | dump | safe }};
 const THEME_SECTIONS = {{ themeSections | dump | safe }};
+const THEME_PAGES    = {{ (themePages or []) | dump | safe }};       // [] = single-page theme
+const IS_MULTIPAGE   = THEME_PAGES.length > 0;
 
-let sections        = {{ (settings.sections or []) | dump | safe }};
+// ── Multi-page state ──────────────────────────────────────────────────────────
+// allPages: { home: { sections: [] }, about: { sections: [] }, ... }
+let allPages = {{ (allPagesData or {}) | dump | safe }};
+let currentPage = THEME_PAGES.length ? THEME_PAGES[0].id : 'home';
+
+// ── Single-page state (used when IS_MULTIPAGE = false) ────────────────────────
+let sections        = IS_MULTIPAGE ? [] : {{ (settings.sections or []) | dump | safe }};
 let currentColor    = {{ (settings.theme or 'blue') | dump | safe }};
 let activeSectionIdx = -1;
-let dragSrc         = null;
+let dragSrc          = null;
 let previewTimer;
 
 // ── Default sections per site type ───────────────────────────────────────────
@@ -210,7 +216,6 @@ const DEFAULTS_BY_TYPE = {
   other:      ['hero', 'about', 'contact']
 };
 
-// Field pre-fills from wizard data
 const WIZARD_PREFILLS = {
   contact: { phone: WIZARD_DATA.phone, whatsapp: WIZARD_DATA.whatsapp, address: WIZARD_DATA.address, email: '' },
   about:   { title: 'About Us', text: WIZARD_DATA.description || WIZARD_DATA.bio || '' },
@@ -224,7 +229,6 @@ function makeSectionFromSchema(schema) {
     if (f.type === 'list') {
       fields[f.id] = [];
     } else {
-      // Use wizard prefill if available, else default
       const prefill = (WIZARD_PREFILLS[schema.id] || {})[f.id];
       fields[f.id] = (prefill !== undefined && prefill !== null && prefill !== '') ? prefill : (f.default || '');
     }
@@ -232,21 +236,47 @@ function makeSectionFromSchema(schema) {
   return { id: schema.id, fields };
 }
 
-function seedDefaultSections() {
-  const ids      = DEFAULTS_BY_TYPE[SITE_TYPE] || DEFAULTS_BY_TYPE.other;
-  const seeded   = [];
-  ids.forEach(id => {
+function seedSections(defaultIds) {
+  const seeded = [];
+  (defaultIds || DEFAULTS_BY_TYPE[SITE_TYPE] || DEFAULTS_BY_TYPE.other).forEach(id => {
     const schema = THEME_SECTIONS.find(s => s.id === id);
     if (schema) seeded.push(makeSectionFromSchema(schema));
   });
   return seeded;
 }
 
-// If no sections yet, auto-seed defaults from theme + wizard data
-if (!sections || !sections.length) {
-  sections = seedDefaultSections();
-  // Mark dirty so user can save the seeded state
+// ── Multi-page init ───────────────────────────────────────────────────────────
+if (IS_MULTIPAGE) {
+  THEME_PAGES.forEach(page => {
+    if (!allPages[page.id]) {
+      allPages[page.id] = { sections: seedSections(page.default_sections) };
+    } else if (!allPages[page.id].sections || !allPages[page.id].sections.length) {
+      allPages[page.id].sections = seedSections(page.default_sections);
+    }
+  });
+  sections = allPages[currentPage].sections;
   setTimeout(() => markDirty(), 100);
+} else if (!sections || !sections.length) {
+  sections = seedSections();
+  setTimeout(() => markDirty(), 100);
+}
+
+// ── Page switcher ─────────────────────────────────────────────────────────────
+function switchPage(pageId, btn) {
+  if (!IS_MULTIPAGE || pageId === currentPage) return;
+  // Persist current page sections into allPages
+  allPages[currentPage].sections = sections;
+  // Switch
+  currentPage = pageId;
+  sections    = allPages[pageId].sections || [];
+  activeSectionIdx = -1;
+  // Update tab UI
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.dataset.page === pageId));
+  renderSectionsList();
+  buildAddDropdown();
+  document.getElementById('fieldsPanel').innerHTML = '<div class="no-section-msg">Click a section to edit.</div>';
+  document.getElementById('editorHeader').innerHTML = '<span class="emoji">✏️</span><span class="name">Select a section</span>';
+  refreshPreview();
 }
 
 // Boot
@@ -510,10 +540,17 @@ function debouncedPreview() {
 }
 
 function refreshPreview() {
+  // Always sync current sections into allPages before sending
+  if (IS_MULTIPAGE) allPages[currentPage].sections = sections;
+
+  const body = IS_MULTIPAGE
+    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), page_id: currentPage, theme: currentColor }
+    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor };
+
   fetch('/dashboard/site/builder-preview', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor })
+    body:    JSON.stringify(body)
   })
   .then(r => r.text())
   .then(html => { document.getElementById('previewFrame').srcdoc = html; })
@@ -531,11 +568,16 @@ async function saveAll() {
   const btn = document.querySelector('.btn-save');
   btn.textContent = 'Saving…';
   btn.disabled = true;
+  // Sync current page before save
+  if (IS_MULTIPAGE) allPages[currentPage].sections = sections;
+  const body = IS_MULTIPAGE
+    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), theme: currentColor }
+    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor };
   try {
     const res  = await fetch('/dashboard/site/builder-save', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor })
+      body:    JSON.stringify(body)
     });
     const data = await res.json();
     if (data.ok) markSaved(); else alert('Save failed.');

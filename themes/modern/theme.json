@@ -8,6 +8,13 @@
   "for": ["business", "product", "freelancer"],
   "order": 3,
 
+  "pages": [
+    { "id": "home",     "label": "Home",     "default_sections": ["hero", "about", "services", "contact"] },
+    { "id": "about",    "label": "About",    "default_sections": ["about", "testimonials", "faq", "contact"] },
+    { "id": "services", "label": "Services", "default_sections": ["services", "faq", "contact"] },
+    { "id": "contact",  "label": "Contact",  "default_sections": ["contact"] }
+  ],
+
   "settings": {
     "colors": [
       { "id": "blue",   "label": "Blue",   "hex": "#2563eb" },
