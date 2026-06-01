@@ -5,6 +5,62 @@ const auth        = require('../controllers/authController')
 const dash        = require('../controllers/dashController')
 const site        = require('../controllers/siteController')
 const { requireAuth, redirectIfAuth } = require('../middleware/auth')
+const { db } = require('../config/db')
+
+// ── Debug route (REMOVE IN PRODUCTION) ───────────────────────────────────────
+router.get('/debug', async (req, res) => {
+  const health  = await db.healthCheck()
+  const env     = {
+    APP_NAME:    process.env.APP_NAME    || '(not set)',
+    APP_URL:     process.env.APP_URL     || '(not set)',
+    BASE_DOMAIN: process.env.BASE_DOMAIN || '(not set)',
+    PORT:        process.env.PORT        || '(not set)',
+    NODE_ENV:    process.env.NODE_ENV    || '(not set)',
+    DB_HOST:     process.env.DB_HOST     || '(not set)',
+    DB_USER:     process.env.DB_USER     || '(not set)',
+    DB_NAME:     process.env.DB_NAME     || '(not set)',
+    DB_PASS:     process.env.DB_PASS     ? `✓ set (${process.env.DB_PASS.length} chars)` : '✗ not set',
+    SESSION_SECRET: process.env.SESSION_SECRET ? '✓ set' : '✗ not set',
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY ? '✓ set' : '✗ not set (AI disabled)'
+  }
+
+  const color = (ok) => ok ? '#16a34a' : '#dc2626'
+  const icon  = (ok) => ok ? '✅' : '❌'
+
+  res.send(`<!DOCTYPE html><html><head><title>PageZapper Debug</title>
+  <style>body{font-family:monospace;padding:32px;background:#f8f7f4;color:#1a1a18;}
+  h1{font-size:20px;margin-bottom:24px;}h2{font-size:14px;margin:20px 0 8px;color:#6b6b66;}
+  table{border-collapse:collapse;width:100%;max-width:600px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+  td{padding:10px 14px;border-bottom:1px solid #f0ede6;font-size:13px;}
+  td:first-child{color:#6b6b66;width:200px;}
+  .ok{color:#16a34a;font-weight:600;}.err{color:#dc2626;font-weight:600;}
+  .warn{color:#d97706;font-weight:600;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;}
+  </style></head><body>
+  <h1>🔧 PageZapper Debug</h1>
+
+  <h2>Environment</h2>
+  <table>${Object.entries(env).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table>
+
+  <h2>Database</h2>
+  <table>
+    <tr><td>Connection</td><td class="${health.connected?'ok':'err'}">${icon(health.connected)} ${health.connected ? 'Connected' : 'FAILED — ' + (health.error ? health.error.code + ': ' + health.error.message : 'unknown')}</td></tr>
+    ${health.connected ? `<tr><td>Server time</td><td>${health.serverTime}</td></tr>` : ''}
+    <tr><td>Tables found</td><td>${health.tables.length ? health.tables.join(', ') : '(none)'}</td></tr>
+    ${health.missing.length ? `<tr><td>Missing tables</td><td class="warn">⚠️ ${health.missing.join(', ')} — run schema.sql in phpMyAdmin</td></tr>` : ''}
+    ${health.missing.length === 0 && health.connected ? `<tr><td>Schema</td><td class="ok">✅ All required tables present</td></tr>` : ''}
+  </table>
+
+  <h2>Node</h2>
+  <table>
+    <tr><td>Node version</td><td>${process.version}</td></tr>
+    <tr><td>Uptime</td><td>${Math.round(process.uptime())}s</td></tr>
+    <tr><td>Memory</td><td>${Math.round(process.memoryUsage().rss/1024/1024)}MB RSS</td></tr>
+  </table>
+
+  <p style="margin-top:24px;font-size:12px;color:#b0afa8;">⚠️ Remove or protect this route before going public.</p>
+  </body></html>`)
+})
 
 // Public
 router.get('/',       home.index)

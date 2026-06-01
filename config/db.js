@@ -1,46 +1,79 @@
 const mysql = require('mysql2/promise')
 require('dotenv').config()
 
-console.log('========== DB DEBUG ==========')
-console.log('DB_HOST:', process.env.DB_HOST)
-console.log('DB_USER:', process.env.DB_USER)
-console.log('DB_NAME:', process.env.DB_NAME)
-console.log('DB_PASS exists:', !!process.env.DB_PASS)
-console.log('==============================')
+// ── Startup diagnostics ───────────────────────────────────────────────────────
+console.log('\n========== DB CONFIG ==========')
+console.log('DB_HOST :', process.env.DB_HOST  || '(not set)')
+console.log('DB_USER :', process.env.DB_USER  || '(not set)')
+console.log('DB_NAME :', process.env.DB_NAME  || '(not set)')
+console.log('DB_PASS :', process.env.DB_PASS  ? `set (${process.env.DB_PASS.length} chars)` : '(not set)')
+console.log('================================\n')
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
+  host:               process.env.DB_HOST,
+  user:               process.env.DB_USER,
+  password:           process.env.DB_PASS,
+  database:           process.env.DB_NAME,
   waitForConnections: true,
-  connectionLimit: 10,
-  charset: 'utf8mb4'
+  connectionLimit:    10,
+  charset:            'utf8mb4'
 })
 
-// Test connection on startup
-;(async () => {
+// ── Connection test + table check on startup ──────────────────────────────────
+async function runStartupCheck() {
+  let conn
   try {
-    const conn = await pool.getConnection()
+    conn = await pool.getConnection()
+    console.log('✅ DB connected successfully\n')
 
-    console.log('✅ DATABASE CONNECTED')
+    const [timeRows] = await conn.query('SELECT NOW() as t')
+    console.log('   Server time :', timeRows[0].t)
 
-    const [rows] = await conn.query('SELECT NOW() as server_time')
-    console.log('Server Time:', rows[0].server_time)
+    // Check required tables
+    const [tableRows] = await conn.query('SHOW TABLES')
+    const tables = tableRows.map(r => Object.values(r)[0])
+    console.log('   Tables found:', tables.join(', ') || '(none)')
 
-    conn.release()
+    for (const tbl of ['ms_accounts', 'ms_pages']) {
+      if (tables.includes(tbl)) {
+        const [cols] = await conn.query(`DESCRIBE ${tbl}`)
+        console.log(`   ${tbl}: ${cols.map(c => c.Field).join(', ')}`)
+      } else {
+        console.warn(`   ⚠️  MISSING TABLE: ${tbl} — run schema.sql in phpMyAdmin`)
+      }
+    }
+    console.log('')
   } catch (err) {
-    console.error('❌ DATABASE CONNECTION FAILED')
-    console.error('Code:', err.code)
-    console.error('Message:', err.message)
-    console.error(err)
+    console.error('❌ DB CONNECTION FAILED')
+    console.error('   Code   :', err.code)
+    console.error('   Message:', err.message)
+    if (err.code === 'ER_ACCESS_DENIED_ERROR') {
+      console.error('   → Wrong username or password in .env')
+    } else if (err.code === 'ER_BAD_DB_ERROR') {
+      console.error('   → Database name does not exist')
+    } else if (err.code === 'ECONNREFUSED') {
+      console.error('   → DB_HOST is unreachable — check DB_HOST value')
+    } else if (err.code === 'ENOTFOUND') {
+      console.error('   → DB_HOST hostname cannot be resolved')
+    }
+    console.error('')
+  } finally {
+    if (conn) conn.release()
   }
-})()
+}
 
+runStartupCheck()
+
+// ── DB helper ─────────────────────────────────────────────────────────────────
 const db = {
   async query(sql, params = []) {
-    const [rows] = await pool.execute(sql, params)
-    return rows
+    try {
+      const [rows] = await pool.execute(sql, params)
+      return rows
+    } catch (err) {
+      console.error('[DB query error]', err.code, err.message, '| SQL:', sql)
+      throw err
+    }
   },
 
   async first(sql, params = []) {
@@ -49,13 +82,40 @@ const db = {
   },
 
   async execute(sql, params = []) {
-    const [result] = await pool.execute(sql, params)
-    return result
+    try {
+      const [result] = await pool.execute(sql, params)
+      return result
+    } catch (err) {
+      console.error('[DB execute error]', err.code, err.message, '| SQL:', sql)
+      throw err
+    }
   },
 
   async lastId(sql, params = []) {
     const result = await this.execute(sql, params)
     return result.insertId
+  },
+
+  // Expose pool for health check route
+  async healthCheck() {
+    const result = { connected: false, tables: [], missing: [], error: null }
+    let conn
+    try {
+      conn = await pool.getConnection()
+      result.connected = true
+      const [timeRows] = await conn.query('SELECT NOW() as t')
+      result.serverTime = timeRows[0].t
+      const [tableRows] = await conn.query('SHOW TABLES')
+      result.tables = tableRows.map(r => Object.values(r)[0])
+      for (const tbl of ['ms_accounts', 'ms_pages']) {
+        if (!result.tables.includes(tbl)) result.missing.push(tbl)
+      }
+    } catch (err) {
+      result.error = { code: err.code, message: err.message }
+    } finally {
+      if (conn) conn.release()
+    }
+    return result
   }
 }
 
