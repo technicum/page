@@ -1,0 +1,27 @@
+{
+  "name": "Minimal",
+  "slug": "minimal",
+  "author": "PageZaper",
+  "version": "1.0",
+  "description": "Clean white space, elegant serif typography. Works great for any business type.",
+  "tags": [
+    "light",
+    "minimal",
+    "serif",
+    "clean"
+  ],
+  "for": [
+    "all"
+  ],
+  "colors": [
+    "ink",
+    "blue",
+    "green",
+    "red",
+    "purple",
+    "amber",
+    "cyan",
+    "pink"
+  ],
+  "order": 1
+}

@@ -1,0 +1,11 @@
+{
+  "name": "My Theme",
+  "slug": "my-theme",
+  "author": "Your Name",
+  "version": "1.0",
+  "description": "A short description of your theme.",
+  "tags": ["light", "minimal"],
+  "for": ["all"],
+  "colors": ["ink", "blue", "green", "red", "purple", "amber"],
+  "order": 99
+}

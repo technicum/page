@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ site.title }}</title>
+</head>
+<body>
+<!-- Theme: sharp — extend from minimal as reference -->
+{% for section in sections %}
+  {% assign f = section.fields %}
+  {% if section.id == 'hero' %}<h1>{{ f.headline }}</h1><p>{{ f.subheading }}</p>{% endif %}
+  {% if section.id == 'about' %}<h2>{{ f.title }}</h2><p>{{ f.text }}</p>{% endif %}
+  {% if section.id == 'contact' %}
+    {% if f.phone %}<a href="tel:{{ f.phone }}">{{ f.phone }}</a>{% endif %}
+    {% if f.whatsapp %}<a href="https://wa.me/{{ f.whatsapp | wa }}">WhatsApp</a>{% endif %}
+  {% endif %}
+  {% if section.id == 'links' %}
+    {% for link in f.items %}<a href="{{ link.url }}">{{ link.emoji }} {{ link.name }}</a>{% endfor %}
+  {% endif %}
+{% endfor %}
+<footer>Powered by <a href="{{ app_url }}">{{ app_name }}</a></footer>
+</body>
+</html>

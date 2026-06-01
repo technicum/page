@@ -1,0 +1,77 @@
+{%- comment -%}
+PAGEZAPER THEME STARTER
+Copy this folder, rename it, edit theme.json and build here.
+
+VARIABLES:
+  site.title          — site name
+  site.subdomain      — subdomain
+  settings.accent_color — hex color based on user's theme choice
+  settings.site_type  — business / freelancer / linktree / blog / product
+  city                — city from settings
+  sections            — array of sections
+  app_name, app_url   — platform info
+
+SECTION IDs: hero, about, services, skills, contact, links
+
+LIQUID FILTERS:
+  {{ f.phone | wa }}  — strips non-digits for WhatsApp URL
+  {{ colorSlug | hex }} — converts color slug to hex
+{%- endcomment -%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ site.title }}</title>
+<style>
+  :root { --accent: {{ settings.accent_color }}; }
+  body { font-family: sans-serif; }
+</style>
+</head>
+<body>
+
+{% for section in sections %}
+  {% assign f = section.fields %}
+
+  {% if section.id == 'hero' %}
+    <section>
+      <h1>{{ f.headline | default: site.title }}</h1>
+      <p>{{ f.subheading }}</p>
+      {% if f.btn_text != blank %}<a href="#contact">{{ f.btn_text }}</a>{% endif %}
+    </section>
+
+  {% elsif section.id == 'about' %}
+    <section id="about">
+      <h2>{{ f.title }}</h2>
+      <p>{{ f.text }}</p>
+    </section>
+
+  {% elsif section.id == 'services' or section.id == 'skills' %}
+    <section id="{{ section.id }}">
+      <h2>{{ f.title }}</h2>
+      {% for item in f.items %}
+        <div>{{ item.emoji }} <strong>{{ item.name }}</strong> — {{ item.desc }}</div>
+      {% endfor %}
+    </section>
+
+  {% elsif section.id == 'contact' %}
+    <section id="contact">
+      <h2>{{ f.title | default: 'Contact' }}</h2>
+      {% if f.phone != blank %}<a href="tel:{{ f.phone }}">{{ f.phone }}</a>{% endif %}
+      {% if f.whatsapp != blank %}<a href="https://wa.me/{{ f.whatsapp | wa }}">WhatsApp</a>{% endif %}
+      {% if f.address != blank %}<p>{{ f.address }}</p>{% endif %}
+    </section>
+
+  {% elsif section.id == 'links' %}
+    <section>
+      {% for link in f.items %}
+        <a href="{{ link.url | default: '#' }}" target="_blank">{{ link.emoji }} {{ link.name }}</a>
+      {% endfor %}
+    </section>
+
+  {% endif %}
+{% endfor %}
+
+<footer>Powered by <a href="{{ app_url }}">{{ app_name }}</a></footer>
+</body>
+</html>

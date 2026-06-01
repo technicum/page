@@ -1,0 +1,28 @@
+{
+  "name": "Modern",
+  "slug": "modern",
+  "author": "PageZaper",
+  "version": "1.0",
+  "description": "Split-layout hero, colorful accents, card-based sections. Great for tech and services.",
+  "tags": [
+    "light",
+    "modern",
+    "cards",
+    "colorful"
+  ],
+  "for": [
+    "business",
+    "product",
+    "freelancer"
+  ],
+  "colors": [
+    "blue",
+    "green",
+    "red",
+    "purple",
+    "amber",
+    "cyan",
+    "pink"
+  ],
+  "order": 3
+}

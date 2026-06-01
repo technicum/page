@@ -1,0 +1,26 @@
+{
+  "name": "Bold",
+  "slug": "bold",
+  "author": "PageZaper",
+  "version": "1.0",
+  "description": "Dark background, large typography, commanding presence. Stand out from the crowd.",
+  "tags": [
+    "dark",
+    "bold",
+    "high-contrast"
+  ],
+  "for": [
+    "all"
+  ],
+  "colors": [
+    "ink",
+    "blue",
+    "green",
+    "red",
+    "purple",
+    "amber",
+    "cyan",
+    "pink"
+  ],
+  "order": 2
+}

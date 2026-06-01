@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ site.title }}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c:{{ settings.accent_color }};--c15:{{ settings.accent_color }}26;}
+body{font-family:'DM Sans',sans-serif;color:#1a1a18;background:#fff;line-height:1.6;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid rgba(0,0,0,0.08);position:sticky;top:0;background:#fff;z-index:10;}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--c);text-decoration:none;}
+.nav-links a{font-size:14px;color:#6b6b66;text-decoration:none;margin-left:20px;}
+.hero{padding:88px 40px;text-align:center;max-width:800px;margin:0 auto;}
+.hero-tag{display:inline-block;font-size:12px;background:#f8f7f4;color:#6b6b66;padding:4px 14px;border-radius:20px;margin-bottom:20px;border:1px solid rgba(0,0,0,0.08);}
+.hero-title{font-family:'DM Serif Display',serif;font-size:clamp(32px,5vw,56px);font-weight:400;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px;}
+.hero-sub{font-size:17px;color:#6b6b66;max-width:480px;margin:0 auto 32px;font-weight:300;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-p{padding:13px 28px;background:var(--c);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;text-decoration:none;}
+.btn-o{padding:13px 28px;background:transparent;color:var(--c);border:1.5px solid var(--c);border-radius:8px;font-size:15px;font-weight:500;text-decoration:none;}
+.section{padding:72px 40px;max-width:860px;margin:0 auto;}
+.section-alt{background:#f8f7f4;}
+.section-alt .section{max-width:100%;margin:0;padding:72px 40px;}
+.section-label{font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#b0afa8;margin-bottom:8px;}
+.section-title{font-family:'DM Serif Display',serif;font-size:clamp(24px,3vw,36px);font-weight:400;letter-spacing:-0.5px;color:var(--c);margin-bottom:16px;}
+.section-text{font-size:16px;color:#6b6b66;max-width:560px;line-height:1.8;}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:32px;}
+.card{padding:24px 20px;border-radius:12px;border:1px solid rgba(0,0,0,0.08);background:#fff;}
+.card-emoji{font-size:26px;margin-bottom:12px;}
+.card-name{font-size:15px;font-weight:500;margin-bottom:6px;}
+.card-desc{font-size:13px;color:#6b6b66;}
+.contact-wrap{padding:72px 40px;text-align:center;background:var(--c15);}
+.contact-items{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:24px;}
+.contact-item{display:flex;align-items:center;gap:8px;padding:12px 20px;border-radius:10px;border:1px solid var(--c);color:var(--c);text-decoration:none;font-size:14px;font-weight:500;opacity:0.8;}
+.links-wrap{max-width:440px;margin:0 auto;padding:64px 24px;}
+.link-item{display:flex;align-items:center;justify-content:center;padding:16px 24px;border-radius:12px;border:1.5px solid rgba(0,0,0,0.1);font-size:15px;font-weight:500;text-decoration:none;color:#1a1a18;margin-bottom:12px;transition:all 0.2s;}
+.link-item:hover{border-color:var(--c);color:var(--c);}
+footer{padding:28px 40px;text-align:center;font-size:13px;color:#b0afa8;border-top:1px solid rgba(0,0,0,0.06);}
+footer a{color:var(--c);text-decoration:none;}
+@media(max-width:600px){nav,.hero,.section,.section-alt .section,.contact-wrap,.links-wrap{padding-left:20px;padding-right:20px;}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="#">{{ site.title }}</a>
+  <div class="nav-links">
+    {% for section in sections %}
+      {% unless section.id == 'hero' or section.id == 'links' %}
+        <a href="#{{ section.id }}">{{ section.label }}</a>
+      {% endunless %}
+    {% endfor %}
+  </div>
+</nav>
+
+{% for section in sections %}
+  {% assign f = section.fields %}
+
+  {% if section.id == 'hero' %}
+  <div class="hero">
+    <div class="hero-tag">{{ site_type }}{% if city %} · {{ city }}{% endif %}</div>
+    <h1 class="hero-title">{{ f.headline | default: site.title }}</h1>
+    <p class="hero-sub">{{ f.subheading }}</p>
+    <div class="hero-btns">
+      {% if f.btn_text != '' and f.btn_text != nil %}
+        <a class="btn-p" href="#contact">{{ f.btn_text }}</a>
+      {% endif %}
+      {% if f.btn2_text != '' and f.btn2_text != nil %}
+        <a class="btn-o" href="#about">{{ f.btn2_text }}</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% elsif section.id == 'about' %}
+  <div class="section" id="about">
+    <div class="section-label">About</div>
+    <div class="section-title">{{ f.title }}</div>
+    <p class="section-text">{{ f.text }}</p>
+  </div>
+
+  {% elsif section.id == 'services' or section.id == 'skills' %}
+  <div class="section-alt" id="{{ section.id }}">
+    <div class="section">
+      <div class="section-label">{{ section.label }}</div>
+      <div class="section-title">{{ f.title }}</div>
+      <div class="cards-grid">
+        {% for item in f.items %}
+        <div class="card">
+          <div class="card-emoji">{{ item.emoji }}</div>
+          <div class="card-name">{{ item.name }}</div>
+          <div class="card-desc">{{ item.desc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'contact' %}
+  <div class="contact-wrap" id="contact">
+    <div class="section-label">Contact</div>
+    <div class="section-title">{{ f.title | default: 'Get in Touch' }}</div>
+    <div class="contact-items">
+      {% if f.phone != '' and f.phone != nil %}
+        <a class="contact-item" href="tel:{{ f.phone }}">📞 {{ f.phone }}</a>
+      {% endif %}
+      {% if f.whatsapp != '' and f.whatsapp != nil %}
+        <a class="contact-item" href="https://wa.me/{{ f.whatsapp | wa }}">💬 WhatsApp</a>
+      {% endif %}
+      {% if f.address != '' and f.address != nil %}
+        <span class="contact-item">📍 {{ f.address }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% elsif section.id == 'links' %}
+  <div class="links-wrap">
+    {% for link in f.items %}
+      <a class="link-item" href="{{ link.url | default: '#' }}" target="_blank">
+        {{ link.emoji }} {{ link.name }}
+      </a>
+    {% endfor %}
+  </div>
+
+  {% endif %}
+{% endfor %}
+
+<footer>Powered by <a href="{{ app_url }}">{{ app_name }}</a></footer>
+</body>
+</html>
