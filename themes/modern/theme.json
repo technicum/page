@@ -1,28 +1,161 @@
 {
   "name": "Modern",
   "slug": "modern",
-  "author": "PageZaper",
-  "version": "1.0",
+  "author": "PageZapper",
+  "version": "2.0",
   "description": "Split-layout hero, colorful accents, card-based sections. Great for tech and services.",
-  "tags": [
-    "light",
-    "modern",
-    "cards",
-    "colorful"
-  ],
-  "for": [
-    "business",
-    "product",
-    "freelancer"
-  ],
-  "colors": [
-    "blue",
-    "green",
-    "red",
-    "purple",
-    "amber",
-    "cyan",
-    "pink"
-  ],
-  "order": 3
+  "tags": ["light", "modern", "cards", "colorful"],
+  "for": ["business", "product", "freelancer"],
+  "order": 3,
+
+  "settings": {
+    "colors": [
+      { "id": "blue",   "label": "Blue",   "hex": "#2563eb" },
+      { "id": "green",  "label": "Green",  "hex": "#16a34a" },
+      { "id": "red",    "label": "Red",    "hex": "#dc2626" },
+      { "id": "purple", "label": "Purple", "hex": "#7c3aed" },
+      { "id": "amber",  "label": "Amber",  "hex": "#d97706" },
+      { "id": "cyan",   "label": "Cyan",   "hex": "#0891b2" },
+      { "id": "pink",   "label": "Pink",   "hex": "#be185d" }
+    ],
+    "fonts": [
+      { "id": "sans",  "label": "DM Sans" },
+      { "id": "serif", "label": "DM Serif" },
+      { "id": "mono",  "label": "Monospace" }
+    ]
+  },
+
+  "sections": [
+    {
+      "id": "hero",
+      "label": "Hero",
+      "emoji": "🌟",
+      "description": "Split-layout hero with headline and visual side.",
+      "fields": [
+        { "id": "headline",   "label": "Headline",         "type": "text",     "default": "Build something great" },
+        { "id": "subheading", "label": "Subheading",       "type": "textarea", "default": "A modern business serving clients with excellence." },
+        { "id": "btn_text",   "label": "Primary Button",   "type": "text",     "default": "Get Started" },
+        { "id": "btn_link",   "label": "Primary Link",     "type": "url",      "default": "#contact" },
+        { "id": "btn2_text",  "label": "Secondary Button", "type": "text",     "default": "See Work" },
+        { "id": "btn2_link",  "label": "Secondary Link",   "type": "url",      "default": "#portfolio" }
+      ]
+    },
+    {
+      "id": "about",
+      "label": "About",
+      "emoji": "ℹ️",
+      "description": "Tell visitors who you are.",
+      "fields": [
+        { "id": "title", "label": "Section Title", "type": "text",     "default": "About Us" },
+        { "id": "text",  "label": "Description",   "type": "textarea", "default": "Write about your business, team, or story here." }
+      ]
+    },
+    {
+      "id": "services",
+      "label": "Services",
+      "emoji": "⚡",
+      "description": "Card-based services grid.",
+      "fields": [
+        { "id": "title", "label": "Section Title", "type": "text", "default": "What We Offer" },
+        {
+          "id": "items",
+          "label": "Service Cards",
+          "type": "list",
+          "item_fields": [
+            { "id": "emoji", "label": "Icon (emoji)", "type": "text",     "default": "✨" },
+            { "id": "name",  "label": "Name",         "type": "text",     "default": "Service Name" },
+            { "id": "desc",  "label": "Description",  "type": "textarea", "default": "What this service includes." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "portfolio",
+      "label": "Portfolio",
+      "emoji": "🖼️",
+      "description": "Show off your past work.",
+      "fields": [
+        { "id": "title", "label": "Section Title", "type": "text", "default": "Our Work" },
+        {
+          "id": "items",
+          "label": "Projects",
+          "type": "list",
+          "item_fields": [
+            { "id": "name",  "label": "Project Name", "type": "text",     "default": "Project Title" },
+            { "id": "desc",  "label": "Description",  "type": "textarea", "default": "What you did." },
+            { "id": "link",  "label": "Project URL",  "type": "url",      "default": "" },
+            { "id": "emoji", "label": "Icon (emoji)", "type": "text",     "default": "🔗" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "testimonials",
+      "label": "Testimonials",
+      "emoji": "💬",
+      "description": "Social proof from happy clients.",
+      "fields": [
+        { "id": "title", "label": "Section Title", "type": "text", "default": "What Clients Say" },
+        {
+          "id": "items",
+          "label": "Reviews",
+          "type": "list",
+          "item_fields": [
+            { "id": "name", "label": "Client Name",  "type": "text",     "default": "Jane Doe" },
+            { "id": "role", "label": "Role/Company", "type": "text",     "default": "CEO, Acme" },
+            { "id": "text", "label": "Quote",        "type": "textarea", "default": "This service changed our business!" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "emoji": "❓",
+      "description": "Answer common questions.",
+      "fields": [
+        { "id": "title", "label": "Section Title", "type": "text", "default": "Frequently Asked Questions" },
+        {
+          "id": "items",
+          "label": "Questions",
+          "type": "list",
+          "item_fields": [
+            { "id": "question", "label": "Question", "type": "text",     "default": "How does it work?" },
+            { "id": "answer",   "label": "Answer",   "type": "textarea", "default": "Here's how it works..." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links",
+      "emoji": "🔗",
+      "description": "A list of links — great for link-in-bio pages.",
+      "fields": [
+        {
+          "id": "items",
+          "label": "Links",
+          "type": "list",
+          "item_fields": [
+            { "id": "emoji", "label": "Icon (emoji)", "type": "text", "default": "🌐" },
+            { "id": "name",  "label": "Label",        "type": "text", "default": "My Website" },
+            { "id": "url",   "label": "URL",          "type": "url",  "default": "https://" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "emoji": "📞",
+      "description": "Let visitors reach you.",
+      "fields": [
+        { "id": "title",    "label": "Section Title", "type": "text",     "default": "Get in Touch" },
+        { "id": "phone",    "label": "Phone",         "type": "tel",      "default": "" },
+        { "id": "whatsapp", "label": "WhatsApp",      "type": "tel",      "default": "" },
+        { "id": "email",    "label": "Email",         "type": "email",    "default": "" },
+        { "id": "address",  "label": "Address",       "type": "textarea", "default": "" }
+      ]
+    }
+  ]
 }

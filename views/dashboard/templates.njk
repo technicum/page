@@ -1,1 +1,143 @@
-{% extends "layouts/base.njk" %}{% block body %}<h1 style="padding:40px">Templates — coming soon</h1>{% endblock %}
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{font-family:"DM Sans",sans-serif;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:22px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;}
+.sidebar-logo em{font-style:italic;color:var(--blue);}
+.sidebar-nav{padding:16px 12px;flex:1;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;margin-bottom:2px;}
+.nav-item:hover{background:var(--off);color:var(--ink);}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:10px;padding:8px 12px;}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;}
+.user-name{font-size:13px;font-weight:500;}
+.user-plan{font-size:11px;color:var(--ink-faint);}
+.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:6px 12px;margin-top:4px;border-radius:var(--radius);}
+.logout-link:hover{color:var(--red);}
+.content{flex:1;padding:36px 40px;min-width:0;}
+.page-header{margin-bottom:8px;}
+.page-title{font-family:"DM Serif Display",serif;font-size:28px;font-weight:400;letter-spacing:-0.5px;}
+.page-sub{font-size:14px;color:var(--ink-muted);margin-top:4px;margin-bottom:32px;}
+.themes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.theme-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;}
+.theme-card:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(37,99,235,0.12);}
+.theme-card.selected{border-color:var(--blue);}
+.theme-preview{height:180px;background:var(--off);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.theme-preview iframe{width:200%;height:200%;transform:scale(0.5);transform-origin:top left;pointer-events:none;border:none;background:#fff;}
+.theme-preview-placeholder{font-size:48px;opacity:0.3;}
+.theme-info{padding:16px 18px;}
+.theme-name{font-size:15px;font-weight:500;margin-bottom:4px;}
+.theme-desc{font-size:13px;color:var(--ink-muted);line-height:1.5;margin-bottom:12px;}
+.theme-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.theme-tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--off);color:var(--ink-muted);}
+.theme-select-btn{display:none;}
+.selected-badge{position:absolute;top:10px;right:10px;background:var(--blue);color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
+.action-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;z-index:100;}
+.action-bar-left{font-size:14px;color:var(--ink-muted);}
+.action-bar-left strong{color:var(--ink);}
+.btn-continue{padding:12px 28px;background:var(--ink);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.btn-continue:hover{opacity:0.85;}
+.btn-skip{padding:12px 20px;background:transparent;color:var(--ink-muted);border:1px solid var(--border-md);border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:"DM Sans",sans-serif;margin-right:8px;}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="layout">
+  <aside class="sidebar">
+    <a class="sidebar-logo" href="/">page<em>zapper</em></a>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
+      <a class="nav-item" href="/dashboard/wizard">✨ New Site</a>
+      <a class="nav-item" href="/dashboard/settings">⚙️ Settings</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-avatar">{{ user.name[0] | upper }}</div>
+        <div><div class="user-name">{{ user.name }}</div><div class="user-plan">{{ user.plan | capitalize }} plan</div></div>
+      </div>
+      <a class="logout-link" href="/logout">← Logout</a>
+    </div>
+  </aside>
+
+  <main class="content" style="padding-bottom:90px;">
+    <div class="page-header">
+      <div class="page-title">Choose a theme</div>
+      <div class="page-sub">Pick a starting point for <strong>{{ site.title }}</strong> — you can change it anytime.</div>
+    </div>
+
+    <div class="themes-grid" id="themesGrid">
+      {% for slug, theme in allThemes %}
+      <div class="theme-card {% if settings.template_id == slug %}selected{% endif %}"
+           data-slug="{{ slug }}"
+           onclick="selectTheme('{{ slug }}', this)">
+        {% if settings.template_id == slug %}
+        <div class="selected-badge">✓ Selected</div>
+        {% endif %}
+        <div class="theme-preview">
+          {% if theme.hasPreview %}
+            <img src="{{ theme.previewUrl }}" alt="{{ theme.name }}" style="width:100%;height:100%;object-fit:cover;">
+          {% else %}
+            <iframe src="/template-preview?id={{ slug }}" loading="lazy" scrolling="no" title="{{ theme.name }} preview"></iframe>
+          {% endif %}
+        </div>
+        <div class="theme-info">
+          <div class="theme-name">{{ theme.name }}</div>
+          <div class="theme-desc">{{ theme.description }}</div>
+          <div class="theme-tags">
+            {% for tag in theme.tags %}<span class="theme-tag">{{ tag }}</span>{% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </main>
+</div>
+
+<div class="action-bar">
+  <div class="action-bar-left">Theme: <strong id="selectedLabel">{{ settings.template_id or 'minimal' }}</strong></div>
+  <div>
+    <a href="/dashboard" class="btn-skip" style="text-decoration:none;">Skip for now</a>
+    <button class="btn-continue" onclick="applyTheme()">Use this theme →</button>
+  </div>
+</div>
+
+<script>
+let selectedSlug = '{{ settings.template_id or "minimal" }}'
+const siteId     = {{ site.id }}
+
+function selectTheme(slug, el) {
+  selectedSlug = slug
+  document.querySelectorAll('.theme-card').forEach(c => {
+    c.classList.remove('selected')
+    const badge = c.querySelector('.selected-badge')
+    if (badge) badge.remove()
+  })
+  el.classList.add('selected')
+  el.insertAdjacentHTML('afterbegin', '<div class="selected-badge">✓ Selected</div>')
+  document.getElementById('selectedLabel').textContent = slug
+}
+
+async function applyTheme() {
+  const btn = document.querySelector('.btn-continue')
+  btn.textContent = 'Applying...'
+  btn.disabled = true
+
+  const res  = await fetch('/dashboard/site/set-template', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ site_id: siteId, template_id: selectedSlug })
+  })
+  const data = await res.json()
+
+  if (data.ok) {
+    window.location.href = `/dashboard/site/builder?id=${siteId}`
+  } else {
+    alert('Error applying theme: ' + (data.error || 'Unknown'))
+    btn.textContent = 'Use this theme →'
+    btn.disabled    = false
+  }
+}
+</script>
+{% endblock %}

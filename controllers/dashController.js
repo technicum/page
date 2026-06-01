@@ -1,5 +1,5 @@
-const { db }         = require('../config/db')
-const themeManager   = require('../config/themeManager')
+const { db }          = require('../config/db')
+const themeManager    = require('../config/themeManager')
 
 exports.index = async (req, res) => {
   const user  = req.session.user
@@ -12,15 +12,15 @@ exports.wizard = (req, res) => {
 }
 
 exports.templates = async (req, res) => {
-  const user     = req.session.user
-  const siteId   = parseInt(req.query.id) || 0
-  const fromNew  = !!req.query.new
+  const user    = req.session.user
+  const siteId  = parseInt(req.query.id) || 0
+  const fromNew = !!req.query.new
 
   const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.redirect('/dashboard')
 
-  const settings   = JSON.parse(site.settings || '{}')
-  const allThemes  = themeManager.loadAll()
+  const settings  = JSON.parse(site.settings || '{}')
+  const allThemes = themeManager.loadAll()
 
   res.render('dashboard/templates.njk', { title: 'Choose Template', user, site, settings, allThemes, fromNew })
 }
@@ -32,8 +32,23 @@ exports.builder = async (req, res) => {
   const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.redirect('/dashboard')
 
-  const settings = JSON.parse(site.settings || '{}')
-  res.render('dashboard/builder.njk', { title: 'Builder', user, site, settings })
+  const settings     = JSON.parse(site.settings || '{}')
+  const themeSlug    = settings.template_id || site.template_id || 'minimal'
+  const themeData    = themeManager.loadTheme(themeSlug) || themeManager.loadTheme('minimal')
+  // Pass the full theme schema so the builder UI can be driven by theme.json
+  const themeSections = themeData ? themeData.sections : []
+  const themeColors   = themeData ? (themeData.settings && themeData.settings.colors) || [] : []
+
+  res.render('dashboard/builder.njk', {
+    title: 'Builder',
+    user,
+    site,
+    settings,
+    themeSections,
+    themeColors,
+    themeSlug,
+    baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
+  })
 }
 
 exports.settings = async (req, res) => {
