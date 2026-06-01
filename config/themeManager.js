@@ -114,7 +114,7 @@ function getSection(slug, sectionId) {
 }
 
 async function render(slug, site, settings) {
-  const theme = loadTheme(slug) || loadTheme('minimal')
+  const theme = loadTheme(resolveSlug(slug)) || loadTheme('minimal')
   if (!theme) throw new Error('No themes found')
 
   const tplFile = path.join(theme.path, 'index.liquid')
