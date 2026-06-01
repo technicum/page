@@ -31,8 +31,9 @@ router.post('/dashboard/site/create',        requireAuth, site.store)
 router.get ('/dashboard/site/templates',     requireAuth, dash.templates)
 router.post('/dashboard/site/set-template',  requireAuth, site.setTemplate)
 router.get ('/dashboard/site/builder',       requireAuth, dash.builder)
-router.post('/dashboard/site/builder-save',  requireAuth, site.builderSave)
-router.post('/dashboard/site/delete',        requireAuth, site.delete)
+router.post('/dashboard/site/builder-save',    requireAuth, site.builderSave)
+router.post('/dashboard/site/builder-preview', requireAuth, site.builderPreview)
+router.post('/dashboard/site/delete',          requireAuth, site.delete)
 
 // AI
 router.post('/dashboard/ai-suggest',  requireAuth, site.aiSuggest)

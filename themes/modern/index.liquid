@@ -2,23 +2,286 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ site.title }}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c:{{ settings.accent_color }};--c10:{{ settings.accent_color }}1a;--c20:{{ settings.accent_color }}33;}
+body{font-family:'DM Sans',sans-serif;color:#111827;background:#fff;line-height:1.6;}
+a{text-decoration:none;color:inherit;}
+
+/* Nav */
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 48px;border-bottom:1px solid #f3f4f6;position:sticky;top:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);z-index:100;}
+.nav-logo{font-weight:700;font-size:18px;color:#111827;display:flex;align-items:center;gap:8px;}
+.nav-logo-dot{width:8px;height:8px;border-radius:50%;background:var(--c);}
+.nav-links a{font-size:14px;color:#6b7280;margin-left:28px;font-weight:500;transition:color 0.2s;}
+.nav-links a:hover{color:#111827;}
+.nav-cta{padding:8px 18px;background:var(--c);color:#fff;border-radius:6px;font-size:14px;font-weight:600;margin-left:20px;}
+.nav-cta:hover{opacity:0.9;}
+
+/* Hero — split layout */
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;padding:80px 48px;max-width:1100px;margin:0 auto;}
+.hero-left{}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--c10);color:var(--c);font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;margin-bottom:20px;}
+.hero-title{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,56px);font-weight:400;line-height:1.1;letter-spacing:-1.5px;margin-bottom:16px;color:#111827;}
+.hero-sub{font-size:17px;color:#6b7280;line-height:1.7;margin-bottom:32px;max-width:440px;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-p{padding:13px 28px;background:var(--c);color:#fff;border-radius:8px;font-size:15px;font-weight:600;}
+.btn-p:hover{opacity:0.9;}
+.btn-o{padding:13px 28px;border:2px solid #e5e7eb;color:#374151;border-radius:8px;font-size:15px;font-weight:600;}
+.btn-o:hover{border-color:var(--c);color:var(--c);}
+.hero-right{background:var(--c10);border-radius:16px;padding:40px;min-height:300px;display:flex;align-items:center;justify-content:center;}
+.hero-visual{text-align:center;}
+.hero-visual-icon{font-size:72px;display:block;margin-bottom:16px;}
+.hero-visual-text{font-size:15px;color:var(--c);font-weight:600;}
+
+/* Section wrapper */
+.s-wrap{padding:80px 48px;}
+.s-inner{max-width:1000px;margin:0 auto;}
+.s-wrap.alt{background:#f9fafb;}
+.s-label{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--c);margin-bottom:10px;}
+.s-title{font-family:'DM Serif Display',serif;font-size:clamp(24px,3vw,40px);font-weight:400;letter-spacing:-0.5px;color:#111827;margin-bottom:14px;}
+.s-text{font-size:16px;color:#6b7280;max-width:540px;line-height:1.8;}
+
+/* Cards */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:40px;}
+.card{background:#fff;border:1px solid #f3f4f6;border-radius:12px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.04);transition:box-shadow 0.2s,transform 0.2s;}
+.card:hover{box-shadow:0 8px 24px rgba(0,0,0,0.08);transform:translateY(-2px);}
+.card-icon{width:44px;height:44px;background:var(--c10);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;}
+.card-title{font-size:15px;font-weight:600;margin-bottom:8px;}
+.card-desc{font-size:13px;color:#6b7280;line-height:1.7;}
+
+/* Portfolio */
+.portfolio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-top:40px;}
+.pf-item{border:1px solid #e5e7eb;border-radius:12px;padding:24px;transition:border-color 0.2s;}
+.pf-item:hover{border-color:var(--c);}
+.pf-emoji{font-size:28px;margin-bottom:12px;}
+.pf-name{font-size:15px;font-weight:600;margin-bottom:8px;}
+.pf-desc{font-size:13px;color:#6b7280;line-height:1.7;margin-bottom:14px;}
+.pf-link{font-size:13px;color:var(--c);font-weight:600;}
+.pf-link:hover{text-decoration:underline;}
+
+/* Testimonials */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-top:40px;}
+.testi-item{background:#fff;border:1px solid #f3f4f6;border-radius:12px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+.testi-stars{color:#f59e0b;font-size:14px;margin-bottom:12px;}
+.testi-quote{font-size:14px;color:#374151;line-height:1.8;font-style:italic;margin-bottom:16px;}
+.testi-info{display:flex;align-items:center;gap:10px;}
+.testi-avatar{width:36px;height:36px;border-radius:50%;background:var(--c10);color:var(--c);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.testi-name{font-size:13px;font-weight:600;}
+.testi-role{font-size:12px;color:#9ca3af;}
+
+/* FAQ */
+.faq-list{margin-top:40px;}
+.faq-item{border-bottom:1px solid #f3f4f6;padding:20px 0;}
+.faq-item:first-child{border-top:1px solid #f3f4f6;}
+.faq-q{font-size:16px;font-weight:600;color:#111827;margin-bottom:10px;}
+.faq-a{font-size:14px;color:#6b7280;line-height:1.8;}
+
+/* Links */
+.links-wrap{max-width:480px;margin:0 auto;padding:80px 24px;}
+.link-item{display:flex;align-items:center;justify-content:center;gap:12px;padding:16px 24px;border:2px solid #e5e7eb;border-radius:12px;font-size:15px;font-weight:600;margin-bottom:12px;transition:all 0.2s;color:#111827;}
+.link-item:hover{border-color:var(--c);color:var(--c);background:var(--c10);}
+
+/* Contact */
+.contact-band{background:var(--c);padding:80px 48px;}
+.contact-band-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+.contact-headline{font-family:'DM Serif Display',serif;font-size:clamp(24px,3vw,40px);font-weight:400;color:#fff;margin-bottom:8px;}
+.contact-sub{font-size:15px;color:rgba(255,255,255,0.7);}
+.contact-items{display:flex;flex-direction:column;gap:10px;}
+.contact-item{display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(255,255,255,0.12);border-radius:8px;color:#fff;font-size:14px;font-weight:500;transition:background 0.2s;}
+.contact-item:hover{background:rgba(255,255,255,0.2);}
+
+/* Footer */
+footer{padding:28px 48px;background:#f9fafb;border-top:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;}
+.footer-name{font-size:15px;font-weight:600;}
+.footer-credit{font-size:13px;color:#9ca3af;}
+.footer-credit a{color:var(--c);}
+
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;padding:48px 20px;}
+  .hero-right{display:none;}
+  .contact-band-inner{grid-template-columns:1fr;}
+  nav,.s-wrap,.s-wrap.alt,.links-wrap,footer{padding-left:20px;padding-right:20px;}
+}
+</style>
 </head>
 <body>
-<!-- Theme: modern — extend from minimal as reference -->
+
+<nav>
+  <div class="nav-logo">
+    <span class="nav-logo-dot"></span>
+    {{ site.title }}
+  </div>
+  <div class="nav-links">
+    {% for section in sections %}
+      {% unless section.id == 'hero' or section.id == 'links' %}
+        <a href="#{{ section.id }}">{{ section.fields.title | default: section.id }}</a>
+      {% endunless %}
+    {% endfor %}
+    {% for section in sections %}
+      {% if section.id == 'contact' %}
+        <a class="nav-cta" href="#contact">{{ section.fields.title | default: 'Contact' }}</a>
+      {% endif %}
+    {% endfor %}
+  </div>
+</nav>
+
 {% for section in sections %}
   {% assign f = section.fields %}
-  {% if section.id == 'hero' %}<h1>{{ f.headline }}</h1><p>{{ f.subheading }}</p>{% endif %}
-  {% if section.id == 'about' %}<h2>{{ f.title }}</h2><p>{{ f.text }}</p>{% endif %}
-  {% if section.id == 'contact' %}
-    {% if f.phone %}<a href="tel:{{ f.phone }}">{{ f.phone }}</a>{% endif %}
-    {% if f.whatsapp %}<a href="https://wa.me/{{ f.whatsapp | wa }}">WhatsApp</a>{% endif %}
+
+  {% if section.id == 'hero' %}
+  <div class="hero" id="hero">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span>✦</span>
+        <span>{{ site_type | capitalize }}{% if city %} · {{ city }}{% endif %}</span>
+      </div>
+      <h1 class="hero-title">{{ f.headline | default: site.title }}</h1>
+      <p class="hero-sub">{{ f.subheading }}</p>
+      <div class="hero-btns">
+        {% if f.btn_text != '' and f.btn_text != nil %}
+          <a class="btn-p" href="{{ f.btn_link | default: '#contact' }}">{{ f.btn_text }}</a>
+        {% endif %}
+        {% if f.btn2_text != '' and f.btn2_text != nil %}
+          <a class="btn-o" href="{{ f.btn2_link | default: '#about' }}">{{ f.btn2_text }}</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-visual">
+        <span class="hero-visual-icon">🚀</span>
+        <div class="hero-visual-text">{{ site.title }}</div>
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'about' %}
+  <div class="s-wrap alt" id="about">
+    <div class="s-inner">
+      <div class="s-label">About</div>
+      <div class="s-title">{{ f.title }}</div>
+      <p class="s-text">{{ f.text }}</p>
+    </div>
+  </div>
+
+  {% elsif section.id == 'services' %}
+  <div class="s-wrap" id="services">
+    <div class="s-inner">
+      <div class="s-label">Services</div>
+      <div class="s-title">{{ f.title }}</div>
+      <div class="cards-grid">
+        {% for item in f.items %}
+        <div class="card">
+          <div class="card-icon">{{ item.emoji }}</div>
+          <div class="card-title">{{ item.name }}</div>
+          <div class="card-desc">{{ item.desc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'portfolio' %}
+  <div class="s-wrap alt" id="portfolio">
+    <div class="s-inner">
+      <div class="s-label">Portfolio</div>
+      <div class="s-title">{{ f.title }}</div>
+      <div class="portfolio-grid">
+        {% for item in f.items %}
+        <div class="pf-item">
+          <div class="pf-emoji">{{ item.emoji }}</div>
+          <div class="pf-name">{{ item.name }}</div>
+          <div class="pf-desc">{{ item.desc }}</div>
+          {% if item.link != '' and item.link != nil %}
+            <a class="pf-link" href="{{ item.link }}" target="_blank">View project →</a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'testimonials' %}
+  <div class="s-wrap" id="testimonials">
+    <div class="s-inner">
+      <div class="s-label">Testimonials</div>
+      <div class="s-title">{{ f.title }}</div>
+      <div class="testi-grid">
+        {% for item in f.items %}
+        <div class="testi-item">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-quote">"{{ item.text }}"</p>
+          <div class="testi-info">
+            <div class="testi-avatar">{{ item.name | slice: 0 }}</div>
+            <div>
+              <div class="testi-name">{{ item.name }}</div>
+              <div class="testi-role">{{ item.role }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'faq' %}
+  <div class="s-wrap alt" id="faq">
+    <div class="s-inner">
+      <div class="s-label">FAQ</div>
+      <div class="s-title">{{ f.title }}</div>
+      <div class="faq-list">
+        {% for item in f.items %}
+        <div class="faq-item">
+          <div class="faq-q">{{ item.question }}</div>
+          <div class="faq-a">{{ item.answer }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'links' %}
+  <div class="links-wrap" id="links">
+    {% for item in f.items %}
+    <a class="link-item" href="{{ item.url }}" target="_blank">
+      <span>{{ item.emoji }}</span>
+      <span>{{ item.name }}</span>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% elsif section.id == 'contact' %}
+  <div class="contact-band" id="contact">
+    <div class="contact-band-inner">
+      <div>
+        <div class="contact-headline">{{ f.title | default: "Let's talk" }}</div>
+        <div class="contact-sub">Reach out and we'll get back to you shortly.</div>
+      </div>
+      <div class="contact-items">
+        {% if f.phone != '' and f.phone != nil %}
+          <a class="contact-item" href="tel:{{ f.phone }}">📞 {{ f.phone }}</a>
+        {% endif %}
+        {% if f.whatsapp != '' and f.whatsapp != nil %}
+          <a class="contact-item" href="https://wa.me/{{ f.whatsapp | wa }}" target="_blank">💬 WhatsApp</a>
+        {% endif %}
+        {% if f.email != '' and f.email != nil %}
+          <a class="contact-item" href="mailto:{{ f.email }}">✉️ {{ f.email }}</a>
+        {% endif %}
+        {% if f.address != '' and f.address != nil %}
+          <span class="contact-item">📍 {{ f.address }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
   {% endif %}
-  {% if section.id == 'links' %}
-    {% for link in f.items %}<a href="{{ link.url }}">{{ link.emoji }} {{ link.name }}</a>{% endfor %}
-  {% endif %}
+
 {% endfor %}
-<footer>Powered by <a href="{{ app_url }}">{{ app_name }}</a></footer>
+
+<footer>
+  <div class="footer-name">{{ site.title }}</div>
+  <div class="footer-credit">Powered by <a href="{{ app_url }}">{{ app_name }}</a></div>
+</footer>
 </body>
 </html>

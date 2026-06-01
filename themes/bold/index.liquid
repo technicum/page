@@ -2,23 +2,247 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ site.title }}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c:{{ settings.accent_color }};--c80:{{ settings.accent_color }}cc;}
+body{font-family:'DM Sans',sans-serif;background:#0f0f0d;color:#f0ede6;line-height:1.6;}
+a{color:inherit;text-decoration:none;}
+
+/* Nav */
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 48px;border-bottom:1px solid rgba(255,255,255,0.08);position:sticky;top:0;background:#0f0f0d;z-index:10;}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:22px;color:var(--c);}
+.nav-links a{font-size:14px;color:rgba(240,237,230,0.55);margin-left:28px;transition:color 0.2s;}
+.nav-links a:hover{color:#f0ede6;}
+
+/* Hero */
+.hero{padding:100px 48px 80px;max-width:900px;}
+.hero-eyebrow{font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--c);margin-bottom:20px;}
+.hero-title{font-family:'DM Serif Display',serif;font-size:clamp(40px,6vw,80px);font-weight:400;line-height:1.05;letter-spacing:-2px;margin-bottom:24px;}
+.hero-title em{font-style:italic;color:var(--c);}
+.hero-sub{font-size:18px;color:rgba(240,237,230,0.6);max-width:520px;font-weight:300;margin-bottom:40px;}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+.btn-solid{padding:14px 32px;background:var(--c);color:#fff;border-radius:4px;font-size:15px;font-weight:600;letter-spacing:0.3px;}
+.btn-solid:hover{opacity:0.9;}
+.btn-outline{padding:14px 32px;border:1.5px solid rgba(255,255,255,0.25);color:#f0ede6;border-radius:4px;font-size:15px;}
+.btn-outline:hover{border-color:rgba(255,255,255,0.5);}
+
+/* Sections */
+.section{padding:80px 48px;max-width:900px;margin:0 auto;}
+.section-alt{background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);}
+.section-alt .section{max-width:100%;padding:80px 48px;}
+.section-tag{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--c);margin-bottom:12px;}
+.section-title{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,48px);font-weight:400;letter-spacing:-1px;margin-bottom:20px;}
+.section-text{font-size:16px;color:rgba(240,237,230,0.65);max-width:560px;line-height:1.9;}
+
+/* Cards grid */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1px;margin-top:40px;border:1px solid rgba(255,255,255,0.08);}
+.card{padding:28px 24px;background:#0f0f0d;}
+.card:hover{background:rgba(255,255,255,0.03);}
+.card-emoji{font-size:28px;margin-bottom:14px;}
+.card-name{font-size:15px;font-weight:600;margin-bottom:8px;}
+.card-desc{font-size:13px;color:rgba(240,237,230,0.55);line-height:1.7;}
+
+/* Portfolio */
+.portfolio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:32px;}
+.portfolio-item{border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:24px;transition:border-color 0.2s;}
+.portfolio-item:hover{border-color:var(--c);}
+.portfolio-emoji{font-size:24px;margin-bottom:12px;}
+.portfolio-name{font-size:15px;font-weight:600;margin-bottom:8px;}
+.portfolio-desc{font-size:13px;color:rgba(240,237,230,0.55);margin-bottom:14px;}
+.portfolio-link{font-size:13px;color:var(--c);font-weight:500;}
+
+/* Testimonials */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:32px;}
+.testi-item{border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:24px;}
+.testi-quote{font-size:14px;color:rgba(240,237,230,0.7);line-height:1.8;margin-bottom:16px;font-style:italic;}
+.testi-name{font-size:13px;font-weight:600;}
+.testi-role{font-size:12px;color:rgba(240,237,230,0.4);margin-top:2px;}
+
+/* FAQ */
+.faq-list{margin-top:32px;}
+.faq-item{border-bottom:1px solid rgba(255,255,255,0.08);padding:20px 0;}
+.faq-q{font-size:16px;font-weight:500;margin-bottom:10px;}
+.faq-a{font-size:14px;color:rgba(240,237,230,0.6);line-height:1.8;}
+
+/* Links */
+.links-wrap{max-width:480px;margin:0 auto;padding:80px 24px;}
+.link-item{display:flex;align-items:center;justify-content:center;gap:12px;padding:18px 28px;border:1.5px solid rgba(255,255,255,0.15);border-radius:6px;font-size:15px;font-weight:500;margin-bottom:12px;transition:all 0.2s;}
+.link-item:hover{border-color:var(--c);color:var(--c);}
+.link-emoji{font-size:18px;}
+
+/* Contact */
+.contact-wrap{padding:80px 48px;background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.06);}
+.contact-inner{max-width:900px;margin:0 auto;}
+.contact-title{font-family:'DM Serif Display',serif;font-size:clamp(24px,3vw,40px);font-weight:400;letter-spacing:-0.5px;margin-bottom:8px;}
+.contact-sub{font-size:15px;color:rgba(240,237,230,0.5);margin-bottom:32px;}
+.contact-items{display:flex;flex-wrap:wrap;gap:12px;}
+.contact-item{display:flex;align-items:center;gap:10px;padding:14px 22px;border:1.5px solid rgba(255,255,255,0.15);border-radius:6px;font-size:14px;font-weight:500;transition:border-color 0.2s;}
+.contact-item:hover{border-color:var(--c);}
+
+/* Footer */
+footer{padding:28px 48px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;color:rgba(240,237,230,0.3);}
+footer a{color:var(--c);}
+
+@media(max-width:640px){
+  nav,.hero,.section,.section-alt .section,.contact-wrap,.links-wrap{padding-left:20px;padding-right:20px;}
+  .hero{padding-top:60px;padding-bottom:60px;}
+  .cards{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
-<!-- Theme: bold — extend from minimal as reference -->
+
+<nav>
+  <div class="nav-logo">{{ site.title }}</div>
+  <div class="nav-links">
+    {% for section in sections %}
+      {% unless section.id == 'hero' or section.id == 'links' %}
+        <a href="#{{ section.id }}">{{ section.fields.title | default: section.id }}</a>
+      {% endunless %}
+    {% endfor %}
+  </div>
+</nav>
+
 {% for section in sections %}
   {% assign f = section.fields %}
-  {% if section.id == 'hero' %}<h1>{{ f.headline }}</h1><p>{{ f.subheading }}</p>{% endif %}
-  {% if section.id == 'about' %}<h2>{{ f.title }}</h2><p>{{ f.text }}</p>{% endif %}
-  {% if section.id == 'contact' %}
-    {% if f.phone %}<a href="tel:{{ f.phone }}">{{ f.phone }}</a>{% endif %}
-    {% if f.whatsapp %}<a href="https://wa.me/{{ f.whatsapp | wa }}">WhatsApp</a>{% endif %}
+
+  {% if section.id == 'hero' %}
+  <div class="hero" id="hero">
+    <div class="hero-eyebrow">{{ site_type }}{% if city %} · {{ city }}{% endif %}</div>
+    <h1 class="hero-title">{{ f.headline | default: site.title | replace: ' ', ' <em>' | append: '</em>' }}</h1>
+    <p class="hero-sub">{{ f.subheading }}</p>
+    <div class="hero-btns">
+      {% if f.btn_text != '' and f.btn_text != nil %}
+        <a class="btn-solid" href="{{ f.btn_link | default: '#contact' }}">{{ f.btn_text }}</a>
+      {% endif %}
+      {% if f.btn2_text != '' and f.btn2_text != nil %}
+        <a class="btn-outline" href="{{ f.btn2_link | default: '#about' }}">{{ f.btn2_text }}</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% elsif section.id == 'about' %}
+  <div class="section-alt" id="about">
+    <div class="section">
+      <div class="section-tag">About</div>
+      <div class="section-title">{{ f.title }}</div>
+      <p class="section-text">{{ f.text }}</p>
+    </div>
+  </div>
+
+  {% elsif section.id == 'services' %}
+  <div id="services" style="padding:80px 48px;max-width:100%;">
+    <div style="max-width:900px;margin:0 auto;">
+      <div class="section-tag">Services</div>
+      <div class="section-title">{{ f.title }}</div>
+    </div>
+    <div style="max-width:900px;margin:0 auto;">
+      <div class="cards">
+        {% for item in f.items %}
+        <div class="card">
+          <div class="card-emoji">{{ item.emoji }}</div>
+          <div class="card-name">{{ item.name }}</div>
+          <div class="card-desc">{{ item.desc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'portfolio' %}
+  <div class="section-alt" id="portfolio">
+    <div class="section">
+      <div class="section-tag">Portfolio</div>
+      <div class="section-title">{{ f.title }}</div>
+      <div class="portfolio-grid">
+        {% for item in f.items %}
+        <div class="portfolio-item">
+          <div class="portfolio-emoji">{{ item.emoji }}</div>
+          <div class="portfolio-name">{{ item.name }}</div>
+          <div class="portfolio-desc">{{ item.desc }}</div>
+          {% if item.link != '' and item.link != nil %}
+            <a class="portfolio-link" href="{{ item.link }}" target="_blank">View project →</a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'testimonials' %}
+  <div id="testimonials" style="padding:80px 48px;">
+    <div style="max-width:900px;margin:0 auto;">
+      <div class="section-tag">Testimonials</div>
+      <div class="section-title">{{ f.title }}</div>
+      <div class="testi-grid">
+        {% for item in f.items %}
+        <div class="testi-item">
+          <p class="testi-quote">"{{ item.text }}"</p>
+          <div class="testi-name">{{ item.name }}</div>
+          <div class="testi-role">{{ item.role }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'faq' %}
+  <div class="section-alt" id="faq">
+    <div class="section">
+      <div class="section-tag">FAQ</div>
+      <div class="section-title">{{ f.title }}</div>
+      <div class="faq-list">
+        {% for item in f.items %}
+        <div class="faq-item">
+          <div class="faq-q">{{ item.question }}</div>
+          <div class="faq-a">{{ item.answer }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'links' %}
+  <div class="links-wrap" id="links">
+    {% for item in f.items %}
+    <a class="link-item" href="{{ item.url }}" target="_blank">
+      <span class="link-emoji">{{ item.emoji }}</span>
+      <span>{{ item.name }}</span>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% elsif section.id == 'contact' %}
+  <div class="contact-wrap" id="contact">
+    <div class="contact-inner">
+      <div class="contact-title">{{ f.title | default: 'Get in Touch' }}</div>
+      <div class="contact-sub">We'd love to hear from you.</div>
+      <div class="contact-items">
+        {% if f.phone != '' and f.phone != nil %}
+          <a class="contact-item" href="tel:{{ f.phone }}">📞 {{ f.phone }}</a>
+        {% endif %}
+        {% if f.whatsapp != '' and f.whatsapp != nil %}
+          <a class="contact-item" href="https://wa.me/{{ f.whatsapp | wa }}" target="_blank">💬 WhatsApp</a>
+        {% endif %}
+        {% if f.email != '' and f.email != nil %}
+          <a class="contact-item" href="mailto:{{ f.email }}">✉️ {{ f.email }}</a>
+        {% endif %}
+        {% if f.address != '' and f.address != nil %}
+          <span class="contact-item">📍 {{ f.address }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
   {% endif %}
-  {% if section.id == 'links' %}
-    {% for link in f.items %}<a href="{{ link.url }}">{{ link.emoji }} {{ link.name }}</a>{% endfor %}
-  {% endif %}
+
 {% endfor %}
-<footer>Powered by <a href="{{ app_url }}">{{ app_name }}</a></footer>
+
+<footer>
+  <span>{{ site.title }}</span> &nbsp;·&nbsp;
+  Powered by <a href="{{ app_url }}">{{ app_name }}</a>
+</footer>
 </body>
 </html>

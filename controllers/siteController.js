@@ -64,6 +64,26 @@ exports.setTemplate = async (req, res) => {
   res.json({ ok: true })
 }
 
+exports.builderPreview = async (req, res) => {
+  const user = req.session.user
+  const { site_id, sections, theme } = req.body
+
+  const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [site_id, user.id])
+  if (!site) return res.status(404).send('<h1>Not found</h1>')
+
+  const settings         = JSON.parse(site.settings || '{}')
+  settings.sections      = JSON.parse(sections || '[]')
+  settings.theme         = theme || settings.theme || 'blue'
+
+  const slug = settings.template_id || site.template_id || 'minimal'
+  try {
+    const html = await themeManager.render(slug, site, settings)
+    res.send(html)
+  } catch(e) {
+    res.status(500).send('<p>Preview error: ' + e.message + '</p>')
+  }
+}
+
 exports.builderSave = async (req, res) => {
   const user = req.session.user
   const { site_id, sections, theme, font } = req.body
