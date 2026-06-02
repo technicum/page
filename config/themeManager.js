@@ -162,15 +162,15 @@ async function render(slug, site, settings, pageId = 'home') {
   } else {
     pageSections = settings.sections || []
   }
+  const colorMap    = theme._colorMap || DEFAULT_COLORS
+  const accentColor = colorMap[settings.theme || 'blue'] || colorMap.blue || '#2563eb'
+
   // Attach computed design CSS to each section for liquid templates
   pageSections = pageSections.map(sec => ({
     ...sec,
     _designCss: buildSectionDesignCss(sec.design || {}, colorMap, accentColor)
   }))
   settings = { ...settings, sections: pageSections }
-
-  const colorMap    = theme._colorMap || DEFAULT_COLORS
-  const accentColor = colorMap[settings.theme || 'blue'] || colorMap.blue || '#2563eb'
 
   const fontDefs = (theme.settings && theme.settings.fonts) || []
   const fontMap  = {}
