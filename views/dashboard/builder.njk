@@ -248,6 +248,22 @@ body{overflow:hidden;background:#f4f4f5;margin:0;}
 /* Section design helpers */
 .sd-color-preset{width:22px;height:22px;border-radius:5px;cursor:pointer;border:1.5px solid rgba(0,0,0,0.1);transition:transform 0.1s;}
 .sd-color-preset:hover{transform:scale(1.2);}
+
+/* ── Spacing box model (Elementor-style) ── */
+.spac-wrap{margin-top:2px;}
+.spac-outer{background:#f0f4ff;border:1.5px dashed #c7d2fe;border-radius:8px;padding:8px 6px 6px;position:relative;margin:4px 0;}
+.spac-outer-tag{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#f0f4ff;padding:0 5px;font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#818cf8;}
+.spac-inner{background:#fff;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 4px 4px;position:relative;}
+.spac-inner-tag{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#fff;padding:0 5px;font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#9ca3af;}
+.spac-row{display:flex;align-items:center;justify-content:center;gap:4px;}
+.spac-num{width:46px;padding:5px 4px;border:1px solid #e5e7eb;border-radius:5px;font-size:12px;text-align:center;font-family:monospace;background:#fff;outline:none;color:#111827;-moz-appearance:textfield;}
+.spac-num::-webkit-outer-spin-button,.spac-num::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.spac-num:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(99,102,241,0.12);}
+.spac-center{width:54px;height:38px;background:#f9fafb;border:1px dashed #e5e7eb;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;user-select:none;}
+.spac-marg-row{display:flex;align-items:center;justify-content:center;gap:6px;padding:2px 0;}
+.spac-marg-label{font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#9ca3af;text-align:center;}
+.spac-link-btn{width:24px;height:24px;border-radius:5px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.15s;flex-shrink:0;}
+.spac-link-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
 /* Page row */
 .page-row{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:#fff;}
 .page-row-icon{font-size:14px;flex-shrink:0;}
@@ -538,14 +554,62 @@ body{overflow:hidden;background:#f4f4f5;margin:0;}
             </div>
           </div>
 
-          <!-- Padding -->
+          <!-- Spacing -->
           <div class="ds-group">
-            <div class="ds-group-title">Vertical Padding</div>
-            <div class="ds-chips">
-              <button class="ds-chip"    data-d="paddingY" data-v="none"     onclick="secDesignChip(this,'paddingY')">None</button>
-              <button class="ds-chip"    data-d="paddingY" data-v="compact"  onclick="secDesignChip(this,'paddingY')">Compact</button>
-              <button class="ds-chip on" data-d="paddingY" data-v="normal"   onclick="secDesignChip(this,'paddingY')">Normal</button>
-              <button class="ds-chip"    data-d="paddingY" data-v="spacious" onclick="secDesignChip(this,'paddingY')">Spacious</button>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div class="ds-group-title" style="margin-bottom:0;">Spacing</div>
+              <button id="spac-link-btn" class="spac-link-btn" onclick="toggleSpacLink()" title="Link all padding sides">🔗</button>
+            </div>
+            <div class="spac-wrap">
+
+              <!-- Margin Top -->
+              <div class="spac-marg-row">
+                <span class="spac-marg-label">Margin</span>
+                <input type="number" class="spac-num" id="sd-margin-top" placeholder="0" min="0" max="500"
+                       oninput="secDesignSpacing('marginTop',this.value)">
+              </div>
+
+              <!-- Padding outer box -->
+              <div class="spac-outer">
+                <span class="spac-outer-tag">Padding</span>
+                <!-- Padding top -->
+                <div style="text-align:center;margin-bottom:4px;">
+                  <input type="number" class="spac-num" id="sd-pad-top" placeholder="0" min="0" max="500"
+                         oninput="secDesignSpacing('paddingTop',this.value)">
+                </div>
+                <!-- Padding left / center / right -->
+                <div class="spac-row" style="margin-bottom:4px;">
+                  <input type="number" class="spac-num" id="sd-pad-left" placeholder="0" min="0" max="500"
+                         oninput="secDesignSpacing('paddingLeft',this.value)">
+                  <div class="spac-center">px</div>
+                  <input type="number" class="spac-num" id="sd-pad-right" placeholder="0" min="0" max="500"
+                         oninput="secDesignSpacing('paddingRight',this.value)">
+                </div>
+                <!-- Padding bottom -->
+                <div style="text-align:center;">
+                  <input type="number" class="spac-num" id="sd-pad-bottom" placeholder="0" min="0" max="500"
+                         oninput="secDesignSpacing('paddingBottom',this.value)">
+                </div>
+              </div>
+
+              <!-- Margin Bottom -->
+              <div class="spac-marg-row">
+                <input type="number" class="spac-num" id="sd-margin-bottom" placeholder="0" min="0" max="500"
+                       oninput="secDesignSpacing('marginBottom',this.value)">
+                <span class="spac-marg-label">Margin</span>
+              </div>
+
+            </div>
+
+            <!-- Quick presets (keep for convenience) -->
+            <div style="margin-top:10px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#9ca3af;margin-bottom:6px;">Quick Padding</div>
+              <div class="ds-chips">
+                <button class="ds-chip"    data-d="paddingY" data-v="none"     onclick="applyPaddingPreset(this,'none')">None</button>
+                <button class="ds-chip"    data-d="paddingY" data-v="compact"  onclick="applyPaddingPreset(this,'compact')">Compact</button>
+                <button class="ds-chip on" data-d="paddingY" data-v="normal"   onclick="applyPaddingPreset(this,'normal')">Normal</button>
+                <button class="ds-chip"    data-d="paddingY" data-v="spacious" onclick="applyPaddingPreset(this,'spacious')">Spacious</button>
+              </div>
             </div>
           </div>
 
@@ -782,10 +846,13 @@ function renderDesignPanel(i) {
   const imgInp = document.getElementById('sd-bg-image');
   if (imgInp) imgInp.value = design.bgImage || '';
 
-  // Overlay, text, padding
+  // Overlay, text, padding chips
   syncDesignChips('overlay',    design.overlay    || '');
   syncDesignChips('textColor',  design.textColor  || '');
-  syncDesignChips('paddingY',   design.paddingY   || 'normal');
+  syncDesignChips('paddingY',   design.paddingY   || (design.paddingTop != null ? '' : 'normal'));
+
+  // Spacing inputs
+  syncSpacingUI(design);
 }
 
 function syncDesignChips(key, val) {
@@ -837,6 +904,78 @@ function resetSectionDesign() {
   sections[activeIdx].design = {};
   renderDesignPanel(activeIdx);
   markDirty(); debouncedPreview();
+}
+
+// ── Spacing (Elementor-style) ─────────────────────────────────────────────────
+let spacingLinked = false;
+
+function toggleSpacLink() {
+  spacingLinked = !spacingLinked;
+  const btn = document.getElementById('spac-link-btn');
+  if (btn) btn.classList.toggle('on', spacingLinked);
+}
+
+const PADDING_PRESET = {
+  none:     { paddingTop: 0,   paddingBottom: 0   },
+  compact:  { paddingTop: 32,  paddingBottom: 32  },
+  normal:   { paddingTop: 64,  paddingBottom: 64  },
+  spacious: { paddingTop: 120, paddingBottom: 120 }
+};
+
+function applyPaddingPreset(el, preset) {
+  if (activeIdx < 0) return;
+  if (!sections[activeIdx].design) sections[activeIdx].design = {};
+  const vals = PADDING_PRESET[preset] || {};
+  // Clear individual padding first, apply preset
+  ['paddingTop','paddingRight','paddingBottom','paddingLeft'].forEach(k => delete sections[activeIdx].design[k]);
+  sections[activeIdx].design.paddingTop    = vals.paddingTop;
+  sections[activeIdx].design.paddingBottom = vals.paddingBottom;
+  sections[activeIdx].design.paddingY      = preset; // keep compat key
+  // Sync quick-preset chips
+  document.querySelectorAll('[data-d="paddingY"]').forEach(b => b.classList.toggle('on', b === el));
+  // Sync spacing inputs
+  syncSpacingUI(sections[activeIdx].design);
+  markDirty(); debouncedPreview();
+}
+
+function secDesignSpacing(key, rawVal) {
+  if (activeIdx < 0) return;
+  const val = rawVal === '' ? undefined : parseInt(rawVal, 10);
+  if (!sections[activeIdx].design) sections[activeIdx].design = {};
+  const d = sections[activeIdx].design;
+
+  if (spacingLinked && key.startsWith('padding')) {
+    const sides = ['paddingTop','paddingRight','paddingBottom','paddingLeft'];
+    const idMap  = { paddingTop:'sd-pad-top', paddingRight:'sd-pad-right', paddingBottom:'sd-pad-bottom', paddingLeft:'sd-pad-left' };
+    sides.forEach(k => {
+      if (val == null || isNaN(val)) delete d[k]; else d[k] = val;
+      const el = document.getElementById(idMap[k]);
+      if (el) el.value = (val != null && !isNaN(val)) ? val : '';
+    });
+  } else {
+    if (val == null || isNaN(val)) delete d[key]; else d[key] = val;
+  }
+  // Clear paddingY preset chip when manually editing
+  if (key.startsWith('padding')) {
+    delete d.paddingY;
+    document.querySelectorAll('[data-d="paddingY"]').forEach(b => b.classList.remove('on'));
+  }
+  markDirty(); debouncedPreview();
+}
+
+function syncSpacingUI(design) {
+  const map = {
+    paddingTop:    'sd-pad-top',
+    paddingRight:  'sd-pad-right',
+    paddingBottom: 'sd-pad-bottom',
+    paddingLeft:   'sd-pad-left',
+    marginTop:     'sd-margin-top',
+    marginBottom:  'sd-margin-bottom'
+  };
+  Object.entries(map).forEach(([k, id]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = design[k] != null ? design[k] : '';
+  });
 }
 
 function toggleSiteStyles() {

@@ -388,10 +388,24 @@ function buildSectionDesignCss(design, colorMap, accentColor) {
   if (design.textColor === 'light') parts.push('color:#ffffff')
   else if (design.textColor === 'dark')  parts.push('color:#111827')
 
-  // Padding
-  if (design.paddingY === 'none')     parts.push('padding-top:0;padding-bottom:0')
-  else if (design.paddingY === 'compact')  parts.push('padding-top:32px;padding-bottom:32px')
-  else if (design.paddingY === 'spacious') parts.push('padding-top:120px;padding-bottom:120px')
+  // Padding — individual values take priority over preset chips
+  const hasIndividualPad = design.paddingTop != null || design.paddingRight != null ||
+                           design.paddingBottom != null || design.paddingLeft != null
+  if (hasIndividualPad) {
+    if (design.paddingTop    != null) parts.push(`padding-top:${design.paddingTop}px`)
+    if (design.paddingRight  != null) parts.push(`padding-right:${design.paddingRight}px`)
+    if (design.paddingBottom != null) parts.push(`padding-bottom:${design.paddingBottom}px`)
+    if (design.paddingLeft   != null) parts.push(`padding-left:${design.paddingLeft}px`)
+  } else {
+    // Fall back to quick-preset chips
+    if (design.paddingY === 'none')     parts.push('padding-top:0;padding-bottom:0')
+    else if (design.paddingY === 'compact')  parts.push('padding-top:32px;padding-bottom:32px')
+    else if (design.paddingY === 'spacious') parts.push('padding-top:120px;padding-bottom:120px')
+  }
+
+  // Margin
+  if (design.marginTop    != null) parts.push(`margin-top:${design.marginTop}px`)
+  if (design.marginBottom != null) parts.push(`margin-bottom:${design.marginBottom}px`)
 
   return parts.join(';')
 }
