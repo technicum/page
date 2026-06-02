@@ -85,7 +85,39 @@ exports.builderPreview = async (req, res) => {
 
   const slug = settings.template_id || site.template_id || 'minimal'
   try {
-    const html = await themeManager.render(slug, site, settings, pageId)
+    let html = await themeManager.render(slug, site, settings, pageId)
+    // Inject builder interaction script when called from the builder
+    if (req.body._builder) {
+      const sectionIds = JSON.stringify((settings.sections || []).map(s => s.id))
+      html = html.replace('</body>', `
+<style>
+.pz-sec{position:relative;transition:outline 0.1s;}
+.pz-sec:hover{outline:2px dashed rgba(99,102,241,0.5);outline-offset:-2px;cursor:pointer;}
+.pz-sec.pz-active{outline:2px solid #6366f1!important;outline-offset:-2px;}
+.pz-badge{display:none;position:absolute;top:0;left:0;background:#6366f1;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;letter-spacing:0.5px;z-index:9999;border-radius:0 0 6px 0;pointer-events:none;font-family:sans-serif;}
+.pz-sec.pz-active .pz-badge,.pz-sec:hover .pz-badge{display:block;}
+</style>
+<script>
+(function(){
+  document.querySelectorAll('[data-pz]').forEach(function(el){
+    var b=document.createElement('div');b.className='pz-badge';b.textContent=el.getAttribute('data-pz');el.appendChild(b);
+    el.addEventListener('click',function(e){
+      e.preventDefault();e.stopPropagation();
+      document.querySelectorAll('[data-pz]').forEach(function(s){s.classList.remove('pz-active');});
+      el.classList.add('pz-active');
+      window.parent.postMessage({type:'pz-select',id:el.getAttribute('data-pz')},'*');
+    });
+  });
+  window.addEventListener('message',function(e){
+    if(!e.data||e.data.type!=='pz-highlight')return;
+    document.querySelectorAll('[data-pz]').forEach(function(s){s.classList.remove('pz-active');});
+    var el=document.querySelector('[data-pz="'+e.data.id+'"]');
+    if(el){el.classList.add('pz-active');el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  });
+})();
+<\/script>
+</body>`)
+    }
     res.send(html)
   } catch(e) {
     res.status(500).send('<p>Preview error: ' + e.message + '</p>')

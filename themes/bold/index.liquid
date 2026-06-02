@@ -147,7 +147,9 @@ footer a{color:var(--c);}
 </nav>
 
 {% for section in sections %}
+  {% unless section._hidden %}
   {% assign f = section.fields %}
+  <div class="pz-sec" data-pz="{{ section.id }}">
 
   {% if section.id == 'hero_slider' %}
   {% assign interval = f.interval | default: 4000 %}
@@ -360,7 +362,8 @@ footer a{color:var(--c);}
     </div>
   </div>
   {% endif %}
-
+  </div><!-- /pz-sec -->
+  {% endunless %}
 {% endfor %}
 
 <footer>

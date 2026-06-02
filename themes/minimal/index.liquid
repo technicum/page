@@ -93,7 +93,9 @@ footer a{color:var(--c);text-decoration:none;}
 </nav>
 
 {% for section in sections %}
+  {% unless section._hidden %}
   {% assign f = section.fields %}
+  <div class="pz-sec" data-pz="{{ section.id }}">
 
   {% if section.id == 'hero_slider' %}
   {% assign interval = f.interval | default: 4000 %}
@@ -243,6 +245,8 @@ footer a{color:var(--c);text-decoration:none;}
   </div>
 
   {% endif %}
+  </div><!-- /pz-sec -->
+  {% endunless %}
 {% endfor %}
 
 <footer>Powered by <a href="{{ app_url }}">{{ app_name }}</a></footer>
