@@ -1,0 +1,43 @@
+{% assign col_count = section.fields.cols | default: '3' %}
+{% assign bg_class = 'pz-cols-white' %}
+{% if section.fields.bg == 'light' %}{% assign bg_class = 'pz-cols-light' %}{% endif %}
+{% if section.fields.bg == 'accent' %}{% assign bg_class = 'pz-cols-accent' %}{% endif %}
+
+<section class="pz-columns {{ bg_class }}" id="columns">
+  <div class="pz-cols-inner">
+    <div class="pz-cols-grid pz-cols-{{ col_count }}">
+      {% for item in section.fields.items %}
+      <div class="pz-col">
+        {% if item.emoji != '' and item.emoji != nil %}
+        <div class="pz-col-icon">{{ item.emoji }}</div>
+        {% endif %}
+        <h3 class="pz-col-heading">{{ item.heading }}</h3>
+        <p class="pz-col-text">{{ item.text }}</p>
+        {% if item.btn_text != '' and item.btn_text != nil %}
+        <a class="pz-col-btn" href="{{ item.btn_link | default: '#' }}">{{ item.btn_text }} →</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<style>
+.pz-columns{padding:72px 40px;}
+.pz-cols-white{background:#fff;}
+.pz-cols-light{background:#f9fafb;}
+.pz-cols-accent{background:var(--c,#2563eb);}
+.pz-cols-accent .pz-col-heading,.pz-cols-accent .pz-col-text{color:#fff;}
+.pz-cols-accent .pz-col-icon{opacity:0.9;}
+.pz-cols-accent .pz-col-btn{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.3);}
+.pz-cols-inner{max-width:1000px;margin:0 auto;}
+.pz-cols-grid{display:grid;gap:32px;}
+.pz-cols-2{grid-template-columns:repeat(2,1fr);}
+.pz-cols-3{grid-template-columns:repeat(3,1fr);}
+.pz-col{display:flex;flex-direction:column;gap:12px;}
+.pz-col-icon{font-size:32px;line-height:1;}
+.pz-col-heading{font-size:18px;font-weight:600;color:#111827;line-height:1.3;}
+.pz-col-text{font-size:15px;color:#6b7280;line-height:1.7;flex:1;}
+.pz-col-btn{display:inline-block;margin-top:4px;font-size:14px;font-weight:600;color:var(--c,#2563eb);text-decoration:none;border:1.5px solid var(--c,#2563eb);padding:8px 18px;border-radius:8px;transition:all 0.2s;width:fit-content;}
+.pz-col-btn:hover{background:var(--c,#2563eb);color:#fff;}
+@media(max-width:768px){.pz-cols-2,.pz-cols-3{grid-template-columns:1fr;}.pz-columns{padding:48px 20px;}}
+</style>

@@ -249,7 +249,32 @@ async function render(slug, site, settings, pageId = 'home') {
     app_url:           process.env.APP_URL  || 'https://pagezapper.com'
   }
 
-  return engine.parseAndRender(source, context)
+  let html = await engine.parseAndRender(source, context)
+
+  // Inject global style CSS variables after </style> or before </head>
+  const gs = settings.globalStyles || {}
+  if (Object.keys(gs).length) {
+    const fontMap2 = { serif: "'DM Serif Display',serif", sans: "'DM Sans',sans-serif", mono: "'Courier New',monospace" }
+    const btnPad   = { sm: '8px 18px', md: '12px 28px', lg: '16px 36px' }
+    const spacing  = { compact: '0.6', normal: '1', spacious: '1.4' }
+    const cssVars  = [
+      gs.headingFont ? `--font-heading:${fontMap2[gs.headingFont] || fontMap2.serif};` : '',
+      gs.bodyFont    ? `--font-body:${fontMap2[gs.bodyFont] || fontMap2.sans};` : '',
+      gs.fontSize    ? `--font-size-base:${gs.fontSize};` : '',
+      gs.btnRadius   ? `--btn-radius:${gs.btnRadius};` : '',
+      gs.btnSize     ? `--btn-pad:${btnPad[gs.btnSize] || btnPad.md};` : '',
+      gs.cardRadius  ? `--card-radius:${gs.cardRadius};` : '',
+      gs.siteBg      ? `--site-bg:${gs.siteBg};` : '',
+      gs.spacing     ? `--spacing-scale:${spacing[gs.spacing] || '1'};` : ''
+    ].filter(Boolean).join('')
+
+    if (cssVars) {
+      const styleTag = `<style>:root{${cssVars}}body{background:var(--site-bg,inherit);font-size:var(--font-size-base,inherit);font-family:var(--font-body,inherit);}h1,h2,h3,h4{font-family:var(--font-heading,inherit);}.btn-p,.btn-solid,.pz-plan-cta,.link-btn{border-radius:var(--btn-radius,inherit)!important;padding:var(--btn-pad,inherit)!important;}.card,.pz-gallery-item,.pz-plan,.testi-item{border-radius:var(--card-radius,inherit)!important;}</style>`
+      html = html.replace('</head>', styleTag + '</head>')
+    }
+  }
+
+  return html
 }
 
 function byType(type) {

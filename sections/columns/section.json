@@ -1,0 +1,21 @@
+{
+  "id": "columns",
+  "label": "Columns",
+  "emoji": "⬛",
+  "description": "2 or 3 columns of content side by side.",
+  "for": ["all"],
+  "fields": [
+    { "id": "cols",    "label": "Number of columns (2 or 3)", "type": "text", "default": "3" },
+    { "id": "bg",      "label": "Background (white/light/accent)", "type": "text", "default": "white" },
+    {
+      "id": "items", "label": "Columns", "type": "list",
+      "item_fields": [
+        { "id": "emoji",   "label": "Icon (emoji)", "type": "text",     "default": "✨" },
+        { "id": "heading", "label": "Heading",      "type": "text",     "default": "Column Heading" },
+        { "id": "text",    "label": "Text",         "type": "textarea", "default": "Write your column content here." },
+        { "id": "btn_text","label": "Button Text (optional)", "type": "text", "default": "" },
+        { "id": "btn_link","label": "Button Link",  "type": "url",      "default": "" }
+      ]
+    }
+  ]
+}

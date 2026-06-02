@@ -1,0 +1,13 @@
+{
+  "id": "rich_text",
+  "label": "Rich Text",
+  "emoji": "✍️",
+  "description": "A block of formatted text — headings, paragraphs, bold, lists.",
+  "for": ["all"],
+  "fields": [
+    { "id": "title",   "label": "Heading (optional)", "type": "text",     "default": "" },
+    { "id": "content", "label": "Content (HTML allowed)", "type": "richtext", "default": "<p>Write your content here. You can use <strong>bold</strong>, <em>italic</em>, and other formatting.</p>" },
+    { "id": "align",   "label": "Alignment (left/center/right)", "type": "text", "default": "left" },
+    { "id": "max_width", "label": "Max width (px, e.g. 720)", "type": "text", "default": "720" }
+  ]
+}

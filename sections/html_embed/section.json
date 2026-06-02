@@ -1,0 +1,12 @@
+{
+  "id": "html_embed",
+  "label": "HTML / Embed",
+  "emoji": "🧩",
+  "description": "Paste raw HTML, iframes, or embed codes (maps, videos, forms).",
+  "for": ["all"],
+  "fields": [
+    { "id": "label",   "label": "Label (shown in builder only)", "type": "text",     "default": "Custom HTML Block" },
+    { "id": "html",    "label": "HTML / Embed Code",             "type": "textarea", "default": "<p>Paste your HTML or embed code here.</p>" },
+    { "id": "padding", "label": "Padding (e.g. 40px 40px)", "type": "text", "default": "40px 40px" }
+  ]
+}

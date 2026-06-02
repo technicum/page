@@ -76,12 +76,13 @@ exports.builderPreview = async (req, res) => {
   const pageId      = page_id || 'home'
 
   if (all_pages) {
-    // Multi-page mode: full pages payload
     settings.pages = JSON.parse(all_pages)
   } else {
-    // Single-page / legacy
     settings.sections = JSON.parse(sections || '[]')
   }
+
+  const { global_styles } = req.body
+  if (global_styles) settings.globalStyles = JSON.parse(global_styles)
 
   const slug = settings.template_id || site.template_id || 'minimal'
   try {
@@ -136,12 +137,14 @@ exports.builderSave = async (req, res) => {
   settings.font     = font  || settings.font  || 'sans'
 
   if (all_pages) {
-    // Multi-page mode
     settings.pages = JSON.parse(all_pages)
-    delete settings.sections // clean up legacy field
+    delete settings.sections
   } else {
     settings.sections = JSON.parse(sections || '[]')
   }
+
+  const { global_styles } = req.body
+  if (global_styles) settings.globalStyles = JSON.parse(global_styles)
 
   await db.execute('UPDATE ms_pages SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
   res.json({ ok: true })

@@ -1,0 +1,27 @@
+<section class="pz-richtext" id="rich_text" style="text-align:{{ section.fields.align | default: 'left' }};">
+  <div class="pz-rt-inner" style="max-width:{{ section.fields.max_width | default: '720' }}px;">
+    {% if section.fields.title != '' and section.fields.title != nil %}
+    <h2 class="pz-rt-title">{{ section.fields.title }}</h2>
+    {% endif %}
+    <div class="pz-rt-body">{{ section.fields.content }}</div>
+  </div>
+</section>
+<style>
+.pz-richtext{padding:64px 40px;}
+.pz-rt-inner{margin:0 auto;}
+.pz-rt-title{font-size:clamp(22px,3vw,36px);font-weight:400;color:var(--c,#2563eb);margin-bottom:20px;letter-spacing:-0.5px;}
+.pz-rt-body{font-size:16px;line-height:1.8;color:#374151;}
+.pz-rt-body h1,.pz-rt-body h2,.pz-rt-body h3{font-weight:600;color:#111827;margin:1.2em 0 0.5em;}
+.pz-rt-body h1{font-size:2em;}
+.pz-rt-body h2{font-size:1.5em;}
+.pz-rt-body h3{font-size:1.2em;}
+.pz-rt-body p{margin-bottom:1em;}
+.pz-rt-body ul,.pz-rt-body ol{padding-left:1.5em;margin-bottom:1em;}
+.pz-rt-body li{margin-bottom:0.3em;}
+.pz-rt-body strong{font-weight:700;color:#111827;}
+.pz-rt-body em{font-style:italic;}
+.pz-rt-body a{color:var(--c,#2563eb);text-decoration:underline;}
+.pz-rt-body blockquote{border-left:3px solid var(--c,#2563eb);padding-left:1em;color:#6b7280;font-style:italic;margin:1em 0;}
+.pz-rt-body hr{border:none;border-top:1px solid #e5e7eb;margin:1.5em 0;}
+@media(max-width:600px){.pz-richtext{padding:40px 20px;}}
+</style>
