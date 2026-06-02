@@ -243,6 +243,19 @@ exports.submit = async (req, res) => {
   return res.json({ ok: true, message: setting.success_message || 'Thank you for your submission!' })
 }
 
+// ── API: list forms for a site (used by builder dropdown) ────────────────────
+exports.apiList = async (req, res) => {
+  const user   = req.session.user
+  const siteId = parseInt(req.params.siteId) || 0
+  const site   = await getSiteForUser(siteId, user.id)
+  if (!site) return res.status(403).json([])
+  const forms = await db.query(
+    'SELECT id, name FROM ms_forms WHERE site_id = ? ORDER BY name ASC',
+    [siteId]
+  )
+  return res.json(forms)
+}
+
 // ── Used by themeManager/subdomain to load forms for a site ──────────────────
 exports.loadFormsForSite = async (siteId) => {
   const forms = await db.query('SELECT * FROM ms_forms WHERE site_id = ?', [siteId])

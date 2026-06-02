@@ -7,9 +7,8 @@
   "fields": [
     {
       "id": "form_id",
-      "label": "Form ID",
-      "type": "text",
-      "placeholder": "e.g. 3",
+      "label": "Select Form",
+      "type": "form_select",
       "default": ""
     },
     {

@@ -1585,6 +1585,45 @@ function buildField(fd, data, si) {
       <div class="list-items-wrap" id="liwrap-${si}-${fd.id}"></div>
     `;
     renderListItems(fd, data, si);
+  } else if (fd.type === 'form_select') {
+    const lbl = document.createElement('label');
+    lbl.className = 'fg-label'; lbl.textContent = fd.label;
+    const sel = document.createElement('select');
+    sel.className = 'fg-input';
+    sel.innerHTML = '<option value="">— Loading forms… —</option>';
+
+    // Fetch forms for this site and populate
+    fetch(`/dashboard/api/forms/${SITE_ID}`)
+      .then(r => r.json())
+      .then(forms => {
+        sel.innerHTML = '<option value="">— Select a form —</option>';
+        if (!forms.length) {
+          sel.innerHTML = '<option value="" disabled>No forms yet — create one in Forms</option>';
+        } else {
+          forms.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.id;
+            opt.textContent = f.name;
+            if (String(f.id) === String(data[fd.id])) opt.selected = true;
+            sel.appendChild(opt);
+          });
+        }
+      })
+      .catch(() => { sel.innerHTML = '<option value="">Failed to load forms</option>'; });
+
+    sel.addEventListener('change', () => {
+      sections[si].fields[fd.id] = sel.value;
+      markDirty();
+      debouncedPreview();
+      pushUndo();
+    });
+    wrap.appendChild(lbl);
+    // Link to create a new form
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:11px;color:#9ca3af;margin-top:4px;';
+    hint.innerHTML = `<a href="/dashboard/forms/${SITE_ID}/new" target="_blank" style="color:#6366f1;">+ Create a new form ↗</a>`;
+    wrap.appendChild(sel);
+    wrap.appendChild(hint);
   } else {
     const lbl  = document.createElement('label');
     lbl.className = 'fg-label'; lbl.textContent = fd.label;

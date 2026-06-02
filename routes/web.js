@@ -122,6 +122,9 @@ router.get ('/dashboard/forms/:siteId/entries/:formId',             requireAuth,
 router.get ('/dashboard/forms/:siteId/entries/:formId/export',      requireAuth, form.exportCsv)
 router.delete('/dashboard/forms/:siteId/entries/:formId/delete/:entryId', requireAuth, form.deleteEntry)
 
+// Forms API (for builder dropdown)
+router.get('/dashboard/api/forms/:siteId', requireAuth, form.apiList)
+
 // Public form submission (no auth)
 router.post('/f/:formId', form.submit)
 
