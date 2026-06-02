@@ -151,7 +151,9 @@ footer a{color:var(--c);}
   {% assign f = section.fields %}
   <div class="pz-sec" data-pz="{{ section.id }}">
 
-  {% if section.id == 'hero_slider' %}
+  {% if rendered_sections[section.id] %}
+  {{ rendered_sections[section.id] }}
+  {% elsif section.id == 'hero_slider' %}
   {% assign interval = f.interval | default: 4000 %}
   <div class="hslider" id="hslider-{{ forloop.index }}">
     <div class="hslider-track" id="htrack-{{ forloop.index }}">

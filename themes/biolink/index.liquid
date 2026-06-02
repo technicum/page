@@ -132,7 +132,9 @@ body{
   {% assign f = section.fields %}
   <div class="pz-sec" data-pz="{{ section.id }}">
 
-  {% if section.id == 'profile' %}
+  {% if rendered_sections[section.id] %}
+  {{ rendered_sections[section.id] }}
+  {% elsif section.id == 'profile' %}
   <div class="profile">
     <div class="avatar">{{ f.avatar_emoji | default: '✨' }}</div>
     <div class="profile-name">{{ f.name | default: site.title }}</div>

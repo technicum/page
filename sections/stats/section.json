@@ -1,0 +1,18 @@
+{
+  "id": "stats",
+  "label": "Stats / Numbers",
+  "emoji": "📊",
+  "description": "Key numbers that show off your impact.",
+  "for": ["all"],
+  "fields": [
+    { "id": "title", "label": "Section Title", "type": "text", "default": "By the Numbers" },
+    {
+      "id": "items", "label": "Stats", "type": "list",
+      "item_fields": [
+        { "id": "number", "label": "Number",      "type": "text", "default": "500+" },
+        { "id": "label",  "label": "Label",       "type": "text", "default": "Happy Clients" },
+        { "id": "emoji",  "label": "Icon (emoji)", "type": "text", "default": "😊" }
+      ]
+    }
+  ]
+}

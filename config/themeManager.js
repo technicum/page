@@ -2,7 +2,8 @@ const fs      = require('fs')
 const path    = require('path')
 const { Liquid } = require('liquidjs')
 
-const THEMES_DIR = path.join(__dirname, '../themes')
+const THEMES_DIR   = path.join(__dirname, '../themes')
+const SECTIONS_DIR = path.join(__dirname, '../sections')
 
 // Maps old PHP template IDs → new theme slugs so existing DB records don't break
 const LEGACY_TEMPLATE_MAP = {
@@ -15,9 +16,10 @@ function resolveSlug(slug) {
   return LEGACY_TEMPLATE_MAP[slug] || slug
 }
 
-let cache = null
+let cache        = null
+let sectionCache = null
 
-// Built-in color palette (used as fallback if theme doesn't define colors)
+// Built-in color palette (fallback if theme doesn't define colors)
 const DEFAULT_COLORS = {
   ink:    '#1a1a18',
   blue:   '#2563eb',
@@ -30,6 +32,36 @@ const DEFAULT_COLORS = {
   white:  '#ffffff'
 }
 
+// ── Plugin section discovery ──────────────────────────────────────────────────
+function loadGlobalSections() {
+  if (sectionCache) return sectionCache
+  if (!fs.existsSync(SECTIONS_DIR)) { sectionCache = []; return [] }
+
+  const dirs = fs.readdirSync(SECTIONS_DIR, { withFileTypes: true })
+    .filter(d => d.isDirectory())
+    .map(d => d.name)
+
+  const sections = []
+  for (const id of dirs) {
+    const jsonFile = path.join(SECTIONS_DIR, id, 'section.json')
+    if (!fs.existsSync(jsonFile)) continue
+    try {
+      const meta = JSON.parse(fs.readFileSync(jsonFile, 'utf8'))
+      meta.id        = id
+      meta._isPlugin = true
+      meta._path     = path.join(SECTIONS_DIR, id)
+      if (!Array.isArray(meta.fields)) meta.fields = []
+      sections.push(meta)
+    } catch(e) {
+      console.error(`Error loading section plugin ${id}:`, e.message)
+    }
+  }
+
+  sectionCache = sections
+  return sections
+}
+
+// ── Theme loading ─────────────────────────────────────────────────────────────
 function loadAll() {
   if (cache) return cache
 
@@ -45,11 +77,9 @@ function loadAll() {
     if (meta) themes[slug] = meta
   }
 
-  const sorted = Object.fromEntries(
+  cache = Object.fromEntries(
     Object.entries(themes).sort(([,a],[,b]) => (a.order||99) - (b.order||99))
   )
-
-  cache = sorted
   return cache
 }
 
@@ -69,23 +99,16 @@ function loadTheme(slug) {
     meta.hasAssets  = fs.existsSync(path.join(THEMES_DIR, slug, 'assets'))
     meta.assetsUrl  = `/themes/${slug}/assets`
 
-    // Normalise sections — guarantee each section has valid fields array
     if (!Array.isArray(meta.sections)) meta.sections = []
     meta.sections = meta.sections.map(s => ({
       ...s,
       fields: Array.isArray(s.fields) ? s.fields : []
     }))
 
-    // Build a color map from settings.colors for the render engine
-    // Falls back to DEFAULT_COLORS if theme doesn't declare colors
     meta._colorMap = {}
     const colorDefs = (meta.settings && meta.settings.colors) || []
-    for (const c of colorDefs) {
-      meta._colorMap[c.id] = c.hex
-    }
-    if (!Object.keys(meta._colorMap).length) {
-      meta._colorMap = { ...DEFAULT_COLORS }
-    }
+    for (const c of colorDefs) meta._colorMap[c.id] = c.hex
+    if (!Object.keys(meta._colorMap).length) meta._colorMap = { ...DEFAULT_COLORS }
 
     return meta
   } catch(e) {
@@ -94,25 +117,34 @@ function loadTheme(slug) {
   }
 }
 
+// ── Section schema API ────────────────────────────────────────────────────────
 /**
- * Get the sections schema for a given theme slug.
- * Returns the array of section definitions from theme.json.
- * This is what the builder UI reads to render its field editor.
+ * Returns all sections available for a theme:
+ * theme's own sections + global plugin sections (filtered by `for` field).
  */
 function getSections(slug) {
   slug = resolveSlug(slug)
-  const theme = loadTheme(slug)
-  if (!theme) return []
-  return theme.sections || []
+  const theme   = loadTheme(slug)
+  const plugins = loadGlobalSections()
+
+  const themeSections = theme ? (theme.sections || []) : []
+
+  // Merge plugins that aren't already declared in the theme
+  const themeIds = new Set(themeSections.map(s => s.id))
+  const extra = plugins.filter(p => {
+    if (themeIds.has(p.id)) return false
+    const forList = p.for || ['all']
+    return forList.includes('all') || forList.includes(slug)
+  })
+
+  return [...themeSections, ...extra]
 }
 
-/**
- * Get a single section definition by id.
- */
 function getSection(slug, sectionId) {
   return getSections(resolveSlug(slug)).find(s => s.id === sectionId) || null
 }
 
+// ── Render ────────────────────────────────────────────────────────────────────
 async function render(slug, site, settings, pageId = 'home') {
   const theme = loadTheme(resolveSlug(slug)) || loadTheme('minimal')
   if (!theme) throw new Error('No themes found')
@@ -124,8 +156,6 @@ async function render(slug, site, settings, pageId = 'home') {
   const source    = fs.readFileSync(tplFile, 'utf8')
 
   // Resolve sections for this page
-  // Multi-page mode: settings.pages[pageId].sections
-  // Single-page mode (legacy): settings.sections
   let pageSections
   if (settings.pages && typeof settings.pages === 'object') {
     pageSections = (settings.pages[pageId] && settings.pages[pageId].sections) || []
@@ -134,25 +164,66 @@ async function render(slug, site, settings, pageId = 'home') {
   }
   settings = { ...settings, sections: pageSections }
 
-  // Resolve accent color from theme's own palette, then global fallback
   const colorMap    = theme._colorMap || DEFAULT_COLORS
   const accentColor = colorMap[settings.theme || 'blue'] || colorMap.blue || '#2563eb'
 
-  // Build font vars — themes declare fonts in settings.fonts
-  const fontDefs  = (theme.settings && theme.settings.fonts) || []
-  const fontMap   = {}
+  const fontDefs = (theme.settings && theme.settings.fonts) || []
+  const fontMap  = {}
   for (const f of fontDefs) fontMap[f.id] = f.label || f.id
 
-  const engine = new Liquid({
-    strictFilters:    false,
-    strictVariables:  false
-  })
-
+  const engine = new Liquid({ strictFilters: false, strictVariables: false })
   engine.registerFilter('wa',  (phone)     => (phone || '').replace(/\D/g, ''))
   engine.registerFilter('hex', (colorSlug) => colorMap[colorSlug] || accentColor)
 
+  // ── Pre-render plugin sections ──────────────────────────────────────────────
+  const plugins        = loadGlobalSections()
+  const pluginIds      = new Set(plugins.map(p => p.id))
+  const themeSectionIds = new Set((theme.sections || []).map(s => s.id))
+  const renderedSections = {}
+
+  const pluginContext = {
+    site: { title: site.title, subdomain: site.subdomain },
+    settings: { ...settings, accent_color: accentColor },
+    theme: { slug: theme.slug, name: theme.name, colors: colorMap },
+    app_name: process.env.APP_NAME || 'PageZapper',
+    app_url:  process.env.APP_URL  || 'https://pagezapper.com'
+  }
+
+  for (const sec of pageSections) {
+    // Only pre-render sections that are plugins AND not handled inline by the theme
+    if (!pluginIds.has(sec.id) || themeSectionIds.has(sec.id)) continue
+
+    const plugin = plugins.find(p => p.id === sec.id)
+    if (!plugin) continue
+
+    // Look for theme-specific render, then default
+    const themeRender   = path.join(plugin._path, theme.slug + '.liquid')
+    const defaultRender = path.join(plugin._path, 'render.liquid')
+    const renderFile    = fs.existsSync(themeRender) ? themeRender
+                        : fs.existsSync(defaultRender) ? defaultRender
+                        : null
+
+    if (!renderFile) continue
+
+    try {
+      const pluginSource = fs.readFileSync(renderFile, 'utf8')
+      renderedSections[sec.id] = await engine.parseAndRender(pluginSource, {
+        ...pluginContext,
+        section: sec
+      })
+    } catch(e) {
+      console.error(`Plugin render error [${sec.id}]:`, e.message)
+      renderedSections[sec.id] = `<!-- section plugin "${sec.id}" render error -->`
+    }
+  }
+
   // Build page list for nav links in multi-page themes
   const themePages = Array.isArray(theme.pages) ? theme.pages : []
+
+  // Merge custom pages from settings (user-added via builder)
+  const customPageIds = new Set(themePages.map(p => p.id))
+  const customPages   = (settings.customPages || []).filter(p => !customPageIds.has(p.id))
+  const allSitePages  = [...themePages, ...customPages]
 
   const context = {
     site: {
@@ -160,10 +231,7 @@ async function render(slug, site, settings, pageId = 'home') {
       subdomain: site.subdomain,
       url:       `https://${site.subdomain}.${process.env.BASE_DOMAIN || 'pagezapper.com'}`
     },
-    settings: {
-      ...settings,
-      accent_color: accentColor
-    },
+    settings: { ...settings, accent_color: accentColor },
     theme: {
       slug:      theme.slug,
       name:      theme.name,
@@ -171,13 +239,14 @@ async function render(slug, site, settings, pageId = 'home') {
       colors:    theme._colorMap,
       fonts:     fontMap
     },
-    sections:   settings.sections || [],
-    page_id:    pageId,
-    site_pages: themePages,
-    site_type:  settings.site_type || 'business',
-    city:       settings.city || '',
-    app_name:   process.env.APP_NAME || 'PageZapper',
-    app_url:    process.env.APP_URL  || 'https://pagezapper.com'
+    sections:          settings.sections || [],
+    rendered_sections: renderedSections,
+    page_id:           pageId,
+    site_pages:        allSitePages,
+    site_type:         settings.site_type || 'business',
+    city:              settings.city || '',
+    app_name:          process.env.APP_NAME || 'PageZapper',
+    app_url:           process.env.APP_URL  || 'https://pagezapper.com'
   }
 
   return engine.parseAndRender(source, context)
@@ -194,7 +263,11 @@ function byType(type) {
 }
 
 function clearCache() {
-  cache = null
+  cache        = null
+  sectionCache = null
 }
 
-module.exports = { loadAll, loadTheme, render, byType, clearCache, getSections, getSection, DEFAULT_COLORS }
+module.exports = {
+  loadAll, loadTheme, render, byType, clearCache,
+  getSections, getSection, loadGlobalSections, DEFAULT_COLORS
+}

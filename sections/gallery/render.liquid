@@ -1,0 +1,36 @@
+<section class="pz-plugin-gallery" id="gallery">
+  <div class="pz-plugin-inner">
+    <p class="pz-plugin-label">Gallery</p>
+    <h2 class="pz-plugin-title">{{ section.fields.title }}</h2>
+    <div class="pz-gallery-grid">
+      {% for item in section.fields.items %}
+      {% if item.link != '' and item.link != nil %}
+      <a class="pz-gallery-item" href="{{ item.link }}" target="_blank">
+      {% else %}
+      <div class="pz-gallery-item">
+      {% endif %}
+        <div class="pz-gallery-thumb">{{ item.emoji }}</div>
+        {% if item.caption != '' and item.caption != nil %}
+        <div class="pz-gallery-caption">{{ item.caption }}</div>
+        {% endif %}
+      {% if item.link != '' and item.link != nil %}
+      </a>
+      {% else %}
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<style>
+.pz-plugin-gallery{padding:72px 40px;background:#f8f7f4;}
+.pz-plugin-inner{max-width:900px;margin:0 auto;}
+.pz-plugin-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#b0afa8;margin-bottom:8px;}
+.pz-plugin-title{font-size:clamp(22px,3vw,36px);font-weight:400;color:var(--c,#2563eb);margin-bottom:32px;letter-spacing:-0.5px;}
+.pz-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
+.pz-gallery-item{border-radius:12px;overflow:hidden;background:#fff;border:1px solid rgba(0,0,0,0.08);text-decoration:none;color:inherit;transition:transform 0.2s,box-shadow 0.2s;display:block;}
+.pz-gallery-item:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.1);}
+.pz-gallery-thumb{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:48px;background:#f8f7f4;}
+.pz-gallery-caption{padding:10px 12px;font-size:13px;font-weight:500;color:#1a1a18;background:#fff;}
+@media(max-width:600px){.pz-plugin-gallery{padding:48px 20px;}}
+</style>

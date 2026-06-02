@@ -1,0 +1,22 @@
+{
+  "id": "pricing",
+  "label": "Pricing",
+  "emoji": "💰",
+  "description": "Pricing cards — great for services, products, or plans.",
+  "for": ["all"],
+  "fields": [
+    { "id": "title",    "label": "Section Title", "type": "text", "default": "Our Pricing" },
+    { "id": "subtitle", "label": "Subtitle",      "type": "text", "default": "Simple, transparent pricing." },
+    {
+      "id": "plans", "label": "Plans", "type": "list",
+      "item_fields": [
+        { "id": "name",     "label": "Plan Name",    "type": "text",     "default": "Basic" },
+        { "id": "price",    "label": "Price",        "type": "text",     "default": "₹999/mo" },
+        { "id": "features", "label": "Features (one per line)", "type": "textarea", "default": "Feature one\nFeature two\nFeature three" },
+        { "id": "cta",      "label": "Button Text",  "type": "text",     "default": "Get Started" },
+        { "id": "link",     "label": "Button Link",  "type": "url",      "default": "#contact" },
+        { "id": "featured", "label": "Highlighted? (yes/no)", "type": "text", "default": "no" }
+      ]
+    }
+  ]
+}

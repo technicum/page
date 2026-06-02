@@ -1,0 +1,18 @@
+{
+  "id": "gallery",
+  "label": "Gallery",
+  "emoji": "🖼️",
+  "description": "Photo / project grid with emoji placeholders and captions.",
+  "for": ["all"],
+  "fields": [
+    { "id": "title", "label": "Section Title", "type": "text", "default": "Our Gallery" },
+    {
+      "id": "items", "label": "Items", "type": "list",
+      "item_fields": [
+        { "id": "emoji",   "label": "Image (emoji)", "type": "text", "default": "🖼️" },
+        { "id": "caption", "label": "Caption",       "type": "text", "default": "Caption" },
+        { "id": "link",    "label": "Link URL",      "type": "url",  "default": "" }
+      ]
+    }
+  ]
+}

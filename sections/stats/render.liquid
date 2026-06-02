@@ -1,0 +1,27 @@
+<section class="pz-stats" id="stats">
+  <div class="pz-stats-inner">
+    {% if section.fields.title != '' and section.fields.title != nil %}
+    <h2 class="pz-stats-title">{{ section.fields.title }}</h2>
+    {% endif %}
+    <div class="pz-stats-grid">
+      {% for item in section.fields.items %}
+      <div class="pz-stat-item">
+        {% if item.emoji != '' and item.emoji != nil %}<div class="pz-stat-icon">{{ item.emoji }}</div>{% endif %}
+        <div class="pz-stat-number">{{ item.number }}</div>
+        <div class="pz-stat-label">{{ item.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<style>
+.pz-stats{padding:64px 40px;background:var(--c,#2563eb);}
+.pz-stats-inner{max-width:900px;margin:0 auto;text-align:center;}
+.pz-stats-title{font-size:clamp(18px,2.5vw,28px);font-weight:400;color:rgba(255,255,255,0.8);margin-bottom:40px;}
+.pz-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:32px;}
+.pz-stat-item{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.pz-stat-icon{font-size:28px;}
+.pz-stat-number{font-size:clamp(32px,5vw,52px);font-weight:700;color:#fff;line-height:1;}
+.pz-stat-label{font-size:14px;color:rgba(255,255,255,0.75);font-weight:500;}
+@media(max-width:600px){.pz-stats{padding:48px 20px;}.pz-stats-grid{grid-template-columns:repeat(2,1fr);gap:24px;}}
+</style>

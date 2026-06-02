@@ -1,0 +1,50 @@
+<section class="pz-pricing" id="pricing">
+  <div class="pz-pricing-inner">
+    <p class="pz-pr-label">Pricing</p>
+    <h2 class="pz-pr-title">{{ section.fields.title }}</h2>
+    {% if section.fields.subtitle != '' and section.fields.subtitle != nil %}
+    <p class="pz-pr-sub">{{ section.fields.subtitle }}</p>
+    {% endif %}
+    <div class="pz-plans-grid">
+      {% for plan in section.fields.plans %}
+      {% assign is_featured = false %}
+      {% if plan.featured == 'yes' or plan.featured == 'true' %}{% assign is_featured = true %}{% endif %}
+      <div class="pz-plan{% if is_featured %} pz-plan-featured{% endif %}">
+        {% if is_featured %}<div class="pz-plan-badge">Popular</div>{% endif %}
+        <div class="pz-plan-name">{{ plan.name }}</div>
+        <div class="pz-plan-price">{{ plan.price }}</div>
+        <ul class="pz-plan-features">
+          {% assign lines = plan.features | split: "\n" %}
+          {% for line in lines %}
+          {% if line != '' %}<li>{{ line }}</li>{% endif %}
+          {% endfor %}
+        </ul>
+        <a class="pz-plan-cta{% if is_featured %} pz-plan-cta-featured{% endif %}" href="{{ plan.link | default: '#contact' }}">
+          {{ plan.cta | default: 'Get Started' }}
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<style>
+.pz-pricing{padding:72px 40px;}
+.pz-pricing-inner{max-width:960px;margin:0 auto;}
+.pz-pr-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#b0afa8;margin-bottom:8px;}
+.pz-pr-title{font-size:clamp(22px,3vw,36px);font-weight:400;color:var(--c,#2563eb);margin-bottom:8px;letter-spacing:-0.5px;}
+.pz-pr-sub{font-size:16px;color:#6b6b66;margin-bottom:40px;}
+.pz-plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
+.pz-plan{border:1.5px solid rgba(0,0,0,0.1);border-radius:16px;padding:28px 24px;background:#fff;position:relative;display:flex;flex-direction:column;gap:16px;}
+.pz-plan-featured{border-color:var(--c,#2563eb);box-shadow:0 8px 32px rgba(0,0,0,0.1);}
+.pz-plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--c,#2563eb);color:#fff;font-size:11px;font-weight:700;padding:3px 14px;border-radius:20px;letter-spacing:0.5px;}
+.pz-plan-name{font-size:14px;font-weight:600;color:#1a1a18;text-transform:uppercase;letter-spacing:0.5px;}
+.pz-plan-price{font-size:28px;font-weight:700;color:#1a1a18;}
+.pz-plan-features{list-style:none;display:flex;flex-direction:column;gap:8px;flex:1;}
+.pz-plan-features li{font-size:14px;color:#6b6b66;padding-left:20px;position:relative;}
+.pz-plan-features li::before{content:'✓';position:absolute;left:0;color:var(--c,#2563eb);font-weight:700;}
+.pz-plan-cta{display:block;text-align:center;padding:12px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;border:1.5px solid rgba(0,0,0,0.15);color:#1a1a18;transition:all 0.2s;}
+.pz-plan-cta:hover{border-color:var(--c,#2563eb);color:var(--c,#2563eb);}
+.pz-plan-cta-featured{background:var(--c,#2563eb);color:#fff;border-color:var(--c,#2563eb);}
+.pz-plan-cta-featured:hover{opacity:0.9;color:#fff;}
+@media(max-width:600px){.pz-pricing{padding:48px 20px;}}
+</style>
