@@ -133,7 +133,7 @@ footer a{color:var(--c);}
   <div class="nav-links">
     {% if site_pages.size > 0 %}
       {% for page in site_pages %}
-        {% assign href = page.id == 'home' ? '/' : '/' | append: page.id %}
+        {% if page.id == 'home' %}{% assign href = '/' %}{% else %}{% assign href = '/' | append: page.id %}{% endif %}
         <a href="{{ href }}" {% if page.id == page_id %}style="color:var(--c);"{% endif %}>{{ page.label }}</a>
       {% endfor %}
     {% else %}

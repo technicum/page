@@ -151,7 +151,7 @@ footer{padding:28px 48px;background:#f9fafb;border-top:1px solid #f3f4f6;display
   <div class="nav-links">
     {% if site_pages.size > 0 %}
       {% for page in site_pages %}
-        {% assign href = page.id == 'home' ? '/' : '/' | append: page.id %}
+        {% if page.id == 'home' %}{% assign href = '/' %}{% else %}{% assign href = '/' | append: page.id %}{% endif %}
         {% if page.id == 'contact' %}
           <a class="nav-cta" href="{{ href }}">{{ page.label }}</a>
         {% else %}
