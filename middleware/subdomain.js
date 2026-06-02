@@ -1,5 +1,6 @@
-const { db }       = require('../config/db')
-const themeManager = require('../config/themeManager')
+const { db }               = require('../config/db')
+const themeManager         = require('../config/themeManager')
+const { loadFormsForSite } = require('../controllers/formController')
 
 async function subdomainMiddleware(req, res, next) {
   // req.hostname respects trust proxy and reads the real host header
@@ -100,7 +101,9 @@ async function serveSite(req, res, next, lookup) {
 
     // ── Normal page render ─────────────────────────────────────────────────────
     // If site is unpublished, only block from search but still serve
-    const html = await themeManager.render(slug, site, settings, pageId)
+    let siteForms = {}
+    try { siteForms = await loadFormsForSite(site.id) } catch(e) { /* table may not exist yet */ }
+    const html = await themeManager.render(slug, site, settings, pageId, siteForms)
     res.send(html)
 
   } catch (err) {

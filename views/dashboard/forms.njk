@@ -1,0 +1,158 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{font-family:"DM Sans",sans-serif;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:22px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;}
+.sidebar-logo em{font-style:italic;color:var(--blue);}
+.sidebar-nav{padding:16px 12px;flex:1;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:2px;}
+.nav-item:hover{background:var(--off);color:var(--ink);}
+.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:500;}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
+.content{flex:1;padding:36px 40px;min-width:0;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.page-title{font-family:"DM Serif Display",serif;font-size:28px;font-weight:400;letter-spacing:-0.5px;}
+.page-sub{font-size:14px;color:var(--ink-muted);margin-bottom:28px;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;border:none;font-family:inherit;transition:all 0.15s;}
+.btn-primary{background:var(--ink);color:#fff;}
+.btn-primary:hover{opacity:0.85;}
+.btn-ghost{background:transparent;color:var(--ink-muted);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--off);}
+.btn-danger{background:transparent;color:#ef4444;border:1px solid #fecaca;}
+.btn-danger:hover{background:#fef2f2;}
+
+/* forms grid */
+.forms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.form-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;transition:box-shadow 0.2s;}
+.form-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.07);}
+.form-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.form-icon{width:40px;height:40px;border-radius:10px;background:#f0f4ff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.form-card-menu{position:relative;}
+.form-card-menu-btn{width:28px;height:28px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:16px;}
+.form-card-menu-btn:hover{background:var(--off);}
+.form-card-menu-dropdown{display:none;position:absolute;right:0;top:32px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:10;min-width:140px;overflow:hidden;}
+.form-card-menu-dropdown.open{display:block;}
+.form-menu-item{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;color:var(--ink-muted);cursor:pointer;text-decoration:none;border:none;background:transparent;width:100%;text-align:left;font-family:inherit;}
+.form-menu-item:hover{background:var(--off);color:var(--ink);}
+.form-menu-item.danger{color:#ef4444;}
+.form-menu-item.danger:hover{background:#fef2f2;}
+.form-name{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.form-meta{font-size:12px;color:var(--ink-faint);display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.form-meta-badge{display:inline-flex;align-items:center;gap:4px;background:var(--off);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.form-card-actions{display:flex;gap:6px;border-top:1px solid var(--border);padding-top:14px;margin-top:14px;}
+.form-id-chip{display:inline-flex;align-items:center;gap:5px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:6px;padding:4px 10px;font-size:11px;font-family:monospace;color:#6d28d9;cursor:pointer;transition:background 0.15s;}
+.form-id-chip:hover{background:#ede9fe;}
+
+.embed-info{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 18px;margin-bottom:28px;font-size:13px;color:#15803d;display:flex;align-items:center;gap:10px;}
+.empty-state{text-align:center;padding:64px 24px;background:#fff;border:1px dashed var(--border-md);border-radius:12px;margin-top:8px;}
+.empty-icon{font-size:44px;margin-bottom:16px;}
+.empty-state h3{font-family:"DM Serif Display",serif;font-size:22px;font-weight:400;margin-bottom:8px;}
+.empty-state p{font-size:14px;color:var(--ink-muted);margin-bottom:24px;}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="layout">
+  <aside class="sidebar">
+    <a class="sidebar-logo" href="/dashboard">page<em>zaper</em></a>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
+      <a class="nav-item" href="/dashboard/site/builder?id={{ site.id }}">🔨 Builder</a>
+      <a class="nav-item active" href="/dashboard/forms/{{ site.id }}">📋 Forms</a>
+      <a class="nav-item" href="/dashboard/blog/{{ site.id }}">✍️ Blog</a>
+      <a class="nav-item" href="/dashboard/settings">⚙️ Settings</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div style="font-size:12px;color:var(--ink-faint);padding:6px 12px;margin-bottom:4px;">{{ site.title }}</div>
+      <a class="nav-item" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank" style="font-size:13px;">↗ View Site</a>
+    </div>
+  </aside>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">📋 Forms</h1>
+        <p class="page-sub">Build forms and view responses for <strong>{{ site.title }}</strong></p>
+      </div>
+      <a class="btn btn-primary" href="/dashboard/forms/{{ site.id }}/new">+ New Form</a>
+    </div>
+
+    <div class="embed-info">
+      💡 <span>To add a form to your site, open the Builder → Add Section → <strong>Form Embed</strong>, then enter the Form ID shown below.</span>
+    </div>
+
+    {% if forms.length %}
+    <div class="forms-grid">
+      {% for form in forms %}
+      <div class="form-card">
+        <div class="form-card-top">
+          <div class="form-icon">📋</div>
+          <div class="form-card-menu">
+            <button class="form-card-menu-btn" onclick="toggleMenu(this)">⋯</button>
+            <div class="form-card-menu-dropdown">
+              <a class="form-menu-item" href="/dashboard/forms/{{ site.id }}/edit/{{ form.id }}">✏️ Edit Form</a>
+              <a class="form-menu-item" href="/dashboard/forms/{{ site.id }}/entries/{{ form.id }}">📥 View Entries</a>
+              <a class="form-menu-item" href="/dashboard/forms/{{ site.id }}/entries/{{ form.id }}/export">⬇️ Export CSV</a>
+              <form method="POST" action="/dashboard/forms/{{ site.id }}/delete/{{ form.id }}" onsubmit="return confirm('Delete this form and all its entries?')">
+                <button type="submit" class="form-menu-item danger">🗑 Delete Form</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-name">{{ form.name }}</div>
+        <div class="form-meta" style="margin-bottom:12px;">
+          <span class="form-meta-badge">📥 {{ form.entry_count }} {{ 'entry' if form.entry_count == 1 else 'entries' }}</span>
+          <span>{{ form.fields | length if form.fields else 0 }} fields</span>
+        </div>
+
+        <!-- Form ID chip — click to copy -->
+        <div style="margin-bottom:14px;">
+          <div style="font-size:11px;color:var(--ink-faint);margin-bottom:4px;">Form ID (use in Builder)</div>
+          <div class="form-id-chip" onclick="copyId({{ form.id }}, this)" title="Click to copy">
+            <span>ID: {{ form.id }}</span>
+            <span style="font-size:10px;opacity:0.6;">📋</span>
+          </div>
+        </div>
+
+        <div class="form-card-actions">
+          <a class="btn btn-ghost" href="/dashboard/forms/{{ site.id }}/edit/{{ form.id }}" style="flex:1;justify-content:center;font-size:13px;padding:7px 10px;">✏️ Edit</a>
+          <a class="btn btn-ghost" href="/dashboard/forms/{{ site.id }}/entries/{{ form.id }}" style="flex:1;justify-content:center;font-size:13px;padding:7px 10px;">📥 Entries</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>No forms yet</h3>
+      <p>Create your first form — contact, booking, survey, or anything else.</p>
+      <a class="btn btn-primary" href="/dashboard/forms/{{ site.id }}/new">+ Create your first form</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function toggleMenu(btn) {
+  const dd = btn.nextElementSibling;
+  document.querySelectorAll('.form-card-menu-dropdown.open').forEach(d => { if (d !== dd) d.classList.remove('open'); });
+  dd.classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.form-card-menu')) {
+    document.querySelectorAll('.form-card-menu-dropdown.open').forEach(d => d.classList.remove('open'));
+  }
+});
+function copyId(id, el) {
+  navigator.clipboard.writeText(String(id)).then(() => {
+    const orig = el.innerHTML;
+    el.innerHTML = '<span>✓ Copied!</span>';
+    setTimeout(() => { el.innerHTML = orig; }, 1500);
+  });
+}
+</script>
+{% endblock %}

@@ -6,6 +6,7 @@ const dash        = require('../controllers/dashController')
 const site        = require('../controllers/siteController')
 const blog        = require('../controllers/blogController')
 const media       = require('../controllers/mediaController')
+const form        = require('../controllers/formController')
 const { requireAuth, redirectIfAuth } = require('../middleware/auth')
 const { db } = require('../config/db')
 
@@ -109,5 +110,19 @@ router.delete('/dashboard/media/:siteId/:filename',  requireAuth, media.destroy)
 // AI
 router.post('/dashboard/ai-suggest',  requireAuth, site.aiSuggest)
 router.post('/dashboard/ai-generate', requireAuth, site.aiGenerate)
+
+// Forms (dashboard)
+router.get ('/dashboard/forms/:siteId',                              requireAuth, form.index)
+router.get ('/dashboard/forms/:siteId/new',                         requireAuth, form.newForm)
+router.post('/dashboard/forms/:siteId/new',                         requireAuth, form.create)
+router.get ('/dashboard/forms/:siteId/edit/:formId',                requireAuth, form.editForm)
+router.post('/dashboard/forms/:siteId/edit/:formId',                requireAuth, form.update)
+router.post('/dashboard/forms/:siteId/delete/:formId',              requireAuth, form.destroy)
+router.get ('/dashboard/forms/:siteId/entries/:formId',             requireAuth, form.entries)
+router.get ('/dashboard/forms/:siteId/entries/:formId/export',      requireAuth, form.exportCsv)
+router.delete('/dashboard/forms/:siteId/entries/:formId/delete/:entryId', requireAuth, form.deleteEntry)
+
+// Public form submission (no auth)
+router.post('/f/:formId', form.submit)
 
 module.exports = router

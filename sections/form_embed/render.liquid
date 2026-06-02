@@ -1,0 +1,180 @@
+{% assign fid = section.fields.form_id | strip %}
+{% assign form_data = site_forms[fid] %}
+
+<section class="pz-form-embed-section" id="pz-sec-{{ section.id }}"
+  {% if _designCss %}style="{{ _designCss }}"{% endif %}>
+  <div class="pz-container" style="max-width:680px;margin:0 auto;padding:60px 24px;">
+
+    {% if section.fields.heading and section.fields.heading != '' %}
+    <h2 class="pz-form-section-heading" style="font-family:var(--font-heading,'DM Serif Display',serif);font-size:clamp(24px,4vw,36px);font-weight:400;margin-bottom:8px;text-align:center;letter-spacing:-0.5px;">
+      {{ section.fields.heading }}
+    </h2>
+    {% endif %}
+
+    {% if section.fields.subheading and section.fields.subheading != '' %}
+    <p class="pz-form-section-sub" style="font-size:16px;color:inherit;opacity:0.7;text-align:center;margin-bottom:36px;line-height:1.6;">
+      {{ section.fields.subheading }}
+    </p>
+    {% endif %}
+
+    {% if form_data %}
+    <style>
+    .pzf-{{ fid }}{display:flex;flex-direction:column;gap:16px;}
+    .pzf-{{ fid }} .pzf-row{display:flex;gap:14px;flex-wrap:wrap;}
+    .pzf-{{ fid }} .pzf-field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:180px;}
+    .pzf-{{ fid }} .pzf-field.pzf-full{flex:1 1 100%;}
+    .pzf-{{ fid }} label{font-size:13px;font-weight:600;color:inherit;opacity:0.85;}
+    .pzf-{{ fid }} .pzf-req{color:#ef4444;margin-left:2px;}
+    .pzf-{{ fid }} input,.pzf-{{ fid }} textarea,.pzf-{{ fid }} select{width:100%;padding:10px 13px;border:1.5px solid rgba(0,0,0,0.15);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#111827;outline:none;transition:border-color 0.15s;}
+    .pzf-{{ fid }} input:focus,.pzf-{{ fid }} textarea:focus,.pzf-{{ fid }} select:focus{border-color:var(--accent,#6366f1);box-shadow:0 0 0 3px rgba(99,102,241,0.12);}
+    .pzf-{{ fid }} textarea{min-height:100px;resize:vertical;line-height:1.5;}
+    .pzf-{{ fid }} .pzf-radio-group,.pzf-{{ fid }} .pzf-checkbox-wrap{display:flex;flex-direction:column;gap:8px;}
+    .pzf-{{ fid }} .pzf-radio-item,.pzf-{{ fid }} .pzf-checkbox-item{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;}
+    .pzf-{{ fid }} .pzf-radio-item input,.pzf-{{ fid }} .pzf-checkbox-item input{width:auto;flex-shrink:0;}
+    .pzf-{{ fid }} .pzf-stars{display:flex;gap:6px;}
+    .pzf-{{ fid }} .pzf-star{font-size:26px;cursor:pointer;transition:transform 0.1s;user-select:none;opacity:0.3;}
+    .pzf-{{ fid }} .pzf-star.on{opacity:1;}
+    .pzf-{{ fid }} .pzf-star:hover{transform:scale(1.15);}
+    .pzf-{{ fid }} .pzf-heading{font-size:18px;font-weight:700;color:inherit;margin:4px 0 0;}
+    .pzf-{{ fid }} .pzf-divider{border:none;border-top:1.5px solid rgba(0,0,0,0.1);}
+    .pzf-{{ fid }} .pzf-submit-btn{padding:13px 32px;background:var(--accent,#6366f1);color:#fff;border:none;border-radius:var(--btn-radius,10px);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.2s;align-self:flex-start;}
+    .pzf-{{ fid }} .pzf-submit-btn:hover{opacity:0.88;}
+    .pzf-{{ fid }} .pzf-submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
+    .pzf-msg{display:none;padding:14px 18px;border-radius:8px;font-size:14px;font-weight:500;margin-top:8px;}
+    .pzf-msg.success{background:#f0fdf4;border:1.5px solid #bbf7d0;color:#15803d;}
+    .pzf-msg.error{background:#fef2f2;border:1.5px solid #fecaca;color:#dc2626;}
+    </style>
+
+    <form class="pzf-{{ fid }}" id="pzform-{{ fid }}" onsubmit="pzSubmit(event,'{{ fid }}')">
+      {% for field in form_data.fields %}
+        {% if field.type == 'heading' %}
+        <div class="pzf-field pzf-full">
+          <div class="pzf-heading">{{ field.label }}</div>
+        </div>
+
+        {% elsif field.type == 'divider' %}
+        <div class="pzf-field pzf-full"><hr class="pzf-divider"></div>
+
+        {% elsif field.type == 'textarea' %}
+        <div class="pzf-field pzf-full">
+          <label>{{ field.label }}{% if field.required %}<span class="pzf-req">*</span>{% endif %}</label>
+          <textarea name="{{ field.id }}" placeholder="{{ field.placeholder }}" {% if field.required %}required{% endif %}></textarea>
+        </div>
+
+        {% elsif field.type == 'select' %}
+        <div class="pzf-field {% unless field.width == 'half' %}pzf-full{% endunless %}">
+          <label>{{ field.label }}{% if field.required %}<span class="pzf-req">*</span>{% endif %}</label>
+          <select name="{{ field.id }}" {% if field.required %}required{% endif %}>
+            <option value="">Select…</option>
+            {% for opt in field.options %}<option value="{{ opt }}">{{ opt }}</option>{% endfor %}
+          </select>
+        </div>
+
+        {% elsif field.type == 'radio' %}
+        <div class="pzf-field pzf-full">
+          <label>{{ field.label }}{% if field.required %}<span class="pzf-req">*</span>{% endif %}</label>
+          <div class="pzf-radio-group">
+            {% for opt in field.options %}
+            <label class="pzf-radio-item">
+              <input type="radio" name="{{ field.id }}" value="{{ opt }}" {% if field.required %}required{% endif %}>
+              {{ opt }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% elsif field.type == 'checkbox' %}
+        <div class="pzf-field pzf-full">
+          <label class="pzf-checkbox-item">
+            <input type="checkbox" name="{{ field.id }}" value="1" {% if field.required %}required{% endif %}>
+            {{ field.label }}{% if field.required %}<span class="pzf-req">*</span>{% endif %}
+          </label>
+        </div>
+
+        {% elsif field.type == 'rating' %}
+        <div class="pzf-field pzf-full">
+          <label>{{ field.label }}{% if field.required %}<span class="pzf-req">*</span>{% endif %}</label>
+          <div class="pzf-stars" id="stars-{{ field.id }}-{{ fid }}" data-field="{{ field.id }}" data-max="{{ field.max_rating | default: 5 }}">
+            {% assign max = field.max_rating | default: 5 %}
+            {% for n in (1..max) %}
+            <span class="pzf-star" data-val="{{ n }}" onclick="pzRatingStar('{{ field.id }}','{{ fid }}',{{ n }})">★</span>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="{{ field.id }}" id="rating-{{ field.id }}-{{ fid }}" {% if field.required %}required{% endif %}>
+        </div>
+
+        {% else %}
+        <div class="pzf-field {% unless field.width == 'half' %}pzf-full{% endunless %}">
+          <label>{{ field.label }}{% if field.required %}<span class="pzf-req">*</span>{% endif %}</label>
+          <input type="{{ field.type }}" name="{{ field.id }}" placeholder="{{ field.placeholder }}"
+                 {% if field.required %}required{% endif %}>
+        </div>
+        {% endif %}
+      {% endfor %}
+
+      <div>
+        <button type="submit" class="pzf-submit-btn" id="pzfbtn-{{ fid }}">
+          {{ form_data.settings.submit_text | default: 'Submit' }}
+        </button>
+      </div>
+    </form>
+
+    <div class="pzf-msg success" id="pzfok-{{ fid }}">
+      {{ form_data.settings.success_message | default: '✓ Thank you! Your submission has been received.' }}
+    </div>
+    <div class="pzf-msg error" id="pzferr-{{ fid }}">Something went wrong. Please try again.</div>
+
+    <script>
+    function pzSubmit(e, fid) {
+      e.preventDefault();
+      const form = e.target;
+      const btn  = document.getElementById('pzfbtn-' + fid);
+      const data = {};
+      new FormData(form).forEach((v, k) => { data[k] = v; });
+      btn.disabled = true;
+      btn.textContent = '…';
+      fetch('/f/' + fid, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) {
+          form.style.display = 'none';
+          document.getElementById('pzfok-' + fid).style.display = 'block';
+          {% if form_data.settings.redirect_url and form_data.settings.redirect_url != '' %}
+          setTimeout(() => { window.location.href = '{{ form_data.settings.redirect_url }}'; }, 1500);
+          {% endif %}
+        } else {
+          const errEl = document.getElementById('pzferr-' + fid);
+          errEl.textContent = d.error || 'Something went wrong. Please try again.';
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = '{{ form_data.settings.submit_text | default: "Submit" }}';
+        }
+      })
+      .catch(() => {
+        document.getElementById('pzferr-' + fid).style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = '{{ form_data.settings.submit_text | default: "Submit" }}';
+      });
+    }
+
+    function pzRatingStar(fieldId, fid, val) {
+      const hidden = document.getElementById('rating-' + fieldId + '-' + fid);
+      if (hidden) hidden.value = val;
+      document.querySelectorAll('#stars-' + fieldId + '-' + fid + ' .pzf-star').forEach(s => {
+        s.classList.toggle('on', parseInt(s.dataset.val) <= val);
+      });
+    }
+    </script>
+
+    {% else %}
+    <div style="background:#fef9c3;border:1.5px solid #fde68a;border-radius:8px;padding:14px 18px;font-size:13px;color:#92400e;text-align:center;">
+      ⚠️ No form found with ID <strong>{{ fid }}</strong>. Please check the Form ID in the builder.
+    </div>
+    {% endif %}
+
+  </div>
+</section>

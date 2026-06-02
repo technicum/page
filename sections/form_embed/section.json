@@ -1,0 +1,30 @@
+{
+  "id": "form_embed",
+  "label": "Form",
+  "emoji": "📋",
+  "description": "Embed a form built in your Forms dashboard",
+  "global": true,
+  "fields": [
+    {
+      "id": "form_id",
+      "label": "Form ID",
+      "type": "text",
+      "placeholder": "e.g. 3",
+      "default": ""
+    },
+    {
+      "id": "heading",
+      "label": "Section Heading (optional)",
+      "type": "text",
+      "placeholder": "Contact Us",
+      "default": ""
+    },
+    {
+      "id": "subheading",
+      "label": "Subheading (optional)",
+      "type": "text",
+      "placeholder": "We'd love to hear from you.",
+      "default": ""
+    }
+  ]
+}
