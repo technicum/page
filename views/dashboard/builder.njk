@@ -207,20 +207,27 @@ let dragSrc          = null;
 let previewTimer;
 
 // ── Default sections per site type ───────────────────────────────────────────
+// Default section ids per site type, also keyed by theme for biolink
 const DEFAULTS_BY_TYPE = {
   business:   ['hero', 'about', 'services', 'testimonials', 'contact'],
   freelancer: ['hero', 'about', 'services', 'portfolio', 'contact'],
-  linktree:   ['hero', 'links', 'contact'],
+  linktree:   ['profile', 'links', 'socials'],   // biolink theme sections
   blog:       ['hero', 'about', 'contact'],
   product:    ['hero', 'about', 'services', 'faq', 'contact'],
   other:      ['hero', 'about', 'contact']
 };
+// Also support biolink theme regardless of site_type
+if (THEME_SLUG === 'biolink') {
+  DEFAULTS_BY_TYPE._theme_override = ['profile', 'links', 'socials'];
+}
 
 const WIZARD_PREFILLS = {
   contact: { phone: WIZARD_DATA.phone, whatsapp: WIZARD_DATA.whatsapp, address: WIZARD_DATA.address, email: '' },
   about:   { title: 'About Us', text: WIZARD_DATA.description || WIZARD_DATA.bio || '' },
   hero:    { headline: WIZARD_DATA.title || '', subheading: WIZARD_DATA.description || '' },
-  links:   {}
+  profile: { name: WIZARD_DATA.title || '', bio: WIZARD_DATA.bio || WIZARD_DATA.description || '', avatar_emoji: '✨', tagline: '' },
+  links:   {},
+  socials: { instagram: WIZARD_DATA.instagram || '', youtube: WIZARD_DATA.youtube || '' }
 };
 
 function makeSectionFromSchema(schema) {
@@ -238,7 +245,7 @@ function makeSectionFromSchema(schema) {
 
 function seedSections(defaultIds) {
   const seeded = [];
-  (defaultIds || DEFAULTS_BY_TYPE[SITE_TYPE] || DEFAULTS_BY_TYPE.other).forEach(id => {
+  ids.forEach(id => {
     const schema = THEME_SECTIONS.find(s => s.id === id);
     if (schema) seeded.push(makeSectionFromSchema(schema));
   });

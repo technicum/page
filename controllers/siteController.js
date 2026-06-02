@@ -129,16 +129,28 @@ exports.templatePreview = async (req, res) => {
   const preview = themeManager.loadAll()[slug] ? slug : 'minimal'
   const data    = themeManager.loadAll()[preview]
 
-  const demoSite = { id: 0, title: 'Demo Business', subdomain: 'demo', template_id: preview, is_published: 1, owner_name: 'Demo' }
-  const demoSettings = {
+  const isBiolink = (preview === 'biolink')
+  const demoSite  = { id: 0, title: isBiolink ? 'Priya Sharma' : 'Demo Business', subdomain: 'demo', template_id: preview, is_published: 1, owner_name: 'Demo' }
+  const demoSettings = isBiolink ? {
+    site_type: 'linktree', theme: 'violet', template_id: preview,
+    sections: [
+      { id: 'profile', fields: { avatar_emoji: '✨', name: 'Priya Sharma', tagline: '@priyacreates', bio: 'Content Creator · Photographer · Based in Mumbai 🇮🇳' }},
+      { id: 'links',   fields: { items: [
+        { emoji: '🎬', label: 'Watch my videos', url: 'https://youtube.com', style: 'solid' },
+        { emoji: '📸', label: 'Follow on Instagram', url: 'https://instagram.com', style: 'outline' },
+        { emoji: '🛍️', label: 'Shop my presets', url: '#', style: 'ghost' }
+      ]}},
+      { id: 'socials', fields: { instagram: 'https://instagram.com', youtube: 'https://youtube.com', tiktok: 'https://tiktok.com' }}
+    ]
+  } : {
     site_type: 'business', theme: 'blue', city: 'Ludhiana',
     phone: '+91 98765 43210', whatsapp: '+91 98765 43210',
     address: 'Model Town, Ludhiana', template_id: preview,
     sections: [
-      { id:'hero',     emoji:'🌟', label:'Hero',     fields:{ headline:'We do amazing work', subheading:'A professional business serving clients across India with passion and expertise', btn_text:'Contact Us', btn2_text:'Learn More' }},
-      { id:'about',    emoji:'ℹ️',  label:'About',    fields:{ title:'About Us', text:'We are dedicated professionals committed to delivering exceptional results. With years of experience, we bring quality and reliability to every project.' }},
-      { id:'services', emoji:'⚡', label:'Services', fields:{ title:'What We Offer', items:[{ emoji:'✂️', name:'Premium Service', desc:'Top quality service delivery' },{ emoji:'💆', name:'Expert Consulting', desc:'Professional guidance and support' },{ emoji:'🎨', name:'Custom Solutions', desc:'Tailored to your needs' }]}},
-      { id:'contact',  emoji:'📞', label:'Contact',  fields:{ title:'Get in Touch', phone:'+91 98765 43210', whatsapp:'+91 98765 43210', address:'Model Town, Ludhiana' }}
+      { id:'hero',     fields:{ headline:'We do amazing work', subheading:'A professional business serving clients across India with passion and expertise', btn_text:'Contact Us', btn2_text:'Learn More' }},
+      { id:'about',    fields:{ title:'About Us', text:'We are dedicated professionals committed to delivering exceptional results. With years of experience, we bring quality and reliability to every project.' }},
+      { id:'services', fields:{ title:'What We Offer', items:[{ emoji:'✂️', name:'Premium Service', desc:'Top quality service delivery' },{ emoji:'💆', name:'Expert Consulting', desc:'Professional guidance and support' },{ emoji:'🎨', name:'Custom Solutions', desc:'Tailored to your needs' }]}},
+      { id:'contact',  fields:{ title:'Get in Touch', phone:'+91 98765 43210', whatsapp:'+91 98765 43210', address:'Model Town, Ludhiana' }}
     ]
   }
 
