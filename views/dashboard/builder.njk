@@ -567,50 +567,125 @@ body{overflow:hidden;background:#f4f4f5;margin:0;}
 </div>
 
 <script>
-// ── Global styles helpers ─────────────────────────────────────────────────────
-const FONT_MAP = {
-  serif: "'DM Serif Display', serif",
-  sans:  "'DM Sans', sans-serif",
-  mono:  "'Courier New', monospace"
-};
+// ── Tab system ────────────────────────────────────────────────────────────────
+let activeTab = 'content';
 
-function toggleStyles() {
-  const drawer = document.getElementById('stylesDrawer');
-  const btn    = document.getElementById('stylesBtn');
-  const open   = drawer.classList.toggle('open');
-  btn.classList.toggle('active', open);
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.pr-tab').forEach(t => t.classList.toggle('active', t.id === 'tab-' + tab));
+  document.querySelectorAll('.pr-pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + tab));
+  if (tab === 'page') renderPagesList();
+  if (tab === 'design') applyStylesToUI();
 }
 
+// When user clicks a section, auto-switch to Content tab
+function openContentTab() {
+  if (activeTab !== 'content') switchTab('content');
+}
+
+// ── Design / global styles ────────────────────────────────────────────────────
 function updateStyle(key, val) {
   globalStyles[key] = val;
-  applyStylesToUI();
   markDirty();
   debouncedPreview();
 }
 
-function updateStyleOpt(el, key) {
-  globalStyles[key] = el.dataset.val;
-  document.querySelectorAll(`.sd-opt[data-style="${key}"]`).forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
+function styleChip(el) {
+  const key = el.dataset.s;
+  const val = el.dataset.v;
+  globalStyles[key] = val;
+  document.querySelectorAll(`.ds-chip[data-s="${key}"]`).forEach(b => b.classList.toggle('on', b === el));
   markDirty();
   debouncedPreview();
 }
 
 function applyStylesToUI() {
-  // Sync select values
-  const hf = document.getElementById('st-heading-font');
-  const bf = document.getElementById('st-body-font');
+  // Sync selects
+  const hf = document.getElementById('ds-heading-font');
+  const bf = document.getElementById('ds-body-font');
   if (hf) hf.value = globalStyles.headingFont || 'serif';
   if (bf) bf.value = globalStyles.bodyFont    || 'sans';
-  // Sync opt buttons
-  ['fontSize','btnStyle','btnRadius','btnSize','spacing','cardRadius','siteBg'].forEach(key => {
+  // Sync chips
+  ['fontSize','btnStyle','btnRadius','btnSize','cardRadius','spacing','siteBg'].forEach(key => {
     const val = globalStyles[key];
     if (!val) return;
-    document.querySelectorAll(`.sd-opt[data-style="${key}"]`).forEach(b => {
-      b.classList.toggle('active', b.dataset.val === val);
+    document.querySelectorAll(`.ds-chip[data-s="${key}"]`).forEach(b => {
+      b.classList.toggle('on', b.dataset.v === val);
     });
   });
+  // Sync accent color swatches in design tab
+  const accentVal = currentColor;
+  document.querySelectorAll('.ds-swatch').forEach(s => {
+    s.classList.toggle('on', s.title.toLowerCase() === accentVal || s.getAttribute('onclick')?.includes(accentVal));
+  });
 }
+
+// ── Pages manager ─────────────────────────────────────────────────────────────
+function renderPagesList() {
+  const list = document.getElementById('pagesList');
+  if (!list) return;
+  list.innerHTML = '';
+
+  // Combine theme pages + custom pages
+  const themePageIds = new Set(THEME_PAGES.map(p => p.id));
+  const customPages  = (settings_customPages || []);
+  const allPgs       = [
+    ...THEME_PAGES,
+    ...customPages.filter(p => !themePageIds.has(p.id))
+  ];
+
+  if (!allPgs.length) {
+    list.innerHTML = '<p style="font-size:12px;color:#9ca3af;">No pages defined. Add one below.</p>';
+    return;
+  }
+
+  allPgs.forEach(page => {
+    const isThemePage = themePageIds.has(page.id);
+    const isCurrent   = page.id === currentPage;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;';
+    row.innerHTML = `
+      <span style="font-size:14px;">📄</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:#111827;">${page.label}</div>
+        <div style="font-size:11px;color:#9ca3af;">/${page.id === 'home' ? '' : page.id}</div>
+      </div>
+      ${isCurrent ? '<span style="font-size:10px;font-weight:700;background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:10px;">Current</span>' : `<button onclick="switchPage('${page.id}')" style="font-size:11px;font-weight:600;color:#6366f1;background:transparent;border:none;cursor:pointer;">Switch</button>`}
+      ${!isThemePage ? `<button onclick="removeCustomPage('${page.id}')" style="font-size:13px;color:#d1d5db;background:transparent;border:none;cursor:pointer;" title="Remove">✕</button>` : ''}
+    `;
+    list.appendChild(row);
+  });
+}
+
+let settings_customPages = {{ (settings.customPages or []) | dump | safe }};
+
+function addCustomPage() {
+  const labelInp = document.getElementById('newPageLabel');
+  const label    = (labelInp.value || '').trim();
+  if (!label) { labelInp.focus(); return; }
+  const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if (!slug) return;
+  // Check not duplicate
+  const allIds = new Set([...THEME_PAGES.map(p => p.id), ...settings_customPages.map(p => p.id)]);
+  if (allIds.has(slug)) { alert('A page with that name already exists.'); return; }
+  settings_customPages.push({ id: slug, label });
+  if (!allPages[slug]) allPages[slug] = { sections: [] };
+  labelInp.value = '';
+  renderPagesList();
+  markDirty();
+}
+
+function removeCustomPage(id) {
+  if (!confirm('Remove this page and its sections?')) return;
+  settings_customPages = settings_customPages.filter(p => p.id !== id);
+  delete allPages[id];
+  if (currentPage === id) switchPage(THEME_PAGES[0]?.id || 'home');
+  renderPagesList();
+  markDirty();
+}
+
+// Override switchPage to also update customPages in payload
+const _origSwitchPage = typeof switchPage !== 'undefined' ? switchPage : null;
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const SITE_ID        = {{ site.id }};
@@ -772,6 +847,7 @@ function selectSection(i) {
   activeIdx = i;
   renderList();
   renderEditor(i);
+  openContentTab();
   // Highlight in preview iframe
   const frame = document.getElementById('previewFrame');
   if (frame.contentWindow) {
@@ -851,24 +927,33 @@ function closeAddModal(e) {
   document.getElementById('addModal').classList.remove('open');
 }
 function filterModal(q) {
-  const grid     = document.getElementById('modalGrid');
-  const addedIds = sections.map(s => s.id);
-  const term     = q.toLowerCase();
-  const list     = THEME_SECTIONS.filter(s => !term || s.label.toLowerCase().includes(term) || (s.description||'').toLowerCase().includes(term));
+  const grid = document.getElementById('modalGrid');
+  const term = q.toLowerCase();
+  const list = THEME_SECTIONS.filter(s =>
+    !term || s.label.toLowerCase().includes(term) || (s.description||'').toLowerCase().includes(term)
+  );
   grid.innerHTML = '';
   if (!list.length) { grid.innerHTML = '<div class="modal-empty">No sections found.</div>'; return; }
+
+  // Sections that should only appear once (singletons)
+  const SINGLETONS = new Set(['hero', 'hero_slider', 'whatsapp_widget', 'profile', 'socials']);
+  const addedIds   = new Set(sections.map(s => s.id));
+
   list.forEach(schema => {
-    const added = addedIds.includes(schema.id);
-    const card  = document.createElement('div');
-    card.className = 'modal-card' + (added ? ' disabled' : '');
+    const isSingleton = SINGLETONS.has(schema.id);
+    const alreadyIn   = addedIds.has(schema.id);
+    const disabled    = isSingleton && alreadyIn;
+
+    const card = document.createElement('div');
+    card.className = 'modal-card' + (disabled ? ' disabled' : '');
     card.innerHTML = `
       <span class="modal-card-icon">${schema.emoji||'📄'}</span>
       <div class="modal-card-info">
-        <div class="modal-card-name">${schema.label}${added ? ' <span style="font-size:10px;color:#9ca3af;">(added)</span>' : ''}</div>
+        <div class="modal-card-name">${schema.label}${disabled ? ' <span style="font-size:10px;color:#d1d5db;margin-left:4px;">— already added</span>' : ''}</div>
         <div class="modal-card-desc">${schema.description||''}</div>
       </div>
     `;
-    if (!added) {
+    if (!disabled) {
       card.onclick = () => { addSection(schema); document.getElementById('addModal').classList.remove('open'); };
     }
     grid.appendChild(card);
@@ -889,8 +974,8 @@ function renderEditor(i) {
   const schema = THEME_SECTIONS.find(s => s.id === sec.id);
   document.getElementById('prEmpty').style.display  = 'none';
   document.getElementById('prEditor').style.display = 'flex';
-  document.getElementById('prIcon').textContent    = schema ? (schema.emoji||'📄') : '📄';
-  document.getElementById('prTitle').textContent   = schema ? schema.label : sec.id;
+  document.getElementById('prIcon').textContent     = schema ? (schema.emoji||'📄') : '📄';
+  document.getElementById('prTitle').textContent    = schema ? schema.label : sec.id;
   const fields = document.getElementById('prFields');
   fields.innerHTML = '';
   if (!schema || !schema.fields || !schema.fields.length) {
@@ -1032,8 +1117,8 @@ function debouncedPreview() {
 function refreshPreview() {
   if (IS_MULTIPAGE) allPages[currentPage].sections = sections;
   const body = IS_MULTIPAGE
-    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), page_id: currentPage, theme: currentColor, global_styles: JSON.stringify(globalStyles), _builder: true }
-    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), _builder: true };
+    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), page_id: currentPage, theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), _builder: true }
+    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), _builder: true };
   fetch('/dashboard/site/builder-preview', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
   }).then(r => r.text()).then(html => {
@@ -1067,8 +1152,8 @@ async function saveAll() {
   btn.textContent = 'Saving…'; btn.disabled = true;
   if (IS_MULTIPAGE) allPages[currentPage].sections = sections;
   const body = IS_MULTIPAGE
-    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), theme: currentColor, global_styles: JSON.stringify(globalStyles) }
-    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles) };
+    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages) }
+    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages) };
   try {
     const r = await fetch('/dashboard/site/builder-save', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
