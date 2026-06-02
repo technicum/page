@@ -1,5 +1,6 @@
-const { db }        = require('../config/db')
-const themeManager  = require('../config/themeManager')
+const { db }               = require('../config/db')
+const themeManager         = require('../config/themeManager')
+const { loadFormsForSite } = require('./formController')
 const axios         = require('axios')
 
 exports.store = async (req, res) => {
@@ -88,8 +89,10 @@ exports.builderPreview = async (req, res) => {
   if (seo)           settings.seo          = JSON.parse(seo)
 
   const slug = settings.template_id || site.template_id || 'minimal'
+  let siteForms = {}
+  try { siteForms = await loadFormsForSite(site.id) } catch(e) {}
   try {
-    let html = await themeManager.render(slug, site, settings, pageId)
+    let html = await themeManager.render(slug, site, settings, pageId, siteForms)
     // Inject builder interaction script when called from the builder
     if (req.body._builder) {
       const sectionIds = JSON.stringify((settings.sections || []).map(s => s.id))
