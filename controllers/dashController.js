@@ -35,7 +35,14 @@ exports.builder = async (req, res) => {
   const settings     = JSON.parse(site.settings || '{}')
   const themeSlug    = settings.template_id || site.template_id || 'minimal'
   const themeData    = themeManager.loadTheme(themeSlug) || themeManager.loadTheme('minimal')
-  const themeSections = themeData ? themeData.sections : []
+  const themeOnlySections = themeData ? (themeData.sections || []) : []
+  const globalSections    = themeManager.loadGlobalSections()
+  // Merge global sections in, avoiding duplicates with theme sections
+  const themeSecIds   = new Set(themeOnlySections.map(s => s.id))
+  const themeSections = [
+    ...themeOnlySections,
+    ...globalSections.filter(s => !themeSecIds.has(s.id))
+  ]
   const themeColors   = themeData ? (themeData.settings && themeData.settings.colors) || [] : []
   // Multi-page: theme declares pages array; single-page themes have none
   const themePages    = themeData && Array.isArray(themeData.pages) ? themeData.pages : null
