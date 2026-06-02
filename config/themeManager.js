@@ -162,6 +162,11 @@ async function render(slug, site, settings, pageId = 'home') {
   } else {
     pageSections = settings.sections || []
   }
+  // Attach computed design CSS to each section for liquid templates
+  pageSections = pageSections.map(sec => ({
+    ...sec,
+    _designCss: buildSectionDesignCss(sec.design || {}, colorMap, accentColor)
+  }))
   settings = { ...settings, sections: pageSections }
 
   const colorMap    = theme._colorMap || DEFAULT_COLORS
@@ -356,6 +361,39 @@ async function renderPost(slug, site, settings, post) {
   let html = await engine.parseAndRender(source, ctx)
   html = injectGlobalStyles(html, settings)
   return html
+}
+
+// ── Per-section design CSS builder ───────────────────────────────────────────
+function buildSectionDesignCss(design, colorMap, accentColor) {
+  if (!design || !Object.keys(design).length) return ''
+  const parts = []
+
+  // Background
+  if (design.bgType === 'color' && design.bgColor) {
+    parts.push(`background-color:${design.bgColor}`)
+    parts.push('background-image:none')
+  } else if (design.bgType === 'accent') {
+    parts.push(`background-color:${accentColor}`)
+    parts.push('background-image:none')
+  } else if (design.bgType === 'image' && design.bgImage) {
+    parts.push(`background-image:url('${design.bgImage}')`)
+    parts.push('background-size:cover')
+    parts.push('background-position:center')
+    parts.push('background-repeat:no-repeat')
+    if (design.overlay === 'dark')  parts.push('--overlay:rgba(0,0,0,0.45)')
+    if (design.overlay === 'light') parts.push('--overlay:rgba(255,255,255,0.5)')
+  }
+
+  // Text color
+  if (design.textColor === 'light') parts.push('color:#ffffff')
+  else if (design.textColor === 'dark')  parts.push('color:#111827')
+
+  // Padding
+  if (design.paddingY === 'none')     parts.push('padding-top:0;padding-bottom:0')
+  else if (design.paddingY === 'compact')  parts.push('padding-top:32px;padding-bottom:32px')
+  else if (design.paddingY === 'spacious') parts.push('padding-top:120px;padding-bottom:120px')
+
+  return parts.join(';')
 }
 
 // ── Global style injection helper ─────────────────────────────────────────────

@@ -139,6 +139,8 @@ app.use(flash())
 // Static files
 app.use(express.static(path.join(__dirname, 'public')))
 app.use('/themes', express.static(path.join(__dirname, 'themes')))
+// Per-site media uploads
+app.use('/media', express.static(path.join(__dirname, 'public/media')))
 
 // Nunjucks
 nunjucks.configure(path.join(__dirname, 'views'), {

@@ -448,168 +448,196 @@ body{overflow:hidden;background:#f4f4f5;margin:0;}
       </div>
     </div>
 
-    <!-- Design tab -->
+    <!-- Design tab — per-section settings -->
     <div class="pr-pane" id="pane-design">
-      <div class="pr-design" id="designPane">
+      <div class="pr-design">
 
-        <div class="ds-group">
-          <div class="ds-group-title">Accent Color</div>
-          <div class="ds-swatches" id="ds-colors">
-            {% for color in themeColors %}
-            <div class="ds-swatch {% if settings.theme == color.id %}on{% endif %}"
-                 style="background:{{ color.hex }};"
-                 title="{{ color.label }}"
-                 onclick="setColor('{{ color.id }}', this)"></div>
-            {% endfor %}
-          </div>
+        <!-- Empty state when no section selected -->
+        <div id="design-empty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;min-height:200px;">
+          <div style="font-size:32px;margin-bottom:12px;opacity:0.3;">🎨</div>
+          <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Select a section</div>
+          <div style="font-size:12px;color:#9ca3af;line-height:1.5;">Click a section in the sidebar or preview to customise its design.</div>
         </div>
 
-        <div class="ds-group">
-          <div class="ds-group-title">Fonts</div>
-          <div class="ds-row">
-            <label class="ds-label">Heading Font</label>
-            <select class="ds-select" id="ds-heading-font" onchange="updateStyle('headingFont',this.value)">
-              <option value="serif">DM Serif — Elegant</option>
-              <option value="sans">DM Sans — Modern</option>
-              <option value="mono">Monospace — Technical</option>
-            </select>
-          </div>
-          <div class="ds-row">
-            <label class="ds-label">Body Font</label>
-            <select class="ds-select" id="ds-body-font" onchange="updateStyle('bodyFont',this.value)">
-              <option value="sans">DM Sans — Clean</option>
-              <option value="serif">DM Serif — Classic</option>
-              <option value="mono">Monospace — Code</option>
-            </select>
-          </div>
-          <div class="ds-row">
-            <label class="ds-label">Text Size</label>
-            <div class="ds-chips">
-              <button class="ds-chip" data-s="fontSize" data-v="14px" onclick="styleChip(this)">Small</button>
-              <button class="ds-chip on" data-s="fontSize" data-v="16px" onclick="styleChip(this)">Medium</button>
-              <button class="ds-chip" data-s="fontSize" data-v="18px" onclick="styleChip(this)">Large</button>
+        <!-- Per-section design panel -->
+        <div id="design-panel" style="display:none;">
+
+          <div class="ds-group" id="sec-design-name" style="padding-bottom:0;border-bottom:none;">
+            <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #f3f4f6;">
+              <span id="sd-icon" style="font-size:18px;">📄</span>
+              <span id="sd-name" style="font-size:13px;font-weight:600;color:#111827;flex:1;"></span>
+              <button onclick="resetSectionDesign()" style="font-size:11px;color:#9ca3af;background:transparent;border:none;cursor:pointer;font-family:inherit;">Reset</button>
             </div>
           </div>
+
+          <!-- Background -->
+          <div class="ds-group">
+            <div class="ds-group-title">Background</div>
+            <div class="ds-chips" id="sd-bg-type-chips">
+              <button class="ds-chip on"  data-d="bgType" data-v="none"   onclick="secDesignChip(this,'bgType')">Default</button>
+              <button class="ds-chip"     data-d="bgType" data-v="color"  onclick="secDesignChip(this,'bgType')">Color</button>
+              <button class="ds-chip"     data-d="bgType" data-v="image"  onclick="secDesignChip(this,'bgType')">Image</button>
+              <button class="ds-chip"     data-d="bgType" data-v="accent" onclick="secDesignChip(this,'bgType')">Accent</button>
+            </div>
+            <!-- Color picker row -->
+            <div id="sd-color-row" style="display:none;margin-top:10px;">
+              <div class="ds-label">Background Color</div>
+              <div style="display:flex;gap:6px;align-items:center;margin-top:4px;">
+                <input type="color" id="sd-bg-color" value="#ffffff"
+                  oninput="secDesign('bgColor',this.value)"
+                  style="width:36px;height:36px;border-radius:6px;border:1px solid #e5e7eb;cursor:pointer;padding:2px;">
+                <input type="text" id="sd-bg-color-hex" placeholder="#ffffff"
+                  oninput="secDesignHex('bgColor',this.value)"
+                  style="flex:1;padding:7px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;font-family:monospace;">
+              </div>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;">
+                {% for c in ['#ffffff','#f9fafb','#f3f4f6','#f8f7f4','#fef9c3','#dcfce7','#dbeafe','#fce7f3','#111827','#1a1a18','#0f172a'] %}
+                <div onclick="setSecBgColor('{{ c }}')"
+                     style="width:22px;height:22px;background:{{ c }};border-radius:4px;cursor:pointer;border:1px solid rgba(0,0,0,0.12);flex-shrink:0;transition:transform 0.1s;"
+                     title="{{ c }}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform=''"></div>
+                {% endfor %}
+              </div>
+            </div>
+            <!-- Image row -->
+            <div id="sd-image-row" style="display:none;margin-top:10px;">
+              <div class="ds-label">Background Image</div>
+              <div style="display:flex;gap:6px;margin-top:4px;">
+                <input type="url" id="sd-bg-image" placeholder="https://... or pick from library"
+                  oninput="secDesign('bgImage',this.value)"
+                  style="flex:1;padding:7px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;font-family:inherit;">
+                <button onclick="openMediaLib('sd-bg-image',null)"
+                  style="padding:7px 10px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit;">
+                  📁 Library
+                </button>
+              </div>
+              <div class="ds-label" style="margin-top:10px;">Overlay</div>
+              <div class="ds-chips" style="margin-top:4px;">
+                <button class="ds-chip on" data-d="overlay" data-v=""      onclick="secDesignChip(this,'overlay')">None</button>
+                <button class="ds-chip"    data-d="overlay" data-v="dark"  onclick="secDesignChip(this,'overlay')">Dark</button>
+                <button class="ds-chip"    data-d="overlay" data-v="light" onclick="secDesignChip(this,'overlay')">Light</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Text -->
+          <div class="ds-group">
+            <div class="ds-group-title">Text Color</div>
+            <div class="ds-chips">
+              <button class="ds-chip on" data-d="textColor" data-v=""      onclick="secDesignChip(this,'textColor')">Theme default</button>
+              <button class="ds-chip"    data-d="textColor" data-v="light" onclick="secDesignChip(this,'textColor')">White</button>
+              <button class="ds-chip"    data-d="textColor" data-v="dark"  onclick="secDesignChip(this,'textColor')">Dark</button>
+            </div>
+          </div>
+
+          <!-- Padding -->
+          <div class="ds-group">
+            <div class="ds-group-title">Vertical Padding</div>
+            <div class="ds-chips">
+              <button class="ds-chip"    data-d="paddingY" data-v="none"     onclick="secDesignChip(this,'paddingY')">None</button>
+              <button class="ds-chip"    data-d="paddingY" data-v="compact"  onclick="secDesignChip(this,'paddingY')">Compact</button>
+              <button class="ds-chip on" data-d="paddingY" data-v="normal"   onclick="secDesignChip(this,'paddingY')">Normal</button>
+              <button class="ds-chip"    data-d="paddingY" data-v="spacious" onclick="secDesignChip(this,'paddingY')">Spacious</button>
+            </div>
+          </div>
+
         </div>
 
-        <div class="ds-group">
-          <div class="ds-group-title">Buttons</div>
-          <div class="ds-row">
-            <label class="ds-label">Style</label>
-            <div class="ds-chips">
-              <button class="ds-chip on" data-s="btnStyle" data-v="solid"   onclick="styleChip(this)">Solid</button>
-              <button class="ds-chip"    data-s="btnStyle" data-v="outline" onclick="styleChip(this)">Outline</button>
-              <button class="ds-chip"    data-s="btnStyle" data-v="soft"    onclick="styleChip(this)">Soft</button>
-            </div>
-          </div>
-          <div class="ds-row">
-            <label class="ds-label">Corners</label>
-            <div class="ds-chips">
-              <button class="ds-chip"    data-s="btnRadius" data-v="0px"   onclick="styleChip(this)">Square</button>
-              <button class="ds-chip"    data-s="btnRadius" data-v="6px"   onclick="styleChip(this)">Rounded</button>
-              <button class="ds-chip on" data-s="btnRadius" data-v="10px"  onclick="styleChip(this)">Round</button>
-              <button class="ds-chip"    data-s="btnRadius" data-v="999px" onclick="styleChip(this)">Pill</button>
-            </div>
-          </div>
-          <div class="ds-row">
-            <label class="ds-label">Size</label>
-            <div class="ds-chips">
-              <button class="ds-chip"    data-s="btnSize" data-v="sm" onclick="styleChip(this)">S</button>
-              <button class="ds-chip on" data-s="btnSize" data-v="md" onclick="styleChip(this)">M</button>
-              <button class="ds-chip"    data-s="btnSize" data-v="lg" onclick="styleChip(this)">L</button>
-            </div>
+        <!-- Divider -->
+        <div style="border-top:1px solid #f3f4f6;margin:0;"></div>
+
+        <!-- Site-wide styles (always visible, collapsed by default) -->
+        <div class="ds-group" style="border-bottom:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;"
+               onclick="toggleSiteStyles()">
+            <div class="ds-group-title" style="margin-bottom:0;">⚙️ Site-wide Styles</div>
+            <span id="site-styles-caret" style="font-size:11px;color:#9ca3af;transition:transform 0.2s;">▼</span>
           </div>
         </div>
+        <div id="site-styles-body" style="display:none;">
 
-        <div class="ds-group">
-          <div class="ds-group-title">Cards &amp; Sections</div>
-          <div class="ds-row">
-            <label class="ds-label">Card Corners</label>
-            <div class="ds-chips">
-              <button class="ds-chip"    data-s="cardRadius" data-v="0px"  onclick="styleChip(this)">Sharp</button>
-              <button class="ds-chip"    data-s="cardRadius" data-v="8px"  onclick="styleChip(this)">Soft</button>
-              <button class="ds-chip on" data-s="cardRadius" data-v="14px" onclick="styleChip(this)">Round</button>
-              <button class="ds-chip"    data-s="cardRadius" data-v="24px" onclick="styleChip(this)">Bubble</button>
+          <div class="ds-group">
+            <div class="ds-group-title">Accent Color</div>
+            <div class="ds-swatches" id="ds-colors">
+              {% for color in themeColors %}
+              <div class="ds-swatch {% if settings.theme == color.id %}on{% endif %}"
+                   style="background:{{ color.hex }};" title="{{ color.label }}"
+                   onclick="setColor('{{ color.id }}', this)"></div>
+              {% endfor %}
             </div>
           </div>
-          <div class="ds-row">
-            <label class="ds-label">Section Spacing</label>
-            <div class="ds-chips">
-              <button class="ds-chip"    data-s="spacing" data-v="compact"  onclick="styleChip(this)">Compact</button>
-              <button class="ds-chip on" data-s="spacing" data-v="normal"   onclick="styleChip(this)">Normal</button>
-              <button class="ds-chip"    data-s="spacing" data-v="spacious" onclick="styleChip(this)">Spacious</button>
+
+          <div class="ds-group">
+            <div class="ds-group-title">Fonts</div>
+            <div class="ds-row">
+              <label class="ds-label">Heading</label>
+              <select class="ds-select" id="ds-heading-font" onchange="updateStyle('headingFont',this.value)">
+                <option value="serif">DM Serif — Elegant</option>
+                <option value="sans">DM Sans — Modern</option>
+                <option value="mono">Monospace — Technical</option>
+              </select>
+            </div>
+            <div class="ds-row">
+              <label class="ds-label">Body</label>
+              <select class="ds-select" id="ds-body-font" onchange="updateStyle('bodyFont',this.value)">
+                <option value="sans">DM Sans — Clean</option>
+                <option value="serif">DM Serif — Classic</option>
+                <option value="mono">Monospace — Code</option>
+              </select>
+            </div>
+            <div class="ds-row">
+              <label class="ds-label">Text Size</label>
+              <div class="ds-chips">
+                <button class="ds-chip" data-s="fontSize" data-v="14px" onclick="styleChip(this)">Small</button>
+                <button class="ds-chip on" data-s="fontSize" data-v="16px" onclick="styleChip(this)">Medium</button>
+                <button class="ds-chip" data-s="fontSize" data-v="18px" onclick="styleChip(this)">Large</button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="ds-group">
-          <div class="ds-group-title">SEO &amp; Analytics</div>
-          <div class="ds-row">
-            <label class="ds-label">Page Title</label>
-            <input class="ds-select" type="text" id="seo-title" placeholder="Leave blank to use site name"
-              value="{{ settings.seo.meta_title if settings.seo else '' }}"
-              oninput="updateSeo('meta_title',this.value)">
-          </div>
-          <div class="ds-row">
-            <label class="ds-label">Meta Description <span style="font-weight:400;color:#9ca3af;">(150–160 chars)</span></label>
-            <textarea class="ds-select" id="seo-desc" rows="3" placeholder="Describe your site for Google…"
-              oninput="updateSeo('meta_desc',this.value)" style="resize:vertical;">{{ settings.seo.meta_desc if settings.seo else '' }}</textarea>
-          </div>
-          <div class="ds-row">
-            <label class="ds-label">Keywords</label>
-            <input class="ds-select" type="text" id="seo-keywords" placeholder="keyword1, keyword2, ..."
-              value="{{ settings.seo.meta_keywords if settings.seo else '' }}"
-              oninput="updateSeo('meta_keywords',this.value)">
-          </div>
-          <div class="ds-row">
-            <label class="ds-label">Social Image URL</label>
-            <input class="ds-select" type="url" id="seo-og-image" placeholder="https://..."
-              value="{{ settings.seo.og_image if settings.seo else '' }}"
-              oninput="updateSeo('og_image',this.value)">
-          </div>
-          <div class="ds-row">
-            <label class="ds-label">Business Type (Schema)</label>
-            <select class="ds-select" id="seo-schema" onchange="updateSeo('schema_type',this.value)">
-              <option value="LocalBusiness" {% if not settings.seo or settings.seo.schema_type == 'LocalBusiness' %}selected{% endif %}>Local Business</option>
-              <option value="Restaurant" {% if settings.seo and settings.seo.schema_type == 'Restaurant' %}selected{% endif %}>Restaurant</option>
-              <option value="MedicalBusiness" {% if settings.seo and settings.seo.schema_type == 'MedicalBusiness' %}selected{% endif %}>Medical / Clinic</option>
-              <option value="Store" {% if settings.seo and settings.seo.schema_type == 'Store' %}selected{% endif %}>Online Store</option>
-              <option value="Person" {% if settings.seo and settings.seo.schema_type == 'Person' %}selected{% endif %}>Person / Freelancer</option>
-              <option value="Organization" {% if settings.seo and settings.seo.schema_type == 'Organization' %}selected{% endif %}>Organization</option>
-            </select>
-          </div>
-          <div class="ds-row">
-            <label class="ds-label">Google Analytics ID</label>
-            <input class="ds-select" type="text" id="seo-ga" placeholder="G-XXXXXXXXXX"
-              value="{{ settings.seo.google_analytics if settings.seo else '' }}"
-              oninput="updateSeo('google_analytics',this.value)">
-          </div>
-          <div class="ds-row">
-            <label class="ds-label">Search Indexing</label>
-            <div class="ds-chips">
-              <button class="ds-chip {% if not settings.seo or settings.seo.robots != 'noindex' %}on{% endif %}"
-                data-s="robots" data-v="index, follow" onclick="styleChip(this);updateSeo('robots','index, follow')">Allow Google</button>
-              <button class="ds-chip {% if settings.seo and settings.seo.robots == 'noindex' %}on{% endif %}"
-                data-s="robots" data-v="noindex" onclick="styleChip(this);updateSeo('robots','noindex')">Hide from Google</button>
+          <div class="ds-group">
+            <div class="ds-group-title">Buttons</div>
+            <div class="ds-row">
+              <label class="ds-label">Style</label>
+              <div class="ds-chips">
+                <button class="ds-chip on" data-s="btnStyle" data-v="solid"   onclick="styleChip(this)">Solid</button>
+                <button class="ds-chip"    data-s="btnStyle" data-v="outline" onclick="styleChip(this)">Outline</button>
+                <button class="ds-chip"    data-s="btnStyle" data-v="soft"    onclick="styleChip(this)">Soft</button>
+              </div>
+            </div>
+            <div class="ds-row">
+              <label class="ds-label">Corners</label>
+              <div class="ds-chips">
+                <button class="ds-chip"    data-s="btnRadius" data-v="0px"   onclick="styleChip(this)">Square</button>
+                <button class="ds-chip"    data-s="btnRadius" data-v="6px"   onclick="styleChip(this)">Rounded</button>
+                <button class="ds-chip on" data-s="btnRadius" data-v="10px"  onclick="styleChip(this)">Round</button>
+                <button class="ds-chip"    data-s="btnRadius" data-v="999px" onclick="styleChip(this)">Pill</button>
+              </div>
             </div>
           </div>
-          <div style="margin-top:8px;padding:10px;background:#f0fdf4;border-radius:8px;font-size:12px;color:#166534;">
-            📄 <a href="https://{{ site.subdomain }}.{{ baseDomain }}/sitemap.xml" target="_blank"
-                  style="color:#166534;font-weight:600;">View sitemap.xml</a>
-            &nbsp;·&nbsp;
-            <a href="https://{{ site.subdomain }}.{{ baseDomain }}/robots.txt" target="_blank"
-               style="color:#166534;">robots.txt</a>
-          </div>
-        </div>
 
-        <div class="ds-group">
-          <div class="ds-group-title">Background</div>
-          <div class="ds-chips">
-            <button class="ds-chip on" data-s="siteBg" data-v="#ffffff" onclick="styleChip(this)">White</button>
-            <button class="ds-chip"    data-s="siteBg" data-v="#f9fafb" onclick="styleChip(this)">Off-white</button>
-            <button class="ds-chip"    data-s="siteBg" data-v="#f8f7f4" onclick="styleChip(this)">Warm</button>
-            <button class="ds-chip"    data-s="siteBg" data-v="#0f0f0d" onclick="styleChip(this)">Dark</button>
+          <div class="ds-group">
+            <div class="ds-group-title">SEO &amp; Analytics</div>
+            <div class="ds-row"><label class="ds-label">Meta Title</label>
+              <input class="ds-select" type="text" placeholder="Leave blank to use site name"
+                value="{{ settings.seo.meta_title if settings.seo else '' }}"
+                oninput="updateSeo('meta_title',this.value)">
+            </div>
+            <div class="ds-row"><label class="ds-label">Meta Description</label>
+              <textarea class="ds-select" rows="3" placeholder="150-160 chars for best SEO…" style="resize:vertical;"
+                oninput="updateSeo('meta_desc',this.value)">{{ settings.seo.meta_desc if settings.seo else '' }}</textarea>
+            </div>
+            <div class="ds-row"><label class="ds-label">Google Analytics ID</label>
+              <input class="ds-select" type="text" placeholder="G-XXXXXXXXXX"
+                value="{{ settings.seo.google_analytics if settings.seo else '' }}"
+                oninput="updateSeo('google_analytics',this.value)">
+            </div>
+            <div style="margin-top:8px;font-size:12px;color:#6b7280;">
+              <a href="https://{{ site.subdomain }}.{{ baseDomain }}/sitemap.xml" target="_blank" style="color:#6366f1;">sitemap.xml</a>
+              &nbsp;·&nbsp;
+              <a href="https://{{ site.subdomain }}.{{ baseDomain }}/robots.txt" target="_blank" style="color:#6366f1;">robots.txt</a>
+            </div>
           </div>
+
         </div>
 
       </div>

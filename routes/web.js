@@ -5,6 +5,7 @@ const auth        = require('../controllers/authController')
 const dash        = require('../controllers/dashController')
 const site        = require('../controllers/siteController')
 const blog        = require('../controllers/blogController')
+const media       = require('../controllers/mediaController')
 const { requireAuth, redirectIfAuth } = require('../middleware/auth')
 const { db } = require('../config/db')
 
@@ -99,6 +100,11 @@ router.post('/dashboard/blog/:siteId/new',                requireAuth, blog.crea
 router.get ('/dashboard/blog/:siteId/edit/:postId',       requireAuth, blog.editForm)
 router.post('/dashboard/blog/:siteId/edit/:postId',       requireAuth, blog.update)
 router.post('/dashboard/blog/:siteId/delete/:postId',     requireAuth, blog.destroy)
+
+// Media library
+router.get ('/dashboard/media/:siteId',              requireAuth, media.list)
+router.post('/dashboard/media/:siteId/upload',       requireAuth, media.upload)
+router.delete('/dashboard/media/:siteId/:filename',  requireAuth, media.destroy)
 
 // AI
 router.post('/dashboard/ai-suggest',  requireAuth, site.aiSuggest)
