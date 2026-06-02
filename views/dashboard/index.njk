@@ -96,6 +96,7 @@ body{font-family:"DM Sans",sans-serif;}
         <div class="site-actions">
           <a class="btn-action" href="/dashboard/site/builder?id={{ site.id }}">Edit</a>
           <a class="btn-action" href="/dashboard/site/templates?id={{ site.id }}">Theme</a>
+          <a class="btn-action" href="/dashboard/blog/{{ site.id }}">Blog</a>
           <form method="POST" action="/dashboard/site/delete" style="flex:1;" onsubmit="return confirm('Delete this site?')">
             <input type="hidden" name="site_id" value="{{ site.id }}">
             <button type="submit" class="btn-action" style="width:100%;color:var(--red);">Delete</button>

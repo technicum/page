@@ -4,6 +4,7 @@ const home        = require('../controllers/homeController')
 const auth        = require('../controllers/authController')
 const dash        = require('../controllers/dashController')
 const site        = require('../controllers/siteController')
+const blog        = require('../controllers/blogController')
 const { requireAuth, redirectIfAuth } = require('../middleware/auth')
 const { db } = require('../config/db')
 
@@ -90,6 +91,14 @@ router.get ('/dashboard/site/builder',       requireAuth, dash.builder)
 router.post('/dashboard/site/builder-save',    requireAuth, site.builderSave)
 router.post('/dashboard/site/builder-preview', requireAuth, site.builderPreview)
 router.post('/dashboard/site/delete',          requireAuth, site.delete)
+
+// Blog
+router.get ('/dashboard/blog/:siteId',                    requireAuth, blog.index)
+router.get ('/dashboard/blog/:siteId/new',                requireAuth, blog.newForm)
+router.post('/dashboard/blog/:siteId/new',                requireAuth, blog.create)
+router.get ('/dashboard/blog/:siteId/edit/:postId',       requireAuth, blog.editForm)
+router.post('/dashboard/blog/:siteId/edit/:postId',       requireAuth, blog.update)
+router.post('/dashboard/blog/:siteId/delete/:postId',     requireAuth, blog.destroy)
 
 // AI
 router.post('/dashboard/ai-suggest',  requireAuth, site.aiSuggest)

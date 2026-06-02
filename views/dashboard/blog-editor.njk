@@ -1,0 +1,162 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+.editor-wrap{max-width:900px;margin:32px auto;padding:0 24px 80px;}
+.editor-grid{display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start;}
+.editor-main{display:flex;flex-direction:column;gap:16px;}
+.editor-sidebar{display:flex;flex-direction:column;gap:16px;}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;}
+.card-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#9ca3af;margin-bottom:14px;}
+label{display:block;font-size:13px;font-weight:500;color:#374151;margin-bottom:5px;}
+input[type=text],input[type=url],textarea,select{width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;font-family:inherit;color:#111827;background:#fff;outline:none;transition:border-color 0.15s;}
+input:focus,textarea:focus,select:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.1);}
+textarea{resize:vertical;line-height:1.6;}
+.field{margin-bottom:14px;}
+.field:last-child{margin-bottom:0;}
+/* Rich editor */
+#content-editor{min-height:400px;border:1px solid #d1d5db;border-radius:8px;padding:16px;font-size:15px;line-height:1.8;color:#111827;background:#fff;outline:none;}
+#content-editor:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.1);}
+#content-editor[placeholder]:empty::before{content:attr(placeholder);color:#9ca3af;}
+.toolbar{display:flex;gap:4px;padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px 8px 0 0;border-bottom:none;flex-wrap:wrap;}
+.t-btn{padding:5px 10px;border-radius:5px;border:none;background:transparent;cursor:pointer;font-size:13px;font-weight:600;color:#374151;font-family:inherit;transition:background 0.12s;}
+.t-btn:hover{background:#e5e7eb;}
+.t-divider{width:1px;height:20px;background:#e5e7eb;margin:0 2px;align-self:center;}
+#content-editor h2{font-size:1.5em;font-weight:700;margin:0.8em 0 0.4em;}
+#content-editor h3{font-size:1.2em;font-weight:600;margin:0.7em 0 0.3em;}
+#content-editor p{margin:0 0 1em;}
+#content-editor ul,#content-editor ol{padding-left:1.5em;margin:0 0 1em;}
+#content-editor blockquote{border-left:3px solid #6366f1;padding-left:1em;color:#6b7280;font-style:italic;margin:1em 0;}
+#content-editor a{color:#6366f1;}
+#content-editor code{background:#f3f4f6;padding:1px 5px;border-radius:4px;font-size:0.9em;}
+.btn-primary{padding:10px 24px;background:#111827;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-secondary{padding:10px 24px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-block;}
+.slug-preview{font-size:11px;color:#9ca3af;margin-top:4px;}
+@media(max-width:768px){.editor-grid{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="editor-wrap">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+    <div>
+      <div style="font-size:12px;color:#9ca3af;margin-bottom:4px;">
+        <a href="/dashboard" style="color:#6b7280;text-decoration:none;">Dashboard</a> /
+        <a href="/dashboard/blog/{{ siteId }}" style="color:#6b7280;text-decoration:none;">Blog</a>
+      </div>
+      <h1 style="font-size:20px;font-weight:700;color:#111827;">{{ title }}</h1>
+    </div>
+  </div>
+
+  {% if errors and errors.length %}
+  <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:14px;color:#dc2626;">
+    {% for e in errors %}{{ e }}{% endfor %}
+  </div>
+  {% endif %}
+
+  <form method="POST" id="postForm" onsubmit="syncContent()">
+
+    <div class="editor-grid">
+      <!-- Main content -->
+      <div class="editor-main">
+        <div class="card" style="padding:16px;">
+          <input type="text" name="title" id="titleInp" placeholder="Post title…"
+            value="{{ post.title if post else '' }}"
+            style="width:100%;border:none;font-size:22px;font-weight:700;color:#111827;outline:none;padding:4px 0;font-family:inherit;"
+            oninput="autoSlug(this.value)">
+          <div class="slug-preview" id="slugPreview">
+            /blog/{{ post.slug if post else '' }}
+          </div>
+        </div>
+
+        <div class="card" style="padding:0;">
+          <div class="toolbar">
+            <button type="button" class="t-btn" onclick="fmt('bold')"><b>B</b></button>
+            <button type="button" class="t-btn" onclick="fmt('italic')"><i>I</i></button>
+            <button type="button" class="t-btn" onclick="fmt('underline')"><u>U</u></button>
+            <div class="t-divider"></div>
+            <button type="button" class="t-btn" onclick="fmtBlock('h2')">H2</button>
+            <button type="button" class="t-btn" onclick="fmtBlock('h3')">H3</button>
+            <button type="button" class="t-btn" onclick="fmtBlock('p')">P</button>
+            <div class="t-divider"></div>
+            <button type="button" class="t-btn" onclick="fmt('insertUnorderedList')">• List</button>
+            <button type="button" class="t-btn" onclick="fmt('insertOrderedList')">1. List</button>
+            <button type="button" class="t-btn" onclick="fmtBlock('blockquote')">" Quote</button>
+            <div class="t-divider"></div>
+            <button type="button" class="t-btn" onclick="insertLink()">🔗 Link</button>
+            <button type="button" class="t-btn" onclick="fmt('removeFormat')">✕ Clear</button>
+          </div>
+          <div id="content-editor" contenteditable="true"
+               placeholder="Start writing your post…">
+            {{ post.content if post else '' }}
+          </div>
+          <textarea name="content" id="contentInput" style="display:none;">{{ post.content if post else '' }}</textarea>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="editor-sidebar">
+
+        <div class="card">
+          <div class="card-title">Publish</div>
+          <div class="field">
+            <label>Status</label>
+            <select name="status">
+              <option value="draft" {% if not post or post.status == 'draft' %}selected{% endif %}>Draft</option>
+              <option value="published" {% if post and post.status == 'published' %}selected{% endif %}>Published</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button type="submit" class="btn-primary" style="flex:1;">Save</button>
+            <a href="/dashboard/blog/{{ siteId }}" class="btn-secondary">Cancel</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Summary</div>
+          <div class="field">
+            <label>Excerpt</label>
+            <textarea name="excerpt" rows="3" placeholder="Short summary shown in blog listing…">{{ post.excerpt if post else '' }}</textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">SEO</div>
+          <div class="field">
+            <label>Meta Title</label>
+            <input type="text" name="meta_title" placeholder="Leave blank to use post title"
+              value="{{ post.meta_title if post else '' }}">
+          </div>
+          <div class="field">
+            <label>Meta Description</label>
+            <textarea name="meta_desc" rows="3" placeholder="150–160 characters for best SEO…">{{ post.meta_desc if post else '' }}</textarea>
+          </div>
+          <div class="field">
+            <label>Featured Image URL</label>
+            <input type="url" name="og_image" placeholder="https://..."
+              value="{{ post.og_image if post else '' }}">
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+function syncContent() {
+  document.getElementById('contentInput').value = document.getElementById('content-editor').innerHTML;
+}
+function fmt(cmd) { document.execCommand(cmd, false, null); }
+function fmtBlock(tag) { document.execCommand('formatBlock', false, tag); }
+function insertLink() {
+  const url = prompt('Enter URL:');
+  if (url) document.execCommand('createLink', false, url);
+}
+let slugEdited = {{ 'true' if post else 'false' }};
+function autoSlug(val) {
+  if (slugEdited) return;
+  const slug = val.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  document.getElementById('slugPreview').textContent = '/blog/' + slug;
+}
+</script>
+{% endblock %}

@@ -81,10 +81,11 @@ exports.builderPreview = async (req, res) => {
     settings.sections = JSON.parse(sections || '[]')
   }
 
-  const { global_styles, custom_pages, nav_items } = req.body
+  const { global_styles, custom_pages, nav_items, seo } = req.body
   if (global_styles) settings.globalStyles = JSON.parse(global_styles)
   if (custom_pages)  settings.customPages  = JSON.parse(custom_pages)
   if (nav_items)     settings.navItems     = JSON.parse(nav_items)
+  if (seo)           settings.seo          = JSON.parse(seo)
 
   const slug = settings.template_id || site.template_id || 'minimal'
   try {
@@ -145,10 +146,11 @@ exports.builderSave = async (req, res) => {
     settings.sections = JSON.parse(sections || '[]')
   }
 
-  const { global_styles, custom_pages, nav_items } = req.body
+  const { global_styles, custom_pages, nav_items, seo } = req.body
   if (global_styles) settings.globalStyles = JSON.parse(global_styles)
   if (custom_pages)  settings.customPages  = JSON.parse(custom_pages)
   if (nav_items)     settings.navItems     = JSON.parse(nav_items)
+  if (seo)           settings.seo          = JSON.parse(seo)
 
   await db.execute('UPDATE ms_pages SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
   res.json({ ok: true })

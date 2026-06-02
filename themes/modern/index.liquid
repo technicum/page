@@ -3,7 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ site.title }}</title>
+<title>{{ settings.seo.meta_title | default: site.title }}</title>
+<meta name="description" content="{{ settings.seo.meta_desc | default: settings.description }}">
+<meta name="robots" content="{{ settings.seo.robots | default: 'index, follow' }}">
+<meta property="og:title" content="{{ settings.seo.meta_title | default: site.title }}">
+<meta property="og:description" content="{{ settings.seo.meta_desc | default: settings.description }}">
+<meta property="og:type" content="website"><meta property="og:url" content="{{ site.url }}">
+{% if settings.seo.og_image != '' and settings.seo.og_image != nil %}<meta property="og:image" content="{{ settings.seo.og_image }}">{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{{ site.url }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"{{ settings.seo.schema_type | default: 'LocalBusiness' }}","name":"{{ site.title }}","url":"{{ site.url }}"{% if settings.description %},"description":"{{ settings.description }}"{% endif %}}</script>
+{% if settings.seo.google_analytics != '' and settings.seo.google_analytics != nil %}<script async src="https://www.googletagmanager.com/gtag/js?id={{ settings.seo.google_analytics }}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ settings.seo.google_analytics }}');</script>{% endif %}
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/themes/modern/style.css">
 <style>:root{--c:{{ settings.accent_color }};--c10:{{ settings.accent_color }}1a;--c20:{{ settings.accent_color }}33;}</style>

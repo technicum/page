@@ -10,6 +10,12 @@ const path         = require('path')
 const app  = express()
 const PORT = process.env.PORT || 3000
 
+// Trust proxy — REQUIRED for req.hostname to work correctly behind
+// nginx / Apache / Hostinger / cPanel reverse proxies.
+// Without this, subdomains (gla.pagezaper.com) return 403 because
+// req.hostname resolves to 'localhost' instead of the real host.
+app.set('trust proxy', true)
+
 // ── /debug — mounted FIRST, before anything that can crash ───────────────────
 // Visit /debug in your browser to diagnose startup problems.
 // Remove this route once everything is working.

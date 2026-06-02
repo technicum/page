@@ -543,6 +543,66 @@ body{overflow:hidden;background:#f4f4f5;margin:0;}
         </div>
 
         <div class="ds-group">
+          <div class="ds-group-title">SEO &amp; Analytics</div>
+          <div class="ds-row">
+            <label class="ds-label">Page Title</label>
+            <input class="ds-select" type="text" id="seo-title" placeholder="Leave blank to use site name"
+              value="{{ settings.seo.meta_title if settings.seo else '' }}"
+              oninput="updateSeo('meta_title',this.value)">
+          </div>
+          <div class="ds-row">
+            <label class="ds-label">Meta Description <span style="font-weight:400;color:#9ca3af;">(150–160 chars)</span></label>
+            <textarea class="ds-select" id="seo-desc" rows="3" placeholder="Describe your site for Google…"
+              oninput="updateSeo('meta_desc',this.value)" style="resize:vertical;">{{ settings.seo.meta_desc if settings.seo else '' }}</textarea>
+          </div>
+          <div class="ds-row">
+            <label class="ds-label">Keywords</label>
+            <input class="ds-select" type="text" id="seo-keywords" placeholder="keyword1, keyword2, ..."
+              value="{{ settings.seo.meta_keywords if settings.seo else '' }}"
+              oninput="updateSeo('meta_keywords',this.value)">
+          </div>
+          <div class="ds-row">
+            <label class="ds-label">Social Image URL</label>
+            <input class="ds-select" type="url" id="seo-og-image" placeholder="https://..."
+              value="{{ settings.seo.og_image if settings.seo else '' }}"
+              oninput="updateSeo('og_image',this.value)">
+          </div>
+          <div class="ds-row">
+            <label class="ds-label">Business Type (Schema)</label>
+            <select class="ds-select" id="seo-schema" onchange="updateSeo('schema_type',this.value)">
+              <option value="LocalBusiness" {% if not settings.seo or settings.seo.schema_type == 'LocalBusiness' %}selected{% endif %}>Local Business</option>
+              <option value="Restaurant" {% if settings.seo and settings.seo.schema_type == 'Restaurant' %}selected{% endif %}>Restaurant</option>
+              <option value="MedicalBusiness" {% if settings.seo and settings.seo.schema_type == 'MedicalBusiness' %}selected{% endif %}>Medical / Clinic</option>
+              <option value="Store" {% if settings.seo and settings.seo.schema_type == 'Store' %}selected{% endif %}>Online Store</option>
+              <option value="Person" {% if settings.seo and settings.seo.schema_type == 'Person' %}selected{% endif %}>Person / Freelancer</option>
+              <option value="Organization" {% if settings.seo and settings.seo.schema_type == 'Organization' %}selected{% endif %}>Organization</option>
+            </select>
+          </div>
+          <div class="ds-row">
+            <label class="ds-label">Google Analytics ID</label>
+            <input class="ds-select" type="text" id="seo-ga" placeholder="G-XXXXXXXXXX"
+              value="{{ settings.seo.google_analytics if settings.seo else '' }}"
+              oninput="updateSeo('google_analytics',this.value)">
+          </div>
+          <div class="ds-row">
+            <label class="ds-label">Search Indexing</label>
+            <div class="ds-chips">
+              <button class="ds-chip {% if not settings.seo or settings.seo.robots != 'noindex' %}on{% endif %}"
+                data-s="robots" data-v="index, follow" onclick="styleChip(this);updateSeo('robots','index, follow')">Allow Google</button>
+              <button class="ds-chip {% if settings.seo and settings.seo.robots == 'noindex' %}on{% endif %}"
+                data-s="robots" data-v="noindex" onclick="styleChip(this);updateSeo('robots','noindex')">Hide from Google</button>
+            </div>
+          </div>
+          <div style="margin-top:8px;padding:10px;background:#f0fdf4;border-radius:8px;font-size:12px;color:#166534;">
+            📄 <a href="https://{{ site.subdomain }}.{{ baseDomain }}/sitemap.xml" target="_blank"
+                  style="color:#166534;font-weight:600;">View sitemap.xml</a>
+            &nbsp;·&nbsp;
+            <a href="https://{{ site.subdomain }}.{{ baseDomain }}/robots.txt" target="_blank"
+               style="color:#166534;">robots.txt</a>
+          </div>
+        </div>
+
+        <div class="ds-group">
           <div class="ds-group-title">Background</div>
           <div class="ds-chips">
             <button class="ds-chip on" data-s="siteBg" data-v="#ffffff" onclick="styleChip(this)">White</button>
@@ -847,6 +907,13 @@ let currentPage  = IS_MULTIPAGE ? THEME_PAGES[0].id : 'home';
 let sections     = IS_MULTIPAGE ? [] : {{ (settings.sections or []) | dump | safe }};
 let currentColor = {{ (settings.theme or 'blue') | dump | safe }};
 let globalStyles = {{ (settings.globalStyles or {}) | dump | safe }};
+let seoSettings  = {{ (settings.seo or {}) | dump | safe }};
+
+function updateSeo(key, val) {
+  seoSettings[key] = val;
+  markDirty();
+  debouncedPreview();
+}
 let activeIdx    = -1;
 let dragSrc      = null;
 let previewTimer = null;
@@ -1262,8 +1329,8 @@ function debouncedPreview() {
 function refreshPreview() {
   if (IS_MULTIPAGE) allPages[currentPage].sections = sections;
   const body = IS_MULTIPAGE
-    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), page_id: currentPage, theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems), _builder: true }
-    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems), _builder: true };
+    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), page_id: currentPage, theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems), seo: JSON.stringify(seoSettings), _builder: true }
+    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems), seo: JSON.stringify(seoSettings), _builder: true };
   fetch('/dashboard/site/builder-preview', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
   }).then(r => r.text()).then(html => {
@@ -1297,8 +1364,8 @@ async function saveAll() {
   btn.textContent = 'Saving…'; btn.disabled = true;
   if (IS_MULTIPAGE) allPages[currentPage].sections = sections;
   const body = IS_MULTIPAGE
-    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems) }
-    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems) };
+    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems), seo: JSON.stringify(seoSettings) }
+    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems), seo: JSON.stringify(seoSettings) };
   try {
     const r = await fetch('/dashboard/site/builder-save', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)

@@ -267,31 +267,120 @@ async function render(slug, site, settings, pageId = 'home') {
   }
 
   let html = await engine.parseAndRender(source, context)
+  return injectGlobalStyles(html, settings)
+}
 
-  // Inject global style CSS variables after </style> or before </head>
-  const gs = settings.globalStyles || {}
-  if (Object.keys(gs).length) {
-    const fontMap2 = { serif: "'DM Serif Display',serif", sans: "'DM Sans',sans-serif", mono: "'Courier New',monospace" }
-    const btnPad   = { sm: '8px 18px', md: '12px 28px', lg: '16px 36px' }
-    const spacing  = { compact: '0.6', normal: '1', spacious: '1.4' }
-    const cssVars  = [
-      gs.headingFont ? `--font-heading:${fontMap2[gs.headingFont] || fontMap2.serif};` : '',
-      gs.bodyFont    ? `--font-body:${fontMap2[gs.bodyFont] || fontMap2.sans};` : '',
-      gs.fontSize    ? `--font-size-base:${gs.fontSize};` : '',
-      gs.btnRadius   ? `--btn-radius:${gs.btnRadius};` : '',
-      gs.btnSize     ? `--btn-pad:${btnPad[gs.btnSize] || btnPad.md};` : '',
-      gs.cardRadius  ? `--card-radius:${gs.cardRadius};` : '',
-      gs.siteBg      ? `--site-bg:${gs.siteBg};` : '',
-      gs.spacing     ? `--spacing-scale:${spacing[gs.spacing] || '1'};` : ''
-    ].filter(Boolean).join('')
+// ── Blog listing render ───────────────────────────────────────────────────────
+async function renderBlog(slug, site, settings, posts) {
+  slug = resolveSlug(slug)
+  const theme = loadTheme(slug) || loadTheme('minimal')
+  if (!theme) throw new Error('No themes found')
 
-    if (cssVars) {
-      const styleTag = `<style>:root{${cssVars}}body{background:var(--site-bg,inherit);font-size:var(--font-size-base,inherit);font-family:var(--font-body,inherit);}h1,h2,h3,h4{font-family:var(--font-heading,inherit);}.btn-p,.btn-solid,.pz-plan-cta,.link-btn{border-radius:var(--btn-radius,inherit)!important;padding:var(--btn-pad,inherit)!important;}.card,.pz-gallery-item,.pz-plan,.testi-item{border-radius:var(--card-radius,inherit)!important;}</style>`
-      html = html.replace('</head>', styleTag + '</head>')
-    }
+  const blogFile  = path.join(theme.path, 'blog.liquid')
+  const indexFile = path.join(theme.path, 'index.liquid')
+  const tplFile   = fs.existsSync(blogFile) ? blogFile : indexFile
+  const source    = fs.readFileSync(tplFile, 'utf8')
+
+  const colorMap    = theme._colorMap || DEFAULT_COLORS
+  const accentColor = colorMap[settings.theme || 'blue'] || colorMap.blue || '#2563eb'
+  const themePages  = Array.isArray(theme.pages) ? theme.pages : []
+  const customPages = settings.customPages || []
+  const allSitePages = [...themePages, ...customPages.filter(p => !themePages.find(tp => tp.id === p.id))]
+  const navItems = settings.navItems
+    ? settings.navItems.filter(n => n.show !== false)
+    : allSitePages.map(p => ({ id: p.id, label: p.label, url: p.id === 'home' ? '/' : '/' + p.id, show: true }))
+
+  const engine = new Liquid({ strictFilters: false, strictVariables: false })
+  engine.registerFilter('wa',  (phone) => (phone || '').replace(/\D/g, ''))
+  engine.registerFilter('hex', (colorSlug) => colorMap[colorSlug] || accentColor)
+
+  const ctx = {
+    site: { title: site.title, subdomain: site.subdomain, url: `https://${site.subdomain}.${process.env.BASE_DOMAIN || 'pagezapper.com'}` },
+    settings: { ...settings, accent_color: accentColor },
+    theme: { slug: theme.slug, name: theme.name, assetsUrl: theme.assetsUrl, colors: colorMap },
+    page_id: 'blog', sections: [], rendered_sections: {}, nav_items: navItems, site_pages: allSitePages,
+    posts: posts.map(p => ({
+      ...p,
+      url:  `/blog/${p.slug}`,
+      date: p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' }) : ''
+    })),
+    site_type: settings.site_type || 'business',
+    app_name: process.env.APP_NAME || 'PageZapper',
+    app_url:  process.env.APP_URL  || 'https://pagezapper.com'
   }
 
+  let html = await engine.parseAndRender(source, ctx)
+  html = injectGlobalStyles(html, settings)
   return html
+}
+
+// ── Blog post render ──────────────────────────────────────────────────────────
+async function renderPost(slug, site, settings, post) {
+  slug = resolveSlug(slug)
+  const theme = loadTheme(slug) || loadTheme('minimal')
+  if (!theme) throw new Error('No themes found')
+
+  const postFile  = path.join(theme.path, 'post.liquid')
+  const indexFile = path.join(theme.path, 'index.liquid')
+  const tplFile   = fs.existsSync(postFile) ? postFile : indexFile
+  const source    = fs.readFileSync(tplFile, 'utf8')
+
+  const colorMap    = theme._colorMap || DEFAULT_COLORS
+  const accentColor = colorMap[settings.theme || 'blue'] || colorMap.blue || '#2563eb'
+  const themePages  = Array.isArray(theme.pages) ? theme.pages : []
+  const customPages = settings.customPages || []
+  const allSitePages = [...themePages, ...customPages.filter(p => !themePages.find(tp => tp.id === p.id))]
+  const navItems = settings.navItems
+    ? settings.navItems.filter(n => n.show !== false)
+    : allSitePages.map(p => ({ id: p.id, label: p.label, url: p.id === 'home' ? '/' : '/' + p.id, show: true }))
+
+  const engine = new Liquid({ strictFilters: false, strictVariables: false })
+  engine.registerFilter('wa',  (phone) => (phone || '').replace(/\D/g, ''))
+  engine.registerFilter('hex', (colorSlug) => colorMap[colorSlug] || accentColor)
+
+  const postDate = post.created_at
+    ? new Date(post.created_at).toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' })
+    : ''
+
+  const ctx = {
+    site: { title: site.title, subdomain: site.subdomain, url: `https://${site.subdomain}.${process.env.BASE_DOMAIN || 'pagezapper.com'}` },
+    settings: { ...settings, accent_color: accentColor },
+    theme: { slug: theme.slug, name: theme.name, assetsUrl: theme.assetsUrl, colors: colorMap },
+    page_id: 'post', sections: [], rendered_sections: {}, nav_items: navItems, site_pages: allSitePages,
+    post: { ...post, date: postDate, url: `/blog/${post.slug}` },
+    site_type: settings.site_type || 'business',
+    app_name: process.env.APP_NAME || 'PageZapper',
+    app_url:  process.env.APP_URL  || 'https://pagezapper.com'
+  }
+
+  let html = await engine.parseAndRender(source, ctx)
+  html = injectGlobalStyles(html, settings)
+  return html
+}
+
+// ── Global style injection helper ─────────────────────────────────────────────
+function injectGlobalStyles(html, settings) {
+  const gs = settings.globalStyles || {}
+  if (!Object.keys(gs).length) return html
+
+  const fontMap2 = { serif: "'DM Serif Display',serif", sans: "'DM Sans',sans-serif", mono: "'Courier New',monospace" }
+  const btnPad   = { sm: '8px 18px', md: '12px 28px', lg: '16px 36px' }
+  const spacing  = { compact: '0.6', normal: '1', spacious: '1.4' }
+  const cssVars  = [
+    gs.headingFont ? `--font-heading:${fontMap2[gs.headingFont] || fontMap2.serif};` : '',
+    gs.bodyFont    ? `--font-body:${fontMap2[gs.bodyFont] || fontMap2.sans};` : '',
+    gs.fontSize    ? `--font-size-base:${gs.fontSize};` : '',
+    gs.btnRadius   ? `--btn-radius:${gs.btnRadius};` : '',
+    gs.btnSize     ? `--btn-pad:${btnPad[gs.btnSize] || btnPad.md};` : '',
+    gs.cardRadius  ? `--card-radius:${gs.cardRadius};` : '',
+    gs.siteBg      ? `--site-bg:${gs.siteBg};` : '',
+    gs.spacing     ? `--spacing-scale:${spacing[gs.spacing] || '1'};` : ''
+  ].filter(Boolean).join('')
+
+  if (!cssVars) return html
+
+  const styleTag = `<style>:root{${cssVars}}body{background:var(--site-bg,inherit);font-size:var(--font-size-base,inherit);font-family:var(--font-body,inherit);}h1,h2,h3,h4{font-family:var(--font-heading,inherit);}.btn-p,.btn-solid,.pz-plan-cta,.link-btn{border-radius:var(--btn-radius,inherit)!important;padding:var(--btn-pad,inherit)!important;}.card,.pz-gallery-item,.pz-plan,.testi-item{border-radius:var(--card-radius,inherit)!important;}</style>`
+  return html.replace('</head>', styleTag + '</head>')
 }
 
 function byType(type) {
@@ -310,6 +399,6 @@ function clearCache() {
 }
 
 module.exports = {
-  loadAll, loadTheme, render, byType, clearCache,
+  loadAll, loadTheme, render, renderBlog, renderPost, byType, clearCache,
   getSections, getSection, loadGlobalSections, DEFAULT_COLORS
 }
