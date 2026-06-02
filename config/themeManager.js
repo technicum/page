@@ -225,6 +225,22 @@ async function render(slug, site, settings, pageId = 'home') {
   const customPages   = (settings.customPages || []).filter(p => !customPageIds.has(p.id))
   const allSitePages  = [...themePages, ...customPages]
 
+  // Nav items — user-controlled menu (label, order, visibility, external links)
+  // If navItems are saved, use them filtered to show:true
+  // Otherwise fall back to allSitePages
+  let navItems = []
+  if (settings.navItems && settings.navItems.length) {
+    navItems = settings.navItems.filter(n => n.show !== false)
+  } else {
+    navItems = allSitePages.map(p => ({
+      id:    p.id,
+      label: p.label,
+      url:   p.id === 'home' ? '/' : '/' + p.id,
+      show:  true,
+      external: false
+    }))
+  }
+
   const context = {
     site: {
       title:     site.title,
@@ -243,6 +259,7 @@ async function render(slug, site, settings, pageId = 'home') {
     rendered_sections: renderedSections,
     page_id:           pageId,
     site_pages:        allSitePages,
+    nav_items:         navItems,
     site_type:         settings.site_type || 'business',
     city:              settings.city || '',
     app_name:          process.env.APP_NAME || 'PageZapper',

@@ -225,6 +225,27 @@ body{overflow:hidden;background:#f4f4f5;margin:0;}
 .ds-swatch{width:26px;height:26px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform 0.12s,border-color 0.12s;}
 .ds-swatch:hover{transform:scale(1.15);}
 .ds-swatch.on{border-color:#111827;box-shadow:0 0 0 1px #fff,0 0 0 3px #111827;}
+/* Nav item row */
+.nav-item-row{display:flex;align-items:center;gap:6px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:default;}
+.nav-item-row.dragging{opacity:0.4;}
+.nav-item-row.drag-over{border-color:var(--accent);background:#f5f3ff;}
+.nav-item-drag{cursor:grab;color:#d1d5db;font-size:13px;flex-shrink:0;}
+.nav-item-drag:active{cursor:grabbing;}
+.nav-item-vis{font-size:14px;cursor:pointer;flex-shrink:0;opacity:0.9;border:none;background:transparent;padding:0;line-height:1;}
+.nav-item-label-wrap{flex:1;min-width:0;}
+.nav-item-label{width:100%;border:none;background:transparent;font-size:12px;font-weight:500;color:#111827;font-family:inherit;padding:0;outline:none;}
+.nav-item-label:focus{color:var(--accent);}
+.nav-item-url{font-size:10px;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nav-item-del{font-size:12px;color:#e5e7eb;cursor:pointer;background:transparent;border:none;flex-shrink:0;line-height:1;transition:color 0.12s;}
+.nav-item-del:hover{color:#ef4444;}
+.nav-item-row.hidden-nav .nav-item-label{color:#9ca3af;text-decoration:line-through;}
+/* Page row */
+.page-row{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:#fff;}
+.page-row-icon{font-size:14px;flex-shrink:0;}
+.page-row-info{flex:1;min-width:0;}
+.page-row-name{font-size:12px;font-weight:600;color:#111827;}
+.page-row-url{font-size:10px;color:#9ca3af;}
+.page-row-actions{display:flex;gap:4px;flex-shrink:0;}
 
 /* Field groups */
 .fg{margin-bottom:16px;}
@@ -536,16 +557,36 @@ body{overflow:hidden;background:#f4f4f5;margin:0;}
 
     <!-- Pages tab -->
     <div class="pr-pane" id="pane-page">
-      <div class="pr-design" id="pagesPane">
+      <div class="pr-design">
+
+        <!-- ── Pages list ── -->
         <div class="ds-group">
-          <div class="ds-group-title">Site Pages</div>
-          <div id="pagesList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;"></div>
-          <div style="border:1px solid var(--border);border-radius:8px;padding:10px;background:#fafafa;">
-            <div class="ds-label" style="margin-bottom:8px;">Add a new page</div>
-            <input id="newPageLabel" class="fg-input" placeholder="Page name (e.g. Blog)" style="margin-bottom:6px;">
-            <button onclick="addCustomPage()" style="width:100%;padding:8px;border-radius:6px;background:var(--accent);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Add Page</button>
+          <div class="ds-group-title">Pages</div>
+          <div id="pagesList" style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px;"></div>
+          <!-- Add page form -->
+          <div style="background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px;">
+            <div class="ds-label">Add a page</div>
+            <input id="newPageLabel" class="fg-input" placeholder="Page name (e.g. Services)">
+            <button onclick="addCustomPage()" style="padding:7px;border-radius:6px;background:var(--accent);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Create Page</button>
           </div>
         </div>
+
+        <!-- ── Navigation Menu ── -->
+        <div class="ds-group">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div class="ds-group-title" style="margin-bottom:0;">Navigation Menu</div>
+            <span style="font-size:10px;color:#9ca3af;">Drag to reorder</span>
+          </div>
+          <div id="navItemsList" style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;"></div>
+          <!-- Add external link -->
+          <div style="background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px;">
+            <div class="ds-label">Add external link</div>
+            <input id="extLinkLabel" class="fg-input" placeholder="Label (e.g. Blog)">
+            <input id="extLinkUrl"   class="fg-input" placeholder="URL (https://...)">
+            <button onclick="addExternalNavLink()" style="padding:7px;border-radius:6px;background:#374151;color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Add Link</button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -620,72 +661,176 @@ function applyStylesToUI() {
   });
 }
 
-// ── Pages manager ─────────────────────────────────────────────────────────────
+// ── Pages + Nav manager ───────────────────────────────────────────────────────
+let settings_customPages = {{ (settings.customPages or []) | dump | safe }};
+let navItems             = {{ (settings.navItems or []) | dump | safe }};
+let navDragSrc           = null;
+
+function allPagesList() {
+  const themeIds = new Set(THEME_PAGES.map(p => p.id));
+  return [
+    ...THEME_PAGES,
+    ...settings_customPages.filter(p => !themeIds.has(p.id))
+  ];
+}
+
+// ── Sync navItems whenever pages change ───────────────────────────────────────
+function syncNavItems() {
+  const pages = allPagesList();
+  // Add new pages to nav that aren't there yet
+  pages.forEach(page => {
+    if (!navItems.find(n => n.id === page.id)) {
+      navItems.push({
+        id:    page.id,
+        label: page.label,
+        url:   page.id === 'home' ? '/' : '/' + page.id,
+        show:  true,
+        external: false
+      });
+    }
+  });
+  // Remove nav items for deleted pages (but keep external links)
+  const pageIds = new Set(pages.map(p => p.id));
+  navItems = navItems.filter(n => n.external || pageIds.has(n.id));
+}
+
+// ── Render pages list ─────────────────────────────────────────────────────────
 function renderPagesList() {
+  syncNavItems();
   const list = document.getElementById('pagesList');
   if (!list) return;
   list.innerHTML = '';
+  const pages      = allPagesList();
+  const themeIds   = new Set(THEME_PAGES.map(p => p.id));
 
-  // Combine theme pages + custom pages
-  const themePageIds = new Set(THEME_PAGES.map(p => p.id));
-  const customPages  = (settings_customPages || []);
-  const allPgs       = [
-    ...THEME_PAGES,
-    ...customPages.filter(p => !themePageIds.has(p.id))
-  ];
-
-  if (!allPgs.length) {
-    list.innerHTML = '<p style="font-size:12px;color:#9ca3af;">No pages defined. Add one below.</p>';
-    return;
-  }
-
-  allPgs.forEach(page => {
-    const isThemePage = themePageIds.has(page.id);
+  pages.forEach(page => {
     const isCurrent   = page.id === currentPage;
+    const isThemePage = themeIds.has(page.id);
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;';
+    row.className = 'page-row';
     row.innerHTML = `
-      <span style="font-size:14px;">📄</span>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:600;color:#111827;">${page.label}</div>
-        <div style="font-size:11px;color:#9ca3af;">/${page.id === 'home' ? '' : page.id}</div>
+      <span class="page-row-icon">📄</span>
+      <div class="page-row-info">
+        <div class="page-row-name">${page.label}${isCurrent ? ' <span style="font-size:9px;background:#ede9fe;color:#6d28d9;padding:1px 6px;border-radius:8px;margin-left:4px;">editing</span>' : ''}</div>
+        <div class="page-row-url">/${page.id === 'home' ? '' : page.id}</div>
       </div>
-      ${isCurrent ? '<span style="font-size:10px;font-weight:700;background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:10px;">Current</span>' : `<button onclick="switchPage('${page.id}')" style="font-size:11px;font-weight:600;color:#6366f1;background:transparent;border:none;cursor:pointer;">Switch</button>`}
-      ${!isThemePage ? `<button onclick="removeCustomPage('${page.id}')" style="font-size:13px;color:#d1d5db;background:transparent;border:none;cursor:pointer;" title="Remove">✕</button>` : ''}
+      <div class="page-row-actions">
+        ${!isCurrent ? `<button onclick="switchPageFromTab('${page.id}')" style="font-size:11px;font-weight:600;color:#6366f1;background:transparent;border:none;cursor:pointer;padding:3px 8px;border-radius:5px;border:1px solid #ddd6fe;">Edit</button>` : ''}
+        ${!isThemePage ? `<button onclick="removeCustomPage('${page.id}')" style="font-size:12px;color:#d1d5db;background:transparent;border:none;cursor:pointer;margin-left:2px;" title="Delete">✕</button>` : ''}
+      </div>
     `;
+    list.appendChild(row);
+  });
+
+  renderNavItems();
+}
+
+// ── Render nav items list ─────────────────────────────────────────────────────
+function renderNavItems() {
+  const list = document.getElementById('navItemsList');
+  if (!list) return;
+  list.innerHTML = '';
+
+  navItems.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'nav-item-row' + (item.show ? '' : ' hidden-nav');
+    row.draggable = true;
+    row.dataset.idx = i;
+    row.innerHTML = `
+      <span class="nav-item-drag" title="Drag to reorder">⠿</span>
+      <button class="nav-item-vis" title="${item.show ? 'Hide from nav' : 'Show in nav'}" onclick="toggleNavVis(${i})">
+        ${item.show ? '👁' : '🚫'}
+      </button>
+      <div class="nav-item-label-wrap">
+        <input class="nav-item-label" value="${item.label}" placeholder="Label"
+          oninput="navItems[${i}].label=this.value;markDirty();debouncedPreview();">
+        <div class="nav-item-url">${item.external ? '🔗 ' : ''}${item.url}</div>
+      </div>
+      <button class="nav-item-del" onclick="removeNavItem(${i})" title="Remove">✕</button>
+    `;
+    // Drag events
+    row.addEventListener('dragstart', () => { navDragSrc = i; row.classList.add('dragging'); });
+    row.addEventListener('dragend',   () => { row.classList.remove('dragging'); navDragSrc = null; });
+    row.addEventListener('dragover',  e => { e.preventDefault(); row.classList.add('drag-over'); });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      if (navDragSrc === null || navDragSrc === i) return;
+      const moved = navItems.splice(navDragSrc, 1)[0];
+      navItems.splice(i, 0, moved);
+      renderNavItems();
+      markDirty();
+      debouncedPreview();
+    });
     list.appendChild(row);
   });
 }
 
-let settings_customPages = {{ (settings.customPages or []) | dump | safe }};
+function toggleNavVis(i) {
+  navItems[i].show = !navItems[i].show;
+  renderNavItems();
+  markDirty();
+  debouncedPreview();
+}
 
-function addCustomPage() {
-  const labelInp = document.getElementById('newPageLabel');
+function removeNavItem(i) {
+  // Only allow removing external links or pages; don't fully remove page nav items — just hide
+  if (!navItems[i].external) {
+    navItems[i].show = false;
+  } else {
+    navItems.splice(i, 1);
+  }
+  renderNavItems();
+  markDirty();
+  debouncedPreview();
+}
+
+function addExternalNavLink() {
+  const labelInp = document.getElementById('extLinkLabel');
+  const urlInp   = document.getElementById('extLinkUrl');
   const label    = (labelInp.value || '').trim();
-  if (!label) { labelInp.focus(); return; }
-  const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const url      = (urlInp.value   || '').trim();
+  if (!label || !url) { labelInp.focus(); return; }
+  navItems.push({ id: 'ext_' + Date.now(), label, url, show: true, external: true });
+  labelInp.value = '';
+  urlInp.value   = '';
+  renderNavItems();
+  markDirty();
+  debouncedPreview();
+}
+
+// ── Custom pages CRUD ─────────────────────────────────────────────────────────
+function addCustomPage() {
+  const inp   = document.getElementById('newPageLabel');
+  const label = (inp.value || '').trim();
+  if (!label) { inp.focus(); return; }
+  const slug  = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   if (!slug) return;
-  // Check not duplicate
-  const allIds = new Set([...THEME_PAGES.map(p => p.id), ...settings_customPages.map(p => p.id)]);
+  const allIds = new Set(allPagesList().map(p => p.id));
   if (allIds.has(slug)) { alert('A page with that name already exists.'); return; }
   settings_customPages.push({ id: slug, label });
   if (!allPages[slug]) allPages[slug] = { sections: [] };
-  labelInp.value = '';
+  inp.value = '';
+  syncNavItems();
   renderPagesList();
   markDirty();
 }
 
 function removeCustomPage(id) {
-  if (!confirm('Remove this page and its sections?')) return;
+  if (!confirm(`Delete the "${id}" page and all its sections?`)) return;
   settings_customPages = settings_customPages.filter(p => p.id !== id);
   delete allPages[id];
-  if (currentPage === id) switchPage(THEME_PAGES[0]?.id || 'home');
+  navItems = navItems.filter(n => n.id !== id || n.external);
+  if (currentPage === id) switchPageFromTab(THEME_PAGES[0]?.id || 'home');
   renderPagesList();
   markDirty();
 }
 
-// Override switchPage to also update customPages in payload
-const _origSwitchPage = typeof switchPage !== 'undefined' ? switchPage : null;
+function switchPageFromTab(pageId) {
+  switchPage(pageId);
+  renderPagesList();
+}
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const SITE_ID        = {{ site.id }};
@@ -1117,8 +1262,8 @@ function debouncedPreview() {
 function refreshPreview() {
   if (IS_MULTIPAGE) allPages[currentPage].sections = sections;
   const body = IS_MULTIPAGE
-    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), page_id: currentPage, theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), _builder: true }
-    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), _builder: true };
+    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), page_id: currentPage, theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems), _builder: true }
+    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems), _builder: true };
   fetch('/dashboard/site/builder-preview', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
   }).then(r => r.text()).then(html => {
@@ -1152,8 +1297,8 @@ async function saveAll() {
   btn.textContent = 'Saving…'; btn.disabled = true;
   if (IS_MULTIPAGE) allPages[currentPage].sections = sections;
   const body = IS_MULTIPAGE
-    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages) }
-    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages) };
+    ? { site_id: SITE_ID, all_pages: JSON.stringify(allPages), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems) }
+    : { site_id: SITE_ID, sections: JSON.stringify(sections), theme: currentColor, global_styles: JSON.stringify(globalStyles), custom_pages: JSON.stringify(settings_customPages), nav_items: JSON.stringify(navItems) };
   try {
     const r = await fetch('/dashboard/site/builder-save', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
