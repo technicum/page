@@ -223,6 +223,70 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}) {
     }
   }
 
+  // ── Pre-render ROW sections ─────────────────────────────────────────────────
+  // Rows are top-level items with _isRow:true containing columns of global sections
+  async function renderSectionInRow(sec) {
+    if (!sec || sec._hidden) return ''
+    const secWithCss = { ...sec, _designCss: buildSectionDesignCss(sec.design || {}, colorMap, accentColor) }
+    const plugin = plugins.find(p => p.id === sec.id)
+    if (!plugin) return `<!-- section "${sec.id}" not found -->`
+    const themeRender   = path.join(plugin._path, theme.slug + '.liquid')
+    const defaultRender = path.join(plugin._path, 'render.liquid')
+    const renderFile    = fs.existsSync(themeRender) ? themeRender
+                        : fs.existsSync(defaultRender) ? defaultRender : null
+    if (!renderFile) return ''
+    try {
+      const src = fs.readFileSync(renderFile, 'utf8')
+      return await engine.parseAndRender(src, { ...pluginContext, section: secWithCss })
+    } catch(e) {
+      return `<!-- row section "${sec.id}" error: ${e.message} -->`
+    }
+  }
+
+  const LAYOUT_COLS = {
+    '1':       '1fr',
+    '1-1':     '1fr 1fr',
+    '1-1-1':   '1fr 1fr 1fr',
+    '1-1-1-1': '1fr 1fr 1fr 1fr',
+    '1-2':     '1fr 2fr',
+    '2-1':     '2fr 1fr',
+    '1-3':     '1fr 3fr',
+    '3-1':     '3fr 1fr',
+    '1-1-2':   '1fr 1fr 2fr',
+    '2-1-1':   '2fr 1fr 1fr'
+  }
+
+  for (const sec of pageSections) {
+    if (!sec._isRow) continue
+
+    const layout   = sec.layout || '1-1'
+    const gridCols = LAYOUT_COLS[layout] || '1fr 1fr'
+    const cols     = sec.columns || []
+    const rowCss   = buildSectionDesignCss(sec.design || {}, colorMap, accentColor)
+
+    const colHTMLs = []
+    for (const col of cols) {
+      let colHTML = ''
+      for (const colSec of (col || [])) {
+        colHTML += await renderSectionInRow(colSec)
+      }
+      colHTMLs.push(colHTML)
+    }
+
+    const numCols = cols.length || 2
+    renderedSections[sec.id] = `
+<div class="pz-row" data-pz="${sec.id}" ${rowCss ? `style="${rowCss}"` : ''}>
+  <div class="pz-row-grid" style="display:grid;grid-template-columns:${gridCols};gap:0;width:100%;align-items:start;">
+    ${colHTMLs.map((h, ci) => `<div class="pz-row-col" data-col="${ci}">${h}</div>`).join('')}
+  </div>
+</div>
+<style>
+.pz-row{width:100%;}
+.pz-row-grid{width:100%;}
+@media(max-width:768px){.pz-row-grid{grid-template-columns:1fr!important;}}
+</style>`
+  }
+
   // Build page list for nav links in multi-page themes
   const themePages = Array.isArray(theme.pages) ? theme.pages : []
 

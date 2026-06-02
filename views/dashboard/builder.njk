@@ -107,7 +107,7 @@ body{overflow:hidden;background:#1a1a2e;margin:0;font-family:"DM Sans",sans-seri
 .e-sec-action.danger:hover{background:rgba(239,68,68,0.2);color:#fca5a5;}
 
 /* Panel footer - add section */
-.e-panel-footer{padding:10px;border-top:1px solid var(--panel-border);flex-shrink:0;}
+.e-panel-footer{padding:10px;border-top:1px solid var(--panel-border);flex-shrink:0;display:flex;gap:0;}
 .e-add-btn{
   width:100%;padding:9px;border-radius:8px;
   display:flex;align-items:center;justify-content:center;gap:6px;
@@ -336,6 +336,46 @@ body{overflow:hidden;background:#1a1a2e;margin:0;font-family:"DM Sans",sans-seri
 
 /* Styles drawer (kept for compatibility, hidden) */
 .styles-drawer{display:none;}
+
+/* ── Row / Column layout in navigator ── */
+.e-row-item{background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.18);border-radius:8px;margin-bottom:4px;overflow:hidden;}
+.e-row-header{display:flex;align-items:center;gap:7px;padding:7px 8px;cursor:pointer;}
+.e-row-header:hover{background:rgba(99,102,241,0.08);}
+.e-row-header.active{background:rgba(99,102,241,0.15);}
+.e-row-icon{font-size:13px;flex-shrink:0;color:var(--accent-h);}
+.e-row-label{font-size:12px;font-weight:500;color:var(--panel-text);flex:1;}
+.e-row-layout-tag{font-size:9px;background:rgba(99,102,241,0.2);color:var(--accent-h);padding:2px 7px;border-radius:10px;letter-spacing:0.3px;}
+.e-row-actions{display:flex;gap:1px;opacity:0;}
+.e-row-header:hover .e-row-actions{opacity:1;}
+.e-row-action{width:20px;height:20px;border-radius:4px;border:none;background:transparent;cursor:pointer;font-size:10px;color:var(--panel-muted);display:flex;align-items:center;justify-content:center;}
+.e-row-action:hover{background:rgba(255,255,255,0.1);color:var(--panel-text);}
+.e-row-action.danger:hover{background:rgba(239,68,68,0.2);color:#fca5a5;}
+.e-row-cols{display:flex;gap:0;border-top:1px solid rgba(99,102,241,0.12);overflow:hidden;}
+.e-row-col-wrap{flex:1;border-right:1px solid rgba(99,102,241,0.12);min-width:0;}
+.e-row-col-wrap:last-child{border-right:none;}
+.e-col-label{font-size:9px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:rgba(99,102,241,0.6);padding:5px 8px 3px;}
+.e-col-sections{padding:3px 5px;}
+.e-mini-sec{display:flex;align-items:center;gap:5px;padding:5px 6px;border-radius:5px;cursor:pointer;margin-bottom:2px;border:1px solid transparent;}
+.e-mini-sec:hover{background:var(--panel-hover);}
+.e-mini-sec.active{background:var(--panel-active);border-color:rgba(99,102,241,0.3);}
+.e-mini-sec.hidden-sec{opacity:0.4;}
+.e-mini-icon{font-size:11px;flex-shrink:0;}
+.e-mini-name{font-size:11px;color:var(--panel-text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.e-mini-del{width:16px;height:16px;border-radius:3px;border:none;background:transparent;cursor:pointer;font-size:9px;color:var(--panel-muted);display:flex;align-items:center;justify-content:center;opacity:0;}
+.e-mini-sec:hover .e-mini-del{opacity:1;}
+.e-mini-del:hover{color:#fca5a5;background:rgba(239,68,68,0.2);}
+.e-col-add{width:100%;padding:4px;border-radius:4px;background:transparent;border:1px dashed rgba(99,102,241,0.2);color:rgba(99,102,241,0.5);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;margin:3px 5px 5px;width:calc(100% - 10px);transition:all 0.12s;}
+.e-col-add:hover{border-color:rgba(99,102,241,0.5);color:var(--accent-h);background:rgba(99,102,241,0.07);}
+
+/* Row layout picker modal */
+.layout-picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;padding:16px 20px;}
+.layout-card{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px;border-radius:10px;border:1.5px solid #e4e7ec;cursor:pointer;transition:all 0.15s;}
+.layout-card:hover{border-color:var(--accent);background:#f5f3ff;}
+.layout-preview{display:flex;gap:3px;height:28px;width:80px;}
+.layout-col{background:#ddd6fe;border-radius:3px;flex:1;}
+.layout-card:hover .layout-col{background:#a5b4fc;}
+.layout-label{font-size:11px;font-weight:600;color:#374151;text-align:center;}
+.layout-desc{font-size:10px;color:#9ca3af;text-align:center;}
 </style>
 {% endblock %}
 
@@ -401,7 +441,8 @@ body{overflow:hidden;background:#1a1a2e;margin:0;font-family:"DM Sans",sans-seri
           <div class="e-nav-list" id="sectionsList"></div>
         </div>
         <div class="e-panel-footer">
-          <button class="e-add-btn" onclick="openAddModal()">＋ Add Section</button>
+          <button class="e-add-btn" onclick="openAddModal()" style="flex:1;">＋ Add Section</button>
+          <button class="e-add-btn" onclick="openRowModal()" style="flex:0 0 auto;padding:9px 12px;margin-left:6px;" title="Add Row with columns">⬛</button>
         </div>
       </div>
 
@@ -714,6 +755,18 @@ body{overflow:hidden;background:#1a1a2e;margin:0;font-family:"DM Sans",sans-seri
     <div id="mediaGrid" style="flex:1;overflow-y:auto;padding:14px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;">
       <div style="grid-column:1/-1;text-align:center;padding:40px;color:#9ca3af;">Loading…</div>
     </div>
+  </div>
+</div>
+
+<!-- ── Row layout picker modal ── -->
+<div class="modal-overlay" id="rowModal" onclick="closeRowModal(event)">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <div class="modal-title">⬛ Add a Row</div>
+      <button class="modal-close" onclick="closeRowModal()">✕</button>
+    </div>
+    <div style="padding:12px 20px 0;font-size:12px;color:#6b7280;">Choose how many columns and their proportions:</div>
+    <div class="layout-picker-grid" id="layoutGrid"></div>
   </div>
 </div>
 
@@ -1603,6 +1656,285 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey||e.metaKey) && (e.key==='y'||(e.key==='z'&&e.shiftKey))) { e.preventDefault(); redo(); }
   if (e.key==='Escape' && activeIdx >= 0) deselectSection();
 });
+
+// ── Row / Column system ───────────────────────────────────────────────────────
+let addContext   = null; // null = top-level | { rowIdx, colIdx } = inside row
+let activeRowIdx = -1;   // index of selected row for settings
+
+const ROW_LAYOUTS = [
+  { layout:'1',       label:'Full width',   desc:'1 column',      cols:[1] },
+  { layout:'1-1',     label:'Two equal',    desc:'50% / 50%',     cols:[1,1] },
+  { layout:'1-1-1',   label:'Three equal',  desc:'33% × 3',       cols:[1,1,1] },
+  { layout:'1-1-1-1', label:'Four equal',   desc:'25% × 4',       cols:[1,1,1,1] },
+  { layout:'1-2',     label:'Sidebar left', desc:'33% / 66%',     cols:[1,2] },
+  { layout:'2-1',     label:'Sidebar right',desc:'66% / 33%',     cols:[2,1] },
+  { layout:'1-3',     label:'Narrow left',  desc:'25% / 75%',     cols:[1,3] },
+  { layout:'3-1',     label:'Narrow right', desc:'75% / 25%',     cols:[3,1] },
+  { layout:'1-1-2',   label:'Right wide',   desc:'25/25/50%',     cols:[1,1,2] },
+  { layout:'2-1-1',   label:'Left wide',    desc:'50/25/25%',     cols:[2,1,1] }
+];
+
+function openRowModal() {
+  const grid = document.getElementById('layoutGrid');
+  grid.innerHTML = '';
+  ROW_LAYOUTS.forEach(rl => {
+    const card = document.createElement('div');
+    card.className = 'layout-card';
+    const total = rl.cols.reduce((a,b)=>a+b,0);
+    card.innerHTML = `
+      <div class="layout-preview">
+        ${rl.cols.map(w=>`<div class="layout-col" style="flex:${w};"></div>`).join('')}
+      </div>
+      <div class="layout-label">${rl.label}</div>
+      <div class="layout-desc">${rl.desc}</div>
+    `;
+    card.onclick = () => { addRow(rl.layout, rl.cols.length); closeRowModal(); };
+    grid.appendChild(card);
+  });
+  document.getElementById('rowModal').classList.add('open');
+}
+
+function closeRowModal(e) {
+  if (e && e.target !== document.getElementById('rowModal')) return;
+  document.getElementById('rowModal').classList.remove('open');
+}
+
+function addRow(layout, numCols) {
+  const rowId = '_row_' + Date.now();
+  const columns = Array.from({ length: numCols }, () => []);
+  sections.push({ id: rowId, _isRow: true, layout, columns, design: {} });
+  renderList();
+  markDirty(); pushUndo(); debouncedPreview();
+}
+
+function deleteRow(rowIdx, e) {
+  e.stopPropagation();
+  if (!confirm('Remove this row and all its sections?')) return;
+  sections.splice(rowIdx, 1);
+  if (activeIdx === rowIdx) deselectSection();
+  else if (activeIdx > rowIdx) activeIdx--;
+  renderList();
+  markDirty(); pushUndo(); debouncedPreview();
+}
+
+function openAddModalForColumn(rowIdx, colIdx) {
+  addContext = { rowIdx, colIdx };
+  filterModal('');
+  document.getElementById('addModal').classList.add('open');
+  setTimeout(() => document.getElementById('modalSearch').focus(), 100);
+}
+
+function addSectionToColumn(rowIdx, colIdx, schema) {
+  const sec = makeSection(schema);
+  sections[rowIdx].columns[colIdx].push(sec);
+  renderList();
+  // Select the new section
+  selectColumnSection(rowIdx, colIdx, sections[rowIdx].columns[colIdx].length - 1);
+  markDirty(); pushUndo(); debouncedPreview();
+}
+
+function selectColumnSection(rowIdx, colIdx, secIdx) {
+  activeIdx = rowIdx; // track row index as activeIdx
+  // Build a special context for the section editor
+  const sec    = sections[rowIdx].columns[colIdx][secIdx];
+  const schema = THEME_SECTIONS.find(s => s.id === sec.id) || {};
+  document.getElementById('editIcon').textContent = schema.emoji || '📄';
+  document.getElementById('editName').textContent = schema.label || sec.id;
+  // Render fields for this column section
+  const fields = document.getElementById('prFields');
+  fields.innerHTML = '';
+  if (schema.fields && schema.fields.length) {
+    schema.fields.forEach(fd => fields.appendChild(buildColumnField(fd, sec.fields, rowIdx, colIdx, secIdx)));
+  } else {
+    fields.innerHTML = '<p style="font-size:12px;color:var(--panel-muted);padding:8px 0;">No editable fields.</p>';
+  }
+  // Render design for this column section
+  renderColumnDesign(rowIdx, colIdx, secIdx);
+  enterEditMode(-1); // -1 = column section mode
+  // Mark which section is active in navigator
+  renderList();
+  // Highlight in iframe
+  const frame = document.getElementById('previewFrame');
+  if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'pz-highlight', id: sections[rowIdx].id }, '*');
+  // Store column context for sec bar actions
+  activeColContext = { rowIdx, colIdx, secIdx };
+}
+
+let activeColContext = null;
+
+function renderColumnDesign(rowIdx, colIdx, secIdx) {
+  const sec    = sections[rowIdx].columns[colIdx][secIdx];
+  const design = sec.design || {};
+  syncDesignChips('bgType',    design.bgType    || 'none');
+  syncDesignChips('overlay',   design.overlay   || '');
+  syncDesignChips('textColor', design.textColor || '');
+  syncDesignChips('paddingY',  design.paddingY  || (design.paddingTop != null ? '' : 'normal'));
+  toggleBgRows(design.bgType || 'none');
+  const colorInp = document.getElementById('sd-bg-color');
+  const hexInp   = document.getElementById('sd-bg-color-hex');
+  if (colorInp) colorInp.value = design.bgColor || '#ffffff';
+  if (hexInp)   hexInp.value   = design.bgColor || '';
+  const imgInp = document.getElementById('sd-bg-image');
+  if (imgInp) imgInp.value = design.bgImage || '';
+  syncSpacingUI(design);
+}
+
+function buildColumnField(fd, data, rowIdx, colIdx, secIdx) {
+  const wrap = document.createElement('div');
+  wrap.className = 'fg';
+  if (fd.type === 'form_select') {
+    const lbl = document.createElement('label');
+    lbl.className = 'fg-label'; lbl.textContent = fd.label;
+    const sel = document.createElement('select');
+    sel.className = 'fg-input'; sel.style.cursor='pointer';
+    sel.innerHTML = '<option value="">— Loading… —</option>';
+    fetch(`/dashboard/api/forms/${SITE_ID}`)
+      .then(r=>r.json()).then(forms=>{
+        sel.innerHTML='<option value="">— Select a form —</option>';
+        forms.forEach(f=>{
+          const opt=document.createElement('option');
+          opt.value=f.id;opt.textContent=f.name;
+          if(String(f.id)===String(data[fd.id]))opt.selected=true;
+          sel.appendChild(opt);
+        });
+      }).catch(()=>{sel.innerHTML='<option>Failed to load</option>';});
+    sel.addEventListener('change',()=>{
+      sections[rowIdx].columns[colIdx][secIdx].fields[fd.id]=sel.value;
+      markDirty();debouncedPreview();pushUndo();
+    });
+    wrap.appendChild(lbl);wrap.appendChild(sel);
+  } else if (fd.type === 'list') {
+    wrap.innerHTML = `
+      <div class="list-header">
+        <span class="list-label">${fd.label}</span>
+        <button class="list-add" onclick="addColListItem('${fd.id}',${rowIdx},${colIdx},${secIdx})">+ Add</button>
+      </div>
+      <div class="list-items-wrap" id="cliwrap-${rowIdx}-${colIdx}-${secIdx}-${fd.id}"></div>
+    `;
+    renderColListItems(fd, data, rowIdx, colIdx, secIdx);
+  } else {
+    const lbl = document.createElement('label');
+    lbl.className='fg-label';lbl.textContent=fd.label;
+    let inp;
+    if (fd.type==='textarea'||fd.type==='richtext'){inp=document.createElement('textarea');inp.className='fg-input fg-textarea';}
+    else{inp=document.createElement('input');inp.className='fg-input';inp.type={url:'url',email:'email',tel:'tel'}[fd.type]||'text';}
+    inp.value=(data[fd.id]!=null)?data[fd.id]:(fd.default||'');
+    inp.placeholder=fd.placeholder||fd.default||'';
+    inp.addEventListener('input',()=>{sections[rowIdx].columns[colIdx][secIdx].fields[fd.id]=inp.value;markDirty();debouncedPreview();});
+    inp.addEventListener('change',()=>pushUndo());
+    wrap.appendChild(lbl);wrap.appendChild(inp);
+  }
+  return wrap;
+}
+
+function renderColListItems(fd, data, rowIdx, colIdx, secIdx) {
+  const wrap = document.getElementById(`cliwrap-${rowIdx}-${colIdx}-${secIdx}-${fd.id}`);
+  if (!wrap) return;
+  wrap.innerHTML='';
+  (data[fd.id]||[]).forEach((item,ii)=>{
+    const card=document.createElement('div');card.className='li-card';
+    const title=item[(fd.item_fields||[])[0]?.id]||`Item ${ii+1}`;
+    card.innerHTML=`<div class="li-head" onclick="this.parentElement.classList.toggle('open')"><span class="li-head-title">${title}</span><span class="li-caret">▼</span><button class="li-remove" onclick="removeColListItem('${fd.id}',${rowIdx},${colIdx},${secIdx},${ii},event)">✕</button></div><div class="li-body"></div>`;
+    const body=card.querySelector('.li-body');
+    (fd.item_fields||[]).forEach(sf=>{
+      const fg=document.createElement('div');fg.className='fg';
+      const lbl=document.createElement('label');lbl.className='fg-label';lbl.textContent=sf.label;
+      let inp;
+      if(sf.type==='textarea'){inp=document.createElement('textarea');inp.className='fg-input fg-textarea';}
+      else{inp=document.createElement('input');inp.className='fg-input';inp.type={url:'url',email:'email',tel:'tel'}[sf.type]||'text';}
+      inp.value=(item[sf.id]!=null)?item[sf.id]:(sf.default||'');
+      inp.placeholder=sf.default||'';
+      inp.addEventListener('input',()=>{sections[rowIdx].columns[colIdx][secIdx].fields[fd.id][ii][sf.id]=inp.value;card.querySelector('.li-head-title').textContent=sections[rowIdx].columns[colIdx][secIdx].fields[fd.id][ii][(fd.item_fields||[])[0]?.id]||`Item ${ii+1}`;markDirty();debouncedPreview();});
+      inp.addEventListener('change',()=>pushUndo());
+      fg.appendChild(lbl);fg.appendChild(inp);body.appendChild(fg);
+    });
+    if(ii===0)card.classList.add('open');
+    wrap.appendChild(card);
+  });
+}
+
+function addColListItem(fieldId,rowIdx,colIdx,secIdx){
+  const fd=THEME_SECTIONS.find(s=>s.id===sections[rowIdx].columns[colIdx][secIdx].id)?.fields.find(f=>f.id===fieldId);
+  if(!fd)return;
+  if(!sections[rowIdx].columns[colIdx][secIdx].fields[fieldId])sections[rowIdx].columns[colIdx][secIdx].fields[fieldId]=[];
+  const item={};(fd.item_fields||[]).forEach(sf=>{item[sf.id]=sf.default||'';});
+  sections[rowIdx].columns[colIdx][secIdx].fields[fieldId].push(item);
+  renderColListItems(fd,sections[rowIdx].columns[colIdx][secIdx].fields,rowIdx,colIdx,secIdx);
+  markDirty();pushUndo();debouncedPreview();
+}
+function removeColListItem(fieldId,rowIdx,colIdx,secIdx,ii,e){
+  e.stopPropagation();
+  sections[rowIdx].columns[colIdx][secIdx].fields[fieldId].splice(ii,1);
+  const fd=THEME_SECTIONS.find(s=>s.id===sections[rowIdx].columns[colIdx][secIdx].id)?.fields.find(f=>f.id===fieldId);
+  if(fd)renderColListItems(fd,sections[rowIdx].columns[colIdx][secIdx].fields,rowIdx,colIdx,secIdx);
+  markDirty();pushUndo();debouncedPreview();
+}
+
+function deleteColumnSection(rowIdx, colIdx, secIdx, e) {
+  e.stopPropagation();
+  sections[rowIdx].columns[colIdx].splice(secIdx, 1);
+  activeColContext = null;
+  renderList();
+  deselectSection();
+  markDirty(); pushUndo(); debouncedPreview();
+}
+
+function selectRowForSettings(rowIdx) {
+  activeRowIdx = rowIdx;
+  activeColContext = null;
+  const row = sections[rowIdx];
+  document.getElementById('editIcon').textContent = '⬛';
+  document.getElementById('editName').textContent = 'Row settings';
+  document.getElementById('prFields').innerHTML = buildRowSettingsHTML(row, rowIdx);
+  renderDesignPanel_row(rowIdx);
+  enterEditMode(rowIdx);
+}
+
+function buildRowSettingsHTML(row, rowIdx) {
+  const current = row.layout || '1-1';
+  let html = '<div class="fg"><div class="fg-label">Column layout</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;">';
+  ROW_LAYOUTS.forEach(rl => {
+    const active = rl.layout === current ? 'background:rgba(99,102,241,0.2);border-color:rgba(99,102,241,0.4);color:var(--accent-h);' : '';
+    const total = rl.cols.reduce((a,b)=>a+b,0);
+    html += `<button onclick="changeRowLayout(${rowIdx},'${rl.layout}',this)" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 10px;border-radius:7px;border:1px solid var(--inp-border);background:var(--inp-bg);cursor:pointer;font-family:inherit;${active}">
+      <div style="display:flex;gap:2px;height:20px;width:56px;">
+        ${rl.cols.map(w=>`<div style="flex:${w};background:rgba(165,180,252,0.4);border-radius:2px;"></div>`).join('')}
+      </div>
+      <span style="font-size:9px;color:var(--panel-muted);">${rl.desc}</span>
+    </button>`;
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function changeRowLayout(rowIdx, layout, el) {
+  const rl = ROW_LAYOUTS.find(r => r.layout === layout);
+  if (!rl) return;
+  const row  = sections[rowIdx];
+  const prev = row.columns || [];
+  const numCols = rl.cols.length;
+  // Adjust columns array — keep existing content, add/remove columns
+  const newCols = [];
+  for (let i = 0; i < numCols; i++) {
+    newCols.push(prev[i] || []);
+  }
+  row.layout  = layout;
+  row.columns = newCols;
+  // Update UI
+  document.getElementById('prFields').innerHTML = buildRowSettingsHTML(row, rowIdx);
+  renderList();
+  markDirty(); pushUndo(); debouncedPreview();
+}
+
+function renderDesignPanel_row(rowIdx) {
+  const design = (sections[rowIdx].design || {});
+  syncDesignChips('bgType',    design.bgType    || 'none');
+  syncDesignChips('overlay',   design.overlay   || '');
+  syncDesignChips('textColor', design.textColor || '');
+  syncDesignChips('paddingY',  design.paddingY  || 'normal');
+  toggleBgRows(design.bgType || 'none');
+  syncSpacingUI(design);
+}
 
 // ── AI fill ───────────────────────────────────────────────────────────────────
 async function runAI() {
