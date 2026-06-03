@@ -805,14 +805,18 @@ function switchEditSubTab(tab) {
 function enterEditMode(i) {
   document.getElementById('mode-browse').style.display = 'none';
   document.getElementById('mode-edit').style.display   = 'flex';
-  const sec    = sections[i];
-  const schema = THEME_SECTIONS.find(s => s.id === sec.id) || {};
-  document.getElementById('editIcon').textContent = schema.emoji || '📄';
-  document.getElementById('editName').textContent = schema.label || sec.id;
   // Section bar in canvas
-  const bar = document.getElementById('eSecBar');
-  bar.classList.add('visible');
-  document.getElementById('eSecBarName').textContent = schema.label || sec.id;
+  document.getElementById('eSecBar').classList.add('visible');
+  if (i >= 0 && i < sections.length) {
+    const sec    = sections[i];
+    const schema = THEME_SECTIONS.find(s => s.id === sec.id) || {};
+    const label  = sec._isRow ? 'Row' : (schema.label || sec.id);
+    const icon   = sec._isRow ? '⬛' : (schema.emoji || '📄');
+    document.getElementById('editIcon').textContent    = icon;
+    document.getElementById('editName').textContent    = label;
+    document.getElementById('eSecBarName').textContent = label;
+  }
+  // If entering for a column section, the caller already set icon/name
 }
 
 function exitEditMode() {
@@ -857,19 +861,32 @@ function toggleBgRows(bgType) {
   if (imageRow) imageRow.style.display = (bgType === 'image') ? 'block' : 'none';
 }
 
-function secDesignChip(el, key) {
-  if (activeIdx < 0) return;
+// Returns the active design object (handles both regular sections and column sections)
+function getActiveDesign() {
+  if (activeColContext) {
+    const { rowIdx, colIdx, secIdx } = activeColContext;
+    const sec = sections[rowIdx].columns[colIdx][secIdx];
+    if (!sec.design) sec.design = {};
+    return sec.design;
+  }
+  if (activeIdx < 0) return null;
   if (!sections[activeIdx].design) sections[activeIdx].design = {};
-  sections[activeIdx].design[key] = el.dataset.v;
+  return sections[activeIdx].design;
+}
+
+function secDesignChip(el, key) {
+  const d = getActiveDesign();
+  if (!d) return;
+  d[key] = el.dataset.v;
   syncDesignChips(key, el.dataset.v);
   if (key === 'bgType') toggleBgRows(el.dataset.v);
   markDirty(); debouncedPreview();
 }
 
 function secDesign(key, val) {
-  if (activeIdx < 0) return;
-  if (!sections[activeIdx].design) sections[activeIdx].design = {};
-  sections[activeIdx].design[key] = val;
+  const d = getActiveDesign();
+  if (!d) return;
+  d[key] = val;
   markDirty(); debouncedPreview();
 }
 
@@ -889,71 +906,114 @@ function setSecBgColor(hex) {
 }
 
 function resetSectionDesign() {
-  if (activeIdx < 0) return;
-  sections[activeIdx].design = {};
-  renderDesignPanel(activeIdx);
+  if (activeColContext) {
+    const { rowIdx, colIdx, secIdx } = activeColContext;
+    sections[rowIdx].columns[colIdx][secIdx].design = {};
+    renderColumnDesign(rowIdx, colIdx, secIdx);
+  } else {
+    if (activeIdx < 0) return;
+    sections[activeIdx].design = {};
+    renderDesignPanel(activeIdx);
+  }
   markDirty(); debouncedPreview();
 }
 
 // ── Canvas section bar actions ────────────────────────────────────────────────
 function moveSectionUp() {
+  if (activeColContext) {
+    const { rowIdx, colIdx, secIdx } = activeColContext;
+    if (secIdx <= 0) return;
+    const col = sections[rowIdx].columns[colIdx];
+    [col[secIdx], col[secIdx-1]] = [col[secIdx-1], col[secIdx]];
+    activeColContext.secIdx--;
+    renderList(); markDirty(); pushUndo(); debouncedPreview(); return;
+  }
   if (activeIdx <= 0) return;
   const tmp = sections[activeIdx];
   sections[activeIdx] = sections[activeIdx - 1];
   sections[activeIdx - 1] = tmp;
   activeIdx--;
-  renderList();
-  updateSecBar();
-  markDirty(); pushUndo(); debouncedPreview();
+  renderList(); updateSecBar(); markDirty(); pushUndo(); debouncedPreview();
 }
 
 function moveSectionDown() {
+  if (activeColContext) {
+    const { rowIdx, colIdx, secIdx } = activeColContext;
+    const col = sections[rowIdx].columns[colIdx];
+    if (secIdx >= col.length - 1) return;
+    [col[secIdx], col[secIdx+1]] = [col[secIdx+1], col[secIdx]];
+    activeColContext.secIdx++;
+    renderList(); markDirty(); pushUndo(); debouncedPreview(); return;
+  }
   if (activeIdx >= sections.length - 1) return;
   const tmp = sections[activeIdx];
   sections[activeIdx] = sections[activeIdx + 1];
   sections[activeIdx + 1] = tmp;
   activeIdx++;
-  renderList();
-  updateSecBar();
-  markDirty(); pushUndo(); debouncedPreview();
+  renderList(); updateSecBar(); markDirty(); pushUndo(); debouncedPreview();
 }
 
 function dupCurrentSection() {
+  if (activeColContext) {
+    const { rowIdx, colIdx, secIdx } = activeColContext;
+    const copy = JSON.parse(JSON.stringify(sections[rowIdx].columns[colIdx][secIdx]));
+    sections[rowIdx].columns[colIdx].splice(secIdx + 1, 0, copy);
+    renderList(); selectColumnSection(rowIdx, colIdx, secIdx + 1);
+    markDirty(); pushUndo(); debouncedPreview(); return;
+  }
   if (activeIdx < 0) return;
   const copy = JSON.parse(JSON.stringify(sections[activeIdx]));
   delete copy._hidden;
+  if (copy._isRow) copy.id = '_row_' + Date.now();
   sections.splice(activeIdx + 1, 0, copy);
-  renderList();
-  selectSection(activeIdx + 1);
-  markDirty(); pushUndo(); debouncedPreview();
+  renderList(); selectSection(activeIdx + 1); markDirty(); pushUndo(); debouncedPreview();
 }
 
 function toggleCurrentHide() {
+  if (activeColContext) {
+    const { rowIdx, colIdx, secIdx } = activeColContext;
+    sections[rowIdx].columns[colIdx][secIdx]._hidden = !sections[rowIdx].columns[colIdx][secIdx]._hidden;
+    renderList(); markDirty(); pushUndo(); debouncedPreview(); return;
+  }
   if (activeIdx < 0) return;
   sections[activeIdx]._hidden = !sections[activeIdx]._hidden;
-  renderList();
-  markDirty(); pushUndo(); debouncedPreview();
+  renderList(); markDirty(); pushUndo(); debouncedPreview();
 }
 
 function delCurrentSection() {
+  if (activeColContext) {
+    const { rowIdx, colIdx, secIdx } = activeColContext;
+    if (!confirm('Remove this section from the column?')) return;
+    sections[rowIdx].columns[colIdx].splice(secIdx, 1);
+    activeColContext = null; renderList(); deselectSection();
+    markDirty(); pushUndo(); debouncedPreview(); return;
+  }
   if (activeIdx < 0) return;
   if (!confirm('Remove this section?')) return;
   sections.splice(activeIdx, 1);
   if (activeIdx >= sections.length) activeIdx = sections.length - 1;
-  if (activeIdx >= 0) {
-    selectSection(activeIdx);
-  } else {
-    deselectSection();
-  }
+  if (activeIdx >= 0) selectSection(activeIdx); else deselectSection();
   markDirty(); pushUndo(); debouncedPreview();
 }
 
 function updateSecBar() {
+  if (activeColContext) {
+    const { rowIdx, colIdx, secIdx } = activeColContext;
+    const sec    = sections[rowIdx].columns[colIdx][secIdx];
+    const schema = THEME_SECTIONS.find(s => s.id === sec.id) || {};
+    const label  = schema.label || sec.id;
+    document.getElementById('eSecBarName').textContent = label;
+    document.getElementById('editIcon').textContent    = schema.emoji || '📄';
+    document.getElementById('editName').textContent    = label;
+    return;
+  }
   if (activeIdx < 0) return;
-  const schema = THEME_SECTIONS.find(s => s.id === sections[activeIdx].id) || {};
-  document.getElementById('eSecBarName').textContent = schema.label || sections[activeIdx].id;
-  document.getElementById('editIcon').textContent = schema.emoji || '📄';
-  document.getElementById('editName').textContent = schema.label || sections[activeIdx].id;
+  const sec    = sections[activeIdx];
+  const schema = THEME_SECTIONS.find(s => s.id === sec.id) || {};
+  const label  = sec._isRow ? 'Row' : (schema.label || sec.id);
+  document.getElementById('eSecBarName').textContent = label;
+  document.getElementById('editIcon').textContent    = sec._isRow ? '⬛' : (schema.emoji || '📄');
+  document.getElementById('editName').textContent    = label;
 }
 
 // ── Media Library ─────────────────────────────────────────────────────────────
@@ -1272,10 +1332,82 @@ function renderList() {
   document.getElementById('secCount').textContent = sections.length;
 
   sections.forEach((sec, i) => {
+    // ── ROW item ──────────────────────────────────────────────────────────────
+    if (sec._isRow) {
+      const rl    = ROW_LAYOUTS.find(r => r.layout === sec.layout) || {};
+      const isRowActive = (activeIdx === i && !activeColContext);
+      const wrap  = document.createElement('div');
+      wrap.className = 'e-row-item';
+
+      // Row header
+      const header = document.createElement('div');
+      header.className = 'e-row-header' + (isRowActive ? ' active' : '');
+      header.innerHTML = `
+        <span class="e-row-icon">⬛</span>
+        <span class="e-row-label">Row</span>
+        <span class="e-row-layout-tag">${rl.desc || sec.layout}</span>
+        <div class="e-row-actions">
+          <button class="e-row-action" title="Duplicate" onclick="dupSection(${i},event)">⊞</button>
+          <button class="e-row-action danger" title="Delete" onclick="deleteRow(${i},event)">✕</button>
+        </div>
+      `;
+      header.addEventListener('click', (e) => {
+        if (e.target.closest('.e-row-action')) return;
+        selectRowForSettings(i);
+      });
+      wrap.appendChild(header);
+
+      // Columns
+      const colsDiv = document.createElement('div');
+      colsDiv.className = 'e-row-cols';
+      (sec.columns || []).forEach((col, ci) => {
+        const colWrap = document.createElement('div');
+        colWrap.className = 'e-row-col-wrap';
+        colWrap.innerHTML = `<div class="e-col-label">Col ${ci + 1}</div>`;
+
+        const secList = document.createElement('div');
+        secList.className = 'e-col-sections';
+        (col || []).forEach((colSec, si) => {
+          const csSchema = THEME_SECTIONS.find(s => s.id === colSec.id) || {};
+          const isActive = activeColContext &&
+                           activeColContext.rowIdx === i &&
+                           activeColContext.colIdx === ci &&
+                           activeColContext.secIdx === si;
+          const mini = document.createElement('div');
+          mini.className = 'e-mini-sec' + (isActive ? ' active' : '') + (colSec._hidden ? ' hidden-sec' : '');
+          mini.innerHTML = `
+            <span class="e-mini-icon">${csSchema.emoji||'📄'}</span>
+            <span class="e-mini-name">${csSchema.label||colSec.id}</span>
+            <button class="e-mini-del" onclick="deleteColumnSection(${i},${ci},${si},event)" title="Remove">✕</button>
+          `;
+          mini.addEventListener('click', (e) => {
+            if (e.target.closest('.e-mini-del')) return;
+            selectColumnSection(i, ci, si);
+          });
+          secList.appendChild(mini);
+        });
+        colWrap.appendChild(secList);
+
+        // Add to column button — only global sections allowed in columns
+        const addBtn = document.createElement('button');
+        addBtn.className = 'e-col-add';
+        addBtn.textContent = '+ Add';
+        addBtn.onclick = (e) => { e.stopPropagation(); openAddModalForColumn(i, ci); };
+        colWrap.appendChild(addBtn);
+        colsDiv.appendChild(colWrap);
+      });
+      wrap.appendChild(colsDiv);
+      setupDrag(wrap, i);
+      list.appendChild(wrap);
+      return;
+    }
+
+    // ── Regular section item ──────────────────────────────────────────────────
     const schema = THEME_SECTIONS.find(s => s.id === sec.id) || {};
     const hidden = !!sec._hidden;
+    const isActive = (i === activeIdx && !activeColContext);
     const card   = document.createElement('div');
-    card.className = 'e-sec-card' + (i === activeIdx ? ' active' : '') + (hidden ? ' hidden-sec' : '');
+    card.className = 'e-sec-card' + (isActive ? ' active' : '') + (hidden ? ' hidden-sec' : '');
     card.draggable = true;
     card.innerHTML = `
       <span class="e-sec-drag" title="Drag">⠿</span>
@@ -1299,18 +1431,21 @@ function renderList() {
 // ── Select / deselect ─────────────────────────────────────────────────────────
 function selectSection(i) {
   if (i < 0 || i >= sections.length) return;
-  activeIdx = i;
+  activeIdx       = i;
+  activeColContext = null;
+  // Rows open their own settings panel
+  if (sections[i]._isRow) { selectRowForSettings(i); return; }
   renderList();
   renderEditor(i);
   renderDesignPanel(i);
   enterEditMode(i);
-  // Highlight in iframe
   const frame = document.getElementById('previewFrame');
   if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'pz-highlight', id: sections[i].id }, '*');
 }
 
 function deselectSection() {
-  activeIdx = -1;
+  activeIdx      = -1;
+  activeColContext = null;
   renderList();
   exitEditMode();
 }
@@ -1325,6 +1460,8 @@ function dupSection(i, e) {
   e.stopPropagation();
   const copy = JSON.parse(JSON.stringify(sections[i]));
   delete copy._hidden;
+  // Give duplicated rows a new unique id
+  if (copy._isRow) copy.id = '_row_' + Date.now();
   sections.splice(i+1, 0, copy);
   renderList(); selectSection(i+1); markDirty(); pushUndo(); debouncedPreview();
 }
@@ -1356,6 +1493,7 @@ function setupDrag(el, i) {
 
 // ── Add section modal ─────────────────────────────────────────────────────────
 function openAddModal() {
+  addContext = null;
   filterModal('');
   document.getElementById('addModal').classList.add('open');
   setTimeout(() => document.getElementById('modalSearch').focus(), 100);
@@ -1363,13 +1501,26 @@ function openAddModal() {
 function closeAddModal(e) {
   if (e && e.target !== document.getElementById('addModal')) return;
   document.getElementById('addModal').classList.remove('open');
+  addContext = null;
 }
 function filterModal(q) {
-  const grid = document.getElementById('modalGrid');
-  const term = q.toLowerCase();
-  const list = THEME_SECTIONS.filter(s => !term || s.label.toLowerCase().includes(term) || (s.description||'').toLowerCase().includes(term));
+  const grid    = document.getElementById('modalGrid');
+  const term    = q.toLowerCase();
+  const inCol   = !!addContext; // inside a column → only global sections
+
+  // When adding to a column, only show global (plugin) sections
+  const allSecs = inCol
+    ? THEME_SECTIONS.filter(s => s._isPlugin)
+    : THEME_SECTIONS;
+
+  const list = allSecs.filter(s => !term || s.label.toLowerCase().includes(term) || (s.description||'').toLowerCase().includes(term));
   grid.innerHTML = '';
-  if (!list.length) { grid.innerHTML = '<div class="modal-empty">No sections found.</div>'; return; }
+
+  if (inCol) {
+    grid.innerHTML = '<div style="grid-column:1/-1;font-size:11px;color:#9ca3af;padding:4px 0 8px;">Only widget sections can be added inside columns.</div>';
+  }
+
+  if (!list.length) { grid.innerHTML += '<div class="modal-empty">No sections found.</div>'; return; }
 
   const SINGLETONS = new Set(['hero','hero_slider','whatsapp_widget','profile','socials']);
   const addedIds   = new Set(sections.map(s => s.id));
@@ -1377,7 +1528,7 @@ function filterModal(q) {
   list.forEach(schema => {
     const isSingleton = SINGLETONS.has(schema.id);
     const alreadyIn   = addedIds.has(schema.id);
-    const disabled    = isSingleton && alreadyIn;
+    const disabled    = !inCol && isSingleton && alreadyIn;
     const card = document.createElement('div');
     card.className = 'modal-card' + (disabled?' disabled':'');
     card.innerHTML = `
@@ -1392,8 +1543,16 @@ function filterModal(q) {
   });
 }
 function addSection(schema) {
-  sections.push(makeSection(schema));
-  renderList(); selectSection(sections.length-1); markDirty(); pushUndo(); debouncedPreview();
+  if (addContext) {
+    // Add inside a row column
+    addSectionToColumn(addContext.rowIdx, addContext.colIdx, schema);
+    addContext = null;
+  } else {
+    sections.push(makeSection(schema));
+    renderList();
+    selectSection(sections.length - 1);
+    markDirty(); pushUndo(); debouncedPreview();
+  }
 }
 
 // ── Field editor ──────────────────────────────────────────────────────────────
@@ -1540,30 +1699,29 @@ const PADDING_PRESET = {
 };
 
 function applyPaddingPreset(el, preset) {
-  if (activeIdx < 0) return;
-  if (!sections[activeIdx].design) sections[activeIdx].design = {};
+  const d = getActiveDesign();
+  if (!d) return;
   const vals = PADDING_PRESET[preset] || {};
-  ['paddingTop','paddingRight','paddingBottom','paddingLeft'].forEach(k => delete sections[activeIdx].design[k]);
-  sections[activeIdx].design.paddingTop    = vals.paddingTop;
-  sections[activeIdx].design.paddingBottom = vals.paddingBottom;
-  sections[activeIdx].design.paddingY      = preset;
+  ['paddingTop','paddingRight','paddingBottom','paddingLeft'].forEach(k => delete d[k]);
+  d.paddingTop    = vals.paddingTop;
+  d.paddingBottom = vals.paddingBottom;
+  d.paddingY      = preset;
   document.querySelectorAll('[data-d="paddingY"]').forEach(b => b.classList.toggle('on', b === el));
-  syncSpacingUI(sections[activeIdx].design);
+  syncSpacingUI(d);
   markDirty(); debouncedPreview();
 }
 
 function secDesignSpacing(key, rawVal) {
-  if (activeIdx < 0) return;
+  const d = getActiveDesign();
+  if (!d) return;
   const val = rawVal === '' ? undefined : parseInt(rawVal, 10);
-  if (!sections[activeIdx].design) sections[activeIdx].design = {};
-  const d = sections[activeIdx].design;
   if (spacingLinked && key.startsWith('padding')) {
     const sides  = ['paddingTop','paddingRight','paddingBottom','paddingLeft'];
     const idMap  = { paddingTop:'sd-pad-top', paddingRight:'sd-pad-right', paddingBottom:'sd-pad-bottom', paddingLeft:'sd-pad-left' };
     sides.forEach(k => {
       if (val==null||isNaN(val)) delete d[k]; else d[k]=val;
-      const el=document.getElementById(idMap[k]);
-      if (el) el.value=(val!=null&&!isNaN(val))?val:'';
+      const el2=document.getElementById(idMap[k]);
+      if (el2) el2.value=(val!=null&&!isNaN(val))?val:'';
     });
   } else {
     if (val==null||isNaN(val)) delete d[key]; else d[key]=val;
