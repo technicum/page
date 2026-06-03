@@ -1,0 +1,7 @@
+RewriteEngine On
+
+# Pass real host to Node so subdomain detection works
+ProxyPreserveHost On
+
+# Proxy everything to Node.js on port 3000
+RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]

@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/themes/biolink/style.css">
 <style>:root{--c:{{ settings.accent_color }};--c15:{{ settings.accent_color }}26;--c30:{{ settings.accent_color }}4d;}</style>
 </head>
-<body>
+<body class="{% if settings.biolink_theme != '' and settings.biolink_theme != nil and settings.biolink_theme != 'light' %}bio-{{ settings.biolink_theme }}{% endif %}">
 <div class="page">
 
 {% for section in sections %}
@@ -23,7 +23,11 @@
   {{ rendered_sections[section.id] }}
   {% elsif section.id == 'profile' %}
   <div class="profile">
+    {% if f.avatar_url != '' and f.avatar_url != nil %}
+    <img class="avatar-img" src="{{ f.avatar_url }}" alt="{{ f.name }}">
+    {% else %}
     <div class="avatar">{{ f.avatar_emoji | default: '✨' }}</div>
+    {% endif %}
     <div class="profile-name">{{ f.name | default: site.title }}</div>
     {% if f.tagline != '' and f.tagline != nil %}
     <div class="profile-handle">{{ f.tagline }}</div>

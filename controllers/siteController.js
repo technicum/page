@@ -165,14 +165,15 @@ exports.builderSave = async (req, res) => {
 
 exports.biolinkSave = async (req, res) => {
   const user = req.session.user
-  const { site_id, sections, theme } = req.body
+  const { site_id, sections, theme, biolink_theme } = req.body
 
   const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [site_id, user.id])
   if (!site) return res.json({ ok: false })
 
-  const settings    = JSON.parse(site.settings || '{}')
-  settings.theme    = theme || settings.theme || 'violet'
-  settings.sections = JSON.parse(sections || '[]')
+  const settings         = JSON.parse(site.settings || '{}')
+  settings.theme         = theme         || settings.theme         || 'violet'
+  settings.biolink_theme = biolink_theme || settings.biolink_theme || 'light'
+  settings.sections      = JSON.parse(sections || '[]')
 
   await db.execute('UPDATE ms_pages SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
   res.json({ ok: true })

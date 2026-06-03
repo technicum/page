@@ -27,41 +27,47 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
 .btn-save:hover{background:#6d28d9;}
 .btn-save:disabled{opacity:0.5;cursor:not-allowed;}
 
-/* ── Main layout ── */
+/* ── Layout ── */
 .main{display:flex;height:calc(100vh - 46px);margin-top:46px;}
 
-/* ── Editor panel ── */
+/* ── Editor ── */
 .editor{width:360px;flex-shrink:0;background:#1e1e2e;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(255,255,255,0.07);}
-
 .tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
 .tab{flex:1;padding:11px 4px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;border:none;font-family:inherit;color:rgba(255,255,255,0.35);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;letter-spacing:0.3px;}
 .tab:hover{color:rgba(255,255,255,0.6);}
 .tab.active{color:#818cf8;border-bottom-color:#6366f1;}
-
 .tab-pane{display:none;flex:1;overflow-y:auto;padding:16px 14px 80px;}
 .tab-pane::-webkit-scrollbar{width:3px;}
 .tab-pane::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
 .tab-pane.active{display:block;}
 
-/* ── Fields ── */
+/* ── Field basics ── */
 .fg{margin-bottom:14px;}
 .fg-label{display:block;font-size:10px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:5px;letter-spacing:0.5px;text-transform:uppercase;}
 .fg-input{width:100%;padding:8px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:13px;font-family:inherit;color:#e5e7eb;background:rgba(255,255,255,0.06);outline:none;transition:border-color 0.15s;}
 .fg-input:focus{border-color:#6366f1;}
 .fg-textarea{min-height:72px;resize:vertical;line-height:1.55;}
 
-/* ── Avatar ── */
-.avatar-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.07);}
-.avatar-big{width:56px;height:56px;border-radius:50%;background:rgba(99,102,241,0.2);border:2px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
-.avatar-hint{font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px;line-height:1.4;}
+/* ── Avatar section ── */
+.avatar-toggle{display:flex;gap:4px;margin-bottom:12px;}
+.atog{flex:1;padding:7px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:rgba(255,255,255,0.35);font-family:inherit;transition:all 0.12s;}
+.atog.on{background:rgba(99,102,241,0.2);color:#818cf8;border-color:rgba(99,102,241,0.5);}
+.avatar-preview-box{display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.07);margin-bottom:12px;}
+.avatar-circle{width:56px;height:56px;border-radius:50%;background:rgba(99,102,241,0.2);border:2px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;overflow:hidden;}
+.avatar-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.avatar-hint{font-size:11px;color:rgba(255,255,255,0.35);line-height:1.5;}
+.btn-upload{width:100%;padding:10px;border:1px dashed rgba(99,102,241,0.4);border-radius:8px;background:rgba(99,102,241,0.07);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-upload:hover{background:rgba(99,102,241,0.14);}
+.btn-upload-sm{padding:7px 14px;border:1px solid rgba(99,102,241,0.4);border-radius:6px;background:rgba(99,102,241,0.1);color:#818cf8;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.12s;margin-top:6px;}
+.btn-upload-sm:hover{background:rgba(99,102,241,0.2);}
+.upload-note{font-size:10px;color:rgba(255,255,255,0.25);margin-top:5px;}
 
 /* ── Links ── */
-.link-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;margin-bottom:8px;transition:border-color 0.15s;}
-.link-card:hover{border-color:rgba(99,102,241,0.3);}
+.link-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;margin-bottom:8px;}
 .link-top{display:flex;align-items:center;gap:6px;margin-bottom:7px;}
 .link-emoji-in{width:38px;padding:7px 6px;text-align:center;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:16px;font-family:inherit;background:rgba(255,255,255,0.06);color:#e5e7eb;outline:none;}
 .link-label-in{flex:1;padding:7px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:12px;font-family:inherit;color:#e5e7eb;background:rgba(255,255,255,0.06);outline:none;}
-.link-label-in:focus,.link-emoji-in:focus{border-color:#6366f1;}
+.link-emoji-in:focus,.link-label-in:focus{border-color:#6366f1;}
 .link-del{width:28px;height:28px;border:none;background:transparent;color:rgba(255,255,255,0.2);cursor:pointer;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.12s;flex-shrink:0;}
 .link-del:hover{background:rgba(239,68,68,0.15);color:#fca5a5;}
 .link-url-in{width:100%;padding:6px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;font-size:11px;font-family:inherit;color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.04);outline:none;margin-bottom:7px;}
@@ -71,7 +77,7 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
 .ls-chip:hover{border-color:#6366f1;color:#818cf8;}
 .ls-chip.on{background:rgba(99,102,241,0.2);color:#818cf8;border-color:rgba(99,102,241,0.5);}
 .btn-add-link{width:100%;padding:10px;border:1px dashed rgba(99,102,241,0.35);border-radius:8px;background:rgba(99,102,241,0.06);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;margin-top:2px;}
-.btn-add-link:hover{background:rgba(99,102,241,0.14);border-color:rgba(99,102,241,0.6);}
+.btn-add-link:hover{background:rgba(99,102,241,0.14);}
 
 /* ── Socials ── */
 .social-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
@@ -79,32 +85,36 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
 .social-in{flex:1;padding:8px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:12px;font-family:inherit;color:#e5e7eb;background:rgba(255,255,255,0.06);outline:none;}
 .social-in:focus{border-color:#6366f1;}
 
-/* ── Color swatches ── */
+/* ── Accent colors ── */
 .colors-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
 .c-swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s;flex-shrink:0;}
 .c-swatch:hover{transform:scale(1.15);}
 .c-swatch.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.3);}
 
+/* ── Page themes ── */
+.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.pg-theme{border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all 0.15s;}
+.pg-theme:hover{border-color:rgba(99,102,241,0.5);}
+.pg-theme.on{border-color:#818cf8;box-shadow:0 0 0 2px rgba(99,102,241,0.3);}
+.pg-theme-preview{height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;}
+.pg-theme-dot{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.5);}
+.pg-theme-lines{display:flex;flex-direction:column;gap:3px;width:100%;}
+.pg-theme-line{height:4px;border-radius:2px;background:rgba(255,255,255,0.4);}
+.pg-theme-label{font-size:10px;font-weight:600;color:rgba(255,255,255,0.6);padding:4px 0;text-align:center;background:rgba(0,0,0,0.2);}
+
 /* ── Section dividers ── */
 .sec-title{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin:18px 0 10px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);}
 .sec-title:first-child{border-top:none;margin-top:0;padding-top:0;}
 
-/* ── Preview area ── */
+/* ── Preview ── */
 .preview-area{flex:1;background:#e8e8ec;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.phone-frame{
-  width:360px;height:720px;
-  border-radius:48px;
-  border:10px solid #1a1a18;
-  box-shadow:0 0 0 1px rgba(255,255,255,0.05) inset,0 28px 80px rgba(0,0,0,0.45);
-  overflow:hidden;background:#fff;position:relative;flex-shrink:0;
-}
+.phone-frame{width:360px;height:720px;border-radius:48px;border:10px solid #1a1a18;box-shadow:0 0 0 1px rgba(255,255,255,0.05) inset,0 28px 80px rgba(0,0,0,0.45);overflow:hidden;background:#fff;position:relative;flex-shrink:0;}
 .phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:26px;background:#1a1a18;border-radius:0 0 18px 18px;z-index:10;}
 .phone-frame iframe{width:100%;height:100%;border:none;display:block;}
 </style>
 </head>
 <body>
 
-<!-- Topbar -->
 <div class="topbar">
   <a class="tb-back" href="/dashboard">← Dashboard</a>
   <div class="tb-sep"></div>
@@ -120,8 +130,6 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
 </div>
 
 <div class="main">
-
-  <!-- ── Editor ── -->
   <div class="editor">
     <div class="tabs">
       <button class="tab active" onclick="switchTab('profile',this)">👤 Profile</button>
@@ -130,20 +138,56 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
       <button class="tab"        onclick="switchTab('style',this)">🎨 Style</button>
     </div>
 
-    <!-- Profile tab -->
+    <!-- ── Profile tab ── -->
     <div class="tab-pane active" id="tab-profile">
-      <div class="avatar-row">
-        <div class="avatar-big" id="avatarBig">✨</div>
-        <div>
-          <div style="font-size:12px;font-weight:500;color:#e5e7eb;">Avatar</div>
-          <div class="avatar-hint">Paste any emoji below — it shows here</div>
+
+      <!-- Avatar type toggle -->
+      <div class="fg">
+        <label class="fg-label">Avatar Type</label>
+        <div class="avatar-toggle">
+          <button id="atog-emoji" class="atog on" onclick="setAvatarMode('emoji',this)">😀 Emoji</button>
+          <button id="atog-image" class="atog" onclick="setAvatarMode('image',this)">📷 Photo</button>
         </div>
       </div>
-      <div class="fg">
-        <label class="fg-label">Avatar Emoji</label>
-        <input class="fg-input" id="f-avatar" type="text" placeholder="✨" maxlength="8"
-          oninput="profile.avatar_emoji=this.value;updateAvatar();dirty();debouncedPreview()">
+
+      <!-- Emoji mode -->
+      <div id="avatar-emoji-wrap">
+        <div class="avatar-preview-box">
+          <div class="avatar-circle" id="avatarCircle">✨</div>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:#e5e7eb;">Avatar Emoji</div>
+            <div class="avatar-hint">Paste any emoji — it appears on your page</div>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fg-label">Emoji</label>
+          <input class="fg-input" id="f-avatar" type="text" placeholder="✨" maxlength="8"
+            oninput="profile.avatar_emoji=this.value;profile.avatar_url='';updateAvatarUI();dirty();debouncedPreview()">
+        </div>
       </div>
+
+      <!-- Image mode -->
+      <div id="avatar-image-wrap" style="display:none">
+        <div class="avatar-preview-box">
+          <div class="avatar-circle" id="avatarCircleImg">
+            <img id="avatarImgPreview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            <span id="avatarImgPlaceholder">📷</span>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:#e5e7eb;">Profile Photo</div>
+            <div class="avatar-hint">JPG, PNG or WebP<br>Recommended: square, min 200×200px</div>
+          </div>
+        </div>
+        <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)">
+        <button class="btn-upload" onclick="document.getElementById('avatarFileInput').click()">
+          📷 Upload Photo
+        </button>
+        <div class="upload-note" id="uploadNote"></div>
+        {% if settings.sections %}
+        {% endif %}
+      </div>
+
+      <div class="sec-title">Info</div>
       <div class="fg">
         <label class="fg-label">Display Name</label>
         <input class="fg-input" id="f-name" type="text" placeholder="Your Name"
@@ -161,55 +205,34 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
       </div>
     </div>
 
-    <!-- Links tab -->
+    <!-- ── Links tab ── -->
     <div class="tab-pane" id="tab-links">
       <div id="linksList"></div>
       <button class="btn-add-link" onclick="addLink()">＋ Add Link</button>
     </div>
 
-    <!-- Socials tab -->
+    <!-- ── Socials tab ── -->
     <div class="tab-pane" id="tab-socials">
       <div class="sec-title">Social Profiles</div>
-      <div class="social-row">
-        <span class="social-icon">📸</span>
-        <input class="social-in" id="f-instagram" type="text" placeholder="https://instagram.com/…"
-          oninput="socials.instagram=this.value;dirty();debouncedPreview()">
-      </div>
-      <div class="social-row">
-        <span class="social-icon">▶️</span>
-        <input class="social-in" id="f-youtube" type="text" placeholder="https://youtube.com/…"
-          oninput="socials.youtube=this.value;dirty();debouncedPreview()">
-      </div>
-      <div class="social-row">
-        <span class="social-icon">𝕏</span>
-        <input class="social-in" id="f-twitter" type="text" placeholder="https://twitter.com/…"
-          oninput="socials.twitter=this.value;dirty();debouncedPreview()">
-      </div>
-      <div class="social-row">
-        <span class="social-icon">🎵</span>
-        <input class="social-in" id="f-tiktok" type="text" placeholder="https://tiktok.com/@…"
-          oninput="socials.tiktok=this.value;dirty();debouncedPreview()">
-      </div>
-      <div class="social-row">
-        <span class="social-icon">💼</span>
-        <input class="social-in" id="f-linkedin" type="text" placeholder="https://linkedin.com/in/…"
-          oninput="socials.linkedin=this.value;dirty();debouncedPreview()">
-      </div>
-      <div class="social-row">
-        <span class="social-icon">🐙</span>
-        <input class="social-in" id="f-github" type="text" placeholder="https://github.com/…"
-          oninput="socials.github=this.value;dirty();debouncedPreview()">
-      </div>
+      <div class="social-row"><span class="social-icon">📸</span><input class="social-in" id="f-instagram" type="text" placeholder="https://instagram.com/…" oninput="socials.instagram=this.value;dirty();debouncedPreview()"></div>
+      <div class="social-row"><span class="social-icon">▶️</span><input class="social-in" id="f-youtube"   type="text" placeholder="https://youtube.com/…"   oninput="socials.youtube=this.value;dirty();debouncedPreview()"></div>
+      <div class="social-row"><span class="social-icon">𝕏</span><input class="social-in" id="f-twitter"   type="text" placeholder="https://twitter.com/…"   oninput="socials.twitter=this.value;dirty();debouncedPreview()"></div>
+      <div class="social-row"><span class="social-icon">🎵</span><input class="social-in" id="f-tiktok"    type="text" placeholder="https://tiktok.com/@…"    oninput="socials.tiktok=this.value;dirty();debouncedPreview()"></div>
+      <div class="social-row"><span class="social-icon">💼</span><input class="social-in" id="f-linkedin"  type="text" placeholder="https://linkedin.com/in/…" oninput="socials.linkedin=this.value;dirty();debouncedPreview()"></div>
+      <div class="social-row"><span class="social-icon">🐙</span><input class="social-in" id="f-github"    type="text" placeholder="https://github.com/…"     oninput="socials.github=this.value;dirty();debouncedPreview()"></div>
     </div>
 
-    <!-- Style tab -->
+    <!-- ── Style tab ── -->
     <div class="tab-pane" id="tab-style">
       <div class="fg">
+        <label class="fg-label">Page Theme</label>
+        <div class="theme-grid" id="themeGrid"></div>
+      </div>
+      <div class="fg" style="margin-top:18px;">
         <label class="fg-label">Accent Color</label>
         <div class="colors-row" id="colorsRow"></div>
       </div>
     </div>
-
   </div>
 
   <!-- ── Phone preview ── -->
@@ -219,73 +242,118 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
       <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin" title="Preview"></iframe>
     </div>
   </div>
-
 </div>
 
 <script>
 const SITE_ID    = {{ site.id }};
 const BASE_DOMAIN = {{ baseDomain | dump | safe }};
 
-const COLORS = [
-  { id:'violet',  hex:'#7c3aed' },
-  { id:'rose',    hex:'#e11d48' },
-  { id:'sky',     hex:'#0284c7' },
-  { id:'emerald', hex:'#059669' },
-  { id:'amber',   hex:'#d97706' },
-  { id:'ink',     hex:'#1a1a18' },
-  { id:'slate',   hex:'#475569' },
-  { id:'pink',    hex:'#db2777' }
+const ACCENT_COLORS = [
+  { id:'violet', hex:'#7c3aed' },{ id:'rose',    hex:'#e11d48' },
+  { id:'sky',    hex:'#0284c7' },{ id:'emerald', hex:'#059669' },
+  { id:'amber',  hex:'#d97706' },{ id:'ink',     hex:'#1a1a18' },
+  { id:'slate',  hex:'#475569' },{ id:'pink',    hex:'#db2777' }
 ];
 
-// ── Normalise sections (flat or row-wrapped) ─────────────────────────────────
+const PAGE_THEMES = [
+  { id:'light', label:'Light',   bg:'linear-gradient(160deg,#eff4ff,#fff)',             dot:'rgba(99,102,241,0.3)', line:'rgba(0,0,0,0.12)' },
+  { id:'dark',  label:'Dark',    bg:'#0f0f1a',                                           dot:'rgba(99,102,241,0.6)', line:'rgba(255,255,255,0.15)' },
+  { id:'warm',  label:'Warm',    bg:'linear-gradient(160deg,#fef3c7,#fce7f3)',           dot:'rgba(217,119,6,0.5)',  line:'rgba(0,0,0,0.1)' },
+  { id:'glass', label:'Glass',   bg:'linear-gradient(135deg,#667eea,#764ba2)',           dot:'rgba(255,255,255,0.6)',line:'rgba(255,255,255,0.35)' },
+  { id:'minimal',label:'Minimal',bg:'#ffffff',                                           dot:'rgba(0,0,0,0.2)',     line:'rgba(0,0,0,0.1)' },
+  { id:'forest',label:'Forest',  bg:'linear-gradient(160deg,#d1fae5,#ecfdf5)',          dot:'rgba(5,150,105,0.4)', line:'rgba(0,0,0,0.1)' }
+];
+
+// ── Flatten sections (handle row-wrapped or flat) ──────────────────────────
 function flattenSections(raw) {
   const out = [];
   for (const s of (raw || [])) {
     if (s._isRow && s.columns) {
       for (const col of s.columns) for (const sec of (col || [])) out.push(sec);
-    } else if (!s._isRow) {
-      out.push(s);
-    }
+    } else if (!s._isRow) { out.push(s); }
   }
   return out;
 }
 
 const rawSections = {{ (settings.sections or []) | dump | safe }};
 const flat = flattenSections(rawSections);
-function getSavedFields(id, def) {
+function savedFields(id, def) {
   const s = flat.find(x => x.id === id);
   return s ? Object.assign({}, def, s.fields || {}) : Object.assign({}, def);
 }
 
 // ── State ────────────────────────────────────────────────────────────────────
-let profile = getSavedFields('profile', { avatar_emoji:'✨', name:'', tagline:'', bio:'' });
-let links   = Array.from(getSavedFields('links', { items:[] }).items || []);
-let socials = getSavedFields('socials', { instagram:'', youtube:'', twitter:'', tiktok:'', linkedin:'', github:'' });
-let currentTheme = {{ (settings.theme or 'violet') | dump | safe }};
+let profile = savedFields('profile', { avatar_emoji:'✨', avatar_url:'', name:'', tagline:'', bio:'' });
+let links   = Array.from(savedFields('links', { items:[] }).items || []);
+let socials = savedFields('socials', { instagram:'', youtube:'', twitter:'', tiktok:'', linkedin:'', github:'' });
+let currentAccent = {{ (settings.theme or 'violet') | dump | safe }};
+let currentPageTheme = {{ (settings.biolink_theme or 'light') | dump | safe }};
+let avatarMode = (profile.avatar_url ? 'image' : 'emoji');
 let previewTimer = null;
 
-// ── Init form ────────────────────────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────────────────────
 function init() {
-  setVal('f-avatar',    profile.avatar_emoji);
-  setVal('f-name',      profile.name);
-  setVal('f-tagline',   profile.tagline);
-  setVal('f-bio',       profile.bio);
-  setVal('f-instagram', socials.instagram);
-  setVal('f-youtube',   socials.youtube);
-  setVal('f-twitter',   socials.twitter);
-  setVal('f-tiktok',    socials.tiktok);
-  setVal('f-linkedin',  socials.linkedin);
-  setVal('f-github',    socials.github);
-  updateAvatar();
+  setv('f-avatar',    profile.avatar_emoji);
+  setv('f-name',      profile.name);
+  setv('f-tagline',   profile.tagline);
+  setv('f-bio',       profile.bio);
+  setv('f-instagram', socials.instagram);
+  setv('f-youtube',   socials.youtube);
+  setv('f-twitter',   socials.twitter);
+  setv('f-tiktok',    socials.tiktok);
+  setv('f-linkedin',  socials.linkedin);
+  setv('f-github',    socials.github);
+  setAvatarMode(avatarMode, document.getElementById('atog-' + avatarMode), true);
+  updateAvatarUI();
   renderLinks();
-  renderColors();
+  renderAccentColors();
+  renderPageThemes();
   refreshPreview();
 }
+function setv(id, val) { document.getElementById(id).value = val || ''; }
 
-function setVal(id, val) { document.getElementById(id).value = val || ''; }
+// ── Avatar ───────────────────────────────────────────────────────────────────
+function setAvatarMode(mode, el, silent) {
+  avatarMode = mode;
+  document.querySelectorAll('.atog').forEach(b => b.classList.remove('on'));
+  if (el) el.classList.add('on');
+  document.getElementById('avatar-emoji-wrap').style.display = mode === 'emoji' ? 'block' : 'none';
+  document.getElementById('avatar-image-wrap').style.display = mode === 'image' ? 'block' : 'none';
+  if (!silent) { dirty(); debouncedPreview(); }
+}
 
-function updateAvatar() {
-  document.getElementById('avatarBig').textContent = profile.avatar_emoji || '✨';
+function updateAvatarUI() {
+  // Emoji circle
+  document.getElementById('avatarCircle').textContent = profile.avatar_emoji || '✨';
+  // Image circle
+  const img = document.getElementById('avatarImgPreview');
+  const ph  = document.getElementById('avatarImgPlaceholder');
+  if (profile.avatar_url) {
+    img.src = profile.avatar_url; img.style.display = 'block'; ph.style.display = 'none';
+  } else {
+    img.style.display = 'none'; ph.style.display = 'block';
+  }
+}
+
+async function handleAvatarUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const note = document.getElementById('uploadNote');
+  note.textContent = 'Uploading…';
+  const fd = new FormData();
+  fd.append('image', file);
+  try {
+    const r = await fetch(`/dashboard/media/${SITE_ID}/upload`, { method:'POST', body:fd });
+    const d = await r.json();
+    if (d.ok) {
+      profile.avatar_url   = d.url;
+      profile.avatar_emoji = '';
+      note.textContent = '✓ Uploaded';
+      setTimeout(() => { note.textContent = ''; }, 2000);
+      updateAvatarUI(); dirty(); debouncedPreview();
+    } else { note.textContent = 'Upload failed: ' + (d.error||'error'); }
+  } catch(err) { note.textContent = 'Upload failed: ' + err.message; }
+  input.value = '';
 }
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
@@ -305,45 +373,59 @@ function renderLinks() {
     d.className = 'link-card';
     d.innerHTML =
       `<div class="link-top">
-         <input class="link-emoji-in" value="${e(lk.emoji||'🌐')}" maxlength="4"
+         <input class="link-emoji-in" value="${h(lk.emoji||'🌐')}" maxlength="4"
            oninput="links[${i}].emoji=this.value;dirty();debouncedPreview()">
-         <input class="link-label-in" value="${e(lk.label||'')}" placeholder="Link label"
+         <input class="link-label-in" value="${h(lk.label||'')}" placeholder="Link label"
            oninput="links[${i}].label=this.value;dirty();debouncedPreview()">
          <button class="link-del" onclick="delLink(${i})">✕</button>
        </div>
-       <input class="link-url-in" value="${e(lk.url||'')}" placeholder="https://..."
+       <input class="link-url-in" value="${h(lk.url||'')}" placeholder="https://..."
          oninput="links[${i}].url=this.value;dirty();debouncedPreview()">
        <div class="link-styles">
-         <button class="ls-chip ${ (lk.style||'solid')==='solid'  ?'on':'' }" onclick="setLinkStyle(${i},'solid')">Solid</button>
-         <button class="ls-chip ${ lk.style==='outline' ?'on':'' }" onclick="setLinkStyle(${i},'outline')">Outline</button>
-         <button class="ls-chip ${ lk.style==='ghost'   ?'on':'' }" onclick="setLinkStyle(${i},'ghost')">Ghost</button>
+         <button class="ls-chip ${ (lk.style||'solid')==='solid'  ?'on':'' }" onclick="setStyle(${i},'solid')">Solid</button>
+         <button class="ls-chip ${ lk.style==='outline' ?'on':'' }" onclick="setStyle(${i},'outline')">Outline</button>
+         <button class="ls-chip ${ lk.style==='ghost'   ?'on':'' }" onclick="setStyle(${i},'ghost')">Ghost</button>
        </div>`;
     list.appendChild(d);
   });
 }
+function h(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function addLink()       { links.push({ emoji:'🌐', label:'New Link', url:'https://', style:'solid' }); renderLinks(); dirty(); debouncedPreview(); }
+function delLink(i)      { links.splice(i,1); renderLinks(); dirty(); debouncedPreview(); }
+function setStyle(i,sty) { links[i].style=sty; renderLinks(); dirty(); debouncedPreview(); }
 
-function e(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
-
-function addLink() {
-  links.push({ emoji:'🌐', label:'New Link', url:'https://', style:'solid' });
-  renderLinks(); dirty(); debouncedPreview();
-}
-
-function delLink(i) { links.splice(i,1); renderLinks(); dirty(); debouncedPreview(); }
-
-function setLinkStyle(i, style) { links[i].style = style; renderLinks(); dirty(); debouncedPreview(); }
-
-// ── Colors ───────────────────────────────────────────────────────────────────
-function renderColors() {
+// ── Accent colors ─────────────────────────────────────────────────────────────
+function renderAccentColors() {
   const row = document.getElementById('colorsRow');
   row.innerHTML = '';
-  COLORS.forEach(c => {
+  ACCENT_COLORS.forEach(c => {
     const sw = document.createElement('div');
-    sw.className = 'c-swatch' + (c.id === currentTheme ? ' on' : '');
+    sw.className = 'c-swatch' + (c.id === currentAccent ? ' on' : '');
     sw.style.background = c.hex;
     sw.title = c.id;
-    sw.onclick = () => { currentTheme = c.id; renderColors(); dirty(); debouncedPreview(); };
+    sw.onclick = () => { currentAccent = c.id; renderAccentColors(); dirty(); debouncedPreview(); };
     row.appendChild(sw);
+  });
+}
+
+// ── Page themes ───────────────────────────────────────────────────────────────
+function renderPageThemes() {
+  const grid = document.getElementById('themeGrid');
+  grid.innerHTML = '';
+  PAGE_THEMES.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'pg-theme' + (t.id === currentPageTheme ? ' on' : '');
+    card.innerHTML = `
+      <div class="pg-theme-preview" style="background:${t.bg};">
+        <div class="pg-theme-dot" style="background:${t.dot};border-radius:50%;width:22px;height:22px;"></div>
+        <div style="display:flex;flex-direction:column;gap:3px;width:70%;">
+          <div style="height:4px;border-radius:2px;background:${t.line};"></div>
+          <div style="height:4px;border-radius:2px;background:${t.line};width:70%;"></div>
+        </div>
+      </div>
+      <div class="pg-theme-label" style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.6);padding:4px 0;text-align:center;background:rgba(0,0,0,0.25);">${t.label}</div>`;
+    card.onclick = () => { currentPageTheme = t.id; renderPageThemes(); dirty(); debouncedPreview(); };
+    grid.appendChild(card);
   });
 }
 
@@ -361,25 +443,21 @@ function markSaved() {
 // ── Preview ───────────────────────────────────────────────────────────────────
 function buildSections() {
   return [
-    { id:'profile', fields: Object.assign({}, profile) },
-    { id:'links',   fields: { items: links.map(l => Object.assign({}, l)) } },
-    { id:'socials', fields: Object.assign({}, socials) }
+    { id:'profile', fields: { ...profile, avatar_url: avatarMode==='image' ? (profile.avatar_url||'') : '' } },
+    { id:'links',   fields: { items: links.map(l => ({...l})) } },
+    { id:'socials', fields: { ...socials } }
   ];
 }
 
-function debouncedPreview() {
-  clearTimeout(previewTimer);
-  previewTimer = setTimeout(refreshPreview, 350);
-}
+function debouncedPreview() { clearTimeout(previewTimer); previewTimer = setTimeout(refreshPreview, 350); }
 
 function refreshPreview() {
   fetch('/dashboard/site/builder-preview', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ site_id: SITE_ID, sections: JSON.stringify(buildSections()), theme: currentTheme })
-  }).then(r => r.text()).then(html => {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ site_id:SITE_ID, sections:JSON.stringify(buildSections()), theme:currentAccent, biolink_theme:currentPageTheme })
+  }).then(r=>r.text()).then(html => {
     document.getElementById('previewFrame').srcdoc = html;
-  }).catch(() => {});
+  }).catch(()=>{});
 }
 
 // ── Save ──────────────────────────────────────────────────────────────────────
@@ -388,9 +466,8 @@ async function saveAll() {
   btn.textContent = 'Saving…'; btn.disabled = true;
   try {
     const r = await fetch('/dashboard/site/biolink-save', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ site_id: SITE_ID, sections: JSON.stringify(buildSections()), theme: currentTheme })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ site_id:SITE_ID, sections:JSON.stringify(buildSections()), theme:currentAccent, biolink_theme:currentPageTheme })
     });
     const d = await r.json();
     if (d.ok) markSaved(); else alert('Save failed — please try again.');
