@@ -1,0 +1,18 @@
+{
+  "id": "data_table",
+  "label": "Table",
+  "emoji": "📋",
+  "description": "Display data in a sortable, styled table.",
+  "global": true,
+  "fields": [
+    { "id": "title",   "label": "Table Title",  "type": "text",   "default": "Data Table" },
+    { "id": "headers", "label": "Column Headers (comma-separated)", "type": "text", "default": "Name,Value,Status" },
+    { "id": "striped", "label": "Striped rows (yes/no)", "type": "text", "default": "yes" },
+    {
+      "id": "rows", "label": "Rows", "type": "list",
+      "item_fields": [
+        { "id": "cells", "label": "Cells (comma-separated)", "type": "text", "default": "Item,100,Active" }
+      ]
+    }
+  ]
+}

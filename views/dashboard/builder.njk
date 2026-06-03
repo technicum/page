@@ -633,6 +633,68 @@ body{overflow:hidden;background:#1a1a2e;margin:0;font-family:"DM Sans",sans-seri
               <button class="ds-chip"    data-d="textColor" data-v="dark"  onclick="secDesignChip(this,'textColor')">Dark</button>
             </div>
           </div>
+
+          <hr style="border:none;border-top:1px solid var(--panel-border);margin:4px 0 10px;">
+
+          <div class="fg">
+            <div class="fg-label">Border</div>
+            <div class="ds-chips" style="margin-bottom:7px;">
+              <button class="ds-chip on" data-d="border" data-v="none"   onclick="secDesignChip(this,'border')">None</button>
+              <button class="ds-chip"    data-d="border" data-v="thin"   onclick="secDesignChip(this,'border')">Thin</button>
+              <button class="ds-chip"    data-d="border" data-v="medium" onclick="secDesignChip(this,'border')">Medium</button>
+              <button class="ds-chip"    data-d="border" data-v="thick"  onclick="secDesignChip(this,'border')">Thick</button>
+            </div>
+            <div id="sd-border-color-row" style="display:none;display:flex;gap:6px;align-items:center;margin-top:4px;">
+              <input type="color" id="sd-border-color" value="#e5e7eb"
+                oninput="secDesign('borderColor',this.value)"
+                style="width:32px;height:32px;border-radius:5px;border:1px solid var(--inp-border);cursor:pointer;padding:2px;background:transparent;">
+              <input type="text" id="sd-border-color-hex" placeholder="#e5e7eb"
+                oninput="secDesignHexBorder(this.value)"
+                class="fg-input" style="flex:1;font-family:monospace;font-size:11px;">
+            </div>
+          </div>
+
+          <div class="fg">
+            <div class="fg-label">Corner Radius</div>
+            <div class="ds-chips">
+              <button class="ds-chip on" data-d="borderRadius" data-v="none"   onclick="secDesignChip(this,'borderRadius')">None</button>
+              <button class="ds-chip"    data-d="borderRadius" data-v="sm"     onclick="secDesignChip(this,'borderRadius')">Small</button>
+              <button class="ds-chip"    data-d="borderRadius" data-v="md"     onclick="secDesignChip(this,'borderRadius')">Medium</button>
+              <button class="ds-chip"    data-d="borderRadius" data-v="lg"     onclick="secDesignChip(this,'borderRadius')">Large</button>
+              <button class="ds-chip"    data-d="borderRadius" data-v="full"   onclick="secDesignChip(this,'borderRadius')">Pill</button>
+            </div>
+          </div>
+
+          <div class="fg">
+            <div class="fg-label">Shadow</div>
+            <div class="ds-chips">
+              <button class="ds-chip on" data-d="shadow" data-v="none" onclick="secDesignChip(this,'shadow')">None</button>
+              <button class="ds-chip"    data-d="shadow" data-v="sm"   onclick="secDesignChip(this,'shadow')">Small</button>
+              <button class="ds-chip"    data-d="shadow" data-v="md"   onclick="secDesignChip(this,'shadow')">Medium</button>
+              <button class="ds-chip"    data-d="shadow" data-v="lg"   onclick="secDesignChip(this,'shadow')">Large</button>
+            </div>
+          </div>
+
+          <div class="fg">
+            <div class="fg-label">Opacity</div>
+            <div class="ds-chips">
+              <button class="ds-chip on" data-d="opacity" data-v="100" onclick="secDesignChip(this,'opacity')">100%</button>
+              <button class="ds-chip"    data-d="opacity" data-v="90"  onclick="secDesignChip(this,'opacity')">90%</button>
+              <button class="ds-chip"    data-d="opacity" data-v="75"  onclick="secDesignChip(this,'opacity')">75%</button>
+              <button class="ds-chip"    data-d="opacity" data-v="50"  onclick="secDesignChip(this,'opacity')">50%</button>
+            </div>
+          </div>
+
+          <div class="fg">
+            <div class="fg-label">Entrance Animation</div>
+            <div class="ds-chips" style="flex-wrap:wrap;">
+              <button class="ds-chip on" data-d="animation" data-v="none"     onclick="secDesignChip(this,'animation')">None</button>
+              <button class="ds-chip"    data-d="animation" data-v="fadeIn"   onclick="secDesignChip(this,'animation')">Fade In</button>
+              <button class="ds-chip"    data-d="animation" data-v="slideUp"  onclick="secDesignChip(this,'animation')">Slide Up</button>
+              <button class="ds-chip"    data-d="animation" data-v="slideLeft" onclick="secDesignChip(this,'animation')">Slide Left</button>
+              <button class="ds-chip"    data-d="animation" data-v="zoomIn"   onclick="secDesignChip(this,'animation')">Zoom In</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -832,10 +894,19 @@ function renderDesignPanel(i) {
   if (!sec) return;
 
   syncDesignChips('bgType',    design.bgType    || 'none');
-  syncDesignChips('overlay',   design.overlay   || '');
-  syncDesignChips('textColor', design.textColor || '');
-  syncDesignChips('paddingY',  design.paddingY  || (design.paddingTop != null ? '' : 'normal'));
+  syncDesignChips('overlay',      design.overlay      || '');
+  syncDesignChips('textColor',    design.textColor    || '');
+  syncDesignChips('paddingY',     design.paddingY     || (design.paddingTop != null ? '' : 'normal'));
+  syncDesignChips('border',       design.border       || 'none');
+  syncDesignChips('borderRadius', design.borderRadius || 'none');
+  syncDesignChips('shadow',       design.shadow       || 'none');
+  syncDesignChips('opacity',      design.opacity      || '100');
+  syncDesignChips('animation',    design.animation    || 'none');
   toggleBgRows(design.bgType || 'none');
+  const bci = document.getElementById('sd-border-color');
+  const bch = document.getElementById('sd-border-color-hex');
+  if (bci) bci.value = design.borderColor || '#e5e7eb';
+  if (bch) bch.value = design.borderColor || '';
 
   const colorInp = document.getElementById('sd-bg-color');
   const hexInp   = document.getElementById('sd-bg-color-hex');
@@ -895,6 +966,12 @@ function secDesignHex(key, val) {
   const picker = document.getElementById('sd-bg-color');
   if (picker) picker.value = val;
   secDesign(key, val);
+}
+function secDesignHexBorder(val) {
+  if (!/^#[0-9a-f]{3,6}$/i.test(val)) return;
+  const picker = document.getElementById('sd-border-color');
+  if (picker) picker.value = val;
+  secDesign('borderColor', val);
 }
 
 function setSecBgColor(hex) {
@@ -1962,10 +2039,19 @@ function renderColumnDesign(rowIdx, colIdx, secIdx) {
   const sec    = sections[rowIdx].columns[colIdx][secIdx];
   const design = sec.design || {};
   syncDesignChips('bgType',    design.bgType    || 'none');
-  syncDesignChips('overlay',   design.overlay   || '');
-  syncDesignChips('textColor', design.textColor || '');
-  syncDesignChips('paddingY',  design.paddingY  || (design.paddingTop != null ? '' : 'normal'));
+  syncDesignChips('overlay',      design.overlay      || '');
+  syncDesignChips('textColor',    design.textColor    || '');
+  syncDesignChips('paddingY',     design.paddingY     || (design.paddingTop != null ? '' : 'normal'));
+  syncDesignChips('border',       design.border       || 'none');
+  syncDesignChips('borderRadius', design.borderRadius || 'none');
+  syncDesignChips('shadow',       design.shadow       || 'none');
+  syncDesignChips('opacity',      design.opacity      || '100');
+  syncDesignChips('animation',    design.animation    || 'none');
   toggleBgRows(design.bgType || 'none');
+  const bci = document.getElementById('sd-border-color');
+  const bch = document.getElementById('sd-border-color-hex');
+  if (bci) bci.value = design.borderColor || '#e5e7eb';
+  if (bch) bch.value = design.borderColor || '';
   const colorInp = document.getElementById('sd-bg-color');
   const hexInp   = document.getElementById('sd-bg-color-hex');
   if (colorInp) colorInp.value = design.bgColor || '#ffffff';

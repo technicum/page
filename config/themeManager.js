@@ -544,11 +544,61 @@ function buildSectionDesignCss(design, colorMap, accentColor) {
   if (design.marginTop    != null) parts.push(`margin-top:${design.marginTop}px`)
   if (design.marginBottom != null) parts.push(`margin-bottom:${design.marginBottom}px`)
 
+  // Border
+  const borderWidths = { thin: '1px', medium: '2px', thick: '4px' }
+  if (design.border && design.border !== 'none') {
+    const bw    = borderWidths[design.border] || '1px'
+    const bcol  = design.borderColor || '#e5e7eb'
+    parts.push(`border:${bw} solid ${bcol}`)
+  }
+
+  // Border radius
+  const radii = { sm: '6px', md: '12px', lg: '20px', full: '999px' }
+  if (design.borderRadius && design.borderRadius !== 'none') {
+    parts.push(`border-radius:${radii[design.borderRadius] || '0'}`)
+    parts.push('overflow:hidden')
+  }
+
+  // Shadow
+  const shadows = {
+    sm: '0 1px 4px rgba(0,0,0,0.08)',
+    md: '0 4px 16px rgba(0,0,0,0.12)',
+    lg: '0 12px 40px rgba(0,0,0,0.18)'
+  }
+  if (design.shadow && design.shadow !== 'none') {
+    parts.push(`box-shadow:${shadows[design.shadow]}`)
+  }
+
+  // Opacity
+  if (design.opacity && design.opacity !== '100') {
+    parts.push(`opacity:${parseInt(design.opacity) / 100}`)
+  }
+
+  // Entrance animation — inject class via data attr; handled by injected CSS
+  if (design.animation && design.animation !== 'none') {
+    parts.push(`--pz-anim:${design.animation}`)
+  }
+
   return parts.join(';')
 }
 
+// ── Animation CSS (always injected) ──────────────────────────────────────────
+const PZ_ANIMATION_CSS = `<style>
+@keyframes pzFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pzSlideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pzSlideLeft{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pzZoomIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+[style*="--pz-anim:fadeIn"]{animation:pzFadeIn 0.7s ease both}
+[style*="--pz-anim:slideUp"]{animation:pzSlideUp 0.7s ease both}
+[style*="--pz-anim:slideLeft"]{animation:pzSlideLeft 0.7s ease both}
+[style*="--pz-anim:zoomIn"]{animation:pzZoomIn 0.6s ease both}
+</style>`
+
 // ── Global style injection helper ─────────────────────────────────────────────
 function injectGlobalStyles(html, settings) {
+  // Always inject animation CSS
+  html = html.replace('</head>', PZ_ANIMATION_CSS + '</head>')
+
   const gs = settings.globalStyles || {}
   if (!Object.keys(gs).length) return html
 

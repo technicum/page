@@ -1,36 +1,126 @@
-<section class="pz-plugin-gallery" id="gallery">
-  <div class="pz-plugin-inner">
-    <p class="pz-plugin-label">Gallery</p>
-    <h2 class="pz-plugin-title">{{ section.fields.title }}</h2>
-    <div class="pz-gallery-grid">
-      {% for item in section.fields.items %}
-      {% if item.link != '' and item.link != nil %}
-      <a class="pz-gallery-item" href="{{ item.link }}" target="_blank">
-      {% else %}
-      <div class="pz-gallery-item">
-      {% endif %}
-        <div class="pz-gallery-thumb">{{ item.emoji }}</div>
-        {% if item.caption != '' and item.caption != nil %}
-        <div class="pz-gallery-caption">{{ item.caption }}</div>
-        {% endif %}
-      {% if item.link != '' and item.link != nil %}
-      </a>
-      {% else %}
+{% assign gallery_id = section.id | append: forloop.index %}
+{% assign layout = section.fields.layout | default: 'grid' %}
+{% assign cols   = section.fields.cols   | default: '3' %}
+
+<section class="pz-gallery-section" {% if _designCss %}style="{{ _designCss }}"{% endif %}>
+  <div class="pz-gallery-wrap">
+    {% if section.fields.title != '' and section.fields.title != nil %}
+    <div class="pz-gallery-header">
+      <p class="pz-gl-label">Gallery</p>
+      <h2 class="pz-gl-title">{{ section.fields.title }}</h2>
+    </div>
+    {% endif %}
+
+    {% if layout == 'slider' %}
+    <div class="pz-gl-slider">
+      <div class="pz-gl-slider-track" id="pzglst">
+        {% for item in section.fields.items %}
+        <div class="pz-gl-slide">
+          {% if item.image != '' and item.image != nil %}
+            <img src="{{ item.image }}" alt="{{ item.caption }}" loading="lazy">
+          {% else %}
+            <div class="pz-gl-placeholder">🖼️</div>
+          {% endif %}
+          {% if item.caption != '' %}<div class="pz-gl-slide-caption">{{ item.caption }}</div>{% endif %}
+        </div>
+        {% endfor %}
       </div>
-      {% endif %}
+      <button class="pz-gl-arrow pz-gl-prev" onclick="pzGlSlide(-1)">&#8249;</button>
+      <button class="pz-gl-arrow pz-gl-next" onclick="pzGlSlide(1)">&#8250;</button>
+      <div class="pz-gl-dots" id="pzgld">
+        {% for item in section.fields.items %}<span class="pz-gl-dot{% if forloop.first %} active{% endif %}" onclick="pzGlGoto({{ forloop.index0 }})"></span>{% endfor %}
+      </div>
+    </div>
+
+    {% elsif layout == 'masonry' %}
+    <div class="pz-gl-masonry pz-gl-cols-{{ cols }}">
+      {% for item in section.fields.items %}
+      <div class="pz-gl-mitem" onclick="pzGlOpen({{ forloop.index0 }})">
+        {% if item.image != '' and item.image != nil %}<img src="{{ item.image }}" alt="{{ item.caption }}" loading="lazy">{% else %}<div class="pz-gl-placeholder">🖼️</div>{% endif %}
+        {% if item.caption != '' %}<div class="pz-gl-caption">{{ item.caption }}</div>{% endif %}
+      </div>
       {% endfor %}
     </div>
+
+    {% else %}
+    <div class="pz-gl-grid pz-gl-cols-{{ cols }}">
+      {% for item in section.fields.items %}
+      <div class="pz-gl-item" onclick="pzGlOpen({{ forloop.index0 }})">
+        {% if item.image != '' and item.image != nil %}<img src="{{ item.image }}" alt="{{ item.caption }}" loading="lazy">{% else %}<div class="pz-gl-placeholder">🖼️</div>{% endif %}
+        {% if item.caption != '' %}<div class="pz-gl-caption">{{ item.caption }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
 </section>
+
+<!-- Lightbox -->
+<div class="pz-lightbox" id="pzlb" onclick="pzGlClose()">
+  <button class="pz-lb-close" onclick="pzGlClose()">✕</button>
+  <button class="pz-lb-arrow pz-lb-prev" onclick="pzGlLbNav(-1);event.stopPropagation()">&#8249;</button>
+  <div class="pz-lb-content" onclick="event.stopPropagation()">
+    <img class="pz-lb-img" id="pzlbimg" src="" alt="">
+    <p class="pz-lb-caption" id="pzlbcap"></p>
+  </div>
+  <button class="pz-lb-arrow pz-lb-next" onclick="pzGlLbNav(1);event.stopPropagation()">&#8250;</button>
+</div>
+
 <style>
-.pz-plugin-gallery{padding:72px 40px;background:#f8f7f4;}
-.pz-plugin-inner{max-width:900px;margin:0 auto;}
-.pz-plugin-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#b0afa8;margin-bottom:8px;}
-.pz-plugin-title{font-size:clamp(22px,3vw,36px);font-weight:400;color:var(--c,#2563eb);margin-bottom:32px;letter-spacing:-0.5px;}
-.pz-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
-.pz-gallery-item{border-radius:12px;overflow:hidden;background:#fff;border:1px solid rgba(0,0,0,0.08);text-decoration:none;color:inherit;transition:transform 0.2s,box-shadow 0.2s;display:block;}
-.pz-gallery-item:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.1);}
-.pz-gallery-thumb{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:48px;background:#f8f7f4;}
-.pz-gallery-caption{padding:10px 12px;font-size:13px;font-weight:500;color:#1a1a18;background:#fff;}
-@media(max-width:600px){.pz-plugin-gallery{padding:48px 20px;}}
+.pz-gallery-section{padding:72px 40px;}
+.pz-gallery-wrap{max-width:1100px;margin:0 auto;}
+.pz-gallery-header{margin-bottom:32px;}
+.pz-gl-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#b0afa8;margin-bottom:8px;}
+.pz-gl-title{font-size:clamp(22px,3vw,34px);font-weight:400;color:var(--c,#2563eb);letter-spacing:-0.5px;}
+.pz-gl-grid{display:grid;gap:10px;}
+.pz-gl-cols-2{grid-template-columns:repeat(2,1fr);}
+.pz-gl-cols-3{grid-template-columns:repeat(3,1fr);}
+.pz-gl-cols-4{grid-template-columns:repeat(4,1fr);}
+.pz-gl-item{position:relative;border-radius:10px;overflow:hidden;cursor:zoom-in;background:#f3f4f6;aspect-ratio:1;}
+.pz-gl-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.35s;}
+.pz-gl-item:hover img{transform:scale(1.06);}
+.pz-gl-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;}
+.pz-gl-caption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.65));color:#fff;font-size:12px;padding:20px 12px 10px;opacity:0;transition:opacity 0.2s;}
+.pz-gl-item:hover .pz-gl-caption,.pz-gl-mitem:hover .pz-gl-caption{opacity:1;}
+.pz-gl-masonry{columns:3;column-gap:10px;}
+.pz-gl-masonry.pz-gl-cols-2{columns:2;}
+.pz-gl-masonry.pz-gl-cols-4{columns:4;}
+.pz-gl-mitem{break-inside:avoid;margin-bottom:10px;border-radius:10px;overflow:hidden;cursor:zoom-in;position:relative;}
+.pz-gl-mitem img{width:100%;display:block;transition:transform 0.35s;}
+.pz-gl-mitem:hover img{transform:scale(1.03);}
+.pz-gl-slider{position:relative;overflow:hidden;border-radius:14px;background:#111;}
+.pz-gl-slider-track{display:flex;transition:transform 0.4s ease;}
+.pz-gl-slide{min-width:100%;position:relative;}
+.pz-gl-slide img{width:100%;max-height:520px;object-fit:cover;display:block;}
+.pz-gl-slide .pz-gl-placeholder{height:320px;display:flex;align-items:center;justify-content:center;font-size:56px;}
+.pz-gl-slide-caption{position:absolute;bottom:0;left:0;right:0;padding:14px 20px;background:linear-gradient(transparent,rgba(0,0,0,0.7));color:#fff;font-size:14px;}
+.pz-gl-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:22px;cursor:pointer;z-index:2;transition:background 0.15s;display:flex;align-items:center;justify-content:center;}
+.pz-gl-arrow:hover{background:rgba(0,0,0,0.7);}
+.pz-gl-prev{left:12px;}.pz-gl-next{right:12px;}
+.pz-gl-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2;}
+.pz-gl-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.4);cursor:pointer;transition:background 0.15s;}
+.pz-gl-dot.active{background:#fff;}
+.pz-lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center;}
+.pz-lightbox.open{display:flex;}
+.pz-lb-content{max-width:92vw;max-height:90vh;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.pz-lb-img{max-width:90vw;max-height:82vh;object-fit:contain;border-radius:6px;}
+.pz-lb-caption{color:rgba(255,255,255,0.7);font-size:14px;text-align:center;}
+.pz-lb-close{position:fixed;top:14px;right:18px;background:rgba(255,255,255,0.12);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;}
+.pz-lb-close:hover{background:rgba(255,255,255,0.25);}
+.pz-lb-arrow{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;color:#fff;width:44px;height:44px;border-radius:50%;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.pz-lb-arrow:hover{background:rgba(255,255,255,0.2);}
+.pz-lb-prev{left:14px;}.pz-lb-next{right:14px;}
+@media(max-width:640px){.pz-gallery-section{padding:48px 16px;}.pz-gl-cols-3,.pz-gl-cols-4{grid-template-columns:repeat(2,1fr);}.pz-gl-masonry{columns:2!important;}}
 </style>
+<script>
+(function(){
+  var _items=[{% for item in section.fields.items %}{"image":"{{ item.image | escape }}","caption":"{{ item.caption | escape }}","link":"{{ item.link | escape }}"}{% unless forloop.last %},{% endunless %}{% endfor %}];
+  var _cur=0,_sp=0;
+  window.pzGlOpen=function(idx){var it=_items[idx];if(!it||!it.image)return;if(it.link){window.open(it.link,'_blank');return;}_cur=idx;var lb=document.getElementById('pzlb');document.getElementById('pzlbimg').src=it.image;document.getElementById('pzlbcap').textContent=it.caption||'';lb.classList.add('open');};
+  window.pzGlClose=function(){document.getElementById('pzlb').classList.remove('open');};
+  window.pzGlLbNav=function(d){_cur=(_cur+d+_items.length)%_items.length;var it=_items[_cur];document.getElementById('pzlbimg').src=it.image||'';document.getElementById('pzlbcap').textContent=it.caption||'';};
+  window.pzGlSlide=function(d){var t=document.getElementById('pzglst');if(!t)return;_sp=(_sp+d+_items.length)%_items.length;t.style.transform='translateX(-'+(_sp*100)+'%)';document.querySelectorAll('#pzgld .pz-gl-dot').forEach(function(el,i){el.classList.toggle('active',i===_sp);});};
+  window.pzGlGoto=function(idx){_sp=idx;var t=document.getElementById('pzglst');if(t)t.style.transform='translateX(-'+(idx*100)+'%)';document.querySelectorAll('#pzgld .pz-gl-dot').forEach(function(el,i){el.classList.toggle('active',i===idx);});};
+  document.addEventListener('keydown',function(e){var lb=document.getElementById('pzlb');if(!lb||!lb.classList.contains('open'))return;if(e.key==='Escape')pzGlClose();if(e.key==='ArrowRight')pzGlLbNav(1);if(e.key==='ArrowLeft')pzGlLbNav(-1);});
+})();
+</script>

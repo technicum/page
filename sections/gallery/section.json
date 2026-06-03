@@ -1,17 +1,19 @@
 {
   "id": "gallery",
-  "label": "Gallery",
+  "label": "Image Gallery",
   "emoji": "🖼️",
-  "description": "Photo / project grid with emoji placeholders and captions.",
-  "for": ["all"],
+  "description": "Photo gallery with lightbox, grid or masonry layout.",
+  "global": true,
   "fields": [
-    { "id": "title", "label": "Section Title", "type": "text", "default": "Our Gallery" },
+    { "id": "title",  "label": "Section Title",             "type": "text", "default": "Our Gallery" },
+    { "id": "layout", "label": "Layout (grid/masonry/slider)", "type": "text", "default": "grid" },
+    { "id": "cols",   "label": "Columns (2, 3 or 4)",       "type": "text", "default": "3" },
     {
-      "id": "items", "label": "Items", "type": "list",
+      "id": "items", "label": "Images", "type": "list",
       "item_fields": [
-        { "id": "emoji",   "label": "Image (emoji)", "type": "text", "default": "🖼️" },
-        { "id": "caption", "label": "Caption",       "type": "text", "default": "Caption" },
-        { "id": "link",    "label": "Link URL",      "type": "url",  "default": "" }
+        { "id": "image",   "label": "Image URL",         "type": "url",  "default": "" },
+        { "id": "caption", "label": "Caption",           "type": "text", "default": "" },
+        { "id": "link",    "label": "Click Link (optional)", "type": "url", "default": "" }
       ]
     }
   ]

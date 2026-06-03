@@ -1,0 +1,86 @@
+{% assign headers = section.fields.headers | default: 'Name,Value,Status' | split: ',' %}
+{% assign striped = section.fields.striped | default: 'yes' %}
+
+<section class="pz-table-section" {% if _designCss %}style="{{ _designCss }}"{% endif %}>
+  <div class="pz-table-wrap">
+    {% if section.fields.title != '' and section.fields.title != nil %}
+    <h2 class="pz-table-title">{{ section.fields.title }}</h2>
+    {% endif %}
+
+    <div class="pz-table-container">
+      <table class="pz-table{% if striped == 'yes' %} pz-table-striped{% endif %}" id="pztbl-{{ section.id }}">
+        <thead>
+          <tr>
+            {% for header in headers %}
+            <th onclick="pzTableSort('{{ section.id }}',{{ forloop.index0 }},this)">
+              {{ header | strip }}
+              <span class="pz-th-sort">⇅</span>
+            </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody id="pztbody-{{ section.id }}">
+          {% for row in section.fields.rows %}
+          {% assign cells = row.cells | split: ',' %}
+          <tr>
+            {% for cell in cells %}
+            <td>{{ cell | strip }}</td>
+            {% endfor %}
+            {% assign headers_size = headers | size %}
+            {% assign cells_size = cells | size %}
+            {% if cells_size < headers_size %}
+              {% for i in (cells_size..headers_size) %}
+                {% unless forloop.first %}<td></td>{% endunless %}
+              {% endfor %}
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<style>
+.pz-table-section{padding:56px 40px;}
+.pz-table-wrap{max-width:960px;margin:0 auto;}
+.pz-table-title{font-size:clamp(20px,2.5vw,30px);font-weight:400;color:var(--c,#2563eb);letter-spacing:-0.4px;margin-bottom:20px;}
+.pz-table-container{overflow-x:auto;border-radius:10px;border:1px solid rgba(0,0,0,0.08);}
+.pz-table{width:100%;border-collapse:collapse;font-size:14px;}
+.pz-table thead{background:var(--c,#2563eb);color:#fff;}
+.pz-table th{padding:12px 16px;text-align:left;font-weight:600;font-size:13px;letter-spacing:0.2px;white-space:nowrap;cursor:pointer;user-select:none;}
+.pz-table th:hover{background:rgba(0,0,0,0.12);}
+.pz-th-sort{font-size:11px;opacity:0.6;margin-left:4px;}
+.pz-table td{padding:11px 16px;border-bottom:1px solid rgba(0,0,0,0.06);color:#374151;vertical-align:middle;}
+.pz-table tbody tr:last-child td{border-bottom:none;}
+.pz-table tbody tr:hover td{background:rgba(0,0,0,0.025);}
+.pz-table-striped tbody tr:nth-child(even) td{background:#f9fafb;}
+.pz-table-striped tbody tr:nth-child(even):hover td{background:rgba(0,0,0,0.025);}
+@media(max-width:600px){.pz-table-section{padding:40px 16px;}.pz-table th,.pz-table td{padding:9px 12px;font-size:13px;}}
+</style>
+<script>
+(function(){
+  var sortDirs = {};
+  window.pzTableSort = function(tid, colIdx, th) {
+    var tbody = document.getElementById('pztbody-' + tid);
+    if (!tbody) return;
+    var key = tid + '_' + colIdx;
+    var asc = sortDirs[key] !== true;
+    sortDirs[key] = asc;
+    var rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.sort(function(a, b) {
+      var av = (a.cells[colIdx] ? a.cells[colIdx].textContent.trim() : '');
+      var bv = (b.cells[colIdx] ? b.cells[colIdx].textContent.trim() : '');
+      var an = parseFloat(av), bn = parseFloat(bv);
+      if (!isNaN(an) && !isNaN(bn)) return asc ? an - bn : bn - an;
+      return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+    rows.forEach(function(r){ tbody.appendChild(r); });
+    // Update sort indicators
+    var table = document.getElementById('pztbl-' + tid);
+    if (table) table.querySelectorAll('.pz-th-sort').forEach(function(s){ s.textContent = '⇅'; });
+    var sortEl = th.querySelector('.pz-th-sort');
+    if (sortEl) sortEl.textContent = asc ? '↑' : '↓';
+  };
+})();
+</script>
