@@ -40,7 +40,11 @@ exports.store = async (req, res) => {
     [user.id, title, subdomain, category || '', template_id || 'minimal', settings]
   )
 
-  res.redirect(`/dashboard/site/builder?id=${id}`)
+  if (site_type === 'linktree') {
+    res.redirect(`/dashboard/site/biolink-builder?id=${id}`)
+  } else {
+    res.redirect(`/dashboard/site/builder?id=${id}`)
+  }
 }
 
 exports.setTemplate = async (req, res) => {
@@ -154,6 +158,21 @@ exports.builderSave = async (req, res) => {
   if (custom_pages)  settings.customPages  = JSON.parse(custom_pages)
   if (nav_items)     settings.navItems     = JSON.parse(nav_items)
   if (seo)           settings.seo          = JSON.parse(seo)
+
+  await db.execute('UPDATE ms_pages SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
+  res.json({ ok: true })
+}
+
+exports.biolinkSave = async (req, res) => {
+  const user = req.session.user
+  const { site_id, sections, theme } = req.body
+
+  const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [site_id, user.id])
+  if (!site) return res.json({ ok: false })
+
+  const settings    = JSON.parse(site.settings || '{}')
+  settings.theme    = theme || settings.theme || 'violet'
+  settings.sections = JSON.parse(sections || '[]')
 
   await db.execute('UPDATE ms_pages SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
   res.json({ ok: true })

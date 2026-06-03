@@ -76,6 +76,23 @@ exports.builder = async (req, res) => {
   })
 }
 
+exports.biolinkBuilder = async (req, res) => {
+  const user   = req.session.user
+  const siteId = parseInt(req.query.id) || 0
+
+  const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
+  if (!site) return res.redirect('/dashboard')
+
+  const settings = JSON.parse(site.settings || '{}')
+  res.render('dashboard/biolink-builder.njk', {
+    title:      'Bio Link Editor',
+    user,
+    site,
+    settings,
+    baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
+  })
+}
+
 exports.settings = async (req, res) => {
   const user = req.session.user
   res.render('dashboard/settings.njk', { title: 'Settings', user })

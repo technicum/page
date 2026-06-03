@@ -64,7 +64,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 
 .subdomain-wrap{display:flex;align-items:center;border:1px solid var(--border-md);border-radius:var(--radius);overflow:hidden;background:var(--white);}
-.subdomain-prefix{padding:11px 14px;background:var(--paper);font-size:14px;color:var(--ink-muted);border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
+.subdomain-suffix{padding:11px 14px;background:var(--paper);font-size:14px;color:var(--ink-muted);border-left:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
 .subdomain-wrap input{border:none;outline:none;padding:11px 14px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);flex:1;background:transparent;}
 .subdomain-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
 
@@ -296,10 +296,10 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
       <div class="field">
         <label>Your web address</label>
         <div class="subdomain-wrap">
-          <span class="subdomain-prefix">{{ base_domain }}/</span>
           <input type="text" name="subdomain" id="subdomain-input" placeholder="yourname" autocomplete="off">
+          <span class="subdomain-suffix">.{{ base_domain }}</span>
         </div>
-        <div class="field-hint">Lowercase letters, numbers, hyphens only. e.g. glamour-studio</div>
+        <div class="field-hint">Lowercase letters, numbers, hyphens only. Your URL: yourname.{{ base_domain }}</div>
       </div>
 
       <div class="field">
