@@ -124,17 +124,23 @@ async function applyTheme() {
   btn.textContent = 'Applying...'
   btn.disabled = true
 
-  const res  = await fetch('/dashboard/site/set-template', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ site_id: siteId, template_id: selectedSlug })
-  })
-  const data = await res.json()
+  try {
+    const res  = await fetch('/dashboard/site/set-template', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ site_id: siteId, template_id: selectedSlug })
+    })
+    const data = await res.json()
 
-  if (data.ok) {
-    window.location.href = `/dashboard/site/builder?id=${siteId}`
-  } else {
-    alert('Error applying theme: ' + (data.error || 'Unknown'))
+    if (data.ok) {
+      window.location.href = `/dashboard/site/builder?id=${siteId}`
+    } else {
+      alert('Error applying theme: ' + (data.error || 'Unknown'))
+      btn.textContent = 'Use this theme →'
+      btn.disabled    = false
+    }
+  } catch (err) {
+    alert('Something went wrong. Please try again.')
     btn.textContent = 'Use this theme →'
     btn.disabled    = false
   }

@@ -40,7 +40,7 @@ exports.store = async (req, res) => {
     [user.id, title, subdomain, category || '', template_id || 'minimal', settings]
   )
 
-  res.redirect(`/dashboard/site/templates?id=${id}&new=1`)
+  res.redirect(`/dashboard/site/builder?id=${id}`)
 }
 
 exports.setTemplate = async (req, res) => {
