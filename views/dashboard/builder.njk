@@ -1919,8 +1919,26 @@ function setDevice(mode, btn) {
 // Listen for clicks from preview iframe
 window.addEventListener('message', e => {
   if (!e.data || e.data.type !== 'pz-select') return;
-  const idx = sections.findIndex(s => s.id === e.data.id);
-  if (idx >= 0) selectSection(idx);
+  const id = e.data.id;
+
+  // Check top-level sections first (non-row)
+  const idx = sections.findIndex(s => s.id === id);
+  if (idx >= 0) { selectSection(idx); return; }
+
+  // Search inside row columns
+  for (let ri = 0; ri < sections.length; ri++) {
+    const row = sections[ri];
+    if (!row._isRow) continue;
+    for (let ci = 0; ci < (row.columns || []).length; ci++) {
+      const col = row.columns[ci] || [];
+      for (let si = 0; si < col.length; si++) {
+        if (col[si].id === id) {
+          selectColumnSection(ri, ci, si);
+          return;
+        }
+      }
+    }
+  }
 });
 
 // ── Save ──────────────────────────────────────────────────────────────────────
@@ -2030,7 +2048,7 @@ function selectColumnSection(rowIdx, colIdx, secIdx) {
   renderList();
   // Highlight in iframe
   const frame = document.getElementById('previewFrame');
-  if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'pz-highlight', id: sections[rowIdx].id }, '*');
+  if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'pz-highlight', id: sec.id }, '*');
   // Store column context for sec bar actions
   activeColContext = { rowIdx, colIdx, secIdx };
 }
