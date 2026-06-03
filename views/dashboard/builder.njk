@@ -1238,11 +1238,27 @@ let sections     = IS_MULTIPAGE ? [] : {{ (settings.sections or []) | dump | saf
 let currentColor = {{ (settings.theme or 'blue') | dump | safe }};
 let globalStyles = {{ (settings.globalStyles or {}) | dump | safe }};
 let seoSettings  = {{ (settings.seo or {}) | dump | safe }};
-let activeIdx    = -1;
-let dragSrc      = null;
-let previewTimer = null;
-let undoStack    = [];
-let undoPtr      = -1;
+let activeIdx      = -1;
+let dragSrc        = null;
+let previewTimer   = null;
+let undoStack      = [];
+let undoPtr        = -1;
+// ── Row/column state ──
+let addContext     = null;  // null = top-level | { rowIdx, colIdx } = inside column
+let activeRowIdx   = -1;    // row selected for settings
+let activeColContext = null; // { rowIdx, colIdx, secIdx } when editing inside a column
+const ROW_LAYOUTS = [
+  { layout:'1',       label:'Full width',    desc:'1 column',      cols:[1] },
+  { layout:'1-1',     label:'Two equal',     desc:'50% / 50%',     cols:[1,1] },
+  { layout:'1-1-1',   label:'Three equal',   desc:'33% × 3',       cols:[1,1,1] },
+  { layout:'1-1-1-1', label:'Four equal',    desc:'25% × 4',       cols:[1,1,1,1] },
+  { layout:'1-2',     label:'Sidebar left',  desc:'33% / 66%',     cols:[1,2] },
+  { layout:'2-1',     label:'Sidebar right', desc:'66% / 33%',     cols:[2,1] },
+  { layout:'1-3',     label:'Narrow left',   desc:'25% / 75%',     cols:[1,3] },
+  { layout:'3-1',     label:'Narrow right',  desc:'75% / 25%',     cols:[3,1] },
+  { layout:'1-1-2',   label:'Right wide',    desc:'25/25/50%',     cols:[1,1,2] },
+  { layout:'2-1-1',   label:'Left wide',     desc:'50/25/25%',     cols:[2,1,1] }
+];
 
 function updateSeo(key, val) { seoSettings[key] = val; markDirty(); debouncedPreview(); }
 
@@ -1816,21 +1832,6 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Row / Column system ───────────────────────────────────────────────────────
-let addContext   = null; // null = top-level | { rowIdx, colIdx } = inside row
-let activeRowIdx = -1;   // index of selected row for settings
-
-const ROW_LAYOUTS = [
-  { layout:'1',       label:'Full width',   desc:'1 column',      cols:[1] },
-  { layout:'1-1',     label:'Two equal',    desc:'50% / 50%',     cols:[1,1] },
-  { layout:'1-1-1',   label:'Three equal',  desc:'33% × 3',       cols:[1,1,1] },
-  { layout:'1-1-1-1', label:'Four equal',   desc:'25% × 4',       cols:[1,1,1,1] },
-  { layout:'1-2',     label:'Sidebar left', desc:'33% / 66%',     cols:[1,2] },
-  { layout:'2-1',     label:'Sidebar right',desc:'66% / 33%',     cols:[2,1] },
-  { layout:'1-3',     label:'Narrow left',  desc:'25% / 75%',     cols:[1,3] },
-  { layout:'3-1',     label:'Narrow right', desc:'75% / 25%',     cols:[3,1] },
-  { layout:'1-1-2',   label:'Right wide',   desc:'25/25/50%',     cols:[1,1,2] },
-  { layout:'2-1-1',   label:'Left wide',    desc:'50/25/25%',     cols:[2,1,1] }
-];
 
 function openRowModal() {
   const grid = document.getElementById('layoutGrid');
@@ -1917,8 +1918,6 @@ function selectColumnSection(rowIdx, colIdx, secIdx) {
   // Store column context for sec bar actions
   activeColContext = { rowIdx, colIdx, secIdx };
 }
-
-let activeColContext = null;
 
 function renderColumnDesign(rowIdx, colIdx, secIdx) {
   const sec    = sections[rowIdx].columns[colIdx][secIdx];
