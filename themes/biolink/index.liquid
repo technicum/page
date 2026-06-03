@@ -129,8 +129,10 @@
       <button class="pz-cart-close" onclick="pzCloseCart()">✕</button>
     </div>
     <div id="pzCartItems" class="pz-cart-items"></div>
-    <div id="pzCartTotal" class="pz-cart-total"></div>
-    <button class="pz-cart-order" onclick="pzOrderWA()">📲 Order on WhatsApp</button>
+    <div class="pz-cart-footer">
+      <div id="pzCartTotal" class="pz-cart-total"></div>
+      <button class="pz-cart-order" onclick="pzOrderWA()">📲 Order on WhatsApp</button>
+    </div>
   </div>
   <div class="pz-overlay" id="pzOverlay" onclick="pzCloseCart()"></div>
   <script>
@@ -178,11 +180,21 @@
   {% if f.upi_id != '' and f.upi_id != nil %}
   <div class="section-divider">Pay</div>
   <div class="upi-card" data-upi="{{ f.upi_id }}" data-name="{{ f.display_name }}" data-amount="{{ f.amount }}">
-    <img class="upi-qr" src="" alt="UPI QR Code">
-    <div class="upi-id">{{ f.upi_id }}</div>
-    {% if f.amount != '' and f.amount != nil %}<div class="upi-amount">₹{{ f.amount }}</div>{% endif %}
-    <a class="upi-btn" href="#">{{ f.btn_label | default: '💳 Pay with UPI' }}</a>
-    <div class="upi-hint">Scan QR or tap button to pay</div>
+    <div class="upi-top-bar"></div>
+    <div class="upi-body">
+      <div class="upi-badge">💳 UPI Payment</div>
+      <div class="upi-qr-wrap"><img class="upi-qr" src="" alt="UPI QR Code"></div>
+      <div class="upi-id">{{ f.upi_id }}</div>
+      {% if f.amount != '' and f.amount != nil %}<div class="upi-amount">₹{{ f.amount }}</div>{% endif %}
+      <a class="upi-btn" href="#">{{ f.btn_label | default: '💳 Pay with UPI' }}</a>
+      <div class="upi-apps">
+        <span class="upi-app">GPay</span>
+        <span class="upi-app">PhonePe</span>
+        <span class="upi-app">Paytm</span>
+        <span class="upi-app">BHIM</span>
+      </div>
+      <div class="upi-hint">📷 Scan QR or tap button to open UPI app</div>
+    </div>
   </div>
   <script>
   (function(){
@@ -197,15 +209,20 @@
   {% endif %}
 
   {% elsif section.id == 'lead_form' %}
-  <div class="section-divider">{{ f.heading | default: 'Get in Touch' }}</div>
-  <form class="lead-form" onsubmit="pzLeadSubmit(event,this,{{ site.id }})">
-    {% if f.show_name != 'no' %}<input class="lead-inp" type="text"  name="name"    placeholder="Your Name">{% endif %}
-    {% if f.show_phone != 'no' %}<input class="lead-inp" type="text" name="phone"   placeholder="Phone Number">{% endif %}
-    {% if f.show_email != 'no' %}<input class="lead-inp" type="text" name="email"   placeholder="Email Address">{% endif %}
-    {% if f.show_message == 'yes' %}<textarea class="lead-inp lead-ta" name="message" placeholder="Message"></textarea>{% endif %}
-    <button type="submit" class="lead-btn">{{ f.btn_label | default: 'Send' }}</button>
-    <div class="lead-ok" id="pzLeadOk{{ section.id }}" style="display:none">{{ f.success_msg | default: "Thanks! We'll be in touch." }}</div>
-  </form>
+  <div class="lead-card">
+    <div class="lead-card-header">
+      <div class="lead-card-title">{{ f.heading | default: 'Get in Touch' }}</div>
+      <div class="lead-card-sub">Fill in your details and we'll reach out soon.</div>
+    </div>
+    <form class="lead-form" onsubmit="pzLeadSubmit(event,this,{{ site.id }})">
+      {% if f.show_name != 'no' %}<input class="lead-inp" type="text"  name="name"    placeholder="👤  Your Name">{% endif %}
+      {% if f.show_phone != 'no' %}<input class="lead-inp" type="text" name="phone"   placeholder="📞  Phone Number">{% endif %}
+      {% if f.show_email != 'no' %}<input class="lead-inp" type="text" name="email"   placeholder="✉️  Email Address">{% endif %}
+      {% if f.show_message == 'yes' %}<textarea class="lead-inp lead-ta" name="message" placeholder="💬  Your message…"></textarea>{% endif %}
+      <button type="submit" class="lead-btn">{{ f.btn_label | default: 'Send Message' }} →</button>
+      <div class="lead-ok" style="display:none">{{ f.success_msg | default: "Thanks! We'll be in touch soon." }}</div>
+    </form>
+  </div>
   <script>
   if(!window.pzLeadSubmit){window.pzLeadSubmit=function(e,form,sid){
     e.preventDefault();
