@@ -72,6 +72,63 @@
       ]
     },
     {
+      "id": "products",
+      "label": "Products & Services",
+      "emoji": "🛍️",
+      "description": "Showcase products/services. Customers order via WhatsApp cart.",
+      "fields": [
+        { "id": "heading",  "label": "Section Heading",       "type": "text", "default": "Products & Services" },
+        { "id": "wa_phone", "label": "WhatsApp Order Number", "type": "tel",  "default": "" },
+        {
+          "id": "items", "label": "Products", "type": "list",
+          "item_fields": [
+            { "id": "emoji", "label": "Emoji",       "type": "text", "default": "📦" },
+            { "id": "name",  "label": "Name",        "type": "text", "default": "My Product" },
+            { "id": "price", "label": "Price",       "type": "text", "default": "₹999" },
+            { "id": "desc",  "label": "Description", "type": "text", "default": "" },
+            { "id": "image", "label": "Image URL",   "type": "text", "default": "" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "upi_pay",
+      "label": "UPI Payment",
+      "emoji": "💳",
+      "description": "Accept payments via UPI with QR code and deep link button.",
+      "fields": [
+        { "id": "upi_id",       "label": "UPI ID (VPA)",     "type": "text", "default": "" },
+        { "id": "display_name", "label": "Display Name",     "type": "text", "default": "" },
+        { "id": "amount",       "label": "Amount (optional)","type": "text", "default": "" },
+        { "id": "btn_label",    "label": "Button Text",      "type": "text", "default": "💳 Pay with UPI" }
+      ]
+    },
+    {
+      "id": "lead_form",
+      "label": "Lead Capture Form",
+      "emoji": "📝",
+      "description": "Collect visitor name, phone and email leads.",
+      "fields": [
+        { "id": "heading",      "label": "Form Heading",    "type": "text", "default": "Get in Touch" },
+        { "id": "show_name",    "label": "Show Name",       "type": "text", "default": "yes" },
+        { "id": "show_phone",   "label": "Show Phone",      "type": "text", "default": "yes" },
+        { "id": "show_email",   "label": "Show Email",      "type": "text", "default": "yes" },
+        { "id": "show_message", "label": "Show Message",    "type": "text", "default": "no" },
+        { "id": "btn_label",    "label": "Button Text",     "type": "text", "default": "Send" },
+        { "id": "success_msg",  "label": "Success Message", "type": "text", "default": "Thanks! We'll be in touch soon." }
+      ]
+    },
+    {
+      "id": "video_embed",
+      "label": "Video Embed",
+      "emoji": "🎬",
+      "description": "Embed a YouTube video on your page.",
+      "fields": [
+        { "id": "url",     "label": "YouTube URL", "type": "text", "default": "" },
+        { "id": "caption", "label": "Caption",     "type": "text", "default": "" }
+      ]
+    },
+    {
       "id": "featured",
       "label": "Featured Card",
       "emoji": "⭐",

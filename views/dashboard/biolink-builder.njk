@@ -139,8 +139,10 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
     <div class="tabs">
       <button class="tab active" onclick="switchTab('profile',this)">👤 Profile</button>
       <button class="tab"        onclick="switchTab('links',this)">🔗 Links</button>
+      <button class="tab"        onclick="switchTab('shop',this)">🛍️ Shop</button>
       <button class="tab"        onclick="switchTab('socials',this)">📱 Socials</button>
       <button class="tab"        onclick="switchTab('contact',this)">📇 Contact</button>
+      <button class="tab"        onclick="switchTab('engage',this)">🎬 Engage</button>
       <button class="tab"        onclick="switchTab('style',this)">🎨 Style</button>
     </div>
 
@@ -192,6 +194,39 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
       </div>
     </div>
 
+    <!-- ── Shop tab ── -->
+    <div class="tab-pane" id="tab-shop">
+      <div class="sec-title">Products & Services</div>
+      <div class="fg">
+        <label class="fg-label">Section Heading</label>
+        <input class="fg-input" id="f-prod-heading" type="text" placeholder="Products & Services" oninput="shop.heading=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="fg">
+        <label class="fg-label">📲 WhatsApp Order Number</label>
+        <input class="fg-input" id="f-prod-wa" type="text" placeholder="+91 98765 43210" oninput="shop.wa_phone=this.value;dirty();debouncedPreview()">
+      </div>
+      <div id="productsList"></div>
+      <button class="btn-add-link" onclick="addProduct()">＋ Add Product / Service</button>
+
+      <div class="sec-title">UPI Payment</div>
+      <div class="fg">
+        <label class="fg-label">UPI ID</label>
+        <input class="fg-input" id="f-upi-id" type="text" placeholder="yourname@upi" oninput="upi.upi_id=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="fg">
+        <label class="fg-label">Display Name</label>
+        <input class="fg-input" id="f-upi-name" type="text" placeholder="Your Name" oninput="upi.display_name=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="fg">
+        <label class="fg-label">Fixed Amount (optional — leave blank for any amount)</label>
+        <input class="fg-input" id="f-upi-amount" type="text" placeholder="499" oninput="upi.amount=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="fg">
+        <label class="fg-label">Button Label</label>
+        <input class="fg-input" id="f-upi-btn" type="text" placeholder="💳 Pay with UPI" oninput="upi.btn_label=this.value;dirty();debouncedPreview()">
+      </div>
+    </div>
+
     <!-- ── Links ── -->
     <div class="tab-pane" id="tab-links">
       <div id="linksList"></div>
@@ -240,6 +275,54 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
       </div>
       <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:8px;padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.5);line-height:1.6;">
         💡 Visitors tap this button to download a contact card (.vcf) they can save directly to their phone contacts.
+      </div>
+    </div>
+
+    <!-- ── Engage tab ── -->
+    <div class="tab-pane" id="tab-engage">
+      <div class="sec-title">Lead Capture Form</div>
+      <div class="fg">
+        <label class="fg-label">Form Heading</label>
+        <input class="fg-input" id="f-lead-heading" type="text" placeholder="Get in Touch" oninput="leadForm.heading=this.value;dirty();debouncedPreview()">
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 12px;margin-bottom:12px;">
+        <label class="fg-label" style="margin-bottom:8px;">Show Fields</label>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.6);cursor:pointer;">
+            <input type="checkbox" id="lf-name" onchange="leadForm.show_name=this.checked?'yes':'no';dirty();debouncedPreview()"> Name
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.6);cursor:pointer;">
+            <input type="checkbox" id="lf-phone" checked onchange="leadForm.show_phone=this.checked?'yes':'no';dirty();debouncedPreview()"> Phone
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.6);cursor:pointer;">
+            <input type="checkbox" id="lf-email" onchange="leadForm.show_email=this.checked?'yes':'no';dirty();debouncedPreview()"> Email
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.6);cursor:pointer;">
+            <input type="checkbox" id="lf-msg" onchange="leadForm.show_message=this.checked?'yes':'no';dirty();debouncedPreview()"> Message
+          </label>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fg-label">Button Text</label>
+        <input class="fg-input" id="f-lead-btn" type="text" placeholder="Send" oninput="leadForm.btn_label=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="fg">
+        <label class="fg-label">Success Message</label>
+        <input class="fg-input" id="f-lead-ok" type="text" placeholder="Thanks! We'll be in touch." oninput="leadForm.success_msg=this.value;dirty();debouncedPreview()">
+      </div>
+      <a id="leadsLink" href="/dashboard/biolink/{{ site.id }}/leads" target="_blank"
+        style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#818cf8;text-decoration:none;padding:8px 12px;background:rgba(99,102,241,0.1);border-radius:8px;margin-top:4px;">
+        📊 View Leads →
+      </a>
+
+      <div class="sec-title" style="margin-top:20px;">Video Embed</div>
+      <div class="fg">
+        <label class="fg-label">YouTube URL</label>
+        <input class="fg-input" id="f-video-url" type="text" placeholder="https://youtube.com/watch?v=..." oninput="video.url=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="fg">
+        <label class="fg-label">Caption (optional)</label>
+        <input class="fg-input" id="f-video-caption" type="text" placeholder="Watch my latest video" oninput="video.caption=this.value;dirty();debouncedPreview()">
       </div>
     </div>
 
@@ -317,6 +400,11 @@ let profile  = savedFields('profile',      {avatar_emoji:'✨',avatar_url:'',nam
 let links    = Array.from(savedFields('links', {items:[]}).items || []);
 let socials  = savedFields('socials',      {instagram:'',youtube:'',twitter:'',tiktok:'',linkedin:'',github:''});
 let contact  = savedFields('contact_card', {phone:'',email:'',website:'',address:'',maps_url:'',save_label:'💾 Save Contact'});
+let shop     = savedFields('products',     {heading:'Products & Services',wa_phone:'',items:[]});
+let shopItems = Array.from(shop.items || []);
+let upi      = savedFields('upi_pay',      {upi_id:'',display_name:'',amount:'',btn_label:'💳 Pay with UPI'});
+let leadForm = savedFields('lead_form',    {heading:'Get in Touch',show_name:'yes',show_phone:'yes',show_email:'yes',show_message:'no',btn_label:'Send',success_msg:"Thanks! We'll be in touch soon."});
+let video    = savedFields('video_embed',  {url:'',caption:''});
 let currentAccent    = {{ (settings.theme or 'violet') | dump | safe }};
 let currentPageTheme = {{ (settings.biolink_theme or 'light') | dump | safe }};
 let currentTemplate  = {{ (site.template_id or 'biolink') | dump | safe }};
@@ -335,6 +423,23 @@ function init() {
   setv('f-tiktok',     socials.tiktok);
   setv('f-linkedin',   socials.linkedin);
   setv('f-github',     socials.github);
+  setv('f-prod-heading', shop.heading);
+  setv('f-prod-wa',      shop.wa_phone);
+  setv('f-upi-id',       upi.upi_id);
+  setv('f-upi-name',     upi.display_name);
+  setv('f-upi-amount',   upi.amount);
+  setv('f-upi-btn',      upi.btn_label);
+  setv('f-lead-heading', leadForm.heading);
+  setv('f-lead-btn',     leadForm.btn_label);
+  setv('f-lead-ok',      leadForm.success_msg);
+  setv('f-video-url',    video.url);
+  setv('f-video-caption',video.caption);
+  // checkboxes
+  document.getElementById('lf-name').checked  = leadForm.show_name    !== 'no';
+  document.getElementById('lf-phone').checked = leadForm.show_phone   !== 'no';
+  document.getElementById('lf-email').checked = leadForm.show_email   !== 'no';
+  document.getElementById('lf-msg').checked   = leadForm.show_message === 'yes';
+  renderProducts();
   setv('f-phone',      contact.phone);
   setv('f-email',      contact.email);
   setv('f-website',    contact.website);
@@ -412,6 +517,24 @@ function addLink(){ links.push({emoji:'🌐',label:'New Link',url:'https://',sty
 function delLink(i){ links.splice(i,1); renderLinks(); dirty(); debouncedPreview(); }
 function setStyle(i,s){ links[i].style=s; renderLinks(); dirty(); debouncedPreview(); }
 
+// ── Products ─────────────────────────────────────────────────────────────────
+function renderProducts() {
+  const list = document.getElementById('productsList'); list.innerHTML='';
+  shopItems.forEach((p,i) => {
+    const d = document.createElement('div'); d.className='link-card'; d.style.marginBottom='8px';
+    d.innerHTML=`<div class="link-top" style="margin-bottom:6px;">
+      <input class="link-emoji-in" value="${h(p.emoji||'📦')}" maxlength="4" oninput="shopItems[${i}].emoji=this.value;dirty();debouncedPreview()">
+      <input class="link-label-in" value="${h(p.name||'')}" placeholder="Product name" oninput="shopItems[${i}].name=this.value;dirty();debouncedPreview()">
+      <button class="link-del" onclick="delProduct(${i})">✕</button></div>
+    <input class="link-url-in" value="${h(p.price||'')}" placeholder="Price e.g. ₹999" style="margin-bottom:5px;" oninput="shopItems[${i}].price=this.value;dirty();debouncedPreview()">
+    <input class="link-url-in" value="${h(p.desc||'')}" placeholder="Short description" style="margin-bottom:5px;" oninput="shopItems[${i}].desc=this.value;dirty();debouncedPreview()">
+    <input class="link-url-in" value="${h(p.image||'')}" placeholder="Image URL (optional)" oninput="shopItems[${i}].image=this.value;dirty();debouncedPreview()">`;
+    list.appendChild(d);
+  });
+}
+function addProduct()  { shopItems.push({emoji:'📦',name:'New Product',price:'₹999',desc:'',image:''}); renderProducts(); dirty(); debouncedPreview(); }
+function delProduct(i) { shopItems.splice(i,1); renderProducts(); dirty(); debouncedPreview(); }
+
 // ── Colors ────────────────────────────────────────────────────────────────────
 function renderAccentColors() {
   const row = document.getElementById('colorsRow'); row.innerHTML='';
@@ -473,6 +596,10 @@ function buildSections() {
   return [
     {id:'profile',      fields:{...profile, avatar_url: avatarMode==='image'?(profile.avatar_url||''):''}},
     {id:'links',        fields:{items:links.map(l=>({...l}))}},
+    {id:'products',     fields:{...shop, items:shopItems.map(p=>({...p}))}},
+    {id:'upi_pay',      fields:{...upi}},
+    {id:'lead_form',    fields:{...leadForm}},
+    {id:'video_embed',  fields:{...video}},
     {id:'socials',      fields:{...socials}},
     {id:'contact_card', fields:{...contact}}
   ];

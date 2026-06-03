@@ -103,6 +103,139 @@
   </a>
   {% endif %}
 
+  {% elsif section.id == 'products' %}
+  {% if f.items.size > 0 %}
+  <div class="section-divider">{{ f.heading | default: 'Products & Services' }}</div>
+  <div class="products-grid">
+    {% for item in f.items %}
+    <div class="product-card">
+      {% if item.image != '' and item.image != nil %}
+      <img class="product-img" src="{{ item.image }}" alt="{{ item.name }}">
+      {% else %}
+      <div class="product-emoji-box">{{ item.emoji | default: '📦' }}</div>
+      {% endif %}
+      <div class="product-info">
+        <div class="product-name">{{ item.name }}</div>
+        {% if item.desc != '' and item.desc != nil %}<div class="product-desc">{{ item.desc }}</div>{% endif %}
+        <div class="product-price">{{ item.price }}</div>
+      </div>
+      <button class="product-btn" onclick="pzAddToCart('{{ item.name }}','{{ item.price }}','{{ item.emoji | default: '📦' }}','{{ f.wa_phone }}')">Add to Cart</button>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="pz-cart" id="pzCart">
+    <div class="pz-cart-hdr">
+      <span>🛒 Your Order</span>
+      <button class="pz-cart-close" onclick="pzCloseCart()">✕</button>
+    </div>
+    <div id="pzCartItems" class="pz-cart-items"></div>
+    <div id="pzCartTotal" class="pz-cart-total"></div>
+    <button class="pz-cart-order" onclick="pzOrderWA()">📲 Order on WhatsApp</button>
+  </div>
+  <div class="pz-overlay" id="pzOverlay" onclick="pzCloseCart()"></div>
+  <script>
+  if(!window._pzCartInit){window._pzCartInit=true;
+    window._pzCart=[];window._pzWaPhone='';
+    window.pzAddToCart=function(n,p,e,wa){
+      window._pzWaPhone=wa;
+      var ex=window._pzCart.find(function(i){return i.name===n;});
+      if(ex)ex.qty++;else window._pzCart.push({name:n,price:p,emoji:e,qty:1});
+      pzRenderCart();
+      document.getElementById('pzCart').classList.add('open');
+      document.getElementById('pzOverlay').classList.add('show');
+    };
+    window.pzCloseCart=function(){
+      document.getElementById('pzCart').classList.remove('open');
+      document.getElementById('pzOverlay').classList.remove('show');
+    };
+    window.pzQty=function(i,d){
+      window._pzCart[i].qty+=d;
+      if(window._pzCart[i].qty<=0)window._pzCart.splice(i,1);
+      pzRenderCart();
+      if(!window._pzCart.length)pzCloseCart();
+    };
+    window.pzRenderCart=function(){
+      var el=document.getElementById('pzCartItems');
+      var tot=document.getElementById('pzCartTotal');
+      if(!el)return;
+      el.innerHTML=window._pzCart.map(function(item,i){
+        return '<div class="pz-ci"><span class="pz-ci-n">'+item.emoji+' '+item.name+'</span><div class="pz-ci-r"><button onclick="pzQty('+i+',-1)">−</button><span>'+item.qty+'</span><button onclick="pzQty('+i+',1)">+</button><span class="pz-ci-p">'+item.price+'</span></div></div>';
+      }).join('');
+      if(tot)tot.textContent=window._pzCart.reduce(function(a,i){return a+i.qty;},0)+' item'+(window._pzCart.length!==1?'s':'');
+    };
+    window.pzOrderWA=function(){
+      if(!window._pzCart.length)return;
+      var lines=['Hello! I want to order:'];
+      window._pzCart.forEach(function(i){lines.push('• '+i.qty+'x '+i.name+' — '+i.price);});
+      var ph=window._pzWaPhone.replace(/\D/g,'');
+      window.open('https://wa.me/'+ph+'?text='+encodeURIComponent(lines.join('\n')),'_blank');
+    };
+  }
+  </script>
+  {% endif %}
+
+  {% elsif section.id == 'upi_pay' %}
+  {% if f.upi_id != '' and f.upi_id != nil %}
+  <div class="section-divider">Pay</div>
+  <div class="upi-card" data-upi="{{ f.upi_id }}" data-name="{{ f.display_name }}" data-amount="{{ f.amount }}">
+    <img class="upi-qr" src="" alt="UPI QR Code">
+    <div class="upi-id">{{ f.upi_id }}</div>
+    {% if f.amount != '' and f.amount != nil %}<div class="upi-amount">₹{{ f.amount }}</div>{% endif %}
+    <a class="upi-btn" href="#">{{ f.btn_label | default: '💳 Pay with UPI' }}</a>
+    <div class="upi-hint">Scan QR or tap button to pay</div>
+  </div>
+  <script>
+  (function(){
+    var c=document.querySelector('.upi-card[data-upi]');if(!c)return;
+    var link='upi://pay?pa='+encodeURIComponent(c.dataset.upi)+'&pn='+encodeURIComponent(c.dataset.name||'')+'&cu=INR';
+    if(c.dataset.amount)link+='&am='+encodeURIComponent(c.dataset.amount);
+    var qr=c.querySelector('.upi-qr');
+    if(qr)qr.src='https://chart.googleapis.com/chart?chs=180x180&cht=qr&chco=000000&chf=bg,s,FFFFFF00&chl='+encodeURIComponent(link);
+    var btn=c.querySelector('.upi-btn');if(btn)btn.href=link;
+  })();
+  </script>
+  {% endif %}
+
+  {% elsif section.id == 'lead_form' %}
+  <div class="section-divider">{{ f.heading | default: 'Get in Touch' }}</div>
+  <form class="lead-form" onsubmit="pzLeadSubmit(event,this,{{ site.id }})">
+    {% if f.show_name != 'no' %}<input class="lead-inp" type="text"  name="name"    placeholder="Your Name">{% endif %}
+    {% if f.show_phone != 'no' %}<input class="lead-inp" type="text" name="phone"   placeholder="Phone Number">{% endif %}
+    {% if f.show_email != 'no' %}<input class="lead-inp" type="text" name="email"   placeholder="Email Address">{% endif %}
+    {% if f.show_message == 'yes' %}<textarea class="lead-inp lead-ta" name="message" placeholder="Message"></textarea>{% endif %}
+    <button type="submit" class="lead-btn">{{ f.btn_label | default: 'Send' }}</button>
+    <div class="lead-ok" id="pzLeadOk{{ section.id }}" style="display:none">{{ f.success_msg | default: "Thanks! We'll be in touch." }}</div>
+  </form>
+  <script>
+  if(!window.pzLeadSubmit){window.pzLeadSubmit=function(e,form,sid){
+    e.preventDefault();
+    var data={};new FormData(form).forEach(function(v,k){data[k]=v;});
+    var btn=form.querySelector('[type=submit]');btn.disabled=true;btn.textContent='Sending…';
+    fetch('/f/biolink-lead/'+sid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok){form.querySelectorAll('input,textarea').forEach(function(i){i.style.display='none';});btn.style.display='none';var ok=form.querySelector('.lead-ok');if(ok)ok.style.display='block';}
+      else{btn.disabled=false;btn.textContent='Send';}
+    }).catch(function(){btn.disabled=false;btn.textContent='Send';});
+  };}
+  </script>
+
+  {% elsif section.id == 'video_embed' %}
+  {% if f.url != '' and f.url != nil %}
+  <div class="video-wrap" data-url="{{ f.url }}">
+    <div class="video-container"><iframe class="video-iframe" src="" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>
+    {% if f.caption != '' and f.caption != nil %}<div class="video-caption">{{ f.caption }}</div>{% endif %}
+  </div>
+  <script>
+  (function(){
+    var w=document.querySelector('.video-wrap[data-url]');if(!w)return;
+    var url=w.dataset.url||'';
+    var yt=url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if(yt){var f=w.querySelector('iframe');if(f)f.src='https://www.youtube.com/embed/'+yt[1]+'?rel=0&modestbranding=1';}
+  })();
+  </script>
+  {% endif %}
+
   {% elsif section.id == 'contact_card' %}
   {% assign has_c = false %}
   {% if f.phone != '' and f.phone != nil %}{% assign has_c = true %}{% endif %}
