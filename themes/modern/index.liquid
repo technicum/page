@@ -48,6 +48,9 @@
 {% for section in sections %}
   {% unless section._hidden %}
   {% assign f = section.fields %}
+  {% if section._isRow %}
+  {{ rendered_sections[section.id] }}
+  {% else %}
   <div class="pz-sec" data-pz="{{ section.id }}" {% if section._designCss != '' %}style="{{ section._designCss }}"{% endif %}>
 
   {% if rendered_sections[section.id] %}
@@ -286,6 +289,7 @@
   </div>
   {% endif %}
   </div><!-- /pz-sec -->
+  {% endif %}
   {% endunless %}
 {% endfor %}
 
