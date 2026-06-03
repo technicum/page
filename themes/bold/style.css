@@ -93,3 +93,7 @@ footer a{color:var(--c);}
   .hslider-arrow.next{left:68px;}
   .cards{grid-template-columns:1fr;}
 }
+
+/* Row/column layout support */
+.pz-row{width:100%;}.pz-row-grid{width:100%;}
+@media(max-width:768px){.pz-row-grid{grid-template-columns:1fr!important;}}

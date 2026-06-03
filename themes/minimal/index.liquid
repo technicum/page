@@ -209,6 +209,65 @@
     {% endfor %}
   </div>
 
+  {% elsif section.id == 'testimonials' %}
+  <div class="section" id="testimonials">
+    <div class="section-label">Testimonials</div>
+    <div class="section-title">{{ f.title | default: 'What Our Clients Say' }}</div>
+    <div class="testi-grid">
+      {% for item in f.items %}
+      <div class="testi-item">
+        <div style="color:#f59e0b;font-size:13px;margin-bottom:8px;">★★★★★</div>
+        <p class="testi-quote">"{{ item.text }}"</p>
+        <div class="testi-name">{{ item.name }}</div>
+        {% if item.role != '' and item.role != nil %}<div class="testi-role">{{ item.role }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% elsif section.id == 'portfolio' %}
+  <div class="section-alt" id="portfolio">
+    <div class="section">
+      <div class="section-label">Portfolio</div>
+      <div class="section-title">{{ f.title | default: 'Our Work' }}</div>
+      <div class="portfolio-grid">
+        {% for item in f.items %}
+        <div class="portfolio-item">
+          {% if item.image != '' and item.image != nil %}
+            <img src="{{ item.image }}" alt="{{ item.name }}" style="width:100%;border-radius:8px;margin-bottom:12px;object-fit:cover;aspect-ratio:16/9;" loading="lazy">
+          {% else %}
+            <div class="portfolio-emoji">{{ item.emoji | default: '🖼' }}</div>
+          {% endif %}
+          <div class="portfolio-name">{{ item.name }}</div>
+          {% if item.desc != '' and item.desc != nil %}<div class="portfolio-desc">{{ item.desc }}</div>{% endif %}
+          {% if item.link != '' and item.link != nil %}
+            <a class="portfolio-link" href="{{ item.link }}" target="_blank">View →</a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% elsif section.id == 'faq' %}
+  <div class="section" id="faq">
+    <div style="max-width:700px;">
+      <div class="section-label">FAQ</div>
+      <div class="section-title">{{ f.title | default: 'Frequently Asked Questions' }}</div>
+      <div class="faq-list">
+        {% for item in f.items %}
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.style.display=this.classList.contains('open')?'block':'none'">
+            {{ item.question }}
+            <span style="float:right;color:var(--c);font-size:18px;line-height:1;">+</span>
+          </div>
+          <div class="faq-a" style="display:none;">{{ item.answer }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
   {% endif %}
   </div><!-- /pz-sec -->
   {% endif %}

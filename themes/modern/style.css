@@ -107,3 +107,7 @@ footer{padding:28px 48px;background:#f9fafb;border-top:1px solid #f3f4f6;display
   .contact-band-inner{grid-template-columns:1fr;}
   nav,.s-wrap,.s-wrap.alt,.links-wrap,.tslider-outer,footer{padding-left:20px;padding-right:20px;}
 }
+
+/* Row/column layout support */
+.pz-row{width:100%;}.pz-row-grid{width:100%;}
+@media(max-width:768px){.pz-row-grid{grid-template-columns:1fr!important;}}

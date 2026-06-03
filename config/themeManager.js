@@ -234,18 +234,47 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}) {
   }
 
   // Extract a theme-native section's template block from index.liquid
-  // Looks for {% if/elsif section.id == 'X' %}...{% elsif/endif %}
+  // Handles both: {% elsif section.id == 'faq' %}
+  //           and: {% elsif section.id == 'services' or section.id == 'skills' %}
   function extractThemeSectionBlock(sectionId) {
     const src = getThemeIndexSource()
-    // Match: {% elsif section.id == 'hero' %} ... up to next {% elsif or {% endif
-    // Also handles section.id == 'services' or section.id == 'skills' style
-    const escaped = sectionId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    const pattern = new RegExp(
-      `{%-?\\s*elsif\\s+[^%]*section\\.id\\s*==\\s*['"]${escaped}['"][^%]*%}([\\s\\S]*?)(?={%-?\\s*elsif|{%-?\\s*end\\s*if|{%-?\\s*endif)`,
-      'i'
-    )
-    const m = src.match(pattern)
-    return m ? m[1] : null
+
+    // Find the first occurrence of section.id == 'X' or section.id == "X"
+    const needle1 = `section.id == '${sectionId}'`
+    const needle2 = `section.id == "${sectionId}"`
+    let markerPos = src.indexOf(needle1)
+    if (markerPos < 0) markerPos = src.indexOf(needle2)
+    if (markerPos < 0) return null
+
+    // Make sure this occurrence is inside a {% ... %} tag, not a nav unless/comment
+    // Walk back to find the opening {%
+    let tagOpen = markerPos
+    while (tagOpen > 0 && !(src[tagOpen] === '{' && src[tagOpen+1] === '%')) tagOpen--
+    const tagText = src.slice(tagOpen, markerPos + 20).toLowerCase()
+    // Skip if this is in an 'unless' or 'if ... unless' context (nav exclusions)
+    if (tagText.includes('unless') && !tagText.includes('elsif')) {
+      // Try second occurrence
+      const pos2a = src.indexOf(needle1, markerPos + 1)
+      const pos2b = src.indexOf(needle2, markerPos + 1)
+      markerPos = pos2a >= 0 ? pos2a : pos2b >= 0 ? pos2b : -1
+      if (markerPos < 0) return null
+    }
+
+    // Find the %} that closes this tag
+    const tagClose = src.indexOf('%}', markerPos)
+    if (tagClose < 0) return null
+
+    const blockStart = tagClose + 2
+
+    // Find the next {% elsif, {% else, or {% endif
+    const remaining = src.slice(blockStart)
+    const nextTagMatch = remaining.match(/{%-?\s*(elsif|else|end\s*if|endif)\b/i)
+
+    const blockContent = nextTagMatch
+      ? remaining.slice(0, nextTagMatch.index)
+      : remaining
+
+    return blockContent.trim()
   }
 
   async function renderSectionInRow(sec) {
@@ -273,13 +302,16 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}) {
     // 2. Try extracting the section block from the theme's index.liquid
     const block = extractThemeSectionBlock(sec.id)
     if (block) {
-      // Wrap with the same pz-sec container the theme normally uses
+      // Wrap with pz-sec container + assign f so templates can use {{ f.xxx }}
       const tpl = `<div class="pz-sec" data-pz="${sec.id}"${wrapCss}>{% assign f = section.fields %}${block}</div>`
       try {
         return await engine.parseAndRender(tpl, {
           ...pluginContext,
-          section: secWithCss,
-          f: secWithCss.fields || {}
+          site:     { title: site.title, subdomain: site.subdomain, url: `https://${site.subdomain}.${process.env.BASE_DOMAIN || 'pagezapper.com'}` },
+          settings: { ...settings, accent_color: accentColor },
+          theme:    { slug: theme.slug, name: theme.name, colors: colorMap },
+          section:  secWithCss,
+          f:        secWithCss.fields || {}
         })
       } catch(e) {
         return `<!-- theme section "${sec.id}" error: ${e.message} -->`
