@@ -442,7 +442,7 @@ body{overflow:hidden;background:#1a1a2e;margin:0;font-family:"DM Sans",sans-seri
         </div>
         <div class="e-panel-footer" style="flex-direction:column;gap:5px;">
           <button class="e-add-btn" onclick="openAddModal()" style="width:100%;">＋ Add Section</button>
-          <button class="e-add-btn" onclick="openRowModal()" style="width:100%;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.25);">⬛ Add Row / Columns</button>
+          <button class="e-add-btn" onclick="openRowModal()" style="width:100%;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.25);">⬛ Add Multi-Column Row</button>
         </div>
       </div>
 
@@ -1289,9 +1289,23 @@ function makeSection(schema) {
   return { id: schema.id, fields: f };
 }
 
+// Wrap a section in a single-column row (Elementor model: row → col → section)
+function wrapInRow(sec) {
+  return {
+    id:      '_row_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    _isRow:  true,
+    layout:  '1',
+    columns: [[sec]],
+    design:  {}
+  };
+}
+
 function seedFor(ids) {
   const defaultIds = ids || (THEME_SLUG==='biolink'?['profile','links','socials']:(DEFAULTS[SITE_TYPE]||DEFAULTS.other));
-  return defaultIds.map(id => { const s=THEME_SECTIONS.find(x=>x.id===id); return s?makeSection(s):null; }).filter(Boolean);
+  return defaultIds
+    .map(id => { const s=THEME_SECTIONS.find(x=>x.id===id); return s?makeSection(s):null; })
+    .filter(Boolean)
+    .map(sec => wrapInRow(sec));   // every default section lives in its own row
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -1539,8 +1553,8 @@ function filterModal(q) {
     rowCard.innerHTML = `
       <span class="modal-card-icon">⬛</span>
       <div>
-        <div class="modal-card-name" style="color:#6d28d9;">Row / Columns</div>
-        <div class="modal-card-desc">Place 2–4 sections side by side</div>
+        <div class="modal-card-name" style="color:#6d28d9;">Multi-Column Row</div>
+        <div class="modal-card-desc">2–4 sections side by side</div>
       </div>
     `;
     rowCard.onclick = () => {
@@ -1581,13 +1595,17 @@ function filterModal(q) {
 }
 function addSection(schema) {
   if (addContext) {
-    // Add inside a row column
+    // Adding inside an existing column — direct insert
     addSectionToColumn(addContext.rowIdx, addContext.colIdx, schema);
     addContext = null;
   } else {
-    sections.push(makeSection(schema));
+    // Top-level add: wrap in a 1-column row (Elementor model)
+    const sec = makeSection(schema);
+    const row = wrapInRow(sec);
+    sections.push(row);
+    const rowIdx = sections.length - 1;
     renderList();
-    selectSection(sections.length - 1);
+    selectColumnSection(rowIdx, 0, 0);   // auto-select the section inside
     markDirty(); pushUndo(); debouncedPreview();
   }
 }
