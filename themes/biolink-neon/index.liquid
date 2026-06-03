@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ site.title }}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/themes/biolink-neon/style.css">
+<style>:root{--c:{{ settings.accent_color }};--c15:{{ settings.accent_color }}26;--c30:{{ settings.accent_color }}4d;}</style>
+</head>
+<body>
+<div class="page">
+
+{% for section in sections %}
+  {% unless section._hidden %}
+  {% assign f = section.fields %}
+  {% if section._isRow %}
+  {{ rendered_sections[section.id] }}
+  {% else %}
+  <div class="pz-sec" data-pz="{{ section.id }}" {% if section._designCss != '' %}style="{{ section._designCss }}"{% endif %}>
+
+  {% if rendered_sections[section.id] %}
+  {{ rendered_sections[section.id] }}
+
+  {% elsif section.id == 'profile' %}
+  <div class="profile">
+    {% if f.avatar_url != '' and f.avatar_url != nil %}
+    <img class="avatar-img" src="{{ f.avatar_url }}" alt="{{ f.name }}">
+    {% else %}
+    <div class="avatar">{{ f.avatar_emoji | default: '✨' }}</div>
+    {% endif %}
+    <div class="profile-name">{{ f.name | default: site.title }}</div>
+    {% if f.tagline != '' and f.tagline != nil %}
+    <div class="profile-handle">{{ f.tagline }}</div>
+    {% endif %}
+    {% if f.bio != '' and f.bio != nil %}
+    <p class="profile-bio">{{ f.bio }}</p>
+    {% endif %}
+  </div>
+
+  {% elsif section.id == 'links' %}
+  {% if f.items.size > 0 %}
+  <div class="section-divider">Links</div>
+  <div class="links-list">
+    {% for item in f.items %}
+    <a class="link-btn {{ item.style | default: 'solid' }}" href="{{ item.url | default: '#' }}" target="_blank" rel="noopener">
+      {% if item.emoji != '' and item.emoji != nil %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
+      <span class="link-label">{{ item.label }}</span>
+      <span class="link-arrow">›</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% elsif section.id == 'socials' %}
+  {% assign has_s = false %}
+  {% if f.instagram != '' and f.instagram != nil %}{% assign has_s = true %}{% endif %}
+  {% if f.youtube   != '' and f.youtube   != nil %}{% assign has_s = true %}{% endif %}
+  {% if f.twitter   != '' and f.twitter   != nil %}{% assign has_s = true %}{% endif %}
+  {% if f.tiktok    != '' and f.tiktok    != nil %}{% assign has_s = true %}{% endif %}
+  {% if f.linkedin  != '' and f.linkedin  != nil %}{% assign has_s = true %}{% endif %}
+  {% if f.github    != '' and f.github    != nil %}{% assign has_s = true %}{% endif %}
+  {% if has_s %}
+  <div class="section-divider">Find me on</div>
+  <div class="socials-row">
+    {% if f.instagram != '' and f.instagram != nil %}<a class="social-btn" href="{{ f.instagram }}" target="_blank">📸</a>{% endif %}
+    {% if f.youtube   != '' and f.youtube   != nil %}<a class="social-btn" href="{{ f.youtube }}"   target="_blank">▶️</a>{% endif %}
+    {% if f.twitter   != '' and f.twitter   != nil %}<a class="social-btn" href="{{ f.twitter }}"   target="_blank">𝕏</a>{% endif %}
+    {% if f.tiktok    != '' and f.tiktok    != nil %}<a class="social-btn" href="{{ f.tiktok }}"    target="_blank">🎵</a>{% endif %}
+    {% if f.linkedin  != '' and f.linkedin  != nil %}<a class="social-btn" href="{{ f.linkedin }}"  target="_blank">💼</a>{% endif %}
+    {% if f.github    != '' and f.github    != nil %}<a class="social-btn" href="{{ f.github }}"    target="_blank">🐙</a>{% endif %}
+  </div>
+  {% endif %}
+
+  {% elsif section.id == 'contact_card' %}
+  {% assign has_c = false %}
+  {% if f.phone   != '' and f.phone   != nil %}{% assign has_c = true %}{% endif %}
+  {% if f.email   != '' and f.email   != nil %}{% assign has_c = true %}{% endif %}
+  {% if f.address != '' and f.address != nil %}{% assign has_c = true %}{% endif %}
+  {% if f.website != '' and f.website != nil %}{% assign has_c = true %}{% endif %}
+  {% if has_c %}
+  <div class="section-divider">Contact</div>
+  <div class="contact-card">
+    {% if f.phone   != '' and f.phone   != nil %}<a class="contact-row" href="tel:{{ f.phone }}"><span class="contact-icon">📞</span><span class="contact-text">{{ f.phone }}</span><span class="contact-arr">›</span></a>{% endif %}
+    {% if f.email   != '' and f.email   != nil %}<a class="contact-row" href="mailto:{{ f.email }}"><span class="contact-icon">✉️</span><span class="contact-text">{{ f.email }}</span><span class="contact-arr">›</span></a>{% endif %}
+    {% if f.website != '' and f.website != nil %}<a class="contact-row" href="{{ f.website }}" target="_blank"><span class="contact-icon">🌐</span><span class="contact-text">{{ f.website }}</span><span class="contact-arr">›</span></a>{% endif %}
+    {% if f.address != '' and f.address != nil %}
+    {% assign ml = f.maps_url %}{% if ml == '' or ml == nil %}{% assign ml = 'https://maps.google.com/?q=' | append: f.address %}{% endif %}
+    <a class="contact-row" href="{{ ml }}" target="_blank"><span class="contact-icon">📍</span><span class="contact-text">{{ f.address }}</span><span class="contact-arr">›</span></a>
+    {% endif %}
+    <button class="save-contact-btn" data-name="{{ site.title }}" data-phone="{{ f.phone }}" data-email="{{ f.email }}" data-address="{{ f.address }}" data-website="{{ f.website }}" onclick="pzSaveContact(this)">{{ f.save_label | default: '💾 Save Contact' }}</button>
+  </div>
+  <script>if(!window.pzSaveContact){window.pzSaveContact=function(b){var v=['BEGIN:VCARD','VERSION:3.0'];if(b.dataset.name)v.push('FN:'+b.dataset.name);if(b.dataset.phone)v.push('TEL:'+b.dataset.phone);if(b.dataset.email)v.push('EMAIL:'+b.dataset.email);if(b.dataset.address)v.push('ADR:;;'+b.dataset.address+';;;;');if(b.dataset.website)v.push('URL:'+b.dataset.website);v.push('END:VCARD');var blob=new Blob([v.join('\r\n')],{type:'text/vcard;charset=utf-8'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=(b.dataset.name||'contact').replace(/[^a-z0-9]/gi,'-')+'.vcf';document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},200);};}
+  </script>
+  {% endif %}
+
+  {% elsif section.id == 'whatsapp_widget' %}
+  {% if f.phone != '' and f.phone != nil %}
+  {% assign wa_msg = f.message | default: 'Hi!' | url_encode %}
+  <div class="wa-widget"><a class="wa-bubble" href="https://wa.me/{{ f.phone | wa }}?text={{ wa_msg }}" target="_blank">💬 {{ f.label | default: 'Chat' }}</a></div>
+  {% endif %}
+
+  {% endif %}
+  </div>
+  {% endif %}
+  {% endunless %}
+{% endfor %}
+
+<div class="bio-footer">Powered by <a href="{{ app_url }}">{{ app_name }}</a></div>
+</div>
+</body>
+</html>

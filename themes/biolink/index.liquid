@@ -103,6 +103,64 @@
   </a>
   {% endif %}
 
+  {% elsif section.id == 'contact_card' %}
+  {% assign has_c = false %}
+  {% if f.phone != '' and f.phone != nil %}{% assign has_c = true %}{% endif %}
+  {% if f.email != '' and f.email != nil %}{% assign has_c = true %}{% endif %}
+  {% if f.address != '' and f.address != nil %}{% assign has_c = true %}{% endif %}
+  {% if f.website != '' and f.website != nil %}{% assign has_c = true %}{% endif %}
+  {% if has_c %}
+  <div class="section-divider">Contact</div>
+  <div class="contact-card">
+    {% if f.phone != '' and f.phone != nil %}
+    <a class="contact-row" href="tel:{{ f.phone }}">
+      <span class="contact-icon">📞</span><span class="contact-text">{{ f.phone }}</span><span class="contact-arr">›</span>
+    </a>
+    {% endif %}
+    {% if f.email != '' and f.email != nil %}
+    <a class="contact-row" href="mailto:{{ f.email }}">
+      <span class="contact-icon">✉️</span><span class="contact-text">{{ f.email }}</span><span class="contact-arr">›</span>
+    </a>
+    {% endif %}
+    {% if f.website != '' and f.website != nil %}
+    <a class="contact-row" href="{{ f.website }}" target="_blank" rel="noopener">
+      <span class="contact-icon">🌐</span><span class="contact-text">{{ f.website }}</span><span class="contact-arr">›</span>
+    </a>
+    {% endif %}
+    {% if f.address != '' and f.address != nil %}
+    {% assign maps_link = f.maps_url %}
+    {% if maps_link == '' or maps_link == nil %}{% assign maps_link = 'https://maps.google.com/?q=' | append: f.address %}{% endif %}
+    <a class="contact-row" href="{{ maps_link }}" target="_blank" rel="noopener">
+      <span class="contact-icon">📍</span><span class="contact-text">{{ f.address }}</span><span class="contact-arr">›</span>
+    </a>
+    {% endif %}
+    <button class="save-contact-btn"
+      data-name="{{ site.title }}"
+      data-phone="{{ f.phone }}"
+      data-email="{{ f.email }}"
+      data-address="{{ f.address }}"
+      data-website="{{ f.website }}"
+      onclick="pzSaveContact(this)">{{ f.save_label | default: '💾 Save Contact' }}</button>
+  </div>
+  <script>
+  if(!window.pzSaveContact){window.pzSaveContact=function(b){
+    var v=['BEGIN:VCARD','VERSION:3.0'];
+    if(b.dataset.name)v.push('FN:'+b.dataset.name);
+    if(b.dataset.phone)v.push('TEL:'+b.dataset.phone);
+    if(b.dataset.email)v.push('EMAIL:'+b.dataset.email);
+    if(b.dataset.address)v.push('ADR:;;'+b.dataset.address+';;;;');
+    if(b.dataset.website)v.push('URL:'+b.dataset.website);
+    v.push('END:VCARD');
+    var blob=new Blob([v.join('\r\n')],{type:'text/vcard;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');a.href=url;
+    a.download=(b.dataset.name||'contact').replace(/[^a-z0-9]/gi,'-')+'.vcf';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},200);
+  };}
+  </script>
+  {% endif %}
+
   {% elsif section.id == 'whatsapp_widget' %}
   {% if f.phone != '' and f.phone != nil %}
   {% assign wa_msg = f.message | default: 'Hi!' | url_encode %}

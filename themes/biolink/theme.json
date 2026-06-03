@@ -85,6 +85,20 @@
       ]
     },
     {
+      "id": "contact_card",
+      "label": "Contact Card",
+      "emoji": "📇",
+      "description": "Phone, email, address and a save-to-phone button for visitors.",
+      "fields": [
+        { "id": "phone",      "label": "Phone Number",              "type": "tel",  "default": "" },
+        { "id": "email",      "label": "Email Address",             "type": "text", "default": "" },
+        { "id": "website",    "label": "Website URL",               "type": "text", "default": "" },
+        { "id": "address",    "label": "Address",                   "type": "text", "default": "" },
+        { "id": "maps_url",   "label": "Directions URL (optional)", "type": "text", "default": "" },
+        { "id": "save_label", "label": "Save Button Text",          "type": "text", "default": "💾 Save Contact" }
+      ]
+    },
+    {
       "id": "whatsapp_widget",
       "label": "WhatsApp Widget",
       "emoji": "💬",
