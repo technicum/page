@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ site.title }} — Bio Link Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
+
+/* ── Topbar ── */
+.topbar{display:flex;align-items:center;gap:10px;height:46px;background:#0f0f1a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:300;}
+.tb-back{font-size:12px;color:rgba(255,255,255,0.45);text-decoration:none;padding:5px 10px;border-radius:6px;transition:all 0.15s;}
+.tb-back:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.7);}
+.tb-sep{width:1px;height:16px;background:rgba(255,255,255,0.1);flex-shrink:0;}
+.tb-title{font-size:13px;font-weight:500;color:#fff;}
+.tb-url{font-size:11px;color:rgba(255,255,255,0.3);text-decoration:none;padding:4px 8px;border-radius:5px;transition:all 0.15s;}
+.tb-url:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.tb-status{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.3);}
+.status-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);transition:background 0.3s;}
+.status-dot.dirty{background:#f59e0b;}
+.status-dot.saved{background:#22c55e;}
+.btn-save{padding:7px 16px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-save:hover{background:#6d28d9;}
+.btn-save:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* ── Main layout ── */
+.main{display:flex;height:calc(100vh - 46px);margin-top:46px;}
+
+/* ── Editor panel ── */
+.editor{width:360px;flex-shrink:0;background:#1e1e2e;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(255,255,255,0.07);}
+
+.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.tab{flex:1;padding:11px 4px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;border:none;font-family:inherit;color:rgba(255,255,255,0.35);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;letter-spacing:0.3px;}
+.tab:hover{color:rgba(255,255,255,0.6);}
+.tab.active{color:#818cf8;border-bottom-color:#6366f1;}
+
+.tab-pane{display:none;flex:1;overflow-y:auto;padding:16px 14px 80px;}
+.tab-pane::-webkit-scrollbar{width:3px;}
+.tab-pane::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+.tab-pane.active{display:block;}
+
+/* ── Fields ── */
+.fg{margin-bottom:14px;}
+.fg-label{display:block;font-size:10px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:5px;letter-spacing:0.5px;text-transform:uppercase;}
+.fg-input{width:100%;padding:8px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:13px;font-family:inherit;color:#e5e7eb;background:rgba(255,255,255,0.06);outline:none;transition:border-color 0.15s;}
+.fg-input:focus{border-color:#6366f1;}
+.fg-textarea{min-height:72px;resize:vertical;line-height:1.55;}
+
+/* ── Avatar ── */
+.avatar-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.07);}
+.avatar-big{width:56px;height:56px;border-radius:50%;background:rgba(99,102,241,0.2);border:2px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.avatar-hint{font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px;line-height:1.4;}
+
+/* ── Links ── */
+.link-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;margin-bottom:8px;transition:border-color 0.15s;}
+.link-card:hover{border-color:rgba(99,102,241,0.3);}
+.link-top{display:flex;align-items:center;gap:6px;margin-bottom:7px;}
+.link-emoji-in{width:38px;padding:7px 6px;text-align:center;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:16px;font-family:inherit;background:rgba(255,255,255,0.06);color:#e5e7eb;outline:none;}
+.link-label-in{flex:1;padding:7px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:12px;font-family:inherit;color:#e5e7eb;background:rgba(255,255,255,0.06);outline:none;}
+.link-label-in:focus,.link-emoji-in:focus{border-color:#6366f1;}
+.link-del{width:28px;height:28px;border:none;background:transparent;color:rgba(255,255,255,0.2);cursor:pointer;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.12s;flex-shrink:0;}
+.link-del:hover{background:rgba(239,68,68,0.15);color:#fca5a5;}
+.link-url-in{width:100%;padding:6px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;font-size:11px;font-family:inherit;color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.04);outline:none;margin-bottom:7px;}
+.link-url-in:focus{border-color:#6366f1;color:#e5e7eb;}
+.link-styles{display:flex;gap:4px;}
+.ls-chip{flex:1;padding:5px 4px;border:1px solid rgba(255,255,255,0.1);border-radius:5px;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:rgba(255,255,255,0.3);font-family:inherit;transition:all 0.12s;text-align:center;}
+.ls-chip:hover{border-color:#6366f1;color:#818cf8;}
+.ls-chip.on{background:rgba(99,102,241,0.2);color:#818cf8;border-color:rgba(99,102,241,0.5);}
+.btn-add-link{width:100%;padding:10px;border:1px dashed rgba(99,102,241,0.35);border-radius:8px;background:rgba(99,102,241,0.06);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;margin-top:2px;}
+.btn-add-link:hover{background:rgba(99,102,241,0.14);border-color:rgba(99,102,241,0.6);}
+
+/* ── Socials ── */
+.social-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.social-icon{width:28px;text-align:center;font-size:16px;flex-shrink:0;}
+.social-in{flex:1;padding:8px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:12px;font-family:inherit;color:#e5e7eb;background:rgba(255,255,255,0.06);outline:none;}
+.social-in:focus{border-color:#6366f1;}
+
+/* ── Color swatches ── */
+.colors-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.c-swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s;flex-shrink:0;}
+.c-swatch:hover{transform:scale(1.15);}
+.c-swatch.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.3);}
+
+/* ── Section dividers ── */
+.sec-title{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin:18px 0 10px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);}
+.sec-title:first-child{border-top:none;margin-top:0;padding-top:0;}
+
+/* ── Preview area ── */
+.preview-area{flex:1;background:#e8e8ec;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.phone-frame{
+  width:360px;height:720px;
+  border-radius:48px;
+  border:10px solid #1a1a18;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.05) inset,0 28px 80px rgba(0,0,0,0.45);
+  overflow:hidden;background:#fff;position:relative;flex-shrink:0;
+}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:26px;background:#1a1a18;border-radius:0 0 18px 18px;z-index:10;}
+.phone-frame iframe{width:100%;height:100%;border:none;display:block;}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <a class="tb-back" href="/dashboard">← Dashboard</a>
+  <div class="tb-sep"></div>
+  <div class="tb-title">{{ site.title }}</div>
+  <a class="tb-url" href="https://{{ site.subdomain }}.{{ baseDomain }}" target="_blank">↗ {{ site.subdomain }}.{{ baseDomain }}</a>
+  <div class="tb-right">
+    <div class="tb-status">
+      <div class="status-dot" id="saveDot"></div>
+      <span id="saveLabel">Saved</span>
+    </div>
+    <button class="btn-save" id="saveBtn" onclick="saveAll()">Save changes</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ── Editor ── -->
+  <div class="editor">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('profile',this)">👤 Profile</button>
+      <button class="tab"        onclick="switchTab('links',this)">🔗 Links</button>
+      <button class="tab"        onclick="switchTab('socials',this)">📱 Socials</button>
+      <button class="tab"        onclick="switchTab('style',this)">🎨 Style</button>
+    </div>
+
+    <!-- Profile tab -->
+    <div class="tab-pane active" id="tab-profile">
+      <div class="avatar-row">
+        <div class="avatar-big" id="avatarBig">✨</div>
+        <div>
+          <div style="font-size:12px;font-weight:500;color:#e5e7eb;">Avatar</div>
+          <div class="avatar-hint">Paste any emoji below — it shows here</div>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fg-label">Avatar Emoji</label>
+        <input class="fg-input" id="f-avatar" type="text" placeholder="✨" maxlength="8"
+          oninput="profile.avatar_emoji=this.value;updateAvatar();dirty();debouncedPreview()">
+      </div>
+      <div class="fg">
+        <label class="fg-label">Display Name</label>
+        <input class="fg-input" id="f-name" type="text" placeholder="Your Name"
+          oninput="profile.name=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="fg">
+        <label class="fg-label">Tagline / Handle</label>
+        <input class="fg-input" id="f-tagline" type="text" placeholder="@yourhandle"
+          oninput="profile.tagline=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="fg">
+        <label class="fg-label">Bio</label>
+        <textarea class="fg-input fg-textarea" id="f-bio" placeholder="Creator · Photographer · Based in India"
+          oninput="profile.bio=this.value;dirty();debouncedPreview()"></textarea>
+      </div>
+    </div>
+
+    <!-- Links tab -->
+    <div class="tab-pane" id="tab-links">
+      <div id="linksList"></div>
+      <button class="btn-add-link" onclick="addLink()">＋ Add Link</button>
+    </div>
+
+    <!-- Socials tab -->
+    <div class="tab-pane" id="tab-socials">
+      <div class="sec-title">Social Profiles</div>
+      <div class="social-row">
+        <span class="social-icon">📸</span>
+        <input class="social-in" id="f-instagram" type="text" placeholder="https://instagram.com/…"
+          oninput="socials.instagram=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="social-row">
+        <span class="social-icon">▶️</span>
+        <input class="social-in" id="f-youtube" type="text" placeholder="https://youtube.com/…"
+          oninput="socials.youtube=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="social-row">
+        <span class="social-icon">𝕏</span>
+        <input class="social-in" id="f-twitter" type="text" placeholder="https://twitter.com/…"
+          oninput="socials.twitter=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="social-row">
+        <span class="social-icon">🎵</span>
+        <input class="social-in" id="f-tiktok" type="text" placeholder="https://tiktok.com/@…"
+          oninput="socials.tiktok=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="social-row">
+        <span class="social-icon">💼</span>
+        <input class="social-in" id="f-linkedin" type="text" placeholder="https://linkedin.com/in/…"
+          oninput="socials.linkedin=this.value;dirty();debouncedPreview()">
+      </div>
+      <div class="social-row">
+        <span class="social-icon">🐙</span>
+        <input class="social-in" id="f-github" type="text" placeholder="https://github.com/…"
+          oninput="socials.github=this.value;dirty();debouncedPreview()">
+      </div>
+    </div>
+
+    <!-- Style tab -->
+    <div class="tab-pane" id="tab-style">
+      <div class="fg">
+        <label class="fg-label">Accent Color</label>
+        <div class="colors-row" id="colorsRow"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Phone preview ── -->
+  <div class="preview-area">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin" title="Preview"></iframe>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SITE_ID    = {{ site.id }};
+const BASE_DOMAIN = {{ baseDomain | dump | safe }};
+
+const COLORS = [
+  { id:'violet',  hex:'#7c3aed' },
+  { id:'rose',    hex:'#e11d48' },
+  { id:'sky',     hex:'#0284c7' },
+  { id:'emerald', hex:'#059669' },
+  { id:'amber',   hex:'#d97706' },
+  { id:'ink',     hex:'#1a1a18' },
+  { id:'slate',   hex:'#475569' },
+  { id:'pink',    hex:'#db2777' }
+];
+
+// ── Normalise sections (flat or row-wrapped) ─────────────────────────────────
+function flattenSections(raw) {
+  const out = [];
+  for (const s of (raw || [])) {
+    if (s._isRow && s.columns) {
+      for (const col of s.columns) for (const sec of (col || [])) out.push(sec);
+    } else if (!s._isRow) {
+      out.push(s);
+    }
+  }
+  return out;
+}
+
+const rawSections = {{ (settings.sections or []) | dump | safe }};
+const flat = flattenSections(rawSections);
+function getSavedFields(id, def) {
+  const s = flat.find(x => x.id === id);
+  return s ? Object.assign({}, def, s.fields || {}) : Object.assign({}, def);
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+let profile = getSavedFields('profile', { avatar_emoji:'✨', name:'', tagline:'', bio:'' });
+let links   = Array.from(getSavedFields('links', { items:[] }).items || []);
+let socials = getSavedFields('socials', { instagram:'', youtube:'', twitter:'', tiktok:'', linkedin:'', github:'' });
+let currentTheme = {{ (settings.theme or 'violet') | dump | safe }};
+let previewTimer = null;
+
+// ── Init form ────────────────────────────────────────────────────────────────
+function init() {
+  setVal('f-avatar',    profile.avatar_emoji);
+  setVal('f-name',      profile.name);
+  setVal('f-tagline',   profile.tagline);
+  setVal('f-bio',       profile.bio);
+  setVal('f-instagram', socials.instagram);
+  setVal('f-youtube',   socials.youtube);
+  setVal('f-twitter',   socials.twitter);
+  setVal('f-tiktok',    socials.tiktok);
+  setVal('f-linkedin',  socials.linkedin);
+  setVal('f-github',    socials.github);
+  updateAvatar();
+  renderLinks();
+  renderColors();
+  refreshPreview();
+}
+
+function setVal(id, val) { document.getElementById(id).value = val || ''; }
+
+function updateAvatar() {
+  document.getElementById('avatarBig').textContent = profile.avatar_emoji || '✨';
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+// ── Links ────────────────────────────────────────────────────────────────────
+function renderLinks() {
+  const list = document.getElementById('linksList');
+  list.innerHTML = '';
+  links.forEach((lk, i) => {
+    const d = document.createElement('div');
+    d.className = 'link-card';
+    d.innerHTML =
+      `<div class="link-top">
+         <input class="link-emoji-in" value="${e(lk.emoji||'🌐')}" maxlength="4"
+           oninput="links[${i}].emoji=this.value;dirty();debouncedPreview()">
+         <input class="link-label-in" value="${e(lk.label||'')}" placeholder="Link label"
+           oninput="links[${i}].label=this.value;dirty();debouncedPreview()">
+         <button class="link-del" onclick="delLink(${i})">✕</button>
+       </div>
+       <input class="link-url-in" value="${e(lk.url||'')}" placeholder="https://..."
+         oninput="links[${i}].url=this.value;dirty();debouncedPreview()">
+       <div class="link-styles">
+         <button class="ls-chip ${ (lk.style||'solid')==='solid'  ?'on':'' }" onclick="setLinkStyle(${i},'solid')">Solid</button>
+         <button class="ls-chip ${ lk.style==='outline' ?'on':'' }" onclick="setLinkStyle(${i},'outline')">Outline</button>
+         <button class="ls-chip ${ lk.style==='ghost'   ?'on':'' }" onclick="setLinkStyle(${i},'ghost')">Ghost</button>
+       </div>`;
+    list.appendChild(d);
+  });
+}
+
+function e(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function addLink() {
+  links.push({ emoji:'🌐', label:'New Link', url:'https://', style:'solid' });
+  renderLinks(); dirty(); debouncedPreview();
+}
+
+function delLink(i) { links.splice(i,1); renderLinks(); dirty(); debouncedPreview(); }
+
+function setLinkStyle(i, style) { links[i].style = style; renderLinks(); dirty(); debouncedPreview(); }
+
+// ── Colors ───────────────────────────────────────────────────────────────────
+function renderColors() {
+  const row = document.getElementById('colorsRow');
+  row.innerHTML = '';
+  COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'c-swatch' + (c.id === currentTheme ? ' on' : '');
+    sw.style.background = c.hex;
+    sw.title = c.id;
+    sw.onclick = () => { currentTheme = c.id; renderColors(); dirty(); debouncedPreview(); };
+    row.appendChild(sw);
+  });
+}
+
+// ── Dirty / saved ─────────────────────────────────────────────────────────────
+function dirty() {
+  document.getElementById('saveDot').className = 'status-dot dirty';
+  document.getElementById('saveLabel').textContent = 'Unsaved';
+}
+function markSaved() {
+  document.getElementById('saveDot').className = 'status-dot saved';
+  document.getElementById('saveLabel').textContent = 'Saved';
+  setTimeout(() => { document.getElementById('saveDot').className = 'status-dot'; }, 2000);
+}
+
+// ── Preview ───────────────────────────────────────────────────────────────────
+function buildSections() {
+  return [
+    { id:'profile', fields: Object.assign({}, profile) },
+    { id:'links',   fields: { items: links.map(l => Object.assign({}, l)) } },
+    { id:'socials', fields: Object.assign({}, socials) }
+  ];
+}
+
+function debouncedPreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(refreshPreview, 350);
+}
+
+function refreshPreview() {
+  fetch('/dashboard/site/builder-preview', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ site_id: SITE_ID, sections: JSON.stringify(buildSections()), theme: currentTheme })
+  }).then(r => r.text()).then(html => {
+    document.getElementById('previewFrame').srcdoc = html;
+  }).catch(() => {});
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────────
+async function saveAll() {
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    const r = await fetch('/dashboard/site/biolink-save', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ site_id: SITE_ID, sections: JSON.stringify(buildSections()), theme: currentTheme })
+    });
+    const d = await r.json();
+    if (d.ok) markSaved(); else alert('Save failed — please try again.');
+  } catch(err) { alert('Save failed: ' + err.message); }
+  btn.textContent = 'Save changes'; btn.disabled = false;
+}
+
+init();
+</script>
+</body>
+</html>
