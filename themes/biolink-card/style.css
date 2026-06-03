@@ -1,0 +1,68 @@
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;}
+body{font-family:'DM Sans',sans-serif;background:#f4f4f0;color:#1a1a18;display:flex;flex-direction:column;align-items:center;padding:0 0 80px;min-height:100vh;}
+.pz-sec{display:block;width:100%;}
+.page{width:100%;max-width:500px;display:flex;flex-direction:column;}
+
+/* ── Profile header — full-width banner ── */
+.profile{text-align:center;padding:48px 24px 36px;background:var(--c);color:#fff;position:relative;}
+.profile::after{content:'';display:block;position:absolute;bottom:-20px;left:0;right:0;height:40px;background:#f4f4f0;border-radius:50% 50% 0 0 / 100% 100% 0 0;}
+.avatar{width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,0.2);color:#fff;font-size:40px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:3px solid rgba(255,255,255,0.5);}
+.avatar-img{width:96px;height:96px;border-radius:50%;object-fit:cover;margin:0 auto 16px;display:block;border:3px solid rgba(255,255,255,0.5);}
+.profile-name{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:4px;color:#fff;}
+.profile-handle{font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:14px;font-weight:500;}
+.profile-bio{font-size:14px;color:rgba(255,255,255,0.8);line-height:1.7;max-width:340px;margin:0 auto;}
+
+/* ── Body content ── */
+.page-body{padding:32px 20px 0;display:flex;flex-direction:column;gap:0;}
+
+/* ── Divider ── */
+.section-divider{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(26,26,24,0.3);margin:28px 0 14px;}
+
+/* ── Links ── */
+.links-list{display:flex;flex-direction:column;gap:10px;}
+.link-btn{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:16px;font-size:15px;font-weight:600;text-decoration:none;transition:transform 0.15s,box-shadow 0.15s;cursor:pointer;}
+.link-btn:hover{transform:translateY(-2px);}
+.link-btn.solid{background:var(--c);color:#fff;box-shadow:0 6px 20px var(--c30);}
+.link-btn.solid:hover{box-shadow:0 10px 28px var(--c30);}
+.link-btn.outline{background:#fff;color:#1a1a18;border:2px solid rgba(26,26,24,0.1);box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.link-btn.outline:hover{border-color:var(--c);color:var(--c);}
+.link-btn.ghost{background:var(--c15);color:var(--c);border:2px solid var(--c30);}
+.link-emoji{font-size:22px;flex-shrink:0;width:32px;text-align:center;}
+.link-label{flex:1;}
+.link-arrow{font-size:16px;opacity:0.4;}
+
+/* ── Socials ── */
+.socials-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+.social-btn{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#fff;border:1.5px solid rgba(26,26,24,0.1);font-size:22px;text-decoration:none;transition:all 0.15s;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.social-btn:hover{transform:translateY(-2px);border-color:var(--c);box-shadow:0 6px 16px var(--c30);}
+
+/* ── Contact card ── */
+.contact-card{display:flex;flex-direction:column;gap:8px;}
+.contact-row{display:flex;align-items:center;gap:14px;padding:15px 20px;border-radius:16px;background:#fff;border:1.5px solid rgba(26,26,24,0.08);text-decoration:none;color:#1a1a18;font-size:14px;font-weight:500;transition:all 0.15s;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.contact-row:hover{transform:translateY(-2px);border-color:var(--c);box-shadow:0 6px 20px rgba(0,0,0,0.08);}
+.contact-icon{font-size:20px;flex-shrink:0;}
+.contact-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.contact-arr{font-size:16px;opacity:0.25;}
+.save-contact-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 20px;margin-top:6px;border-radius:16px;background:var(--c);color:#fff;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 6px 20px var(--c30);letter-spacing:0.3px;transition:all 0.2s;}
+.save-contact-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px var(--c30);}
+
+/* ── Featured ── */
+.featured-card{background:#fff;border-radius:18px;padding:22px;border:1.5px solid rgba(26,26,24,0.08);box-shadow:0 4px 18px rgba(0,0,0,0.06);text-decoration:none;color:#1a1a18;display:block;transition:all 0.15s;}
+.featured-card:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,0,0,0.1);}
+.featured-top{display:flex;align-items:flex-start;gap:16px;}
+.featured-icon{font-size:40px;flex-shrink:0;}
+.featured-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+.featured-sub{font-size:13px;color:var(--c);font-weight:600;}
+.featured-desc{font-size:13px;color:#6b6b66;margin-top:12px;line-height:1.6;}
+
+/* ── WhatsApp ── */
+.wa-widget{position:fixed;bottom:20px;right:20px;z-index:999;}
+.wa-bubble{display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;padding:12px 20px;border-radius:50px;text-decoration:none;font-size:14px;font-weight:700;box-shadow:0 6px 20px rgba(37,211,102,0.4);}
+
+/* ── Footer ── */
+.bio-footer{margin-top:40px;text-align:center;font-size:12px;color:rgba(26,26,24,0.3);padding:0 20px;}
+.bio-footer a{color:var(--c);text-decoration:none;font-weight:500;}
+
+.pz-row{width:100%;}.pz-row-grid{width:100%;}
+@media(max-width:768px){.pz-row-grid{grid-template-columns:1fr!important;}}

@@ -94,7 +94,7 @@ body{font-family:"DM Sans",sans-serif;}
         <div class="site-name">{{ site.title }}</div>
         <a class="site-url" href="{{ app_url }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a>
         <div class="site-actions">
-          <a class="btn-action" href="/dashboard/site/{% if site.template_id == 'biolink' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit</a>
+          <a class="btn-action" href="/dashboard/site/{% if site.template_id == 'biolink' or site.template_id == 'biolink-neon' or site.template_id == 'biolink-card' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit</a>
           <a class="btn-action" href="/dashboard/site/templates?id={{ site.id }}">Theme</a>
           <a class="btn-action" href="/dashboard/blog/{{ site.id }}">Blog</a>
           <a class="btn-action" href="/dashboard/forms/{{ site.id }}">Forms</a>
