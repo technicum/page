@@ -1354,6 +1354,7 @@ function renderList() {
       const isRowActive = (activeIdx === i && !activeColContext);
       const wrap  = document.createElement('div');
       wrap.className = 'e-row-item';
+      wrap.draggable = true;
 
       // Row header
       const header = document.createElement('div');

@@ -224,65 +224,45 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}) {
   }
 
   // ── Pre-render ROW sections ─────────────────────────────────────────────────
-  // Cache the theme index source for section extraction
-  let _themeIndexSource = null
-  function getThemeIndexSource() {
-    if (_themeIndexSource !== null) return _themeIndexSource
-    const f = path.join(theme.path, 'index.liquid')
-    _themeIndexSource = fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : ''
-    return _themeIndexSource
-  }
 
-  // Extract a theme-native section's template block from index.liquid
-  // Handles both: {% elsif section.id == 'faq' %}
-  //           and: {% elsif section.id == 'services' or section.id == 'skills' %}
-  function extractThemeSectionBlock(sectionId) {
-    const src = getThemeIndexSource()
-
-    // Find the first occurrence of section.id == 'X' or section.id == "X"
-    const needle1 = `section.id == '${sectionId}'`
-    const needle2 = `section.id == "${sectionId}"`
-    let markerPos = src.indexOf(needle1)
-    if (markerPos < 0) markerPos = src.indexOf(needle2)
+  // Extract a specific pz-sec div from fully-rendered HTML using div depth counting
+  function extractPzSecDiv(html, sectionId) {
+    const marker = `data-pz="${sectionId}"`
+    const markerPos = html.indexOf(marker)
     if (markerPos < 0) return null
 
-    // Make sure this occurrence is inside a {% ... %} tag, not a nav unless/comment
-    // Walk back to find the opening {%
-    let tagOpen = markerPos
-    while (tagOpen > 0 && !(src[tagOpen] === '{' && src[tagOpen+1] === '%')) tagOpen--
-    const tagText = src.slice(tagOpen, markerPos + 20).toLowerCase()
-    // Skip if this is in an 'unless' or 'if ... unless' context (nav exclusions)
-    if (tagText.includes('unless') && !tagText.includes('elsif')) {
-      // Try second occurrence
-      const pos2a = src.indexOf(needle1, markerPos + 1)
-      const pos2b = src.indexOf(needle2, markerPos + 1)
-      markerPos = pos2a >= 0 ? pos2a : pos2b >= 0 ? pos2b : -1
-      if (markerPos < 0) return null
+    // Walk back to find the opening <div
+    let start = markerPos
+    while (start > 0 && html[start] !== '<') start--
+
+    // Count div depth to find the matching </div>
+    let depth = 0, i = start
+    while (i < html.length) {
+      const chunk4 = html.slice(i, i + 5).toLowerCase()
+      if (chunk4.startsWith('</div')) {
+        depth--
+        if (depth <= 0) {
+          const closeEnd = html.indexOf('>', i) + 1
+          return html.slice(start, closeEnd)
+        }
+        i += 5
+      } else if (chunk4.startsWith('<div')) {
+        depth++
+        i += 4
+      } else {
+        i++
+      }
     }
-
-    // Find the %} that closes this tag
-    const tagClose = src.indexOf('%}', markerPos)
-    if (tagClose < 0) return null
-
-    const blockStart = tagClose + 2
-
-    // Find the next {% elsif, {% else, or {% endif
-    const remaining = src.slice(blockStart)
-    const nextTagMatch = remaining.match(/{%-?\s*(elsif|else|end\s*if|endif)\b/i)
-
-    const blockContent = nextTagMatch
-      ? remaining.slice(0, nextTagMatch.index)
-      : remaining
-
-    return blockContent.trim()
+    return html.slice(start)
   }
 
+  // Render a single section using the full theme template, then extract its div
   async function renderSectionInRow(sec) {
     if (!sec || sec._hidden) return ''
     const secWithCss = { ...sec, _designCss: buildSectionDesignCss(sec.design || {}, colorMap, accentColor) }
     const wrapCss    = secWithCss._designCss ? ` style="${secWithCss._designCss}"` : ''
 
-    // 1. Try global (plugin) section first
+    // 1. Global (plugin) sections have their own render.liquid
     const plugin = plugins.find(p => p.id === sec.id)
     if (plugin) {
       const themeRender   = path.join(plugin._path, theme.slug + '.liquid')
@@ -299,27 +279,39 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}) {
       }
     }
 
-    // 2. Try extracting the section block from the theme's index.liquid
-    const block = extractThemeSectionBlock(sec.id)
-    if (block) {
-      // Wrap with pz-sec container + assign f so templates can use {{ f.xxx }}
-      const tpl = `<div class="pz-sec" data-pz="${sec.id}"${wrapCss}>{% assign f = section.fields %}${block}</div>`
+    // 2. Theme-native sections: render the full theme with just this section,
+    //    then extract the pz-sec div. This is reliable because it uses the
+    //    theme's own rendering engine with full context.
+    const indexFile = path.join(theme.path, 'index.liquid')
+    if (fs.existsSync(indexFile)) {
       try {
-        return await engine.parseAndRender(tpl, {
+        const source = fs.readFileSync(indexFile, 'utf8')
+        const ctx = {
           ...pluginContext,
           site:     { title: site.title, subdomain: site.subdomain, url: `https://${site.subdomain}.${process.env.BASE_DOMAIN || 'pagezapper.com'}` },
           settings: { ...settings, accent_color: accentColor },
-          theme:    { slug: theme.slug, name: theme.name, colors: colorMap },
-          section:  secWithCss,
-          f:        secWithCss.fields || {}
-        })
+          theme:    { slug: theme.slug, name: theme.name, assetsUrl: theme.assetsUrl, colors: theme._colorMap, fonts: fontMap },
+          sections: [secWithCss],
+          rendered_sections: {},     // no nested rows in row sections
+          page_id:    'home',
+          site_pages: [],
+          nav_items:  [],
+          site_type:  settings.site_type || 'business',
+          city:       settings.city || '',
+          app_name:   process.env.APP_NAME || 'PageZapper',
+          app_url:    process.env.APP_URL  || 'https://pagezapper.com',
+          site_forms: siteForms
+        }
+        const fullHtml = await engine.parseAndRender(source, ctx)
+        const extracted = extractPzSecDiv(fullHtml, sec.id)
+        if (extracted) return extracted
       } catch(e) {
-        return `<!-- theme section "${sec.id}" error: ${e.message} -->`
+        console.error(`[row render] theme section "${sec.id}" error:`, e.message)
       }
     }
 
-    // 3. Fallback — section type unknown in this theme
-    return `<div class="pz-sec" data-pz="${sec.id}"${wrapCss} style="padding:24px;opacity:0.4;text-align:center;font-size:13px;">[${sec.id}]</div>`
+    // 3. Fallback placeholder
+    return `<div class="pz-sec" data-pz="${sec.id}"${wrapCss} style="padding:20px;text-align:center;opacity:0.5;font-size:13px;border:1px dashed #ccc;">${sec.id}</div>`
   }
 
   const LAYOUT_COLS = {
