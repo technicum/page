@@ -224,23 +224,70 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}) {
   }
 
   // ── Pre-render ROW sections ─────────────────────────────────────────────────
-  // Rows are top-level items with _isRow:true containing columns of global sections
+  // Cache the theme index source for section extraction
+  let _themeIndexSource = null
+  function getThemeIndexSource() {
+    if (_themeIndexSource !== null) return _themeIndexSource
+    const f = path.join(theme.path, 'index.liquid')
+    _themeIndexSource = fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : ''
+    return _themeIndexSource
+  }
+
+  // Extract a theme-native section's template block from index.liquid
+  // Looks for {% if/elsif section.id == 'X' %}...{% elsif/endif %}
+  function extractThemeSectionBlock(sectionId) {
+    const src = getThemeIndexSource()
+    // Match: {% elsif section.id == 'hero' %} ... up to next {% elsif or {% endif
+    // Also handles section.id == 'services' or section.id == 'skills' style
+    const escaped = sectionId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const pattern = new RegExp(
+      `{%-?\\s*elsif\\s+[^%]*section\\.id\\s*==\\s*['"]${escaped}['"][^%]*%}([\\s\\S]*?)(?={%-?\\s*elsif|{%-?\\s*end\\s*if|{%-?\\s*endif)`,
+      'i'
+    )
+    const m = src.match(pattern)
+    return m ? m[1] : null
+  }
+
   async function renderSectionInRow(sec) {
     if (!sec || sec._hidden) return ''
     const secWithCss = { ...sec, _designCss: buildSectionDesignCss(sec.design || {}, colorMap, accentColor) }
+    const wrapCss    = secWithCss._designCss ? ` style="${secWithCss._designCss}"` : ''
+
+    // 1. Try global (plugin) section first
     const plugin = plugins.find(p => p.id === sec.id)
-    if (!plugin) return `<!-- section "${sec.id}" not found -->`
-    const themeRender   = path.join(plugin._path, theme.slug + '.liquid')
-    const defaultRender = path.join(plugin._path, 'render.liquid')
-    const renderFile    = fs.existsSync(themeRender) ? themeRender
-                        : fs.existsSync(defaultRender) ? defaultRender : null
-    if (!renderFile) return ''
-    try {
-      const src = fs.readFileSync(renderFile, 'utf8')
-      return await engine.parseAndRender(src, { ...pluginContext, section: secWithCss })
-    } catch(e) {
-      return `<!-- row section "${sec.id}" error: ${e.message} -->`
+    if (plugin) {
+      const themeRender   = path.join(plugin._path, theme.slug + '.liquid')
+      const defaultRender = path.join(plugin._path, 'render.liquid')
+      const renderFile    = fs.existsSync(themeRender) ? themeRender
+                          : fs.existsSync(defaultRender) ? defaultRender : null
+      if (renderFile) {
+        try {
+          const src = fs.readFileSync(renderFile, 'utf8')
+          return await engine.parseAndRender(src, { ...pluginContext, section: secWithCss })
+        } catch(e) {
+          return `<!-- plugin section "${sec.id}" error: ${e.message} -->`
+        }
+      }
     }
+
+    // 2. Try extracting the section block from the theme's index.liquid
+    const block = extractThemeSectionBlock(sec.id)
+    if (block) {
+      // Wrap with the same pz-sec container the theme normally uses
+      const tpl = `<div class="pz-sec" data-pz="${sec.id}"${wrapCss}>{% assign f = section.fields %}${block}</div>`
+      try {
+        return await engine.parseAndRender(tpl, {
+          ...pluginContext,
+          section: secWithCss,
+          f: secWithCss.fields || {}
+        })
+      } catch(e) {
+        return `<!-- theme section "${sec.id}" error: ${e.message} -->`
+      }
+    }
+
+    // 3. Fallback — section type unknown in this theme
+    return `<div class="pz-sec" data-pz="${sec.id}"${wrapCss} style="padding:24px;opacity:0.4;text-align:center;font-size:13px;">[${sec.id}]</div>`
   }
 
   const LAYOUT_COLS = {

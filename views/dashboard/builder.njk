@@ -440,9 +440,9 @@ body{overflow:hidden;background:#1a1a2e;margin:0;font-family:"DM Sans",sans-seri
         <div class="e-panel-scroll" style="flex:1;">
           <div class="e-nav-list" id="sectionsList"></div>
         </div>
-        <div class="e-panel-footer">
-          <button class="e-add-btn" onclick="openAddModal()" style="flex:1;">＋ Add Section</button>
-          <button class="e-add-btn" onclick="openRowModal()" style="flex:0 0 auto;padding:9px 12px;margin-left:6px;" title="Add Row with columns">⬛</button>
+        <div class="e-panel-footer" style="flex-direction:column;gap:5px;">
+          <button class="e-add-btn" onclick="openAddModal()" style="width:100%;">＋ Add Section</button>
+          <button class="e-add-btn" onclick="openRowModal()" style="width:100%;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.25);">⬛ Add Row / Columns</button>
         </div>
       </div>
 
@@ -1524,19 +1524,39 @@ function filterModal(q) {
   const term    = q.toLowerCase();
   const inCol   = !!addContext; // inside a column → only global sections
 
-  // When adding to a column, only show global (plugin) sections
-  const allSecs = inCol
-    ? THEME_SECTIONS.filter(s => s._isPlugin)
-    : THEME_SECTIONS;
+  // All sections are available in columns
+  const allSecs = THEME_SECTIONS;
 
   const list = allSecs.filter(s => !term || s.label.toLowerCase().includes(term) || (s.description||'').toLowerCase().includes(term));
   grid.innerHTML = '';
 
-  if (inCol) {
-    grid.innerHTML = '<div style="grid-column:1/-1;font-size:11px;color:#9ca3af;padding:4px 0 8px;">Only widget sections can be added inside columns.</div>';
+  // Add Row card at the top (only when adding top-level, not inside a column)
+  if (!inCol && (!term || 'row columns layout'.includes(term))) {
+    const rowCard = document.createElement('div');
+    rowCard.className = 'modal-card';
+    rowCard.style.cssText = 'border-color:#ddd6fe;background:#f5f3ff;';
+    rowCard.innerHTML = `
+      <span class="modal-card-icon">⬛</span>
+      <div>
+        <div class="modal-card-name" style="color:#6d28d9;">Row / Columns</div>
+        <div class="modal-card-desc">Place 2–4 sections side by side</div>
+      </div>
+    `;
+    rowCard.onclick = () => {
+      document.getElementById('addModal').classList.remove('open');
+      openRowModal();
+    };
+    grid.appendChild(rowCard);
   }
 
-  if (!list.length) { grid.innerHTML += '<div class="modal-empty">No sections found.</div>'; return; }
+  if (inCol) {
+    const hint = document.createElement('div');
+    hint.style.cssText = 'grid-column:1/-1;font-size:11px;color:#9ca3af;padding:4px 0 8px;';
+    hint.textContent = `Adding to Column ${addContext.colIdx + 1}`;
+    grid.appendChild(hint);
+  }
+
+  if (!list.length && (inCol || term)) { grid.innerHTML += '<div class="modal-empty">No sections found.</div>'; return; }
 
   const SINGLETONS = new Set(['hero','hero_slider','whatsapp_widget','profile','socials']);
   const addedIds   = new Set(sections.map(s => s.id));
