@@ -1,48 +1,84 @@
 {% extends "layouts/base.njk" %}
 {% block head %}
 <style>
-body{font-family:"DM Sans",sans-serif;}
+body{font-family:"DM Sans",sans-serif;background:var(--off);}
 .layout{display:flex;min-height:100vh;}
-.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
-.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:22px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;}
+.sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;box-shadow:2px 0 8px rgba(0,0,0,0.03);}
+.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:28px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;font-weight:600;}
 .sidebar-logo em{font-style:italic;color:var(--blue);}
-.sidebar-nav{padding:16px 12px;flex:1;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:2px;}
+.sidebar-nav{padding:20px 12px;flex:1;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:4px;font-weight:500;}
 .nav-item:hover{background:var(--off);color:var(--ink);}
-.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:500;}
-.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
-.user-chip{display:flex;align-items:center;gap:10px;padding:8px 12px;}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;}
-.user-name{font-size:13px;font-weight:500;color:var(--ink);}
-.user-plan{font-size:11px;color:var(--ink-faint);}
-.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:6px 12px;margin-top:4px;border-radius:var(--radius);}
-.logout-link:hover{color:var(--red);}
-.content{flex:1;padding:36px 40px;min-width:0;}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
-.page-title{font-family:"DM Serif Display",serif;font-size:28px;font-weight:400;letter-spacing:-0.5px;}
-.btn-new{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--white);padding:10px 20px;border-radius:var(--radius);font-size:14px;font-weight:500;transition:opacity 0.2s;}
-.btn-new:hover{opacity:0.85;}
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;}
-.stat-num{font-family:"DM Serif Display",serif;font-size:32px;font-weight:400;color:var(--ink);letter-spacing:-1px;margin-bottom:4px;}
-.stat-label{font-size:13px;color:var(--ink-muted);}
-.flash-success{background:var(--green-light);border:1px solid rgba(22,163,74,0.2);border-radius:var(--radius);padding:12px 16px;font-size:14px;color:var(--green);margin-bottom:24px;}
-.sites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
-.site-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:box-shadow 0.2s;}
-.site-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.06);}
-.site-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
-.site-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--blue-light);color:var(--blue);}
-.site-status{font-size:11px;padding:3px 10px;border-radius:20px;}
-.site-status.live{background:var(--green-light);color:var(--green);}
-.site-name{font-size:16px;font-weight:500;margin-bottom:4px;}
-.site-url{font-size:13px;color:var(--blue);display:block;margin-bottom:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.site-actions{display:flex;gap:8px;border-top:1px solid var(--border);padding-top:14px;}
-.btn-action{flex:1;padding:8px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;text-align:center;border:1px solid var(--border-md);background:var(--white);color:var(--ink-muted);font-family:"DM Sans",sans-serif;}
-.btn-action:hover{background:var(--off);}
-.empty-state{text-align:center;padding:64px 24px;background:var(--white);border:1px dashed var(--border-md);border-radius:var(--radius-lg);}
-.empty-icon{font-size:40px;margin-bottom:16px;}
-.empty-state h3{font-family:"DM Serif Display",serif;font-size:22px;font-weight:400;margin-bottom:8px;}
-.empty-state p{font-size:14px;color:var(--ink-muted);margin-bottom:24px;}
+.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:600;}
+.nav-item::before{font-size:16px;}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);background:var(--off);}
+.user-chip{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius);background:var(--white);transition:all 0.15s;}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, var(--blue), var(--blue-light));color:var(--white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;}
+.user-name{font-size:13px;font-weight:600;color:var(--ink);}
+.user-plan{font-size:11px;color:var(--ink-muted);}
+.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:8px 12px;margin-top:8px;border-radius:var(--radius);transition:all 0.15s;}
+.logout-link:hover{color:var(--red);background:rgba(255,0,0,0.05);}
+.content{flex:1;padding:40px;min-width:0;overflow-y:auto;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;gap:20px;}
+.page-title{font-family:"DM Serif Display",serif;font-size:32px;font-weight:400;letter-spacing:-0.5px;}
+.btn-new{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:var(--white);padding:11px 24px;border-radius:var(--radius);font-size:14px;font-weight:600;transition:all 0.2s;border:none;cursor:pointer;white-space:nowrap;}
+.btn-new:hover{background:var(--blue);opacity:0.9;transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.3);}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:36px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;transition:all 0.2s;}
+.stat-card:hover{border-color:var(--blue);box-shadow:0 4px 12px rgba(59,130,246,0.1);}
+.stat-num{font-family:"DM Serif Display",serif;font-size:36px;font-weight:600;color:var(--blue);letter-spacing:-1px;margin-bottom:8px;}
+.stat-label{font-size:13px;color:var(--ink-muted);font-weight:500;}
+.flash-success{background:linear-gradient(135deg, rgba(22,163,74,0.1), rgba(34,197,94,0.05));border:1px solid rgba(22,163,74,0.3);border-radius:var(--radius);padding:14px 18px;font-size:14px;color:var(--green);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.flash-success::before{content:"✓";font-weight:bold;font-size:16px;}
+.sites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+.site-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0;transition:all 0.25s;overflow:hidden;display:flex;flex-direction:column;}
+.site-card:hover{border-color:var(--blue);box-shadow:0 8px 24px rgba(59,130,246,0.15);transform:translateY(-2px);}
+.site-card-header{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.site-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex:1;}
+.site-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--blue-light);color:var(--blue);text-transform:uppercase;letter-spacing:0.3px;}
+.site-status{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600;}
+.site-status.live{background:rgba(34,197,94,0.1);color:var(--green);display:flex;align-items:center;gap:4px;}
+.site-status.live::before{content:"●";font-size:8px;}
+.site-name{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--ink);line-height:1.3;}
+.site-url{font-size:13px;color:var(--blue);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color 0.2s;}
+.site-card:hover .site-url{color:var(--blue);}
+.site-card-body{padding:18px 22px;flex:1;font-size:13px;color:var(--ink-muted);line-height:1.5;}
+.site-meta{display:flex;gap:16px;flex-wrap:wrap;}
+.site-meta-item{display:flex;gap:4px;align-items:center;}
+.site-meta-label{color:var(--ink-muted);font-size:12px;}
+.site-meta-value{color:var(--ink);font-weight:500;}
+.site-actions{display:grid;grid-template-columns:1fr 1fr;gap:1px;border-top:1px solid var(--border);background:var(--border);}
+.btn-action{padding:12px;border-radius:0;font-size:13px;font-weight:600;cursor:pointer;text-align:center;border:none;background:var(--white);color:var(--blue);font-family:"DM Sans",sans-serif;transition:all 0.15s;}
+.btn-action:hover{background:var(--off);color:var(--blue);}
+.btn-action.danger{color:var(--red);}
+.btn-action.danger:hover{background:rgba(255,0,0,0.05);}
+.btn-action-group-primary{display:flex;gap:1px;flex:1;}
+.btn-action-group-primary .btn-action{flex:1;border-right:1px solid var(--border);}
+.btn-action-group-primary .btn-action:last-child{border-right:none;}
+.empty-state{text-align:center;padding:80px 40px;background:var(--white);border:2px dashed var(--border-md);border-radius:var(--radius-lg);margin:20px 0;}
+.empty-icon{font-size:48px;margin-bottom:20px;}
+.empty-state h3{font-family:"DM Serif Display",serif;font-size:24px;font-weight:600;margin-bottom:12px;color:var(--ink);}
+.empty-state p{font-size:14px;color:var(--ink-muted);margin-bottom:28px;max-width:400px;margin-left:auto;margin-right:auto;}
+@media(max-width:1024px){
+  .layout{flex-direction:column;}
+  .sidebar{width:100%;height:auto;position:relative;}
+  .sidebar-nav{display:flex;gap:12px;overflow-x:auto;padding:12px;}
+  .nav-item{margin-bottom:0;white-space:nowrap;}
+  .content{padding:28px 20px;}
+  .sites-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+  .page-title{font-size:24px;}
+}
+@media(max-width:640px){
+  .page-header{flex-direction:column;align-items:stretch;margin-bottom:24px;}
+  .page-title{font-size:20px;}
+  .btn-new{width:100%;}
+  .sidebar{width:100%;}
+  .sites-grid{grid-template-columns:1fr;}
+  .stat-card{padding:16px;}
+  .stat-num{font-size:28px;}
+  .content{padding:16px;}
+  .site-card-actions{grid-template-columns:1fr;}
+}
 </style>
 {% endblock %}
 {% block body %}
@@ -64,43 +100,75 @@ body{font-family:"DM Sans",sans-serif;}
   </aside>
   <main class="content">
     <div class="page-header">
-      <div class="page-title">Dashboard</div>
-      <a class="btn-new" href="/dashboard/wizard">+ New site</a>
+      <div>
+        <div class="page-title">Dashboard</div>
+        <p style="color:var(--ink-muted);margin-top:4px;font-size:14px;">Welcome back! Manage your sites and content.</p>
+      </div>
+      <a class="btn-new" href="/dashboard/wizard">+ Create New Site</a>
     </div>
     {% if flash_success and flash_success.length %}
-    <div class="flash-success">✓ {{ flash_success[0] }}</div>
+    <div class="flash-success">{{ flash_success[0] }}</div>
     {% endif %}
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-num">{{ sites.length }}</div><div class="stat-label">Total sites</div></div>
-      <div class="stat-card"><div class="stat-num">{{ sites.length }}</div><div class="stat-label">Live sites</div></div>
-      <div class="stat-card"><div class="stat-num">{{ user.plan | capitalize }}</div><div class="stat-label">Current plan</div></div>
+      <div class="stat-card">
+        <div class="stat-num">{{ sites.length }}</div>
+        <div class="stat-label">Total Sites</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Possibilities</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">{{ user.plan | capitalize }}</div>
+        <div class="stat-label">Current Plan</div>
+      </div>
     </div>
     {% if not sites.length %}
     <div class="empty-state">
-      <div class="empty-icon">🌐</div>
-      <h3>No sites yet</h3>
-      <p>Create your first mini site in under 2 minutes.</p>
-      <a class="btn-new" href="/dashboard/wizard">Create your first site</a>
+      <div class="empty-icon">🚀</div>
+      <h3>Ready to create your first site?</h3>
+      <p>Get started in minutes with our intuitive builder. Choose from stunning templates or start from scratch.</p>
+      <a class="btn-new" href="/dashboard/wizard">Launch Your First Site</a>
     </div>
     {% else %}
+    <div style="margin-bottom:20px;">
+      <h2 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:600;color:var(--ink);margin-bottom:4px;">Your Sites</h2>
+      <p style="color:var(--ink-muted);font-size:13px;">Manage and edit your websites</p>
+    </div>
     <div class="sites-grid">
       {% for site in sites %}
       {% set settings = site.settings | safe %}
       <div class="site-card">
-        <div class="site-card-top">
-          <span class="site-badge">{{ site.category or "Site" }}</span>
-          <span class="site-status live">● Live</span>
+        <div class="site-card-header">
+          <div class="site-card-top">
+            <div>
+              <span class="site-badge">{{ site.category or "Site" }}</span>
+              <div class="site-name">{{ site.title }}</div>
+              <a class="site-url" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a>
+            </div>
+          </div>
+          <span class="site-status live">Live</span>
         </div>
-        <div class="site-name">{{ site.title }}</div>
-        <a class="site-url" href="{{ app_url }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a>
+        <div class="site-card-body">
+          <div class="site-meta">
+            <div class="site-meta-item">
+              <span class="site-meta-label">Status</span>
+              <span class="site-meta-value">Published</span>
+            </div>
+            <div class="site-meta-item">
+              <span class="site-meta-label">Template</span>
+              <span class="site-meta-value">{{ site.template_id or "Default" }}</span>
+            </div>
+          </div>
+        </div>
         <div class="site-actions">
-          <a class="btn-action" href="/dashboard/site/{% if site.template_id == 'biolink' or site.template_id == 'biolink-neon' or site.template_id == 'biolink-card' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit</a>
-          <a class="btn-action" href="/dashboard/site/templates?id={{ site.id }}">Theme</a>
-          <a class="btn-action" href="/dashboard/blog/{{ site.id }}">Blog</a>
-          <a class="btn-action" href="/dashboard/forms/{{ site.id }}">Forms</a>
-          <form method="POST" action="/dashboard/site/delete" style="flex:1;" onsubmit="return confirm('Delete this site?')">
+          <a class="btn-action" href="/dashboard/site/{% if site.template_id == 'biolink' or site.template_id == 'biolink-neon' or site.template_id == 'biolink-card' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">✏️ Edit</a>
+          <a class="btn-action" href="/dashboard/site/templates?id={{ site.id }}">🎨 Theme</a>
+          <a class="btn-action" href="/dashboard/blog/{{ site.id }}">📝 Blog</a>
+          <a class="btn-action" href="/dashboard/forms/{{ site.id }}">📋 Forms</a>
+          <form method="POST" action="/dashboard/site/delete" onsubmit="return confirm('Are you sure? This action cannot be undone.')">
             <input type="hidden" name="site_id" value="{{ site.id }}">
-            <button type="submit" class="btn-action" style="width:100%;color:var(--red);">Delete</button>
+            <button type="submit" class="btn-action danger">🗑️ Delete</button>
           </form>
         </div>
       </div>
