@@ -149,6 +149,14 @@ nunjucks.configure(path.join(__dirname, 'views'), {
   noCache:    process.env.NODE_ENV !== 'production'
 })
 
+// Add custom Nunjucks filters
+nunjucks.addFilter('min', function(arr) {
+  return Math.min(...arr)
+})
+nunjucks.addFilter('max', function(arr) {
+  return Math.max(...arr)
+})
+
 // Global template vars
 app.use((req, res, next) => {
   res.locals.user          = req.session.user || null
