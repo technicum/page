@@ -156,6 +156,9 @@ env.addFilter('min', function(arr) {
 env.addFilter('max', function(arr) {
   return Math.max(...arr)
 })
+env.addFilter('tojson', function(obj) {
+  return JSON.stringify(obj)
+})
 
 // Global template vars
 app.use((req, res, next) => {
