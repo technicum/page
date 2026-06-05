@@ -68,16 +68,39 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
   .sites-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
   .page-title{font-size:24px;}
 }
+.sites-table{width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.sites-table thead{background:var(--off);border-bottom:1px solid var(--border);}
+.sites-table th{padding:16px 20px;text-align:left;font-weight:600;font-size:13px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.3px;}
+.sites-table td{padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;}
+.sites-table tbody tr{transition:background 0.15s;}
+.sites-table tbody tr:hover{background:var(--off);}
+.sites-table tbody tr:last-child td{border-bottom:none;}
+.table-site-name{font-weight:600;color:var(--ink);}
+.table-site-url{color:var(--blue);text-decoration:none;transition:color 0.2s;}
+.table-site-url:hover{color:var(--blue);text-decoration:underline;}
+.table-badge{font-size:11px;font-weight:600;padding:4px 8px;border-radius:16px;background:var(--blue-light);color:var(--blue);display:inline-block;}
+.table-actions{display:flex;gap:8px;}
+.btn-table-action{padding:6px 12px;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--blue);transition:all 0.15s;white-space:nowrap;}
+.btn-table-action:hover{background:var(--blue-light);border-color:var(--blue);}
+.btn-table-action.danger{color:var(--red);border-color:var(--red);}
+.btn-table-action.danger:hover{background:rgba(255,0,0,0.05);border-color:var(--red);}
+.load-more-container{display:flex;justify-content:center;margin-top:32px;}
+.btn-load-more{display:inline-flex;align-items:center;gap:8px;background:var(--white);color:var(--blue);padding:12px 28px;border-radius:var(--radius);font-size:14px;font-weight:600;transition:all 0.2s;border:1px solid var(--border);cursor:pointer;}
+.btn-load-more:hover{background:var(--off);border-color:var(--blue);}
+.btn-load-more.loading{opacity:0.6;cursor:not-allowed;}
+.empty-table{text-align:center;padding:48px 20px;color:var(--ink-muted);}
+.pagination-info{font-size:13px;color:var(--ink-muted);margin-bottom:16px;text-align:center;}
 @media(max-width:640px){
   .page-header{flex-direction:column;align-items:stretch;margin-bottom:24px;}
   .page-title{font-size:20px;}
   .btn-new{width:100%;}
   .sidebar{width:100%;}
-  .sites-grid{grid-template-columns:1fr;}
+  .sites-table{font-size:12px;}
+  .sites-table th,.sites-table td{padding:12px 10px;}
+  .btn-table-action{padding:4px 8px;font-size:11px;}
   .stat-card{padding:16px;}
   .stat-num{font-size:28px;}
   .content{padding:16px;}
-  .site-card-actions{grid-template-columns:1fr;}
 }
 </style>
 {% endblock %}
@@ -135,45 +158,118 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
       <h2 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:600;color:var(--ink);margin-bottom:4px;">Your Sites</h2>
       <p style="color:var(--ink-muted);font-size:13px;">Manage and edit your websites</p>
     </div>
-    <div class="sites-grid">
-      {% for site in sites %}
-      {% set settings = site.settings | safe %}
-      <div class="site-card">
-        <div class="site-card-header">
-          <div class="site-card-top">
-            <div>
-              <span class="site-badge">{{ site.category or "Site" }}</span>
-              <div class="site-name">{{ site.title }}</div>
-              <a class="site-url" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a>
-            </div>
-          </div>
-          <span class="site-status live">Live</span>
-        </div>
-        <div class="site-card-body">
-          <div class="site-meta">
-            <div class="site-meta-item">
-              <span class="site-meta-label">Status</span>
-              <span class="site-meta-value">Published</span>
-            </div>
-            <div class="site-meta-item">
-              <span class="site-meta-label">Template</span>
-              <span class="site-meta-value">{{ site.template_id or "Default" }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="site-actions">
-          <a class="btn-action" href="/dashboard/site/{% if site.template_id == 'biolink' or site.template_id == 'biolink-neon' or site.template_id == 'biolink-card' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">✏️ Edit</a>
-          <a class="btn-action" href="/dashboard/site/templates?id={{ site.id }}">🎨 Theme</a>
-          <a class="btn-action" href="/dashboard/blog/{{ site.id }}">📝 Blog</a>
-          <a class="btn-action" href="/dashboard/forms/{{ site.id }}">📋 Forms</a>
-          <form method="POST" action="/dashboard/site/delete" onsubmit="return confirm('Are you sure? This action cannot be undone.')">
-            <input type="hidden" name="site_id" value="{{ site.id }}">
-            <button type="submit" class="btn-action danger">🗑️ Delete</button>
-          </form>
-        </div>
-      </div>
-      {% endfor %}
+    <div class="pagination-info">
+      Showing <span id="showing-count">{{ [sites.length, 10] | min }}</span> of {{ sites.length }} sites
     </div>
+    <table class="sites-table" id="sites-table">
+      <thead>
+        <tr>
+          <th style="width:35%;">Site Name</th>
+          <th style="width:20%;">URL</th>
+          <th style="width:15%;">Category</th>
+          <th style="width:15%;">Status</th>
+          <th style="width:15%;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="sites-tbody">
+        {% for site in sites.slice(0, 10) %}
+        {% set settings = site.settings | safe %}
+        <tr class="site-row">
+          <td>
+            <div class="table-site-name">{{ site.title }}</div>
+            <div style="font-size:12px;color:var(--ink-muted);margin-top:2px;">{{ site.template_id or "Default" }}</div>
+          </td>
+          <td><a class="table-site-url" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a></td>
+          <td><span class="table-badge">{{ site.category or "Site" }}</span></td>
+          <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
+          <td>
+            <div class="table-actions">
+              <a class="btn-table-action" href="/dashboard/site/{% if site.template_id == 'biolink' or site.template_id == 'biolink-neon' or site.template_id == 'biolink-card' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}" title="Edit site">Edit</a>
+              <a class="btn-table-action" href="/dashboard/site/templates?id={{ site.id }}" title="Change theme">Theme</a>
+              <div style="display:flex;gap:4px;">
+                <a class="btn-table-action" href="/dashboard/blog/{{ site.id }}" title="Manage blog">Blog</a>
+                <a class="btn-table-action" href="/dashboard/forms/{{ site.id }}" title="Manage forms">Forms</a>
+              </div>
+              <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Are you sure? This action cannot be undone.')">
+                <input type="hidden" name="site_id" value="{{ site.id }}">
+                <button type="submit" class="btn-table-action danger" title="Delete site">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if sites.length > 10 %}
+    <div class="load-more-container">
+      <button class="btn-load-more" id="load-more-btn" onclick="loadMoreSites()">
+        <span>Load More Sites</span>
+        <span id="load-more-count">({{ sites.length - 10 }} remaining)</span>
+      </button>
+    </div>
+    {% endif %}
+    <script>
+      let currentIndex = 10;
+      const allSites = {{ sites | tojson }};
+      const totalSites = {{ sites.length }};
+
+      function loadMoreSites() {
+        const btn = document.getElementById('load-more-btn');
+        const tbody = document.getElementById('sites-tbody');
+        const itemsPerLoad = 10;
+        const nextIndex = Math.min(currentIndex + itemsPerLoad, totalSites);
+
+        btn.classList.add('loading');
+        btn.disabled = true;
+
+        // Simulate slight delay for better UX
+        setTimeout(() => {
+          for (let i = currentIndex; i < nextIndex; i++) {
+            const site = allSites[i];
+            const row = document.createElement('tr');
+            row.className = 'site-row';
+            row.innerHTML = `
+              <td>
+                <div class="table-site-name">${site.title}</div>
+                <div style="font-size:12px;color:var(--ink-muted);margin-top:2px;">${site.template_id || 'Default'}</div>
+              </td>
+              <td><a class="table-site-url" href="https://${site.subdomain}.{{ base_domain }}" target="_blank">${site.subdomain}.{{ base_domain }}</a></td>
+              <td><span class="table-badge">${site.category || 'Site'}</span></td>
+              <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
+              <td>
+                <div class="table-actions">
+                  <a class="btn-table-action" href="/dashboard/site/${site.template_id === 'biolink' || site.template_id === 'biolink-neon' || site.template_id === 'biolink-card' ? 'biolink-builder' : 'builder'}?id=${site.id}" title="Edit site">Edit</a>
+                  <a class="btn-table-action" href="/dashboard/site/templates?id=${site.id}" title="Change theme">Theme</a>
+                  <div style="display:flex;gap:4px;">
+                    <a class="btn-table-action" href="/dashboard/blog/${site.id}" title="Manage blog">Blog</a>
+                    <a class="btn-table-action" href="/dashboard/forms/${site.id}" title="Manage forms">Forms</a>
+                  </div>
+                  <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Are you sure? This action cannot be undone.')">
+                    <input type="hidden" name="site_id" value="${site.id}">
+                    <button type="submit" class="btn-table-action danger" title="Delete site">Delete</button>
+                  </form>
+                </div>
+              </td>
+            `;
+            tbody.appendChild(row);
+          }
+
+          currentIndex = nextIndex;
+
+          // Update pagination info
+          document.getElementById('showing-count').textContent = currentIndex;
+
+          // Update or hide load more button
+          if (currentIndex >= totalSites) {
+            btn.style.display = 'none';
+          } else {
+            btn.classList.remove('loading');
+            btn.disabled = false;
+            document.getElementById('load-more-count').textContent = `(${totalSites - currentIndex} remaining)`;
+          }
+        }, 300);
+      }
+    </script>
     {% endif %}
   </main>
 </div>
