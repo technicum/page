@@ -143,17 +143,17 @@ app.use('/themes', express.static(path.join(__dirname, 'themes')))
 app.use('/media', express.static(path.join(__dirname, 'public/media')))
 
 // Nunjucks
-nunjucks.configure(path.join(__dirname, 'views'), {
+const env = nunjucks.configure(path.join(__dirname, 'views'), {
   autoescape: true,
   express:    app,
   noCache:    process.env.NODE_ENV !== 'production'
 })
 
 // Add custom Nunjucks filters
-nunjucks.addFilter('min', function(arr) {
+env.addFilter('min', function(arr) {
   return Math.min(...arr)
 })
-nunjucks.addFilter('max', function(arr) {
+env.addFilter('max', function(arr) {
   return Math.max(...arr)
 })
 
