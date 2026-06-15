@@ -243,6 +243,40 @@ exports.submit = async (req, res) => {
   return res.json({ ok: true, message: setting.success_message || 'Thank you for your submission!' })
 }
 
+// ── All forms across all sites (dashboard sidebar entry) ─────────────────────
+exports.allForms = async (req, res) => {
+  const user  = req.session.user
+
+  const sites = await db.query(
+    'SELECT * FROM ms_pages WHERE account_id = ? ORDER BY created_at DESC',
+    [user.id]
+  )
+
+  const forms = await db.query(
+    `SELECT f.*,
+       p.title AS site_title, p.subdomain AS site_subdomain,
+       (SELECT COUNT(*) FROM ms_form_entries e WHERE e.form_id = f.id) AS entry_count
+     FROM ms_forms f
+     JOIN ms_pages p ON p.id = f.site_id
+     WHERE p.account_id = ?
+     ORDER BY f.created_at DESC`,
+    [user.id]
+  )
+
+  // Group by site_id
+  const bySite = {}
+  sites.forEach(s => { bySite[s.id] = { site: s, forms: [] } })
+  forms.forEach(f => { if (bySite[f.site_id]) bySite[f.site_id].forms.push(f) })
+
+  res.render('dashboard/forms-all.njk', {
+    title: 'Forms',
+    user,
+    sites,
+    groups: Object.values(bySite),
+    totalForms: forms.length
+  })
+}
+
 // ── API: list forms for a site (used by builder dropdown) ────────────────────
 exports.apiList = async (req, res) => {
   const user   = req.session.user

@@ -114,6 +114,9 @@ router.delete('/dashboard/media/:siteId/:filename',  requireAuth, media.destroy)
 router.post('/dashboard/ai-suggest',  requireAuth, site.aiSuggest)
 router.post('/dashboard/ai-generate', requireAuth, site.aiGenerate)
 
+// Forms hub (all sites)
+router.get ('/dashboard/forms',                                              requireAuth, form.allForms)
+
 // Forms (dashboard)
 router.get ('/dashboard/forms/:siteId',                              requireAuth, form.index)
 router.get ('/dashboard/forms/:siteId/new',                         requireAuth, form.newForm)
