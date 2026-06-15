@@ -1,6 +1,6 @@
 const { db }               = require('../config/db')
 const themeManager         = require('../config/themeManager')
-const { loadFormsForSite } = require('./formController')
+const { loadFormsForAccount } = require('./formController')
 const axios         = require('axios')
 
 exports.store = async (req, res) => {
@@ -94,7 +94,7 @@ exports.builderPreview = async (req, res) => {
 
   const slug = settings.template_id || site.template_id || 'minimal'
   let siteForms = {}
-  try { siteForms = await loadFormsForSite(site.id) } catch(e) {}
+  try { siteForms = await loadFormsForAccount(site.account_id) } catch(e) {}
   try {
     let html = await themeManager.render(slug, site, settings, pageId, siteForms)
     // Inject builder interaction script when called from the builder

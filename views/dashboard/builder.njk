@@ -1719,7 +1719,7 @@ function buildField(fd, data, si) {
     sel.className = 'fg-input';
     sel.style.cursor = 'pointer';
     sel.innerHTML = '<option value="">— Loading… —</option>';
-    fetch(`/dashboard/api/forms/${SITE_ID}`)
+    fetch(`/dashboard/api/forms`)
       .then(r => r.json())
       .then(forms => {
         sel.innerHTML = '<option value="">— Select a form —</option>';
@@ -1735,7 +1735,7 @@ function buildField(fd, data, si) {
     sel.addEventListener('change', () => { sections[si].fields[fd.id]=sel.value; markDirty(); debouncedPreview(); pushUndo(); });
     const hint = document.createElement('div');
     hint.style.cssText = 'font-size:10px;color:var(--panel-muted);margin-top:4px;';
-    hint.innerHTML = `<a href="/dashboard/forms/${SITE_ID}/new" target="_blank" style="color:var(--accent-h);">+ Create a new form ↗</a>`;
+    hint.innerHTML = `<a href="/dashboard/forms/new" target="_blank" style="color:var(--accent-h);">+ Create a new form ↗</a>`;
     wrap.appendChild(lbl); wrap.appendChild(sel); wrap.appendChild(hint);
   } else {
     const lbl = document.createElement('label');
@@ -2088,7 +2088,7 @@ function buildColumnField(fd, data, rowIdx, colIdx, secIdx) {
     const sel = document.createElement('select');
     sel.className = 'fg-input'; sel.style.cursor='pointer';
     sel.innerHTML = '<option value="">— Loading… —</option>';
-    fetch(`/dashboard/api/forms/${SITE_ID}`)
+    fetch(`/dashboard/api/forms`)
       .then(r=>r.json()).then(forms=>{
         sel.innerHTML='<option value="">— Select a form —</option>';
         forms.forEach(f=>{

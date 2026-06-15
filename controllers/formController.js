@@ -1,72 +1,42 @@
 const { db } = require('../config/db')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-async function getSiteForUser(siteId, userId) {
-  return db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, userId])
-}
-
 async function getFormForUser(formId, userId) {
   return db.first(
-    'SELECT f.* FROM ms_forms f JOIN ms_pages p ON p.id = f.site_id WHERE f.id = ? AND p.account_id = ?',
+    'SELECT * FROM ms_forms WHERE id = ? AND account_id = ?',
     [formId, userId]
   )
 }
 
-// ── List forms for a site ─────────────────────────────────────────────────────
+// ── List forms for a site (legacy — kept for per-site views) ─────────────────
 exports.index = async (req, res) => {
-  const user   = req.session.user
-  const siteId = parseInt(req.params.siteId) || 0
-
-  const site = await getSiteForUser(siteId, user.id)
-  if (!site) return res.redirect('/dashboard')
-
-  const forms = await db.query(
-    `SELECT f.*,
-       (SELECT COUNT(*) FROM ms_form_entries e WHERE e.form_id = f.id) AS entry_count
-     FROM ms_forms f
-     WHERE f.site_id = ?
-     ORDER BY f.created_at DESC`,
-    [siteId]
-  )
-
-  res.render('dashboard/forms.njk', { title: 'Forms', user, site, forms })
+  return res.redirect('/dashboard/forms')
 }
 
-// ── New form ──────────────────────────────────────────────────────────────────
+// ── New form (account-level) ──────────────────────────────────────────────────
 exports.newForm = async (req, res) => {
-  const user   = req.session.user
-  const siteId = parseInt(req.params.siteId) || 0
-
-  const site = await getSiteForUser(siteId, user.id)
-  if (!site) return res.redirect('/dashboard')
-
+  const user = req.session.user
   res.render('dashboard/form-builder.njk', {
-    title:  'New Form',
-    user, site,
-    form:   null,
-    fields: '[]',
+    title: 'New Form',
+    user,
+    form:     null,
+    fields:   '[]',
     settings: '{}'
   })
 }
 
 // ── Create form ───────────────────────────────────────────────────────────────
 exports.create = async (req, res) => {
-  const user   = req.session.user
-  const siteId = parseInt(req.params.siteId) || 0
-
-  const site = await getSiteForUser(siteId, user.id)
-  if (!site) return res.status(403).json({ ok: false })
-
+  const user = req.session.user
   const { name, fields, settings } = req.body
 
-  // Validate JSON
   let fieldsJson, settingsJson
   try { fieldsJson   = JSON.parse(fields   || '[]') } catch { fieldsJson   = [] }
   try { settingsJson = JSON.parse(settings || '{}') } catch { settingsJson = {} }
 
   const formId = await db.lastId(
-    'INSERT INTO ms_forms (account_id, site_id, name, fields, settings) VALUES (?,?,?,?,?)',
-    [user.id, siteId, name || 'Untitled Form', JSON.stringify(fieldsJson), JSON.stringify(settingsJson)]
+    'INSERT INTO ms_forms (account_id, site_id, name, fields, settings) VALUES (?,NULL,?,?,?)',
+    [user.id, name || 'Untitled Form', JSON.stringify(fieldsJson), JSON.stringify(settingsJson)]
   )
 
   return res.json({ ok: true, id: formId })
@@ -76,17 +46,13 @@ exports.create = async (req, res) => {
 exports.editForm = async (req, res) => {
   const user   = req.session.user
   const formId = parseInt(req.params.formId) || 0
-  const siteId = parseInt(req.params.siteId) || 0
-
-  const site = await getSiteForUser(siteId, user.id)
-  if (!site) return res.redirect('/dashboard')
 
   const form = await getFormForUser(formId, user.id)
-  if (!form) return res.redirect(`/dashboard/forms/${siteId}`)
+  if (!form) return res.redirect('/dashboard/forms')
 
   res.render('dashboard/form-builder.njk', {
     title:    `Edit — ${form.name}`,
-    user, site, form,
+    user, form,
     fields:   form.fields   || '[]',
     settings: form.settings || '{}'
   })
@@ -118,33 +84,28 @@ exports.update = async (req, res) => {
 exports.destroy = async (req, res) => {
   const user   = req.session.user
   const formId = parseInt(req.params.formId) || 0
-  const siteId = parseInt(req.params.siteId) || 0
 
   const form = await getFormForUser(formId, user.id)
-  if (!form) return res.redirect(`/dashboard/forms/${siteId}`)
+  if (!form) return res.redirect('/dashboard/forms')
 
   await db.execute('DELETE FROM ms_forms WHERE id = ?', [formId])
-  res.redirect(`/dashboard/forms/${siteId}`)
+  res.redirect('/dashboard/forms')
 }
 
 // ── Entries list ──────────────────────────────────────────────────────────────
 exports.entries = async (req, res) => {
   const user   = req.session.user
   const formId = parseInt(req.params.formId) || 0
-  const siteId = parseInt(req.params.siteId) || 0
-
-  const site = await getSiteForUser(siteId, user.id)
-  if (!site) return res.redirect('/dashboard')
 
   const form = await getFormForUser(formId, user.id)
-  if (!form) return res.redirect(`/dashboard/forms/${siteId}`)
+  if (!form) return res.redirect('/dashboard/forms')
 
   const entries = await db.query(
     'SELECT * FROM ms_form_entries WHERE form_id = ? ORDER BY created_at DESC',
     [formId]
   )
 
-  const fields   = JSON.parse(form.fields   || '[]')
+  const fields = JSON.parse(form.fields || '[]')
   const parsedEntries = entries.map(e => ({
     ...e,
     data: (() => { try { return JSON.parse(e.data) } catch { return {} } })()
@@ -152,7 +113,7 @@ exports.entries = async (req, res) => {
 
   res.render('dashboard/form-entries.njk', {
     title: `Entries — ${form.name}`,
-    user, site, form, fields,
+    user, form, fields,
     entries: parsedEntries
   })
 }
@@ -162,9 +123,7 @@ exports.deleteEntry = async (req, res) => {
   const user    = req.session.user
   const entryId = parseInt(req.params.entryId) || 0
   const formId  = parseInt(req.params.formId)  || 0
-  const siteId  = parseInt(req.params.siteId)  || 0
 
-  // Verify ownership
   const form = await getFormForUser(formId, user.id)
   if (!form) return res.status(403).json({ ok: false })
 
@@ -191,7 +150,6 @@ exports.exportCsv = async (req, res) => {
 
   const fields = JSON.parse(form.fields || '[]')
   const cols   = ['#', 'Date', 'IP', ...fields.map(f => f.label)]
-
   const escape = v => `"${String(v ?? '').replace(/"/g, '""')}"`
 
   const rows = entries.map((e, i) => {
@@ -205,7 +163,6 @@ exports.exportCsv = async (req, res) => {
   })
 
   const csv = [cols.map(escape).join(','), ...rows].join('\n')
-
   res.setHeader('Content-Type', 'text/csv')
   res.setHeader('Content-Disposition', `attachment; filename="form-${formId}-entries.csv"`)
   res.send(csv)
@@ -243,56 +200,39 @@ exports.submit = async (req, res) => {
   return res.json({ ok: true, message: setting.success_message || 'Thank you for your submission!' })
 }
 
-// ── All forms across all sites (dashboard sidebar entry) ─────────────────────
+// ── All forms — account-level (HubSpot-style) ────────────────────────────────
 exports.allForms = async (req, res) => {
-  const user  = req.session.user
-
-  const sites = await db.query(
-    'SELECT * FROM ms_pages WHERE account_id = ? ORDER BY created_at DESC',
-    [user.id]
-  )
+  const user = req.session.user
 
   const forms = await db.query(
     `SELECT f.*,
-       p.title AS site_title, p.subdomain AS site_subdomain,
        (SELECT COUNT(*) FROM ms_form_entries e WHERE e.form_id = f.id) AS entry_count
      FROM ms_forms f
-     JOIN ms_pages p ON p.id = f.site_id
-     WHERE p.account_id = ?
+     WHERE f.account_id = ?
      ORDER BY f.created_at DESC`,
     [user.id]
   )
 
-  // Group by site_id
-  const bySite = {}
-  sites.forEach(s => { bySite[s.id] = { site: s, forms: [] } })
-  forms.forEach(f => { if (bySite[f.site_id]) bySite[f.site_id].forms.push(f) })
-
   res.render('dashboard/forms-all.njk', {
     title: 'Forms',
     user,
-    sites,
-    groups: Object.values(bySite),
-    totalForms: forms.length
+    forms
   })
 }
 
-// ── API: list forms for a site (used by builder dropdown) ────────────────────
+// ── API: list all account forms (used by builder form_select dropdown) ────────
 exports.apiList = async (req, res) => {
-  const user   = req.session.user
-  const siteId = parseInt(req.params.siteId) || 0
-  const site   = await getSiteForUser(siteId, user.id)
-  if (!site) return res.status(403).json([])
+  const user  = req.session.user
   const forms = await db.query(
-    'SELECT id, name FROM ms_forms WHERE site_id = ? ORDER BY name ASC',
-    [siteId]
+    'SELECT id, name FROM ms_forms WHERE account_id = ? ORDER BY name ASC',
+    [user.id]
   )
   return res.json(forms)
 }
 
-// ── Used by themeManager/subdomain to load forms for a site ──────────────────
-exports.loadFormsForSite = async (siteId) => {
-  const forms = await db.query('SELECT * FROM ms_forms WHERE site_id = ?', [siteId])
+// ── Used by themeManager/subdomain to load forms for rendering ────────────────
+exports.loadFormsForAccount = async (accountId) => {
+  const forms = await db.query('SELECT * FROM ms_forms WHERE account_id = ?', [accountId])
   const result = {}
   forms.forEach(f => {
     result[f.id] = {
@@ -304,3 +244,6 @@ exports.loadFormsForSite = async (siteId) => {
   })
   return result
 }
+
+// ── Legacy alias (kept so old imports don't crash) ────────────────────────────
+exports.loadFormsForSite = exports.loadFormsForAccount

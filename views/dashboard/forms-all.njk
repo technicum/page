@@ -11,73 +11,58 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
 .nav-item:hover{background:var(--off);color:var(--ink);}
 .nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:600;}
 .sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);background:var(--off);}
-.user-chip{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius);background:var(--white);transition:all 0.15s;}
+.user-chip{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius);background:var(--white);}
 .user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-light));color:var(--white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;}
 .user-name{font-size:13px;font-weight:600;color:var(--ink);}
 .user-plan{font-size:11px;color:var(--ink-muted);}
 .logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:8px 12px;margin-top:8px;border-radius:var(--radius);transition:all 0.15s;}
 .logout-link:hover{color:var(--red);background:rgba(255,0,0,0.05);}
 .content{flex:1;padding:40px;min-width:0;overflow-y:auto;}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;gap:16px;}
-.page-title{font-family:"DM Serif Display",serif;font-size:32px;font-weight:400;letter-spacing:-0.5px;}
-.page-sub{font-size:14px;color:var(--ink-muted);margin-top:4px;}
 
-/* New form dropdown */
-.btn-new{position:relative;display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:var(--white);padding:11px 20px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all 0.15s;white-space:nowrap;}
-.btn-new:hover{opacity:0.9;}
-.dropdown-wrap{position:relative;}
-.dropdown-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--white);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:50;min-width:220px;overflow:hidden;}
-.dropdown-menu.open{display:block;}
-.dropdown-label{padding:10px 14px 6px;font-size:11px;font-weight:600;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.5px;}
-.dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:13px;color:var(--ink-muted);text-decoration:none;transition:background 0.12s;}
-.dropdown-item:hover{background:var(--off);color:var(--ink);}
-.dropdown-item .site-name{font-weight:500;color:var(--ink);}
-.dropdown-item .site-sub{font-size:11px;color:var(--ink-faint);}
-.dropdown-divider{height:1px;background:var(--border);margin:4px 0;}
+/* Header */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
+.page-title{font-family:"DM Serif Display",serif;font-size:30px;font-weight:400;letter-spacing:-0.5px;}
+.page-sub{font-size:13px;color:var(--ink-muted);margin-top:3px;}
+.btn-primary{display:inline-flex;align-items:center;gap:7px;background:var(--blue);color:#fff;padding:10px 20px;border-radius:var(--radius);font-size:14px;font-weight:600;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.9;}
 
-/* Stats */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:32px;}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;}
-.stat-num{font-family:"DM Serif Display",serif;font-size:32px;color:var(--blue);letter-spacing:-1px;margin-bottom:4px;}
-.stat-label{font-size:13px;color:var(--ink-muted);font-weight:500;}
+/* Search / filter bar */
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.search-input{flex:1;max-width:320px;padding:9px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-family:inherit;outline:none;background:var(--white);color:var(--ink);}
+.search-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
+.count-badge{font-size:13px;color:var(--ink-muted);margin-left:auto;}
 
-/* Site groups */
-.site-group{margin-bottom:32px;}
-.site-group-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
-.site-group-title{font-size:16px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;}
-.site-group-url{font-size:12px;color:var(--blue);}
-.btn-add-form{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;background:var(--white);color:var(--blue);border:1px solid var(--border);cursor:pointer;text-decoration:none;transition:all 0.15s;}
-.btn-add-form:hover{background:var(--blue-light);border-color:var(--blue);}
+/* Table */
+.forms-table-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.forms-table{width:100%;border-collapse:collapse;}
+.forms-table thead{background:var(--off);border-bottom:1px solid var(--border);}
+.forms-table th{padding:12px 18px;text-align:left;font-size:11px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.forms-table td{padding:14px 18px;border-bottom:1px solid #f3f4f6;font-size:14px;vertical-align:middle;}
+.forms-table tbody tr:last-child td{border-bottom:none;}
+.forms-table tbody tr{transition:background 0.12s;cursor:default;}
+.forms-table tbody tr:hover{background:#fafafa;}
 
-/* Form cards */
-.forms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
-.form-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px;transition:box-shadow 0.2s,border-color 0.2s;}
-.form-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.07);border-color:var(--blue);}
-.form-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
-.form-icon{width:38px;height:38px;border-radius:10px;background:#f0f4ff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.form-menu{position:relative;}
-.form-menu-btn{width:26px;height:26px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:16px;}
-.form-menu-btn:hover{background:var(--off);}
-.form-menu-dd{display:none;position:absolute;right:0;top:30px;background:var(--white);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:20;min-width:150px;overflow:hidden;}
-.form-menu-dd.open{display:block;}
-.form-menu-item{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;color:var(--ink-muted);cursor:pointer;text-decoration:none;border:none;background:transparent;width:100%;text-align:left;font-family:inherit;}
-.form-menu-item:hover{background:var(--off);color:var(--ink);}
-.form-menu-item.danger{color:#ef4444;}
-.form-menu-item.danger:hover{background:#fef2f2;}
-.form-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;}
-.form-meta{font-size:12px;color:var(--ink-faint);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
-.form-meta-badge{background:var(--off);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
-.form-id-chip{display:inline-flex;align-items:center;gap:5px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:6px;padding:3px 9px;font-size:11px;font-family:monospace;color:#6d28d9;cursor:pointer;margin-bottom:12px;}
+.form-name-cell{font-weight:600;color:var(--ink);max-width:260px;}
+.form-name-link{color:var(--ink);text-decoration:none;}
+.form-name-link:hover{color:var(--blue);}
+.form-id-chip{display:inline-flex;align-items:center;gap:4px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:5px;padding:2px 7px;font-size:11px;font-family:monospace;color:#6d28d9;cursor:pointer;margin-top:4px;}
 .form-id-chip:hover{background:#ede9fe;}
-.form-card-actions{display:flex;gap:6px;border-top:1px solid var(--border);padding-top:12px;}
-.btn-action{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:6px 10px;border-radius:var(--radius);font-size:12px;font-weight:500;text-decoration:none;border:1px solid var(--border);background:var(--white);color:var(--blue);transition:all 0.12s;cursor:pointer;font-family:inherit;}
-.btn-action:hover{background:var(--blue-light);border-color:var(--blue);}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500;}
+.badge-blue{background:var(--blue-light);color:var(--blue);}
+.badge-green{background:#f0fdf4;color:#16a34a;}
+.td-muted{font-size:13px;color:var(--ink-muted);}
+.td-date{font-size:12px;color:var(--ink-faint);white-space:nowrap;}
 
-/* No-forms placeholder inside site group */
-.no-forms{padding:20px 16px;background:var(--off);border-radius:10px;font-size:13px;color:var(--ink-faint);text-align:center;}
+/* Row actions */
+.row-actions{display:flex;gap:6px;opacity:0;transition:opacity 0.12s;}
+.forms-table tbody tr:hover .row-actions{opacity:1;}
+.btn-row{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;border:1px solid var(--border);background:var(--white);color:var(--ink-muted);cursor:pointer;font-family:inherit;transition:all 0.12s;white-space:nowrap;}
+.btn-row:hover{background:var(--off);color:var(--ink);border-color:var(--ink-muted);}
+.btn-row.danger{color:#ef4444;border-color:#fecaca;}
+.btn-row.danger:hover{background:#fef2f2;}
 
-/* Global empty */
-.empty-state{text-align:center;padding:72px 40px;background:var(--white);border:2px dashed var(--border-md);border-radius:var(--radius-lg);}
+/* Empty state */
+.empty-state{text-align:center;padding:80px 40px;background:var(--white);border:2px dashed var(--border-md);border-radius:var(--radius-lg);}
 .empty-icon{font-size:48px;margin-bottom:18px;}
 .empty-state h3{font-family:"DM Serif Display",serif;font-size:24px;margin-bottom:10px;}
 .empty-state p{font-size:14px;color:var(--ink-muted);margin-bottom:24px;}
@@ -87,7 +72,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
   .sidebar{width:100%;height:auto;position:relative;}
   .sidebar-nav{display:flex;gap:8px;overflow-x:auto;padding:10px 12px;}
   .nav-item{margin-bottom:0;white-space:nowrap;}
-  .content{padding:24px 16px;}
+  .content{padding:20px 16px;}
+  .row-actions{opacity:1;}
 }
 </style>
 {% endblock %}
@@ -114,152 +100,87 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
   <main class="content">
     <div class="page-header">
       <div>
-        <div class="page-title">📋 Forms</div>
-        <p class="page-sub">Manage forms across all your sites</p>
+        <div class="page-title">Forms</div>
+        <p class="page-sub">Create forms once, embed them on any site</p>
       </div>
-      {% if sites.length %}
-      <div class="dropdown-wrap">
-        <button class="btn-new" onclick="toggleDropdown(this)">+ New Form ▾</button>
-        <div class="dropdown-menu" id="new-form-dd">
-          <div class="dropdown-label">Choose a site</div>
-          {% for site in sites %}
-          <a class="dropdown-item" href="/dashboard/forms/{{ site.id }}/new">
-            <div>
-              <div class="site-name">{{ site.title }}</div>
-              <div class="site-sub">{{ site.subdomain }}.{{ base_domain }}</div>
-            </div>
-          </a>
+      <a class="btn-primary" href="/dashboard/forms/new">+ Create Form</a>
+    </div>
+
+    {% if forms.length %}
+    <div class="toolbar">
+      <input class="search-input" type="text" id="form-search" placeholder="Search forms…" oninput="filterForms(this.value)">
+      <span class="count-badge" id="form-count">{{ forms.length }} form{{ 's' if forms.length != 1 }}</span>
+    </div>
+
+    <div class="forms-table-wrap">
+      <table class="forms-table" id="forms-table">
+        <thead>
+          <tr>
+            <th style="width:35%;">Name</th>
+            <th>Fields</th>
+            <th>Submissions</th>
+            <th>Created</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="forms-tbody">
+          {% for form in forms %}
+          <tr class="form-row" data-name="{{ form.name | lower }}">
+            <td class="form-name-cell">
+              <a class="form-name-link" href="/dashboard/forms/edit/{{ form.id }}">{{ form.name }}</a>
+              <br>
+              <span class="form-id-chip" onclick="copyId({{ form.id }}, this)" title="Click to copy Form ID">
+                ID: {{ form.id }} 📋
+              </span>
+            </td>
+            <td class="td-muted">
+              <span class="badge badge-blue">{{ form.fields | length if form.fields else 0 }} fields</span>
+            </td>
+            <td class="td-muted">
+              <span class="badge badge-green">{{ form.entry_count }} {{ 'entry' if form.entry_count == 1 else 'entries' }}</span>
+            </td>
+            <td class="td-date">{{ form.created_at | string | truncate(10, true, '') }}</td>
+            <td>
+              <div class="row-actions">
+                <a class="btn-row" href="/dashboard/forms/edit/{{ form.id }}">✏️ Edit</a>
+                <a class="btn-row" href="/dashboard/forms/entries/{{ form.id }}">📥 Entries</a>
+                <form method="POST" action="/dashboard/forms/delete/{{ form.id }}" style="display:inline;" onsubmit="return confirm('Delete this form and all its entries?')">
+                  <button type="submit" class="btn-row danger">🗑</button>
+                </form>
+              </div>
+            </td>
+          </tr>
           {% endfor %}
-        </div>
-      </div>
-      {% endif %}
+        </tbody>
+      </table>
     </div>
 
-    {% if totalForms > 0 %}
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-num">{{ totalForms }}</div>
-        <div class="stat-label">Total Forms</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num">{{ sites.length }}</div>
-        <div class="stat-label">Sites</div>
-      </div>
-    </div>
-    {% endif %}
-
-    {% if not sites.length %}
-    <div class="empty-state">
-      <div class="empty-icon">🌐</div>
-      <h3>No sites yet</h3>
-      <p>Create a site first, then you can add forms to it.</p>
-      <a href="/dashboard/wizard" style="display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;padding:11px 24px;border-radius:var(--radius);font-size:14px;font-weight:600;text-decoration:none;">+ Create your first site</a>
-    </div>
-    {% elif not totalForms %}
+    {% else %}
     <div class="empty-state">
       <div class="empty-icon">📋</div>
       <h3>No forms yet</h3>
-      <p>Create your first form — contact, booking, survey, or anything else.</p>
-      <div class="dropdown-wrap" style="display:inline-block;">
-        <button class="btn-new" onclick="toggleDropdown(this)">+ Create your first form ▾</button>
-        <div class="dropdown-menu" style="left:50%;transform:translateX(-50%);">
-          <div class="dropdown-label">Choose a site</div>
-          {% for site in sites %}
-          <a class="dropdown-item" href="/dashboard/forms/{{ site.id }}/new">
-            <div>
-              <div class="site-name">{{ site.title }}</div>
-              <div class="site-sub">{{ site.subdomain }}.{{ base_domain }}</div>
-            </div>
-          </a>
-          {% endfor %}
-        </div>
-      </div>
+      <p>Create a form and embed it on any of your sites using the site builder.</p>
+      <a class="btn-primary" href="/dashboard/forms/new">+ Create your first form</a>
     </div>
-    {% else %}
-    {% for group in groups %}
-    <div class="site-group">
-      <div class="site-group-header">
-        <div class="site-group-title">
-          🌐 {{ group.site.title }}
-          <a class="site-group-url" href="https://{{ group.site.subdomain }}.{{ base_domain }}" target="_blank">↗ {{ group.site.subdomain }}.{{ base_domain }}</a>
-        </div>
-        <a class="btn-add-form" href="/dashboard/forms/{{ group.site.id }}/new">+ Add Form</a>
-      </div>
-
-      {% if group.forms.length %}
-      <div class="forms-grid">
-        {% for form in group.forms %}
-        <div class="form-card">
-          <div class="form-card-top">
-            <div class="form-icon">📋</div>
-            <div class="form-menu">
-              <button class="form-menu-btn" onclick="toggleMenu(this)">⋯</button>
-              <div class="form-menu-dd">
-                <a class="form-menu-item" href="/dashboard/forms/{{ group.site.id }}/edit/{{ form.id }}">✏️ Edit</a>
-                <a class="form-menu-item" href="/dashboard/forms/{{ group.site.id }}/entries/{{ form.id }}">📥 Entries</a>
-                <a class="form-menu-item" href="/dashboard/forms/{{ group.site.id }}/entries/{{ form.id }}/export">⬇️ Export CSV</a>
-                <div style="height:1px;background:var(--border);margin:4px 0;"></div>
-                <form method="POST" action="/dashboard/forms/{{ group.site.id }}/delete/{{ form.id }}" onsubmit="return confirm('Delete this form and all its entries?')">
-                  <button type="submit" class="form-menu-item danger">🗑 Delete</button>
-                </form>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-name">{{ form.name }}</div>
-          <div class="form-meta">
-            <span class="form-meta-badge">📥 {{ form.entry_count }} {{ 'entry' if form.entry_count == 1 else 'entries' }}</span>
-            <span>{{ form.fields | length if form.fields else 0 }} fields</span>
-          </div>
-
-          <div>
-            <div style="font-size:11px;color:var(--ink-faint);margin-bottom:4px;">Form ID</div>
-            <div class="form-id-chip" onclick="copyId({{ form.id }}, this)">
-              <span>ID: {{ form.id }}</span>
-              <span style="font-size:10px;opacity:0.6;">📋</span>
-            </div>
-          </div>
-
-          <div class="form-card-actions">
-            <a class="btn-action" href="/dashboard/forms/{{ group.site.id }}/edit/{{ form.id }}">✏️ Edit</a>
-            <a class="btn-action" href="/dashboard/forms/{{ group.site.id }}/entries/{{ form.id }}">📥 Entries</a>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      {% else %}
-      <div class="no-forms">
-        No forms for this site yet. <a href="/dashboard/forms/{{ group.site.id }}/new" style="color:var(--blue);font-weight:500;">Add one →</a>
-      </div>
-      {% endif %}
-    </div>
-    {% endfor %}
     {% endif %}
   </main>
 </div>
 
 <script>
-function toggleDropdown(btn) {
-  const dd = document.getElementById('new-form-dd') || btn.nextElementSibling;
-  dd.classList.toggle('open');
-}
-document.addEventListener('click', e => {
-  if (!e.target.closest('.dropdown-wrap')) {
-    document.querySelectorAll('.dropdown-menu.open').forEach(d => d.classList.remove('open'));
-  }
-  if (!e.target.closest('.form-menu')) {
-    document.querySelectorAll('.form-menu-dd.open').forEach(d => d.classList.remove('open'));
-  }
-});
-function toggleMenu(btn) {
-  const dd = btn.nextElementSibling;
-  document.querySelectorAll('.form-menu-dd.open').forEach(d => { if (d !== dd) d.classList.remove('open'); });
-  dd.classList.toggle('open');
+function filterForms(q) {
+  const rows = document.querySelectorAll('.form-row');
+  let visible = 0;
+  rows.forEach(r => {
+    const match = r.dataset.name.includes(q.toLowerCase());
+    r.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+  document.getElementById('form-count').textContent = visible + ' form' + (visible !== 1 ? 's' : '');
 }
 function copyId(id, el) {
   navigator.clipboard.writeText(String(id)).then(() => {
     const orig = el.innerHTML;
-    el.innerHTML = '<span>✓ Copied!</span>';
+    el.innerHTML = '✓ Copied!';
     setTimeout(() => { el.innerHTML = orig; }, 1500);
   });
 }

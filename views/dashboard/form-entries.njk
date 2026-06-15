@@ -64,9 +64,7 @@ td.td-actions{width:60px;}
     <a class="sidebar-logo" href="/dashboard">page<em>zaper</em></a>
     <nav class="sidebar-nav">
       <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
-      <a class="nav-item" href="/dashboard/site/builder?id={{ site.id }}">🔨 Builder</a>
-      <a class="nav-item active" href="/dashboard/forms/{{ site.id }}">📋 Forms</a>
-      <a class="nav-item" href="/dashboard/blog/{{ site.id }}">✍️ Blog</a>
+      <a class="nav-item active" href="/dashboard/forms">📋 Forms</a>
       <a class="nav-item" href="/dashboard/settings">⚙️ Settings</a>
     </nav>
     <div class="sidebar-bottom">
@@ -79,14 +77,14 @@ td.td-actions{width:60px;}
     <div class="page-header">
       <div>
         <div style="font-size:13px;color:var(--ink-faint);margin-bottom:6px;">
-          <a href="/dashboard/forms/{{ site.id }}" style="color:var(--blue);text-decoration:none;">Forms</a> /
+          <a href="/dashboard/forms" style="color:var(--blue);text-decoration:none;">Forms</a> /
         </div>
         <h1 class="page-title">📥 {{ form.name }}</h1>
         <p class="page-sub">{{ site.title }} · Form ID: <code style="background:#f3f4f6;padding:1px 6px;border-radius:4px;font-size:12px;">{{ form.id }}</code></p>
       </div>
       <div class="header-actions">
-        <a class="btn btn-ghost" href="/dashboard/forms/{{ site.id }}/edit/{{ form.id }}">✏️ Edit Form</a>
-        <a class="btn btn-ghost" href="/dashboard/forms/{{ site.id }}/entries/{{ form.id }}/export">⬇️ Export CSV</a>
+        <a class="btn btn-ghost" href="/dashboard/forms/edit/{{ form.id }}">✏️ Edit Form</a>
+        <a class="btn btn-ghost" href="/dashboard/forms/entries/{{ form.id }}/export">⬇️ Export CSV</a>
       </div>
     </div>
 

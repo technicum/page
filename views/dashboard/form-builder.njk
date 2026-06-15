@@ -118,7 +118,7 @@ body{overflow:hidden;background:#f4f4f5;margin:0;font-family:"DM Sans",sans-seri
 {% block body %}
 <div class="topbar">
   <div class="tb-left">
-    <a class="tb-back" href="/dashboard/forms/{{ site.id }}">← Forms</a>
+    <a class="tb-back" href="/dashboard/forms">← Forms</a>
     <div class="tb-divider"></div>
     <span class="tb-title">{{ site.title }}</span>
   </div>
@@ -241,7 +241,6 @@ body{overflow:hidden;background:#f4f4f5;margin:0;font-family:"DM Sans",sans-seri
 </div>
 
 <script>
-const SITE_ID = {{ site.id }};
 const FORM_ID = {{ form.id if form else 'null' }};
 const FIELD_META = {
   text:     { icon:'📝', label:'Short Text',   inputType:'text',     hasOptions:false },
@@ -564,9 +563,9 @@ async function saveForm() {
   try {
     let url, method;
     if (FORM_ID) {
-      url = `/dashboard/forms/${SITE_ID}/edit/${FORM_ID}`;
+      url = `/dashboard/forms/edit/${FORM_ID}`;
     } else {
-      url = `/dashboard/forms/${SITE_ID}/new`;
+      url = `/dashboard/forms/new`;
     }
     const r = await fetch(url, {
       method: 'POST',
@@ -578,7 +577,7 @@ async function saveForm() {
       markSaved();
       // If newly created, redirect to edit URL to get form ID in URL
       if (!FORM_ID && d.id) {
-        window.location.href = `/dashboard/forms/${SITE_ID}/edit/${d.id}`;
+        window.location.href = `/dashboard/forms/edit/${d.id}`;
       }
     } else {
       alert('Save failed — please try again.');

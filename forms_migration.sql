@@ -1,3 +1,8 @@
+-- !! RUN THIS FIRST to make forms account-level !!
+ALTER TABLE `ms_forms` DROP FOREIGN KEY `ms_forms_site_fk`;
+ALTER TABLE `ms_forms` MODIFY COLUMN `site_id` INT(11) NULL DEFAULT NULL;
+
+-- ── Original table creation (for fresh installs) ─────────────────────────────
 -- Forms Module Migration
 -- Run this in phpMyAdmin or via MySQL CLI
 
