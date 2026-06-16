@@ -63,14 +63,16 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .btn-upload:hover{background:#eef2ff;border-color:#c7d2fe;color:#6366f1;}
 
 /* ── Color field ─────────────────────────────────────────────────────── */
-.color-row{display:flex;flex-direction:column;gap:8px;}
+.color-row{display:flex;flex-direction:column;gap:10px;}
 .color-preview-row{display:flex;align-items:center;gap:8px;}
-.color-thumb{width:36px;height:36px;border-radius:8px;border:1px solid #e5e7eb;flex-shrink:0;cursor:pointer;}
+.color-thumb{width:36px;height:36px;border-radius:8px;border:1px solid #e5e7eb;flex-shrink:0;cursor:pointer;position:relative;}
 .color-hex{flex:1;}
-.swatches{display:flex;gap:5px;flex-wrap:wrap;}
-.swatch{width:22px;height:22px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:transform 0.1s;flex-shrink:0;}
-.swatch:hover{transform:scale(1.15);}
-.swatch.selected{border-color:#1f2937;}
+.palette-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.pal-chip{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 4px;border-radius:8px;border:2px solid transparent;transition:all 0.15s;background:transparent;}
+.pal-chip:hover{background:#f9fafb;}
+.pal-chip.selected{border-color:#6366f1;background:#eef2ff;}
+.pal-dot{width:28px;height:28px;border-radius:50%;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.15);}
+.pal-name{font-size:9px;font-weight:600;color:#6b7280;text-align:center;line-height:1.2;}
 
 /* ── Repeater ────────────────────────────────────────────────────────── */
 .rep-header{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
@@ -100,8 +102,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .preview-toolbar{position:absolute;top:12px;right:14px;display:flex;gap:6px;z-index:10;}
 .ptb-btn{padding:5px 11px;background:rgba(255,255,255,0.95);border:1px solid rgba(0,0,0,0.1);border-radius:7px;font-size:11px;font-weight:600;color:#374151;cursor:pointer;font-family:inherit;transition:all 0.15s;backdrop-filter:blur(4px);}
 .ptb-btn:hover{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.12);}
-.phone-frame{width:240px;height:480px;border-radius:38px;border:10px solid #1c1c1e;box-shadow:0 24px 64px rgba(0,0,0,0.35),0 0 0 1px rgba(255,255,255,0.06) inset;overflow:hidden;background:#fff;position:relative;flex-shrink:0;}
-.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:80px;height:20px;background:#1c1c1e;border-radius:0 0 14px 14px;z-index:10;pointer-events:none;}
+.phone-frame{width:320px;height:min(640px,calc(100vh - 120px));border-radius:42px;border:12px solid #1c1c1e;box-shadow:0 24px 64px rgba(0,0,0,0.35),0 0 0 1px rgba(255,255,255,0.06) inset;overflow:hidden;background:#fff;position:relative;flex-shrink:0;}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:90px;height:22px;background:#1c1c1e;border-radius:0 0 14px 14px;z-index:10;pointer-events:none;}
 .phone-frame iframe{width:100%;height:100%;border:none;display:block;}
 .preview-loading{position:absolute;inset:0;background:rgba(232,232,237,0.7);display:flex;align-items:center;justify-content:center;font-size:12px;color:#9ca3af;pointer-events:none;opacity:0;transition:opacity 0.2s;}
 .preview-loading.show{opacity:1;}
@@ -309,10 +311,18 @@ function triggerUpload(cb) {
   document.getElementById('hiddenFileInput').click();
 }
 
-// ── Color swatches ────────────────────────────────────────────────────────────
-var SWATCHES = [
-  '#e11d48','#6366f1','#f97316','#0ea5e9','#16a34a',
-  '#7c3aed','#0f766e','#db2777','#ca8a04','#374151'
+// ── Named color palette ───────────────────────────────────────────────────────
+var PALETTE = [
+  { name: 'Rose',    hex: '#e11d48' },
+  { name: 'Violet',  hex: '#6366f1' },
+  { name: 'Orange',  hex: '#f97316' },
+  { name: 'Sky',     hex: '#0ea5e9' },
+  { name: 'Green',   hex: '#16a34a' },
+  { name: 'Purple',  hex: '#7c3aed' },
+  { name: 'Teal',    hex: '#0f766e' },
+  { name: 'Pink',    hex: '#db2777' },
+  { name: 'Amber',   hex: '#d97706' },
+  { name: 'Slate',   hex: '#475569' }
 ];
 
 // ── Field builders ────────────────────────────────────────────────────────────
@@ -364,24 +374,27 @@ function buildColorField(secId, field) {
   var wrap = document.createElement('div');
   wrap.className = 'color-row';
 
+  var curVal = S[secId][field.id] || field.default || '#6366f1';
+
+  // Preview row: colour thumb + hex input
   var row = document.createElement('div');
   row.className = 'color-preview-row';
 
   var thumb = document.createElement('div');
   thumb.className = 'color-thumb';
-  var curVal = S[secId][field.id] || field.default || '#6366f1';
   thumb.style.background = curVal;
 
-  // Hidden native color input triggered by thumb click
   var nativeInp = document.createElement('input');
   nativeInp.type = 'color';
   nativeInp.value = curVal;
   nativeInp.style.cssText = 'position:absolute;opacity:0;width:0;height:0;pointer-events:none;';
   thumb.appendChild(nativeInp);
+  thumb.title = 'Custom colour';
   thumb.onclick = function() { nativeInp.click(); };
 
   var hexInp = document.createElement('input');
   hexInp.className = 'fg-input color-hex';
+  hexInp.placeholder = '#000000';
   hexInp.value = curVal;
 
   function setColor(val) {
@@ -390,35 +403,47 @@ function buildColorField(secId, field) {
     nativeInp.value = val;
     hexInp.value = val;
     S[secId][field.id] = val;
-    // Update swatch selection
-    wrap.querySelectorAll('.swatch').forEach(function(sw) {
-      sw.classList.toggle('selected', sw.dataset.color === val);
+    // Update palette selection
+    wrap.querySelectorAll('.pal-chip').forEach(function(c) {
+      c.classList.toggle('selected', c.dataset.hex === val);
     });
     markDirty(); debouncedPreview();
   }
 
   nativeInp.addEventListener('input', function() { setColor(this.value); });
   hexInp.addEventListener('input', function() {
-    if (/^#[0-9a-fA-F]{3,6}$/.test(this.value)) setColor(this.value);
+    if (/^#[0-9a-fA-F]{6}$/.test(this.value)) setColor(this.value);
   });
 
   row.appendChild(thumb);
   row.appendChild(hexInp);
 
-  var swatchRow = document.createElement('div');
-  swatchRow.className = 'swatches';
-  SWATCHES.forEach(function(color) {
-    var sw = document.createElement('div');
-    sw.className = 'swatch' + (curVal === color ? ' selected' : '');
-    sw.style.background = color;
-    sw.dataset.color = color;
-    sw.title = color;
-    sw.onclick = function() { setColor(color); };
-    swatchRow.appendChild(sw);
+  // Named palette grid
+  var grid = document.createElement('div');
+  grid.className = 'palette-grid';
+
+  PALETTE.forEach(function(p) {
+    var chip = document.createElement('div');
+    chip.className = 'pal-chip' + (curVal === p.hex ? ' selected' : '');
+    chip.dataset.hex = p.hex;
+    chip.title = p.name;
+
+    var dot = document.createElement('div');
+    dot.className = 'pal-dot';
+    dot.style.background = p.hex;
+
+    var name = document.createElement('div');
+    name.className = 'pal-name';
+    name.textContent = p.name;
+
+    chip.appendChild(dot);
+    chip.appendChild(name);
+    chip.onclick = function() { setColor(p.hex); };
+    grid.appendChild(chip);
   });
 
   wrap.appendChild(row);
-  wrap.appendChild(swatchRow);
+  wrap.appendChild(grid);
   fg.appendChild(wrap);
   return fg;
 }

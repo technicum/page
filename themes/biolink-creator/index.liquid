@@ -31,6 +31,7 @@
 
   <!-- Social row -->
   {% assign s = settings.socials %}
+  {% if s.youtube or s.instagram or s.tiktok or s.twitter or s.spotify %}
   <div class="social-row">
     {% if s.youtube %}<a class="soc-pill" href="{{ s.youtube }}" target="_blank">▶️ YouTube</a>{% endif %}
     {% if s.instagram %}<a class="soc-pill" href="{{ s.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
@@ -38,6 +39,7 @@
     {% if s.twitter %}<a class="soc-pill" href="{{ s.twitter }}" target="_blank">𝕏 Twitter</a>{% endif %}
     {% if s.spotify %}<a class="soc-pill" href="{{ s.spotify }}" target="_blank">🎧 Spotify</a>{% endif %}
   </div>
+  {% endif %}
 
   <div class="body">
 
@@ -81,6 +83,19 @@
     {% endif %}
 
   </div>
+
+  <!-- Share -->
+  <div class="share-bar">
+    <button class="share-btn" onclick="pzShare()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Share this page
+    </button>
+    <div class="share-toast" id="pzToast">✓ Link copied!</div>
+  </div>
+
 </div>
+<script>
+function pzShare(){var u=location.href,t=document.title;if(navigator.share){navigator.share({title:t,url:u});}else{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
+</script>
 </body>
 </html>
