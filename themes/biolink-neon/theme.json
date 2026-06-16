@@ -87,6 +87,7 @@
       "fields": [
         { "id": "heading",      "label": "Section Heading",            "type": "text", "default": "Products & Services" },
         { "id": "display_mode", "label": "Display Mode (grid/slider)", "type": "text", "default": "grid" },
+        { "id": "auto_scroll",  "label": "Auto Scroll (yes/no)",       "type": "text", "default": "no" },
         { "id": "wa_phone",     "label": "WhatsApp Order Number",      "type": "tel",  "default": "" },
         {
           "id": "items", "label": "Products", "type": "list",

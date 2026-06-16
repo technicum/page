@@ -97,7 +97,68 @@
   {% elsif section.id == 'products' %}
   {% if f.items.size > 0 %}
   <div class="section-divider">{{ f.heading | default: 'Products & Services' }}</div>
-  <div class="{% if f.display_mode == 'slider' %}products-slider{% else %}products-grid{% endif %}">
+  {% if f.display_mode == 'slider' %}
+  <div class="pz-slider-wrap" id="pzSlider">
+    <div class="pz-slider-track" id="pzSliderTrack">
+      {% for item in f.items %}
+      <div class="product-card">
+        {% if item.image != '' and item.image != nil %}
+        <img class="product-img" src="{{ item.image }}" alt="{{ item.name }}">
+        {% else %}
+        <div class="product-emoji-box">{{ item.emoji | default: '📦' }}</div>
+        {% endif %}
+        <div class="product-info">
+          <div class="product-name">{{ item.name }}</div>
+          {% if item.desc != '' and item.desc != nil %}<div class="product-desc">{{ item.desc }}</div>{% endif %}
+          <div class="product-price">{{ item.price }}</div>
+        </div>
+        <button class="product-btn" onclick="pzAddToCart('{{ item.name }}','{{ item.price }}','{{ item.emoji | default: '📦' }}','{{ f.wa_phone }}')">Add to Cart</button>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="pz-slider-arrows">
+      <button class="pz-slider-arrow" id="pzPrev" onclick="pzSlide(-1)">‹</button>
+      <button class="pz-slider-arrow" id="pzNext" onclick="pzSlide(1)">›</button>
+    </div>
+  </div>
+  <div class="pz-slider-dots" id="pzDots"></div>
+  <script>
+  (function(){
+    var track=document.getElementById('pzSliderTrack');
+    var wrap=document.getElementById('pzSlider');
+    var dotsEl=document.getElementById('pzDots');
+    var cards=track.querySelectorAll('.product-card');
+    var total=cards.length;
+    var cur=0;
+    var autoScroll={{ f.auto_scroll == 'yes' }};
+    var timer=null;
+    function getW(){return wrap.offsetWidth;}
+    function go(n){
+      cur=(n+total)%total;
+      track.style.transform='translateX(-'+(cur*(getW()*0.85+12))+'px)';
+      dotsEl.querySelectorAll('.pz-slider-dot').forEach(function(d,i){d.classList.toggle('active',i===cur);});
+    }
+    window.pzSlide=function(d){go(cur+d);if(timer){clearInterval(timer);startAuto();}};
+    for(var i=0;i<total;i++){
+      var dot=document.createElement('button');
+      dot.className='pz-slider-dot'+(i===0?' active':'');
+      dot.dataset.i=i;
+      dot.onclick=(function(idx){return function(){go(idx);if(timer){clearInterval(timer);startAuto();}}})(i);
+      dotsEl.appendChild(dot);
+    }
+    var tx=0;
+    track.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});
+    track.addEventListener('touchend',function(e){
+      var dx=e.changedTouches[0].clientX-tx;
+      if(Math.abs(dx)>40){pzSlide(dx<0?1:-1);}
+    },{passive:true});
+    function startAuto(){if(autoScroll){timer=setInterval(function(){go(cur+1);},3000);}}
+    startAuto();
+    go(0);
+  })();
+  </script>
+  {% else %}
+  <div class="products-grid">
     {% for item in f.items %}
     <div class="product-card">
       {% if item.image != '' and item.image != nil %}<img class="product-img" src="{{ item.image }}" alt="{{ item.name }}">
@@ -111,6 +172,7 @@
     </div>
     {% endfor %}
   </div>
+  {% endif %}
   <div class="pz-cart" id="pzCart"><div class="pz-cart-hdr"><span>🛒 Your Order</span><button class="pz-cart-close" onclick="pzCloseCart()">✕</button></div><div id="pzCartItems" class="pz-cart-items"></div><div class="pz-cart-footer"><div id="pzCartTotal" class="pz-cart-total"></div><button class="pz-cart-order" onclick="pzOrderWA()">📲 Order on WhatsApp</button></div></div>
   <button class="pz-cart-fab" id="pzCartFab" onclick="pzOpenCart()">🛒<span class="pz-cart-fab-badge" id="pzCartBadge">0</span></button>
   <div class="pz-overlay" id="pzOverlay" onclick="pzCloseCart()"></div>

@@ -208,6 +208,13 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
           <button id="dm-slider" onclick="setDisplayMode('slider')" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.4);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">▶ Slider</button>
         </div>
       </div>
+      <div class="fg" id="autoScrollRow" style="display:none;">
+        <label class="fg-label">Auto Scroll</label>
+        <div style="display:flex;gap:8px;">
+          <button id="as-no"  onclick="setAutoScroll('no')"  style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(99,102,241,0.3);color:#a5b4fc;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">✕ Off</button>
+          <button id="as-yes" onclick="setAutoScroll('yes')" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.4);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">▶ On</button>
+        </div>
+      </div>
       <div class="fg">
         <label class="fg-label">📲 WhatsApp Order Number</label>
         <input class="fg-input" id="f-prod-wa" type="text" placeholder="+91 98765 43210" oninput="shop.wa_phone=this.value;dirty();debouncedPreview()">
@@ -389,7 +396,7 @@ let profile  = savedFields('profile',      {avatar_emoji:'✨',avatar_url:'',nam
 let links    = Array.from(savedFields('links', {items:[]}).items || []);
 let socials  = savedFields('socials',      {instagram:'',youtube:'',twitter:'',tiktok:'',linkedin:'',github:''});
 let contact  = savedFields('contact_card', {phone:'',email:'',website:'',address:'',maps_url:'',save_label:'💾 Save Contact'});
-let shop     = savedFields('products',     {heading:'Products & Services',display_mode:'grid',wa_phone:'',items:[]});
+let shop     = savedFields('products',     {heading:'Products & Services',display_mode:'grid',auto_scroll:'no',wa_phone:'',items:[]});
 let shopItems = Array.from(shop.items || []);
 let upi      = savedFields('upi_pay',      {upi_id:'',display_name:'',amount:'',btn_label:'💳 Pay with UPI'});
 let formEmbed = savedFields('form_embed', {form_id:'',heading:'',subheading:''});
@@ -415,6 +422,7 @@ function init() {
   setv('f-prod-heading', shop.heading);
   setv('f-prod-wa',      shop.wa_phone);
   setDisplayMode(shop.display_mode || 'grid', true);
+  setAutoScroll(shop.auto_scroll || 'no', true);
   setv('f-upi-id',       upi.upi_id);
   setv('f-upi-name',     upi.display_name);
   setv('f-upi-amount',   upi.amount);
@@ -529,11 +537,25 @@ function setDisplayMode(mode, silent) {
   shop.display_mode = mode;
   const gBtn = document.getElementById('dm-grid');
   const sBtn = document.getElementById('dm-slider');
+  const asRow = document.getElementById('autoScrollRow');
   if (gBtn && sBtn) {
     const on  = 'flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(99,102,241,0.3);color:#a5b4fc;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;';
     const off = 'flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.4);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;';
     gBtn.style.cssText = mode === 'grid'   ? on : off;
     sBtn.style.cssText = mode === 'slider' ? on : off;
+  }
+  if (asRow) asRow.style.display = mode === 'slider' ? '' : 'none';
+  if (!silent) { dirty(); debouncedPreview(); }
+}
+function setAutoScroll(val, silent) {
+  shop.auto_scroll = val;
+  const noBtn  = document.getElementById('as-no');
+  const yesBtn = document.getElementById('as-yes');
+  if (noBtn && yesBtn) {
+    const on  = 'flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(99,102,241,0.3);color:#a5b4fc;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;';
+    const off = 'flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.4);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;';
+    noBtn.style.cssText  = val === 'no'  ? on : off;
+    yesBtn.style.cssText = val === 'yes' ? on : off;
   }
   if (!silent) { dirty(); debouncedPreview(); }
 }
