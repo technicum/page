@@ -169,17 +169,16 @@ exports.builderSave = async (req, res) => {
 
 exports.biolinkSave = async (req, res) => {
   const user = req.session.user
-  const { site_id, sections, theme, biolink_theme } = req.body
+  const { site_id, settings: newSettings } = req.body
 
   const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [site_id, user.id])
   if (!site) return res.json({ ok: false })
 
-  const settings         = JSON.parse(site.settings || '{}')
-  settings.theme         = theme         || settings.theme         || 'violet'
-  settings.biolink_theme = biolink_theme || settings.biolink_theme || 'light'
-  settings.sections      = JSON.parse(sections || '[]')
+  // Merge new settings over existing (preserve template_id, site_type, etc.)
+  const existing = JSON.parse(site.settings || '{}')
+  const merged   = Object.assign({}, existing, newSettings)
 
-  await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
+  await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?', [JSON.stringify(merged), site_id])
   res.json({ ok: true })
 }
 

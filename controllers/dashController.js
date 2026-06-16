@@ -93,12 +93,18 @@ exports.biolinkBuilder = async (req, res) => {
   const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.redirect('/dashboard')
 
-  const settings = JSON.parse(site.settings || '{}')
+  const settings  = JSON.parse(site.settings || '{}')
+  const themeSlug = settings.template_id || site.template_id || 'biolink-creator'
+  const themeData = themeManager.loadTheme(themeSlug)
+  const sections  = themeData ? (themeData.sections || []) : []
+
   res.render('dashboard/biolink-builder.njk', {
     title:      'Bio Link Editor',
     user,
     site,
     settings,
+    sections,
+    themeSlug,
     baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
   })
 }
