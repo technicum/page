@@ -5,76 +5,107 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>{{ site.title }} — Bio Link Editor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden;color:#1a1a1a;}
 
-/* Topbar */
-.topbar{display:flex;align-items:center;gap:10px;height:46px;background:#0f0f1a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:300;}
-.tb-back{font-size:12px;color:rgba(255,255,255,0.45);text-decoration:none;padding:5px 10px;border-radius:6px;transition:all 0.15s;}
-.tb-back:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.7);}
-.tb-sep{width:1px;height:16px;background:rgba(255,255,255,0.1);flex-shrink:0;}
-.tb-title{font-size:13px;font-weight:500;color:#fff;}
-.tb-url{font-size:11px;color:rgba(255,255,255,0.3);text-decoration:none;padding:4px 8px;border-radius:5px;transition:all 0.15s;}
-.tb-url:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);}
-.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
-.tb-status{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.3);}
-.status-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);transition:background 0.3s;}
-.status-dot.dirty{background:#f59e0b;}
-.status-dot.saved{background:#22c55e;}
-.btn-save{padding:7px 16px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
-.btn-save:hover{background:#6d28d9;}
-.btn-save:disabled{opacity:0.5;cursor:not-allowed;}
+/* ── Topbar ──────────────────────────────────────────────────────────── */
+.topbar{display:flex;align-items:center;gap:10px;height:48px;background:#fff;border-bottom:1px solid #e5e7eb;padding:0 16px;position:fixed;top:0;left:0;right:0;z-index:300;}
+.tb-back{font-size:12px;color:#6b7280;text-decoration:none;padding:5px 10px;border-radius:7px;border:1px solid #e5e7eb;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
+.tb-back:hover{background:#f9fafb;color:#374151;}
+.tb-sep{width:1px;height:18px;background:#e5e7eb;flex-shrink:0;}
+.tb-site{font-size:13px;font-weight:600;color:#111827;}
+.tb-url{font-size:11px;color:#6366f1;padding:4px 9px;border-radius:6px;background:#eef2ff;text-decoration:none;transition:opacity 0.15s;}
+.tb-url:hover{opacity:0.75;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.tb-theme-sel{font-size:12px;padding:6px 10px;border-radius:7px;background:#f9fafb;color:#374151;border:1px solid #e5e7eb;cursor:pointer;outline:none;}
+.save-status{display:flex;align-items:center;gap:5px;font-size:11px;color:#9ca3af;}
+.save-dot{width:6px;height:6px;border-radius:50%;background:#d1d5db;transition:background 0.3s;}
+.save-dot.dirty{background:#f59e0b;}
+.save-dot.saved{background:#22c55e;}
+.btn-publish{padding:7px 18px;background:#6366f1;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.btn-publish:hover{background:#4f46e5;}
+.btn-publish:disabled{opacity:0.5;cursor:not-allowed;}
 
-/* Layout */
-.main{display:flex;height:calc(100vh - 46px);margin-top:46px;}
+/* ── Main layout ─────────────────────────────────────────────────────── */
+.main{display:flex;height:calc(100vh - 48px);margin-top:48px;}
 
-/* Editor */
-.editor{width:320px;flex-shrink:0;background:#1e1e2e;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(255,255,255,0.07);}
-.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;overflow-x:auto;}
-.tabs::-webkit-scrollbar{display:none;}
-.tab{padding:11px 10px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;border:none;font-family:inherit;color:rgba(255,255,255,0.35);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;white-space:nowrap;flex-shrink:0;}
-.tab:hover{color:rgba(255,255,255,0.6);}
-.tab.active{color:#818cf8;border-bottom-color:#6366f1;}
-.tab-pane{display:none;flex:1;overflow-y:auto;padding:16px 14px 80px;}
-.tab-pane::-webkit-scrollbar{width:3px;}
-.tab-pane::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
-.tab-pane.active{display:block;}
+/* ── Icon sidebar ────────────────────────────────────────────────────── */
+.sidenav{width:60px;flex-shrink:0;background:#fff;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:2px;overflow-y:auto;}
+.snav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 5px;border-radius:8px;cursor:pointer;width:50px;font-size:9px;font-weight:600;color:#9ca3af;text-align:center;transition:all 0.15s;border:none;background:transparent;font-family:inherit;}
+.snav-item:hover{background:#f5f5ff;color:#6366f1;}
+.snav-item.active{background:#eef2ff;color:#6366f1;}
+.snav-icon{font-size:18px;line-height:1;}
 
-/* Fields */
+/* ── Editor panel ────────────────────────────────────────────────────── */
+.editor{width:290px;flex-shrink:0;background:#fff;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;overflow:hidden;}
+.editor-head{padding:14px 16px 12px;border-bottom:1px solid #f3f4f6;flex-shrink:0;}
+.editor-head-title{font-size:14px;font-weight:600;color:#111827;margin-bottom:2px;}
+.editor-head-sub{font-size:11px;color:#9ca3af;}
+.editor-scroll{flex:1;overflow-y:auto;padding:16px 16px 100px;}
+.editor-scroll::-webkit-scrollbar{width:3px;}
+.editor-scroll::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:2px;}
+
+/* ── Fields ──────────────────────────────────────────────────────────── */
 .fg{margin-bottom:14px;}
-.fg-label{display:block;font-size:10px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:5px;letter-spacing:0.5px;text-transform:uppercase;}
-.fg-input{width:100%;padding:8px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-size:13px;font-family:inherit;color:#e5e7eb;background:rgba(255,255,255,0.06);outline:none;transition:border-color 0.15s;}
-.fg-input:focus{border-color:#6366f1;}
-.fg-textarea{min-height:72px;resize:vertical;line-height:1.55;}
-.fg-color{display:flex;align-items:center;gap:8px;}
-.fg-color input[type=color]{width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:2px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);}
+.fg-label{display:block;font-size:10px;font-weight:600;color:#9ca3af;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;}
+.fg-input{width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;color:#1f2937;background:#fff;outline:none;transition:border-color 0.15s;font-family:inherit;}
+.fg-input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.08);}
+.fg-textarea{min-height:70px;resize:vertical;line-height:1.5;}
 
-/* Image field */
+/* ── Image field ─────────────────────────────────────────────────────── */
 .img-field{display:flex;gap:8px;align-items:center;}
-.img-field .fg-input{flex:1;}
-.btn-img-upload{padding:8px 10px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:6px;color:#818cf8;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;}
-.btn-img-upload:hover{background:rgba(99,102,241,0.25);}
+.img-thumb{width:40px;height:40px;border-radius:8px;background:#f3f4f6;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;flex-shrink:0;}
+.img-thumb img{width:100%;height:100%;object-fit:cover;}
+.img-inputs{flex:1;display:flex;flex-direction:column;gap:5px;}
+.btn-upload{padding:5px 9px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;font-size:11px;font-weight:600;color:#374151;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.15s;}
+.btn-upload:hover{background:#eef2ff;border-color:#c7d2fe;color:#6366f1;}
 
-/* Repeater */
-.repeater-items{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
-.rep-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:10px;}
-.rep-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;cursor:pointer;}
-.rep-item-title{font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);}
-.rep-item-del{background:transparent;border:none;color:rgba(255,255,255,0.2);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:all 0.15s;}
-.rep-item-del:hover{background:rgba(239,68,68,0.15);color:#fca5a5;}
-.btn-add-item{width:100%;padding:9px;border:1px dashed rgba(99,102,241,0.35);border-radius:8px;background:rgba(99,102,241,0.06);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;margin-top:4px;}
-.btn-add-item:hover{background:rgba(99,102,241,0.14);}
+/* ── Color field ─────────────────────────────────────────────────────── */
+.color-row{display:flex;flex-direction:column;gap:8px;}
+.color-preview-row{display:flex;align-items:center;gap:8px;}
+.color-thumb{width:36px;height:36px;border-radius:8px;border:1px solid #e5e7eb;flex-shrink:0;cursor:pointer;}
+.color-hex{flex:1;}
+.swatches{display:flex;gap:5px;flex-wrap:wrap;}
+.swatch{width:22px;height:22px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:transform 0.1s;flex-shrink:0;}
+.swatch:hover{transform:scale(1.15);}
+.swatch.selected{border-color:#1f2937;}
 
-/* Section divider */
-.sec-divider{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.2);margin:16px 0 10px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);}
+/* ── Repeater ────────────────────────────────────────────────────────── */
+.rep-header{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.rep-title{font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;flex:1;}
+.btn-add-item{padding:5px 10px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:6px;font-size:11px;font-weight:600;color:#6366f1;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all 0.15s;}
+.btn-add-item:hover{background:#e0e7ff;}
+.rep-list{display:flex;flex-direction:column;gap:6px;margin-bottom:4px;}
+.rep-card{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;}
+.rep-card-head{display:flex;align-items:center;gap:6px;padding:9px 10px;cursor:pointer;}
+.rep-drag{font-size:12px;color:#d1d5db;cursor:grab;flex-shrink:0;}
+.rep-card-label{font-size:12px;font-weight:500;color:#374151;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rep-toggle{font-size:11px;color:#9ca3af;padding:2px 5px;border-radius:4px;border:none;background:transparent;cursor:pointer;font-family:inherit;transition:color 0.15s;}
+.rep-toggle:hover{color:#6366f1;}
+.rep-del{font-size:11px;color:#d1d5db;padding:2px 5px;border-radius:4px;border:none;background:transparent;cursor:pointer;font-family:inherit;transition:color 0.15s;}
+.rep-del:hover{color:#ef4444;}
+.rep-card-body{padding:10px 10px 12px;border-top:1px solid #e5e7eb;display:none;}
+.rep-card-body.open{display:block;}
+.rep-card-body .fg{margin-bottom:10px;}
+.rep-card-body .fg:last-child{margin-bottom:0;}
+.rep-card-body .fg-input{background:#fff;}
 
-/* Preview */
-.preview-area{flex:1;background:#e8e8ec;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.phone-frame{width:360px;height:720px;border-radius:48px;border:10px solid #1a1a18;box-shadow:0 0 0 1px rgba(255,255,255,0.05) inset,0 28px 80px rgba(0,0,0,0.45);overflow:hidden;background:#fff;position:relative;flex-shrink:0;}
-.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:26px;background:#1a1a18;border-radius:0 0 18px 18px;z-index:10;}
+/* ── Section divider ─────────────────────────────────────────────────── */
+.sec-divider{height:1px;background:#f3f4f6;margin:16px 0 14px;}
+
+/* ── Preview ─────────────────────────────────────────────────────────── */
+.preview-area{flex:1;background:#e8e8ed;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.preview-toolbar{position:absolute;top:12px;right:14px;display:flex;gap:6px;z-index:10;}
+.ptb-btn{padding:5px 11px;background:rgba(255,255,255,0.95);border:1px solid rgba(0,0,0,0.1);border-radius:7px;font-size:11px;font-weight:600;color:#374151;cursor:pointer;font-family:inherit;transition:all 0.15s;backdrop-filter:blur(4px);}
+.ptb-btn:hover{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.12);}
+.phone-frame{width:240px;height:480px;border-radius:38px;border:10px solid #1c1c1e;box-shadow:0 24px 64px rgba(0,0,0,0.35),0 0 0 1px rgba(255,255,255,0.06) inset;overflow:hidden;background:#fff;position:relative;flex-shrink:0;}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:80px;height:20px;background:#1c1c1e;border-radius:0 0 14px 14px;z-index:10;pointer-events:none;}
 .phone-frame iframe{width:100%;height:100%;border:none;display:block;}
+.preview-loading{position:absolute;inset:0;background:rgba(232,232,237,0.7);display:flex;align-items:center;justify-content:center;font-size:12px;color:#9ca3af;pointer-events:none;opacity:0;transition:opacity 0.2s;}
+.preview-loading.show{opacity:1;}
+.preview-hint{position:absolute;bottom:14px;font-size:10px;color:#9ca3af;letter-spacing:0.3px;}
 </style>
 </head>
 <body>
@@ -82,361 +113,604 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
 <div class="topbar">
   <a class="tb-back" href="/dashboard">← Dashboard</a>
   <div class="tb-sep"></div>
-  <div class="tb-title">{{ site.title }}</div>
+  <span class="tb-site">{{ site.title }}</span>
   <a class="tb-url" href="https://{{ site.subdomain }}.{{ baseDomain }}" target="_blank">↗ {{ site.subdomain }}.{{ baseDomain }}</a>
   <div class="tb-right">
-    <div class="tb-status">
-      <div class="status-dot" id="saveDot"></div>
+    <select class="tb-theme-sel" id="themeSel" onchange="changeTheme(this.value)">
+      {% for themeSlug, themeData in allThemes %}
+        {% if themeData.for and 'linktree' in themeData.for %}
+          <option value="{{ themeSlug }}" {% if themeSlug == currentThemeSlug %}selected{% endif %}>{{ themeData.name }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+    <div class="save-status">
+      <div class="save-dot" id="saveDot"></div>
       <span id="saveLabel">Saved</span>
     </div>
-    <button class="btn-save" id="saveBtn" onclick="saveAll()">Save changes</button>
+    <button class="btn-publish" id="saveBtn" onclick="saveAll()">Publish</button>
   </div>
 </div>
 
 <div class="main">
+
+  <!-- Icon sidebar -->
+  <div class="sidenav" id="sideNav"></div>
+
+  <!-- Editor -->
   <div class="editor">
-
-    <!-- Tabs (generated from theme sections) -->
-    <div class="tabs" id="tabBar"></div>
-
-    <!-- Panes (generated dynamically) -->
-    <div id="tabPanes" style="flex:1;overflow:hidden;display:flex;flex-direction:column;"></div>
-
+    <div class="editor-head">
+      <div class="editor-head-title" id="editorTitle">Profile</div>
+      <div class="editor-head-sub" id="editorSub">Your photo, name, and bio</div>
+    </div>
+    <div class="editor-scroll" id="editorScroll"></div>
   </div>
 
+  <!-- Preview -->
   <div class="preview-area">
+    <div class="preview-toolbar">
+      <button class="ptb-btn" onclick="refreshPreview()">⟳ Refresh</button>
+      <button class="ptb-btn" onclick="window.open('https://{{ site.subdomain }}.{{ baseDomain }}','_blank')">↗ Open</button>
+    </div>
     <div class="phone-frame">
       <div class="phone-notch"></div>
-      <iframe id="previewFrame" src="https://{{ site.subdomain }}.{{ baseDomain }}"></iframe>
+      <iframe id="previewFrame" src="about:blank"></iframe>
     </div>
+    <div class="preview-loading" id="previewLoading">Updating…</div>
+    <div class="preview-hint">Changes preview live — click Publish to go live</div>
   </div>
+
 </div>
 
 <input type="file" id="hiddenFileInput" accept="image/*" style="display:none">
 
 <script>
-// ── Theme sections from server ──────────────────────────────────────────────
-var SECTIONS = {{ sections | dump | safe }};
-var SITE_ID  = {{ site.id }};
-var SITE_SUB = '{{ site.subdomain }}';
-var BASE     = '{{ baseDomain }}';
+// ── Data from server ──────────────────────────────────────────────────────────
+var SECTIONS      = {{ sections | dump | safe }};
+var ALL_THEMES    = {{ allThemes | dump | safe }};
+var SITE_ID       = {{ site.id }};
+var SITE_SUB      = '{{ site.subdomain }}';
+var BASE          = '{{ baseDomain }}';
+var CURRENT_THEME = '{{ currentThemeSlug }}';
 
-// ── Current settings state ──────────────────────────────────────────────────
+// ── Settings state ────────────────────────────────────────────────────────────
 var S = {{ settings | dump | safe }} || {};
-// Ensure each section key exists
-SECTIONS.forEach(function(sec) {
-  if (!S[sec.id]) S[sec.id] = {};
-  sec.fields.forEach(function(f) {
-    if (f.type === 'repeater') {
-      if (!S[sec.id][f.id]) S[sec.id][f.id] = f.default || [];
-    } else {
-      if (S[sec.id][f.id] === undefined) S[sec.id][f.id] = f.default || '';
-    }
-  });
-});
 
-// ── Dirty state ─────────────────────────────────────────────────────────────
+// Ensure each section key + field default exists
+function initDefaults(secs) {
+  secs.forEach(function(sec) {
+    if (!S[sec.id]) S[sec.id] = {};
+    (sec.fields || []).forEach(function(f) {
+      if (f.type === 'repeater') {
+        if (!S[sec.id][f.id]) S[sec.id][f.id] = f.default || [];
+      } else {
+        if (S[sec.id][f.id] === undefined) S[sec.id][f.id] = f.default || '';
+      }
+    });
+  });
+}
+initDefaults(SECTIONS);
+
+// ── Section icons map ─────────────────────────────────────────────────────────
+var SEC_ICONS = {
+  profile:   '👤', featured: '⭐', links: '🔗', socials: '📱',
+  contact:   '✉️', services: '🛠️', products: '🛍️', listings: '🏠',
+  skills:    '✨', portfolio: '🎨', about: '📝'
+};
+var SEC_DESCS = {
+  profile:   'Your photo, name and bio',
+  featured:  'Highlight your best content',
+  links:     'Add buttons and links',
+  socials:   'Social platform handles',
+  contact:   'Email and messaging',
+  services:  'What you offer',
+  products:  'Items for sale',
+  listings:  'Properties and locations',
+  skills:    'Your skills and tools',
+  portfolio: 'Recent projects',
+  about:     'About you or your brand'
+};
+
+// ── Dirty / save state ────────────────────────────────────────────────────────
 var isDirty = false;
-function dirty() {
+function markDirty() {
   isDirty = true;
-  document.getElementById('saveDot').className = 'status-dot dirty';
+  document.getElementById('saveDot').className = 'save-dot dirty';
   document.getElementById('saveLabel').textContent = 'Unsaved';
 }
 
-// ── Preview ──────────────────────────────────────────────────────────────────
+// ── Live preview ──────────────────────────────────────────────────────────────
 var previewTimer = null;
+var previewInflight = false;
+
 function debouncedPreview() {
   clearTimeout(previewTimer);
-  previewTimer = setTimeout(refreshPreview, 900);
-}
-function refreshPreview() {
-  var frame = document.getElementById('previewFrame');
-  frame.src = 'https://' + SITE_SUB + '.' + BASE + '?t=' + Date.now();
+  previewTimer = setTimeout(refreshPreview, 700);
 }
 
-// ── Save ────────────────────────────────────────────────────────────────────
+function refreshPreview() {
+  if (previewInflight) return;
+  previewInflight = true;
+  document.getElementById('previewLoading').classList.add('show');
+
+  fetch('/dashboard/site/biolink-preview', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ site_id: SITE_ID, settings: S })
+  })
+  .then(function(r) { return r.text(); })
+  .then(function(html) {
+    var frame = document.getElementById('previewFrame');
+    frame.srcdoc = html;
+  })
+  .catch(function() {})
+  .finally(function() {
+    previewInflight = false;
+    document.getElementById('previewLoading').classList.remove('show');
+  });
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────────
 function saveAll() {
   var btn = document.getElementById('saveBtn');
   btn.disabled = true;
-  btn.textContent = 'Saving…';
+  btn.textContent = 'Publishing…';
+
   fetch('/dashboard/site/biolink-save', {
-    method: 'POST',
+    method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ site_id: SITE_ID, settings: S })
+    body:    JSON.stringify({ site_id: SITE_ID, settings: S })
   })
   .then(function(r) { return r.json(); })
   .then(function(d) {
     if (d.ok) {
       isDirty = false;
-      document.getElementById('saveDot').className = 'status-dot saved';
-      document.getElementById('saveLabel').textContent = 'Saved';
-      refreshPreview();
+      document.getElementById('saveDot').className = 'save-dot saved';
+      document.getElementById('saveLabel').textContent = 'Published';
+      setTimeout(function() {
+        document.getElementById('saveLabel').textContent = 'Saved';
+        document.getElementById('saveDot').className = 'save-dot';
+      }, 2500);
     }
   })
   .finally(function() {
     btn.disabled = false;
-    btn.textContent = 'Save changes';
+    btn.textContent = 'Publish';
   });
 }
 
-// ── Tab switching ────────────────────────────────────────────────────────────
-function switchTab(id) {
-  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-  document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelector('.tab[data-sec="' + id + '"]').classList.add('active');
-  document.getElementById('pane-' + id).classList.add('active');
+// ── Theme switch ──────────────────────────────────────────────────────────────
+function changeTheme(slug) {
+  CURRENT_THEME = slug;
+  var theme = ALL_THEMES[slug];
+  if (!theme) return;
+  SECTIONS = theme.sections || [];
+  initDefaults(SECTIONS);
+  S.template_id = slug;
+  buildEditor();
+  markDirty();
+  debouncedPreview();
 }
 
-// ── Image upload helper ──────────────────────────────────────────────────────
-var _imgCallback = null;
+// ── Image upload ──────────────────────────────────────────────────────────────
+var _imgCb = null;
 document.getElementById('hiddenFileInput').addEventListener('change', function() {
   var file = this.files[0];
-  if (!file || !_imgCallback) return;
+  if (!file || !_imgCb) return;
   var fd = new FormData();
   fd.append('file', file);
   fd.append('site_id', SITE_ID);
   fetch('/dashboard/media/' + SITE_ID + '/upload', { method: 'POST', body: fd })
     .then(function(r) { return r.json(); })
-    .then(function(d) { if (d.url) _imgCallback(d.url); });
+    .then(function(d) { if (d.url) _imgCb(d.url); });
   this.value = '';
 });
-function triggerImageUpload(cb) {
-  _imgCallback = cb;
+function triggerUpload(cb) {
+  _imgCb = cb;
   document.getElementById('hiddenFileInput').click();
 }
 
-// ── Render a single field ────────────────────────────────────────────────────
-function renderField(secId, field, container) {
-  var fg = document.createElement('div');
-  fg.className = 'fg';
+// ── Color swatches ────────────────────────────────────────────────────────────
+var SWATCHES = [
+  '#e11d48','#6366f1','#f97316','#0ea5e9','#16a34a',
+  '#7c3aed','#0f766e','#db2777','#ca8a04','#374151'
+];
 
-  if (field.type === 'repeater') {
-    renderRepeater(secId, field, container);
-    return;
-  }
-
-  var label = document.createElement('label');
-  label.className = 'fg-label';
-  label.textContent = field.label;
-  fg.appendChild(label);
-
-  if (field.type === 'color') {
-    var row = document.createElement('div');
-    row.className = 'fg-color';
-    var inp = document.createElement('input');
-    inp.type = 'color';
-    inp.value = S[secId][field.id] || field.default || '#2563eb';
-    inp.addEventListener('input', function() {
-      S[secId][field.id] = this.value;
-      dirty(); debouncedPreview();
-    });
-    row.appendChild(inp);
-    var hex = document.createElement('input');
-    hex.className = 'fg-input';
-    hex.style.flex = '1';
-    hex.value = inp.value;
-    hex.addEventListener('input', function() {
-      inp.value = this.value;
-      S[secId][field.id] = this.value;
-      dirty(); debouncedPreview();
-    });
-    inp.addEventListener('input', function() { hex.value = this.value; });
-    row.appendChild(hex);
-    fg.appendChild(row);
-
-  } else if (field.type === 'image') {
-    var row = document.createElement('div');
-    row.className = 'img-field';
-    var inp = document.createElement('input');
-    inp.className = 'fg-input';
-    inp.placeholder = 'https://…';
-    inp.value = S[secId][field.id] || '';
-    inp.addEventListener('input', function() {
-      S[secId][field.id] = this.value;
-      dirty(); debouncedPreview();
-    });
-    var uploadBtn = document.createElement('button');
-    uploadBtn.className = 'btn-img-upload';
-    uploadBtn.textContent = '📷 Upload';
-    (function(inputEl, sId, fId) {
-      uploadBtn.onclick = function() {
-        triggerImageUpload(function(url) {
-          inputEl.value = url;
-          S[sId][fId] = url;
-          dirty(); debouncedPreview();
-        });
-      };
-    })(inp, secId, field.id);
-    row.appendChild(inp);
-    row.appendChild(uploadBtn);
-    fg.appendChild(row);
-
-  } else if (field.type === 'textarea') {
-    var inp = document.createElement('textarea');
-    inp.className = 'fg-input fg-textarea';
-    inp.placeholder = field.default || '';
-    inp.value = S[secId][field.id] || '';
-    inp.addEventListener('input', function() {
-      S[secId][field.id] = this.value;
-      dirty(); debouncedPreview();
-    });
-    fg.appendChild(inp);
-
-  } else {
-    // text / select / toggle — default to text input
-    var inp = document.createElement('input');
-    inp.className = 'fg-input';
-    inp.type = 'text';
-    inp.placeholder = field.default || '';
-    inp.value = S[secId][field.id] || '';
-    inp.addEventListener('input', function() {
-      S[secId][field.id] = this.value;
-      dirty(); debouncedPreview();
-    });
-    fg.appendChild(inp);
-  }
-
-  container.appendChild(fg);
+// ── Field builders ────────────────────────────────────────────────────────────
+function makeLabel(text) {
+  var l = document.createElement('label');
+  l.className = 'fg-label';
+  l.textContent = text;
+  return l;
 }
 
-// ── Render a repeater field ──────────────────────────────────────────────────
-function renderRepeater(secId, field, container) {
-  var wrap = document.createElement('div');
-  var title = document.createElement('div');
-  title.className = 'sec-divider';
-  title.textContent = field.label;
-  wrap.appendChild(title);
+function buildTextField(secId, field) {
+  var fg = document.createElement('div');
+  fg.className = 'fg';
+  fg.appendChild(makeLabel(field.label));
+  var inp = document.createElement('input');
+  inp.className = 'fg-input';
+  inp.type = 'text';
+  inp.placeholder = field.placeholder || '';
+  inp.value = S[secId][field.id] || '';
+  inp.addEventListener('input', function() {
+    S[secId][field.id] = this.value;
+    markDirty(); debouncedPreview();
+  });
+  fg.appendChild(inp);
+  return fg;
+}
 
-  var itemsEl = document.createElement('div');
-  itemsEl.className = 'repeater-items';
-  wrap.appendChild(itemsEl);
+function buildTextareaField(secId, field) {
+  var fg = document.createElement('div');
+  fg.className = 'fg';
+  fg.appendChild(makeLabel(field.label));
+  var ta = document.createElement('textarea');
+  ta.className = 'fg-input fg-textarea';
+  ta.placeholder = field.placeholder || '';
+  ta.value = S[secId][field.id] || '';
+  ta.addEventListener('input', function() {
+    S[secId][field.id] = this.value;
+    markDirty(); debouncedPreview();
+  });
+  fg.appendChild(ta);
+  return fg;
+}
+
+function buildColorField(secId, field) {
+  var fg = document.createElement('div');
+  fg.className = 'fg';
+  fg.appendChild(makeLabel(field.label));
+
+  var wrap = document.createElement('div');
+  wrap.className = 'color-row';
+
+  var row = document.createElement('div');
+  row.className = 'color-preview-row';
+
+  var thumb = document.createElement('div');
+  thumb.className = 'color-thumb';
+  var curVal = S[secId][field.id] || field.default || '#6366f1';
+  thumb.style.background = curVal;
+
+  // Hidden native color input triggered by thumb click
+  var nativeInp = document.createElement('input');
+  nativeInp.type = 'color';
+  nativeInp.value = curVal;
+  nativeInp.style.cssText = 'position:absolute;opacity:0;width:0;height:0;pointer-events:none;';
+  thumb.appendChild(nativeInp);
+  thumb.onclick = function() { nativeInp.click(); };
+
+  var hexInp = document.createElement('input');
+  hexInp.className = 'fg-input color-hex';
+  hexInp.value = curVal;
+
+  function setColor(val) {
+    curVal = val;
+    thumb.style.background = val;
+    nativeInp.value = val;
+    hexInp.value = val;
+    S[secId][field.id] = val;
+    // Update swatch selection
+    wrap.querySelectorAll('.swatch').forEach(function(sw) {
+      sw.classList.toggle('selected', sw.dataset.color === val);
+    });
+    markDirty(); debouncedPreview();
+  }
+
+  nativeInp.addEventListener('input', function() { setColor(this.value); });
+  hexInp.addEventListener('input', function() {
+    if (/^#[0-9a-fA-F]{3,6}$/.test(this.value)) setColor(this.value);
+  });
+
+  row.appendChild(thumb);
+  row.appendChild(hexInp);
+
+  var swatchRow = document.createElement('div');
+  swatchRow.className = 'swatches';
+  SWATCHES.forEach(function(color) {
+    var sw = document.createElement('div');
+    sw.className = 'swatch' + (curVal === color ? ' selected' : '');
+    sw.style.background = color;
+    sw.dataset.color = color;
+    sw.title = color;
+    sw.onclick = function() { setColor(color); };
+    swatchRow.appendChild(sw);
+  });
+
+  wrap.appendChild(row);
+  wrap.appendChild(swatchRow);
+  fg.appendChild(wrap);
+  return fg;
+}
+
+function buildImageField(secId, field) {
+  var fg = document.createElement('div');
+  fg.className = 'fg';
+  fg.appendChild(makeLabel(field.label));
+
+  var row = document.createElement('div');
+  row.className = 'img-field';
+
+  var thumb = document.createElement('div');
+  thumb.className = 'img-thumb';
+  var curUrl = S[secId][field.id] || '';
+  if (curUrl) {
+    var img = document.createElement('img'); img.src = curUrl;
+    thumb.appendChild(img);
+  } else {
+    thumb.textContent = '🖼️';
+  }
+
+  var inputsWrap = document.createElement('div');
+  inputsWrap.className = 'img-inputs';
+
+  var inp = document.createElement('input');
+  inp.className = 'fg-input';
+  inp.placeholder = 'https://…';
+  inp.value = curUrl;
+
+  function updateThumb(url) {
+    thumb.innerHTML = '';
+    if (url) {
+      var img = document.createElement('img'); img.src = url;
+      thumb.appendChild(img);
+    } else {
+      thumb.textContent = '🖼️';
+    }
+  }
+
+  inp.addEventListener('input', function() {
+    S[secId][field.id] = this.value;
+    updateThumb(this.value);
+    markDirty(); debouncedPreview();
+  });
+
+  var uploadBtn = document.createElement('button');
+  uploadBtn.className = 'btn-upload';
+  uploadBtn.textContent = '📷 Upload image';
+  (function(inputEl, sId, fId, thumbEl) {
+    uploadBtn.onclick = function() {
+      triggerUpload(function(url) {
+        inputEl.value = url;
+        S[sId][fId] = url;
+        updateThumb(url);
+        markDirty(); debouncedPreview();
+      });
+    };
+  })(inp, secId, field.id, thumb);
+
+  inputsWrap.appendChild(inp);
+  inputsWrap.appendChild(uploadBtn);
+  row.appendChild(thumb);
+  row.appendChild(inputsWrap);
+  fg.appendChild(row);
+  return fg;
+}
+
+function buildRepeater(secId, field) {
+  var wrap = document.createElement('div');
+
+  var header = document.createElement('div');
+  header.className = 'rep-header';
+  var title = document.createElement('span');
+  title.className = 'rep-title';
+  title.textContent = field.label;
+  var addBtn = document.createElement('button');
+  addBtn.className = 'btn-add-item';
+  addBtn.textContent = '+ Add';
+  header.appendChild(title);
+  header.appendChild(addBtn);
+  wrap.appendChild(header);
+
+  var list = document.createElement('div');
+  list.className = 'rep-list';
+  wrap.appendChild(list);
 
   function renderItems() {
-    itemsEl.innerHTML = '';
+    list.innerHTML = '';
     var items = S[secId][field.id] || [];
     items.forEach(function(item, idx) {
       var card = document.createElement('div');
-      card.className = 'rep-item';
+      card.className = 'rep-card';
 
-      var header = document.createElement('div');
-      header.className = 'rep-item-header';
-      var itemTitle = document.createElement('span');
-      itemTitle.className = 'rep-item-title';
-      itemTitle.textContent = (item[field.item_fields[0].id] || field.label + ' ' + (idx + 1));
-      var delBtn = document.createElement('button');
-      delBtn.className = 'rep-item-del';
-      delBtn.textContent = '✕';
-      delBtn.onclick = function() {
+      var head = document.createElement('div');
+      head.className = 'rep-card-head';
+
+      var drag = document.createElement('span');
+      drag.className = 'rep-drag';
+      drag.textContent = '⠿';
+
+      var labelEl = document.createElement('span');
+      labelEl.className = 'rep-card-label';
+      labelEl.textContent = item[field.item_fields[0].id] || field.label + ' ' + (idx + 1);
+
+      var toggle = document.createElement('button');
+      toggle.className = 'rep-toggle';
+      toggle.textContent = 'Edit ›';
+
+      var del = document.createElement('button');
+      del.className = 'rep-del';
+      del.textContent = '✕';
+      del.onclick = function(e) {
+        e.stopPropagation();
         S[secId][field.id].splice(idx, 1);
-        dirty(); debouncedPreview(); renderItems();
+        markDirty(); debouncedPreview(); renderItems();
       };
-      header.appendChild(itemTitle);
-      header.appendChild(delBtn);
-      card.appendChild(header);
 
-      // Render each item field
+      head.appendChild(drag);
+      head.appendChild(labelEl);
+      head.appendChild(toggle);
+      head.appendChild(del);
+      card.appendChild(head);
+
+      var body = document.createElement('div');
+      body.className = 'rep-card-body';
+      card.appendChild(body);
+
+      // Toggle open/close
+      function toggleBody() {
+        var open = body.classList.toggle('open');
+        toggle.textContent = open ? 'Done ✓' : 'Edit ›';
+      }
+      head.addEventListener('click', function(e) {
+        if (e.target === del) return;
+        toggleBody();
+      });
+
+      // Build item fields
       field.item_fields.forEach(function(iField) {
-        var fg = document.createElement('div');
-        fg.className = 'fg';
+        var ifg = document.createElement('div');
+        ifg.className = 'fg';
         var lbl = document.createElement('label');
         lbl.className = 'fg-label';
         lbl.textContent = iField.label;
-        fg.appendChild(lbl);
+        ifg.appendChild(lbl);
 
         if (iField.type === 'image') {
-          var row = document.createElement('div');
-          row.className = 'img-field';
-          var inp = document.createElement('input');
-          inp.className = 'fg-input';
-          inp.placeholder = 'https://…';
-          inp.value = item[iField.id] || '';
-          inp.addEventListener('input', function() {
+          var irow = document.createElement('div');
+          irow.className = 'img-field';
+          var ithumb = document.createElement('div');
+          ithumb.className = 'img-thumb';
+          if (item[iField.id]) {
+            var ii = document.createElement('img'); ii.src = item[iField.id];
+            ithumb.appendChild(ii);
+          } else { ithumb.textContent = '🖼️'; }
+
+          var iinp = document.createElement('input');
+          iinp.className = 'fg-input';
+          iinp.placeholder = 'https://…';
+          iinp.value = item[iField.id] || '';
+          iinp.addEventListener('input', function() {
             S[secId][field.id][idx][iField.id] = this.value;
-            dirty(); debouncedPreview();
-            itemTitle.textContent = S[secId][field.id][idx][field.item_fields[0].id] || field.label + ' ' + (idx+1);
+            ithumb.innerHTML = ''; if (this.value) { var ii=document.createElement('img');ii.src=this.value;ithumb.appendChild(ii); } else { ithumb.textContent='🖼️'; }
+            labelEl.textContent = S[secId][field.id][idx][field.item_fields[0].id] || field.label + ' ' + (idx+1);
+            markDirty(); debouncedPreview();
           });
-          var ubtn = document.createElement('button');
-          ubtn.className = 'btn-img-upload';
-          ubtn.textContent = '📷';
-          (function(inputEl, i, fid) {
-            ubtn.onclick = function() {
-              triggerImageUpload(function(url) {
+
+          var iubtn = document.createElement('button');
+          iubtn.className = 'btn-upload';
+          iubtn.textContent = '📷';
+          (function(inputEl, i, fid, thumbEl) {
+            iubtn.onclick = function() {
+              triggerUpload(function(url) {
                 inputEl.value = url;
                 S[secId][field.id][i][fid] = url;
-                dirty(); debouncedPreview();
+                thumbEl.innerHTML=''; var ii=document.createElement('img');ii.src=url;thumbEl.appendChild(ii);
+                markDirty(); debouncedPreview();
               });
             };
-          })(inp, idx, iField.id);
-          row.appendChild(inp);
-          row.appendChild(ubtn);
-          fg.appendChild(row);
-        } else {
-          var inp = document.createElement('input');
-          inp.className = 'fg-input';
-          inp.type = 'text';
-          inp.placeholder = iField.default || '';
-          inp.value = item[iField.id] || '';
-          inp.addEventListener('input', function() {
+          })(iinp, idx, iField.id, ithumb);
+
+          irow.appendChild(ithumb);
+          irow.appendChild(iinp);
+          irow.appendChild(iubtn);
+          ifg.appendChild(irow);
+        } else if (iField.type === 'textarea') {
+          var ita = document.createElement('textarea');
+          ita.className = 'fg-input fg-textarea';
+          ita.style.minHeight = '50px';
+          ita.placeholder = iField.placeholder || '';
+          ita.value = item[iField.id] || '';
+          ita.addEventListener('input', function() {
             S[secId][field.id][idx][iField.id] = this.value;
-            dirty(); debouncedPreview();
-            itemTitle.textContent = S[secId][field.id][idx][field.item_fields[0].id] || field.label + ' ' + (idx+1);
+            markDirty(); debouncedPreview();
           });
-          fg.appendChild(inp);
+          ifg.appendChild(ita);
+        } else {
+          var iinp2 = document.createElement('input');
+          iinp2.className = 'fg-input';
+          iinp2.type = 'text';
+          iinp2.placeholder = iField.placeholder || iField.default || '';
+          iinp2.value = item[iField.id] || '';
+          iinp2.addEventListener('input', function() {
+            S[secId][field.id][idx][iField.id] = this.value;
+            labelEl.textContent = S[secId][field.id][idx][field.item_fields[0].id] || field.label + ' ' + (idx+1);
+            markDirty(); debouncedPreview();
+          });
+          ifg.appendChild(iinp2);
         }
-        card.appendChild(fg);
+        body.appendChild(ifg);
       });
 
-      itemsEl.appendChild(card);
+      list.appendChild(card);
     });
   }
 
-  var addBtn = document.createElement('button');
-  addBtn.className = 'btn-add-item';
-  addBtn.textContent = '＋ Add ' + field.label.replace(/s$/, '');
   addBtn.onclick = function() {
     var blank = {};
     field.item_fields.forEach(function(f) { blank[f.id] = f.default || ''; });
     if (!S[secId][field.id]) S[secId][field.id] = [];
     S[secId][field.id].push(blank);
-    dirty(); debouncedPreview(); renderItems();
+    markDirty(); debouncedPreview(); renderItems();
+    // Auto-open the new item
+    setTimeout(function() {
+      var cards = list.querySelectorAll('.rep-card');
+      if (cards.length) {
+        var last = cards[cards.length - 1];
+        last.querySelector('.rep-card-body').classList.add('open');
+        last.querySelector('.rep-toggle').textContent = 'Done ✓';
+        last.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 50);
   };
 
   renderItems();
-  wrap.appendChild(addBtn);
-  container.appendChild(wrap);
+  wrap.appendChild(document.createElement('div')); // spacer
+  return wrap;
 }
 
-// ── Build all tabs & panes from SECTIONS ────────────────────────────────────
-function buildEditor() {
-  var tabBar   = document.getElementById('tabBar');
-  var panesEl  = document.getElementById('tabPanes');
+// ── Build a section's pane ─────────────────────────────────────────────────────
+function buildPane(sec) {
+  var scroll = document.getElementById('editorScroll');
+  scroll.innerHTML = '';
+  document.getElementById('editorTitle').textContent = sec.label;
+  document.getElementById('editorSub').textContent = SEC_DESCS[sec.id] || '';
 
-  SECTIONS.forEach(function(sec, idx) {
-    // Tab
-    var tab = document.createElement('button');
-    tab.className = 'tab' + (idx === 0 ? ' active' : '');
-    tab.dataset.sec = sec.id;
-    tab.textContent = sec.label;
-    tab.onclick = function() { switchTab(sec.id); };
-    tabBar.appendChild(tab);
-
-    // Pane
-    var pane = document.createElement('div');
-    pane.className = 'tab-pane' + (idx === 0 ? ' active' : '');
-    pane.id = 'pane-' + sec.id;
-    pane.style.flex = '1';
-    pane.style.overflowY = 'auto';
-    pane.style.padding = '16px 14px 80px';
-    panesEl.appendChild(pane);
-
-    // Fields
-    sec.fields.forEach(function(field) {
-      renderField(sec.id, field, pane);
-    });
+  (sec.fields || []).forEach(function(field) {
+    var el;
+    switch (field.type) {
+      case 'repeater': el = buildRepeater(sec.id, field); break;
+      case 'color':    el = buildColorField(sec.id, field); break;
+      case 'image':    el = buildImageField(sec.id, field); break;
+      case 'textarea': el = buildTextareaField(sec.id, field); break;
+      default:         el = buildTextField(sec.id, field);
+    }
+    scroll.appendChild(el);
   });
 }
 
+// ── Build sidebar + activate first section ─────────────────────────────────────
+var activeSecId = null;
+function buildEditor() {
+  var nav = document.getElementById('sideNav');
+  nav.innerHTML = '';
+
+  if (!SECTIONS.length) {
+    document.getElementById('editorScroll').innerHTML = '<p style="padding:20px;font-size:12px;color:#9ca3af;">No sections found for this theme.</p>';
+    return;
+  }
+
+  SECTIONS.forEach(function(sec, idx) {
+    var btn = document.createElement('button');
+    btn.className = 'snav-item' + (idx === 0 ? ' active' : '');
+    btn.dataset.secId = sec.id;
+    btn.innerHTML = '<span class="snav-icon">' + (SEC_ICONS[sec.id] || '⚙️') + '</span>' + sec.label;
+    btn.onclick = function() {
+      nav.querySelectorAll('.snav-item').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      activeSecId = sec.id;
+      buildPane(sec);
+    };
+    nav.appendChild(btn);
+  });
+
+  activeSecId = SECTIONS[0].id;
+  buildPane(SECTIONS[0]);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
 buildEditor();
+refreshPreview();
 </script>
 </body>
 </html>

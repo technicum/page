@@ -167,6 +167,25 @@ exports.builderSave = async (req, res) => {
   res.json({ ok: true })
 }
 
+exports.biolinkPreview = async (req, res) => {
+  const user = req.session.user
+  const { site_id, settings: newSettings } = req.body
+
+  const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [site_id, user.id])
+  if (!site) return res.status(404).send('<h1>Not found</h1>')
+
+  const existing = JSON.parse(site.settings || '{}')
+  const merged   = Object.assign({}, existing, newSettings)
+  const slug     = merged.template_id || site.template_id || 'biolink-creator'
+
+  try {
+    const html = await themeManager.render(slug, site, merged)
+    res.send(html)
+  } catch (e) {
+    res.status(500).send('<p style="font-family:sans-serif;padding:20px;color:#dc2626">Preview error: ' + e.message + '</p>')
+  }
+}
+
 exports.biolinkSave = async (req, res) => {
   const user = req.session.user
   const { site_id, settings: newSettings } = req.body
