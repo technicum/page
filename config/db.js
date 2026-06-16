@@ -34,7 +34,7 @@ async function runStartupCheck() {
     const tables = tableRows.map(r => Object.values(r)[0])
     console.log('   Tables found:', tables.join(', ') || '(none)')
 
-    for (const tbl of ['ms_accounts', 'ms_pages']) {
+    for (const tbl of ['ms_accounts', 'ms_sites']) {
       if (tables.includes(tbl)) {
         const [cols] = await conn.query(`DESCRIBE ${tbl}`)
         console.log(`   ${tbl}: ${cols.map(c => c.Field).join(', ')}`)
@@ -107,7 +107,7 @@ const db = {
       result.serverTime = timeRows[0].t
       const [tableRows] = await conn.query('SHOW TABLES')
       result.tables = tableRows.map(r => Object.values(r)[0])
-      for (const tbl of ['ms_accounts', 'ms_pages']) {
+      for (const tbl of ['ms_accounts', 'ms_sites']) {
         if (!result.tables.includes(tbl)) result.missing.push(tbl)
       }
     } catch (err) {

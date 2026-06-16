@@ -8,7 +8,7 @@ const { db } = require('./config/db')
 async function migrate() {
   console.log('Starting sections → rows migration...\n')
 
-  const sites = await db.query('SELECT id, title, settings FROM ms_pages')
+  const sites = await db.query('SELECT id, title, settings FROM ms_sites')
   let updated = 0, skipped = 0
 
   for (const site of sites) {
@@ -20,7 +20,7 @@ async function migrate() {
       const alreadyMigrated = settings.sections.every(s => s._isRow)
       if (!alreadyMigrated) {
         settings.sections = settings.sections.map(wrapInRow)
-        await db.execute('UPDATE ms_pages SET settings = ? WHERE id = ?', [JSON.stringify(settings), site.id])
+        await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?', [JSON.stringify(settings), site.id])
         console.log(`✅ [${site.id}] ${site.title} — wrapped ${settings.sections.length} top-level sections`)
         updated++
         continue
@@ -40,7 +40,7 @@ async function migrate() {
         }
       }
       if (changed) {
-        await db.execute('UPDATE ms_pages SET settings = ? WHERE id = ?', [JSON.stringify(settings), site.id])
+        await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?', [JSON.stringify(settings), site.id])
         console.log(`✅ [${site.id}] ${site.title} — multi-page updated`)
         updated++
         continue

@@ -4,7 +4,7 @@ exports.index = async (req, res) => {
   let featured = []
   try {
     featured = await db.query(
-      'SELECT s.*, u.name as owner_name FROM ms_pages s JOIN ms_accounts u ON u.id = s.account_id WHERE s.is_published = 1 ORDER BY s.created_at DESC LIMIT 6'
+      'SELECT s.*, u.name as owner_name FROM ms_sites s JOIN ms_accounts u ON u.id = s.account_id WHERE s.is_published = 1 ORDER BY s.created_at DESC LIMIT 6'
     )
     featured = featured.map(s => ({
       ...s,
@@ -18,7 +18,7 @@ exports.index = async (req, res) => {
 exports.search = async (req, res) => {
   const { q = '', city = '', category = '' } = req.query
 
-  let sql    = 'SELECT s.*, u.name as owner_name FROM ms_pages s JOIN ms_accounts u ON u.id = s.account_id WHERE s.is_published = 1'
+  let sql    = 'SELECT s.*, u.name as owner_name FROM ms_sites s JOIN ms_accounts u ON u.id = s.account_id WHERE s.is_published = 1'
   const params = []
 
   if (q) {

@@ -39,7 +39,7 @@ app.get('/debug', async (req, res) => {
     serverTime = tr[0].t
     const [rows] = await conn.execute('SHOW TABLES')
     tables = rows.map(r => Object.values(r)[0])
-    for (const t of ['ms_accounts', 'ms_pages']) {
+    for (const t of ['ms_accounts', 'ms_sites']) {
       if (!tables.includes(t)) missing.push(t)
     }
     await conn.end()

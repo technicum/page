@@ -43,7 +43,7 @@ exports.list = async (req, res) => {
   const user   = req.session.user
   const siteId = parseInt(req.params.siteId) || 0
 
-  const site = await db.first('SELECT id FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
+  const site = await db.first('SELECT id FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.status(403).json({ error: 'Not found' })
 
   const dir = siteUploadDir(siteId)
@@ -66,7 +66,7 @@ exports.upload = async (req, res) => {
   const user   = req.session.user
   const siteId = parseInt(req.params.siteId) || 0
 
-  const site = await db.first('SELECT id FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
+  const site = await db.first('SELECT id FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.status(403).json({ error: 'Not found' })
 
   const upload = uploaderFor(siteId)
@@ -92,7 +92,7 @@ exports.destroy = async (req, res) => {
     return res.status(400).json({ error: 'Invalid filename' })
   }
 
-  const site = await db.first('SELECT id FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
+  const site = await db.first('SELECT id FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.status(403).json({ error: 'Not found' })
 
   const filePath = path.join(siteUploadDir(siteId), filename)

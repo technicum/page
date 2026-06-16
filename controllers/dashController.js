@@ -3,12 +3,22 @@ const themeManager    = require('../config/themeManager')
 
 exports.index = async (req, res) => {
   const user  = req.session.user
-  const sites = await db.query('SELECT * FROM ms_pages WHERE account_id = ? ORDER BY created_at DESC', [user.id])
+  const sites = await db.query('SELECT * FROM ms_sites WHERE account_id = ? ORDER BY created_at DESC', [user.id])
   res.render('dashboard/index.njk', { title: 'Dashboard', user, sites })
 }
 
 exports.wizard = (req, res) => {
-  res.render('dashboard/wizard.njk', { title: 'Create your site', user: req.session.user })
+  const allThemes = themeManager.loadAll()
+  // Send a simplified list: slug, name, for[], previewUrl, hasPreview
+  const themes = Object.values(allThemes).map(t => ({
+    slug:       t.slug,
+    name:       t.name,
+    for:        t.for || ['all'],
+    previewUrl: t.previewUrl,
+    hasPreview: t.hasPreview,
+    description: t.description || ''
+  }))
+  res.render('dashboard/wizard.njk', { title: 'Create your site', user: req.session.user, themes })
 }
 
 exports.templates = async (req, res) => {
@@ -16,7 +26,7 @@ exports.templates = async (req, res) => {
   const siteId  = parseInt(req.query.id) || 0
   const fromNew = !!req.query.new
 
-  const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
+  const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.redirect('/dashboard')
 
   const settings  = JSON.parse(site.settings || '{}')
@@ -29,7 +39,7 @@ exports.builder = async (req, res) => {
   const user   = req.session.user
   const siteId = parseInt(req.query.id) || 0
 
-  const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
+  const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.redirect('/dashboard')
 
   const settings     = JSON.parse(site.settings || '{}')
@@ -80,7 +90,7 @@ exports.biolinkBuilder = async (req, res) => {
   const user   = req.session.user
   const siteId = parseInt(req.query.id) || 0
 
-  const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
+  const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.redirect('/dashboard')
 
   const settings = JSON.parse(site.settings || '{}')

@@ -36,7 +36,7 @@ async function serveSite(req, res, next, lookup) {
     if (lookup.subdomain) {
       site = await db.first(
         `SELECT s.*, u.name as owner_name
-         FROM ms_pages s
+         FROM ms_sites s
          JOIN ms_accounts u ON u.id = s.account_id
          WHERE s.subdomain = ?`,
         [lookup.subdomain]
@@ -44,7 +44,7 @@ async function serveSite(req, res, next, lookup) {
     } else {
       site = await db.first(
         `SELECT s.*, u.name as owner_name
-         FROM ms_pages s
+         FROM ms_sites s
          JOIN ms_accounts u ON u.id = s.account_id
          WHERE s.custom_domain = ?`,
         [lookup.customDomain]
@@ -79,7 +79,7 @@ async function serveSite(req, res, next, lookup) {
     // ── Blog: post detail (/blog/my-post-slug) ─────────────────────────────────
     if (pageId === 'blog' && subPath) {
       const post = await db.first(
-        `SELECT * FROM ms_posts WHERE page_id = ? AND slug = ? AND status = 'published'`,
+        `SELECT * FROM ms_posts WHERE site_id = ? AND slug = ? AND status = 'published'`,
         [site.id, subPath]
       )
       if (!post) return res.status(404).send('<h1>Post not found</h1>')
@@ -91,7 +91,7 @@ async function serveSite(req, res, next, lookup) {
     if (pageId === 'blog') {
       const posts = await db.query(
         `SELECT id, title, slug, excerpt, created_at FROM ms_posts
-         WHERE page_id = ? AND status = 'published'
+         WHERE site_id = ? AND status = 'published'
          ORDER BY created_at DESC`,
         [site.id]
       )
@@ -131,7 +131,7 @@ async function serveSitemap(req, res, site, settings) {
   // Add blog posts
   try {
     const posts = await db.query(
-      `SELECT slug, updated_at FROM ms_posts WHERE page_id = ? AND status = 'published'`,
+      `SELECT slug, updated_at FROM ms_posts WHERE site_id = ? AND status = 'published'`,
       [site.id]
     )
     posts.forEach(post => {

@@ -73,6 +73,16 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 .theme-swatch.selected{border-color:var(--ink);transform:scale(1.1);}
 .theme-swatch input{display:none;}
 
+/* Template card */
+.tpl-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all 0.2s;user-select:none;}
+.tpl-card:hover{border-color:var(--border-md);transform:translateY(-2px);}
+.tpl-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+.tpl-thumb{width:100%;aspect-ratio:16/9;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;}
+.tpl-thumb img{width:100%;height:100%;object-fit:cover;}
+.tpl-info{padding:10px 12px;}
+.tpl-name{font-size:13px;font-weight:600;color:var(--ink);}
+.tpl-desc{font-size:11px;color:var(--ink-faint);margin-top:2px;}
+
 .btn-row{display:flex;gap:12px;margin-top:32px;}
 .btn{padding:13px 28px;border-radius:var(--radius);font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;border:none;}
 .btn-primary{background:var(--ink);color:var(--white);}
@@ -283,7 +293,14 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
     <!-- STEP 3: Go live -->
     <div class="step-panel" id="step3">
       <div class="step-heading">Almost there!</div>
-      <div class="step-sub">Choose your web address and a color theme.</div>
+      <div class="step-sub">Pick your design and web address.</div>
+
+      <!-- Template picker -->
+      <div class="field">
+        <label>Choose a design</label>
+        <div id="template-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:4px;"></div>
+        <p id="no-themes-msg" style="display:none;font-size:13px;color:var(--ink-muted);padding:8px 0;">No themes available for this type yet.</p>
+      </div>
 
       <div class="field">
         <label>Your web address</label>
@@ -331,10 +348,62 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 var currentType = '';
 var currentStep = 1;
 
-// If there were flash errors, jump straight to step 3 (subdomain/theme issues)
-// or step 2 (title issues) — for now just open at step 1 always,
-// and show errors at top (already rendered above the form).
+// ── All themes from server (injected by dashController) ──────────────────────
+var ALL_THEMES = {{ themes | dump | safe }};
 
+// ── Theme picker ──────────────────────────────────────────────────────────────
+function renderTemplatePicker(siteType) {
+  var grid  = document.getElementById('template-grid');
+  var noMsg = document.getElementById('no-themes-msg');
+  grid.innerHTML = '';
+
+  var filtered = ALL_THEMES.filter(function(t) {
+    return t.for.includes('all') || t.for.includes(siteType);
+  });
+
+  if (!filtered.length) {
+    noMsg.style.display = '';
+    return;
+  }
+  noMsg.style.display = 'none';
+
+  filtered.forEach(function(t, idx) {
+    var card = document.createElement('div');
+    card.className = 'tpl-card' + (idx === 0 ? ' selected' : '');
+    card.dataset.slug = t.slug;
+    card.onclick = function() { selectTemplate(t.slug); };
+
+    var thumb = '<div class="tpl-thumb">';
+    if (t.hasPreview) {
+      thumb += '<img src="' + t.previewUrl + '" alt="' + t.name + '" loading="lazy">';
+    } else {
+      thumb += '🎨';
+    }
+    thumb += '</div>';
+
+    card.innerHTML = thumb +
+      '<div class="tpl-info">' +
+        '<div class="tpl-name">' + t.name + '</div>' +
+        (t.description ? '<div class="tpl-desc">' + t.description + '</div>' : '') +
+      '</div>';
+
+    grid.appendChild(card);
+  });
+
+  // Auto-select first
+  if (filtered.length) {
+    document.getElementById('template_id').value = filtered[0].slug;
+  }
+}
+
+function selectTemplate(slug) {
+  document.querySelectorAll('.tpl-card').forEach(function(c){ c.classList.remove('selected'); });
+  var card = document.querySelector('.tpl-card[data-slug="' + slug + '"]');
+  if (card) card.classList.add('selected');
+  document.getElementById('template_id').value = slug;
+}
+
+// ── Site type selection ───────────────────────────────────────────────────────
 function selectType(el, type) {
   document.querySelectorAll('.type-card').forEach(function(c){ c.classList.remove('selected'); });
   el.classList.add('selected');
@@ -353,15 +422,10 @@ function selectType(el, type) {
     business: 'e.g. Glamour Studio', freelancer: 'e.g. Abhi Singh', linktree: 'e.g. Abhi Singh',
     blog: 'e.g. The Daily Grind', product: 'e.g. FreshBox', other: 'e.g. My Site'
   };
-  var templateMap = {
-    business: 'minimal', freelancer: 'bold', linktree: 'biolink',
-    blog: 'minimal', product: 'modern', other: 'minimal'
-  };
 
   document.getElementById('title-label').textContent = labels[type] || 'Name';
   document.getElementById('step2-sub').textContent = subs[type] || 'A few details.';
   document.getElementById('title-input').placeholder = placeholders[type] || '';
-  document.getElementById('template_id').value = templateMap[type] || 'minimal';
 
   ['fields-business','fields-freelancer','fields-linktree','fields-blog','fields-product']
     .forEach(function(id){ document.getElementById(id).style.display = 'none'; });
@@ -371,6 +435,9 @@ function selectType(el, type) {
     blog:'fields-blog', product:'fields-product'
   };
   if (map[type]) document.getElementById(map[type]).style.display = 'block';
+
+  // Update template picker for the new type
+  renderTemplatePicker(type);
 }
 
 function selectTheme(el, theme) {
@@ -394,6 +461,11 @@ function goStep(n) {
     var suggestion = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     var subInput = document.getElementById('subdomain-input');
     if (!subInput.value && suggestion) subInput.value = suggestion;
+
+    // Render template picker if not already done
+    if (!document.querySelector('.tpl-card')) {
+      renderTemplatePicker(currentType || 'business');
+    }
   }
 
   document.querySelectorAll('.step-panel').forEach(function(p){ p.classList.remove('active'); });
@@ -425,10 +497,8 @@ document.getElementById('wizard-form').addEventListener('submit', function() {
   btn.textContent = 'Launching…';
 });
 
-// If flash errors exist, jump to step 3 (most likely subdomain conflict)
 {% if flash_errors and flash_errors.length %}
 window.addEventListener('DOMContentLoaded', function() {
-  // Can't fully restore state across redirect, but we can scroll errors into view
   document.getElementById('flash-errors').scrollIntoView({ behavior: 'smooth' });
 });
 {% endif %}

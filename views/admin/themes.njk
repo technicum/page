@@ -1,0 +1,176 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{background:var(--off);}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sidebar-logo{font-family:"DM Serif Display",serif;font-size:18px;padding:24px 20px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;}
+.sidebar-logo em{font-style:italic;color:var(--red);}
+.sidebar-nav{padding:16px 12px;flex:1;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:2px;font-weight:500;}
+.nav-item:hover{background:var(--off);color:var(--ink);}
+.nav-item.active{background:var(--red-light);color:var(--red);font-weight:600;}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
+.main{flex:1;overflow-y:auto;padding:40px;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.page-header h1{font-size:22px;font-weight:700;}
+.flash-ok{background:var(--green-light);border:1px solid #bbf7d0;color:var(--green);padding:12px 16px;border-radius:var(--radius);margin-bottom:20px;font-size:14px;}
+.flash-err{background:var(--red-light);border:1px solid #fecaca;color:var(--red);padding:12px 16px;border-radius:var(--radius);margin-bottom:20px;font-size:14px;}
+.upload-box{background:var(--white);border:2px dashed var(--border-md);border-radius:var(--radius-lg);padding:28px 24px;margin-bottom:32px;}
+.upload-box h2{font-size:16px;font-weight:600;margin-bottom:6px;}
+.upload-box p{font-size:13px;color:var(--ink-muted);margin-bottom:16px;}
+.upload-row{display:flex;gap:10px;align-items:center;}
+.upload-row input[type=file]{flex:1;font-size:13px;padding:8px;border:1px solid var(--border-md);border-radius:var(--radius);background:var(--off);}
+.btn-primary{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.88;}
+.btn-danger{background:var(--red);color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-danger:disabled{opacity:0.35;cursor:not-allowed;}
+.theme-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);}
+.theme-table th{background:var(--off);font-size:12px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;padding:12px 16px;text-align:left;}
+.theme-table td{padding:14px 16px;border-top:1px solid var(--border);vertical-align:middle;font-size:14px;}
+.thumb{width:56px;height:40px;object-fit:cover;border-radius:6px;background:var(--off);}
+.thumb-ph{width:56px;height:40px;border-radius:6px;background:var(--off);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--off);color:var(--ink-muted);}
+.badge-blue{background:var(--blue-light);color:var(--blue);}
+.docs-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;margin-top:36px;}
+.docs-box h2{font-size:16px;font-weight:700;margin-bottom:12px;}
+.docs-box h3{font-size:14px;font-weight:600;margin:18px 0 6px;}
+.docs-box p,.docs-box li{font-size:13px;color:var(--ink-muted);line-height:1.7;}
+.docs-box ul{padding-left:20px;}
+pre{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12px;overflow-x:auto;margin:10px 0;}
+</style>
+{% endblock %}
+{% block body %}
+<div class="layout">
+  <aside class="sidebar">
+    <a class="sidebar-logo" href="/admin">⚙️ <em>Admin</em></a>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/admin">🏠 Dashboard</a>
+      <a class="nav-item active" href="/admin/themes">🎨 Themes</a>
+      <a class="nav-item" href="/admin/users">👤 Users</a>
+      <a class="nav-item" href="/dashboard">← Back to App</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <span style="font-size:12px;color:var(--ink-faint);">{{ user.name }}</span>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="page-header">
+      <h1>🎨 Themes</h1>
+      <span style="font-size:13px;color:var(--ink-muted);">{{ themes | length }} installed</span>
+    </div>
+
+    {% if flash_success and flash_success.length %}
+      <div class="flash-ok">✅ {{ flash_success[0] }}</div>
+    {% endif %}
+    {% if flash_errors and flash_errors.length %}
+      <div class="flash-err">❌ {{ flash_errors[0] }}</div>
+    {% endif %}
+
+    <!-- Upload -->
+    <div class="upload-box">
+      <h2>Upload New Theme</h2>
+      <p>Upload a <code>.zip</code> file containing a single folder with <code>theme.json</code> and <code>index.liquid</code>. The folder name becomes the theme slug.</p>
+      <form method="POST" action="/admin/themes/upload" enctype="multipart/form-data">
+        <div class="upload-row">
+          <input type="file" name="theme_zip" accept=".zip" required>
+          <button type="submit" class="btn-primary">⬆ Upload Theme</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Theme list -->
+    <table class="theme-table">
+      <thead>
+        <tr>
+          <th>Preview</th>
+          <th>Slug</th>
+          <th>Name</th>
+          <th>For</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in themes %}
+        <tr>
+          <td>
+            {% if t.hasPreview %}
+              <img class="thumb" src="{{ t.previewUrl }}" alt="{{ t.name }}">
+            {% else %}
+              <div class="thumb-ph">🎨</div>
+            {% endif %}
+          </td>
+          <td><code style="font-size:12px;">{{ t.slug }}</code></td>
+          <td>{{ t.name }}</td>
+          <td>
+            {% for f in t.for %}
+              <span class="badge {% if f == 'all' %}badge-blue{% endif %}">{{ f }}</span>
+            {% endfor %}
+          </td>
+          <td>
+            {% set protected = ['minimal','bold','modern','biolink','biolink-neon','biolink-card','_starter'] %}
+            {% if t.slug in protected %}
+              <span style="font-size:12px;color:var(--ink-faint);">Built-in</span>
+            {% else %}
+              <form method="POST" action="/admin/themes/delete" onsubmit="return confirm('Delete theme {{ t.slug }}? This cannot be undone.')">
+                <input type="hidden" name="slug" value="{{ t.slug }}">
+                <button type="submit" class="btn-danger">🗑 Delete</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Developer docs -->
+    <div class="docs-box">
+      <h2>📖 Developer Guide — Creating Themes</h2>
+      <h3>ZIP Structure</h3>
+      <p>Your ZIP must contain exactly one top-level folder. The folder name is the theme slug (lowercase, hyphens only).</p>
+      <pre>my-theme.zip
+└── my-theme/
+    ├── theme.json        ← required
+    ├── index.liquid      ← required
+    └── preview.jpg       ← optional (shown in template picker)</pre>
+
+      <h3>theme.json</h3>
+      <p>Defines the theme's metadata and configurable fields.</p>
+      <pre>{
+  "name": "My Theme",
+  "description": "A short description shown in the theme picker.",
+  "for": ["linktree", "business"],
+  "sections": [
+    { "id": "hero", "label": "Hero", "fields": [
+      { "id": "heading", "label": "Heading", "type": "text", "default": "Hello!" },
+      { "id": "color",   "label": "Color",   "type": "color", "default": "#2563eb" }
+    ]}
+  ]
+}</pre>
+
+      <h3>The <code>for</code> field</h3>
+      <p>Controls which site categories show this theme in the wizard. Use <code>"all"</code> for universal themes.</p>
+      <ul>
+        <li><code>"all"</code> — shown for every site type</li>
+        <li><code>"linktree"</code> — only shown for biolink/linktree sites</li>
+        <li><code>"business"</code>, <code>"product"</code>, <code>"freelancer"</code> — standard site types</li>
+      </ul>
+
+      <h3>Field types</h3>
+      <ul>
+        <li><code>text</code> — single-line input</li>
+        <li><code>textarea</code> — multi-line</li>
+        <li><code>color</code> — color picker</li>
+        <li><code>image</code> — media library image URL</li>
+        <li><code>select</code> — dropdown (add <code>"options":[...]</code>)</li>
+        <li><code>toggle</code> — yes/no toggle</li>
+      </ul>
+
+      <h3>index.liquid</h3>
+      <p>Rendered with the site's <code>settings</code> object available as top-level variables. Access sections via their <code>id</code>.</p>
+      <pre>{{ settings.hero.heading }}
+{{ settings.hero.color }}</pre>
+    </div>
+  </main>
+</div>
+{% endblock %}

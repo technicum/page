@@ -73,7 +73,7 @@ exports.login = async (req, res) => {
 
   req.session.user = user
 
-  const siteCount = await db.first('SELECT COUNT(*) as cnt FROM ms_pages WHERE account_id = ?', [user.id])
+  const siteCount = await db.first('SELECT COUNT(*) as cnt FROM ms_sites WHERE account_id = ?', [user.id])
   res.redirect(siteCount.cnt === 0 ? '/dashboard/wizard' : '/dashboard')
 }
 

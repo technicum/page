@@ -14,13 +14,13 @@ exports.index = async (req, res) => {
   const user   = req.session.user
   const siteId = parseInt(req.params.siteId) || 0
 
-  const site  = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
+  const site  = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.redirect('/dashboard')
 
   let posts = []
   try {
     posts = await db.query(
-      'SELECT id, title, slug, status, created_at FROM ms_posts WHERE page_id = ? ORDER BY created_at DESC',
+      'SELECT id, title, slug, status, created_at FROM ms_posts WHERE site_id = ? ORDER BY created_at DESC',
       [siteId]
     )
   } catch(e) {
@@ -54,11 +54,11 @@ exports.create = async (req, res) => {
 
   let slug = slugify(title)
   // Ensure unique slug
-  const existing = await db.first('SELECT id FROM ms_posts WHERE page_id = ? AND slug = ?', [siteId, slug])
+  const existing = await db.first('SELECT id FROM ms_posts WHERE site_id = ? AND slug = ?', [siteId, slug])
   if (existing) slug += '-' + Date.now()
 
   await db.lastId(
-    `INSERT INTO ms_posts (page_id, account_id, title, slug, content, excerpt, meta_title, meta_desc, og_image, status)
+    `INSERT INTO ms_posts (site_id, account_id, title, slug, content, excerpt, meta_title, meta_desc, og_image, status)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [siteId, user.id, title, slug, content || '', excerpt || '', meta_title || '', meta_desc || '', og_image || '', status || 'draft']
   )
@@ -74,7 +74,7 @@ exports.editForm = async (req, res) => {
   const postId = parseInt(req.params.postId) || 0
 
   const post = await db.first(
-    'SELECT * FROM ms_posts WHERE id = ? AND page_id = ? AND account_id = ?',
+    'SELECT * FROM ms_posts WHERE id = ? AND site_id = ? AND account_id = ?',
     [postId, siteId, user.id]
   )
   if (!post) return res.redirect(`/dashboard/blog/${siteId}`)

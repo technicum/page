@@ -8,7 +8,11 @@ const blog        = require('../controllers/blogController')
 const media       = require('../controllers/mediaController')
 const form        = require('../controllers/formController')
 const biolink     = require('../controllers/biolinkController')
-const { requireAuth, redirectIfAuth } = require('../middleware/auth')
+const { requireAuth, redirectIfAuth, requireAdmin } = require('../middleware/auth')
+const admin  = require('../controllers/adminController')
+const multer = require('multer')
+const os     = require('os')
+const themeUpload = multer({ dest: os.tmpdir() })
 const { db } = require('../config/db')
 
 // ── Debug route (REMOVE IN PRODUCTION) ───────────────────────────────────────
@@ -144,5 +148,13 @@ router.post('/f/biolink-lead/:siteId', biolink.submitLead)
 
 // Biolink leads dashboard
 router.get('/dashboard/biolink/:siteId/leads', requireAuth, biolink.listLeads)
+
+// ── Admin panel ───────────────────────────────────────────────────────────────
+router.get ('/admin',                   requireAuth, requireAdmin, admin.index)
+router.get ('/admin/themes',            requireAuth, requireAdmin, admin.themes)
+router.post('/admin/themes/upload',     requireAuth, requireAdmin, themeUpload.single('theme_zip'), admin.uploadTheme)
+router.post('/admin/themes/delete',     requireAuth, requireAdmin, admin.deleteTheme)
+router.get ('/admin/users',             requireAuth, requireAdmin, admin.users)
+router.post('/admin/users/toggle-admin',requireAuth, requireAdmin, admin.toggleAdmin)
 
 module.exports = router

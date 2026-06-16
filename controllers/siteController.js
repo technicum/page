@@ -18,7 +18,7 @@ exports.store = async (req, res) => {
   if (!/^[a-z0-9-]+$/.test(subdomain)) errors.push('Only lowercase letters, numbers, hyphens allowed.')
 
   if (!errors.length) {
-    const exists = await db.first('SELECT id FROM ms_pages WHERE subdomain = ?', [subdomain])
+    const exists = await db.first('SELECT id FROM ms_sites WHERE subdomain = ?', [subdomain])
     if (exists) errors.push('That subdomain is already taken.')
   }
 
@@ -28,16 +28,20 @@ exports.store = async (req, res) => {
   }
 
   const settings = JSON.stringify({
-    site_type, description, city, phone, whatsapp, address,
+    site_type, subcategory: category || '', description, city, phone, whatsapp, address,
     skills, bio, instagram, youtube, blog_topic, author,
     product_desc, theme: theme || 'blue',
     template_id: template_id || 'minimal',
     sections: null
   })
 
+  // category: use the site_type as the primary category (linktree/business/etc.)
+  // The subcategory dropdown value (Salon & Beauty, etc.) is saved inside settings
+  const resolvedCategory = site_type || category || ''
+
   const id = await db.lastId(
-    'INSERT INTO ms_pages (account_id, title, subdomain, category, template_id, settings, is_published) VALUES (?, ?, ?, ?, ?, ?, 1)',
-    [user.id, title, subdomain, category || '', template_id || 'minimal', settings]
+    'INSERT INTO ms_sites (account_id, title, subdomain, category, template_id, settings, is_published) VALUES (?, ?, ?, ?, ?, ?, 1)',
+    [user.id, title, subdomain, resolvedCategory, template_id || 'minimal', settings]
   )
 
   if (site_type === 'linktree') {
@@ -56,14 +60,14 @@ exports.setTemplate = async (req, res) => {
     return res.json({ ok: false, error: 'Invalid template' })
   }
 
-  const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [site_id, user.id])
+  const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [site_id, user.id])
   if (!site) return res.json({ ok: false })
 
   const settings          = JSON.parse(site.settings || '{}')
   settings.template_id    = template_id
   settings.sections       = null
 
-  await db.execute('UPDATE ms_pages SET template_id = ?, settings = ? WHERE id = ?',
+  await db.execute('UPDATE ms_sites SET template_id = ?, settings = ? WHERE id = ?',
     [template_id, JSON.stringify(settings), site_id])
 
   res.json({ ok: true })
@@ -73,7 +77,7 @@ exports.builderPreview = async (req, res) => {
   const user = req.session.user
   const { site_id, sections, theme, all_pages, page_id } = req.body
 
-  const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [site_id, user.id])
+  const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [site_id, user.id])
   if (!site) return res.status(404).send('<h1>Not found</h1>')
 
   const settings    = JSON.parse(site.settings || '{}')
@@ -139,7 +143,7 @@ exports.builderSave = async (req, res) => {
   const user = req.session.user
   const { site_id, sections, theme, font, all_pages } = req.body
 
-  const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [site_id, user.id])
+  const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [site_id, user.id])
   if (!site) return res.json({ ok: false })
 
   const settings    = JSON.parse(site.settings || '{}')
@@ -159,7 +163,7 @@ exports.builderSave = async (req, res) => {
   if (nav_items)     settings.navItems     = JSON.parse(nav_items)
   if (seo)           settings.seo          = JSON.parse(seo)
 
-  await db.execute('UPDATE ms_pages SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
+  await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
   res.json({ ok: true })
 }
 
@@ -167,7 +171,7 @@ exports.biolinkSave = async (req, res) => {
   const user = req.session.user
   const { site_id, sections, theme, biolink_theme } = req.body
 
-  const site = await db.first('SELECT * FROM ms_pages WHERE id = ? AND account_id = ?', [site_id, user.id])
+  const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [site_id, user.id])
   if (!site) return res.json({ ok: false })
 
   const settings         = JSON.parse(site.settings || '{}')
@@ -175,7 +179,7 @@ exports.biolinkSave = async (req, res) => {
   settings.biolink_theme = biolink_theme || settings.biolink_theme || 'light'
   settings.sections      = JSON.parse(sections || '[]')
 
-  await db.execute('UPDATE ms_pages SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
+  await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?', [JSON.stringify(settings), site_id])
   res.json({ ok: true })
 }
 
@@ -183,7 +187,7 @@ exports.delete = async (req, res) => {
   const user    = req.session.user
   const siteId  = parseInt(req.body.site_id) || 0
 
-  await db.execute('DELETE FROM ms_pages WHERE id = ? AND account_id = ?', [siteId, user.id])
+  await db.execute('DELETE FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   req.flash('success', 'Site deleted.')
   res.redirect('/dashboard')
 }

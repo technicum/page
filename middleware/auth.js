@@ -9,4 +9,9 @@ function redirectIfAuth(req, res, next) {
   next()
 }
 
-module.exports = { requireAuth, redirectIfAuth }
+function requireAdmin(req, res, next) {
+  if (req.session && req.session.user && req.session.user.is_admin) return next()
+  res.status(403).send('<h1>403 — Forbidden</h1><p>Admin access required.</p>')
+}
+
+module.exports = { requireAuth, redirectIfAuth, requireAdmin }

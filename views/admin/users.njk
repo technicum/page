@@ -1,0 +1,112 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{background:var(--off);}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sidebar-logo{font-family:"DM Serif Display",serif;font-size:18px;padding:24px 20px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;}
+.sidebar-logo em{font-style:italic;color:var(--red);}
+.sidebar-nav{padding:16px 12px;flex:1;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:2px;font-weight:500;}
+.nav-item:hover{background:var(--off);color:var(--ink);}
+.nav-item.active{background:var(--red-light);color:var(--red);font-weight:600;}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
+.main{flex:1;overflow-y:auto;padding:40px;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.page-header h1{font-size:22px;font-weight:700;}
+.flash-ok{background:var(--green-light);border:1px solid #bbf7d0;color:var(--green);padding:12px 16px;border-radius:var(--radius);margin-bottom:20px;font-size:14px;}
+.flash-err{background:var(--red-light);border:1px solid #fecaca;color:var(--red);padding:12px 16px;border-radius:var(--radius);margin-bottom:20px;font-size:14px;}
+.user-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);}
+.user-table th{background:var(--off);font-size:12px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;padding:12px 16px;text-align:left;}
+.user-table td{padding:14px 16px;border-top:1px solid var(--border);vertical-align:middle;font-size:14px;}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-light));color:var(--white);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.badge-admin{display:inline-block;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.badge-user{display:inline-block;background:var(--off);color:var(--ink-faint);font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;}
+.btn-sm{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:opacity 0.15s;}
+.btn-grant{background:var(--green-light);color:var(--green);}
+.btn-revoke{background:var(--red-light);color:var(--red);}
+.btn-sm:hover{opacity:0.75;}
+.you-tag{font-size:11px;color:var(--ink-faint);margin-left:6px;}
+</style>
+{% endblock %}
+{% block body %}
+<div class="layout">
+  <aside class="sidebar">
+    <a class="sidebar-logo" href="/admin">⚙️ <em>Admin</em></a>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/admin">🏠 Dashboard</a>
+      <a class="nav-item" href="/admin/themes">🎨 Themes</a>
+      <a class="nav-item active" href="/admin/users">👤 Users</a>
+      <a class="nav-item" href="/dashboard">← Back to App</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <span style="font-size:12px;color:var(--ink-faint);">{{ user.name }}</span>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="page-header">
+      <h1>👤 Users</h1>
+      <span style="font-size:13px;color:var(--ink-muted);">{{ users | length }} accounts</span>
+    </div>
+
+    {% if flash_success and flash_success.length %}
+      <div class="flash-ok">✅ {{ flash_success[0] }}</div>
+    {% endif %}
+    {% if flash_errors and flash_errors.length %}
+      <div class="flash-err">❌ {{ flash_errors[0] }}</div>
+    {% endif %}
+
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Plan</th>
+          <th>Role</th>
+          <th>Joined</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar">{{ u.name[0] | upper }}</div>
+              <span style="font-weight:500;">{{ u.name }}
+                {% if u.id == user.id %}<span class="you-tag">(you)</span>{% endif %}
+              </span>
+            </div>
+          </td>
+          <td style="color:var(--ink-muted);">{{ u.email }}</td>
+          <td>{{ u.plan or 'free' }}</td>
+          <td>
+            {% if u.is_admin %}
+              <span class="badge-admin">⭐ Admin</span>
+            {% else %}
+              <span class="badge-user">User</span>
+            {% endif %}
+          </td>
+          <td style="color:var(--ink-muted);font-size:13px;">{{ u.created_at | string | truncate(10, true, '') }}</td>
+          <td>
+            {% if u.id == user.id %}
+              <span style="font-size:12px;color:var(--ink-faint);">—</span>
+            {% else %}
+              <form method="POST" action="/admin/users/toggle-admin"
+                onsubmit="return confirm('{% if u.is_admin %}Remove admin from {% else %}Grant admin to {% endif %}{{ u.name }}?')">
+                <input type="hidden" name="user_id" value="{{ u.id }}">
+                {% if u.is_admin %}
+                  <button type="submit" class="btn-sm btn-revoke">✕ Revoke Admin</button>
+                {% else %}
+                  <button type="submit" class="btn-sm btn-grant">⭐ Grant Admin</button>
+                {% endif %}
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </main>
+</div>
+{% endblock %}
