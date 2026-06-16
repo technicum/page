@@ -7,7 +7,6 @@ const site        = require('../controllers/siteController')
 const blog        = require('../controllers/blogController')
 const media       = require('../controllers/mediaController')
 const form        = require('../controllers/formController')
-const biolink     = require('../controllers/biolinkController')
 const { requireAuth, redirectIfAuth, requireAdmin } = require('../middleware/auth')
 const admin  = require('../controllers/adminController')
 const multer = require('multer')
@@ -142,12 +141,6 @@ router.get('/dashboard/api/forms/:siteId', requireAuth, form.apiList)
 
 // Public form submission (no auth)
 router.post('/f/:formId', form.submit)
-
-// Biolink lead capture (public)
-router.post('/f/biolink-lead/:siteId', biolink.submitLead)
-
-// Biolink leads dashboard
-router.get('/dashboard/biolink/:siteId/leads', requireAuth, biolink.listLeads)
 
 // ── Admin panel ───────────────────────────────────────────────────────────────
 router.get ('/admin',                   requireAuth, requireAdmin, admin.index)

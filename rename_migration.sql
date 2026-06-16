@@ -12,9 +12,6 @@ ALTER TABLE `ms_hits` CHANGE `page_id` `site_id` int(11) NOT NULL;
 -- 3. ms_posts references page_id → rename to site_id
 ALTER TABLE `ms_posts` CHANGE `page_id` `site_id` int(11) NOT NULL;
 
--- 3b. ms_biolink_leads references page_id → rename to site_id (if table exists)
-ALTER TABLE `ms_biolink_leads` CHANGE `page_id` `site_id` int(11) NOT NULL;
-
 -- 4. Add is_admin flag to ms_accounts (for the admin panel)
 ALTER TABLE `ms_accounts`
   ADD COLUMN `is_admin` tinyint(1) NOT NULL DEFAULT 0 AFTER `plan`;
