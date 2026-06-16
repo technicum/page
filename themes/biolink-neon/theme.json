@@ -111,17 +111,14 @@
       ]
     },
     {
-      "id": "lead_form",
-      "label": "Lead Capture Form",
-      "emoji": "📝",
+      "id": "form_embed",
+      "label": "Embed Form",
+      "emoji": "📋",
+      "description": "Embed any form from your Forms module using its Form ID.",
       "fields": [
-        { "id": "heading", "label": "Heading", "type": "text", "default": "Get in Touch" },
-        { "id": "show_name", "label": "Show Name", "type": "text", "default": "yes" },
-        { "id": "show_phone", "label": "Show Phone", "type": "text", "default": "yes" },
-        { "id": "show_email", "label": "Show Email", "type": "text", "default": "yes" },
-        { "id": "show_message", "label": "Show Message", "type": "text", "default": "no" },
-        { "id": "btn_label", "label": "Button Text", "type": "text", "default": "Send" },
-        { "id": "success_msg", "label": "Success Message", "type": "text", "default": "Thanks! We'll be in touch soon." }
+        { "id": "form_id",    "label": "Form ID",              "type": "text", "default": "" },
+        { "id": "heading",    "label": "Heading (optional)",    "type": "text", "default": "" },
+        { "id": "subheading", "label": "Subheading (optional)", "type": "text", "default": "" }
       ]
     },
     {

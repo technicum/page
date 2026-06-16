@@ -208,35 +208,6 @@
   </script>
   {% endif %}
 
-  {% elsif section.id == 'lead_form' %}
-  <div class="lead-card">
-    <div class="lead-card-header">
-      <div class="lead-card-title">{{ f.heading | default: 'Get in Touch' }}</div>
-      <div class="lead-card-sub">Fill in your details and we'll reach out soon.</div>
-    </div>
-    <form class="lead-form" onsubmit="pzLeadSubmit(event,this,{{ site.id }})">
-      {% if f.show_name != 'no' %}<input class="lead-inp" type="text"  name="name"    placeholder="👤  Your Name">{% endif %}
-      {% if f.show_phone != 'no' %}<input class="lead-inp" type="text" name="phone"   placeholder="📞  Phone Number">{% endif %}
-      {% if f.show_email != 'no' %}<input class="lead-inp" type="text" name="email"   placeholder="✉️  Email Address">{% endif %}
-      {% if f.show_message == 'yes' %}<textarea class="lead-inp lead-ta" name="message" placeholder="💬  Your message…"></textarea>{% endif %}
-      <button type="submit" class="lead-btn">{{ f.btn_label | default: 'Send Message' }} →</button>
-      <div class="lead-ok" style="display:none">{{ f.success_msg | default: "Thanks! We'll be in touch soon." }}</div>
-    </form>
-  </div>
-  <script>
-  if(!window.pzLeadSubmit){window.pzLeadSubmit=function(e,form,sid){
-    e.preventDefault();
-    var data={};new FormData(form).forEach(function(v,k){data[k]=v;});
-    var btn=form.querySelector('[type=submit]');btn.disabled=true;btn.textContent='Sending…';
-    fetch('/f/biolink-lead/'+sid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.ok){form.querySelectorAll('input,textarea').forEach(function(i){i.style.display='none';});btn.style.display='none';var ok=form.querySelector('.lead-ok');if(ok)ok.style.display='block';}
-      else{btn.disabled=false;btn.textContent='Send';}
-    }).catch(function(){btn.disabled=false;btn.textContent='Send';});
-  };}
-  </script>
-
   {% elsif section.id == 'video_embed' %}
   {% if f.url != '' and f.url != nil %}
   <div class="video-wrap" data-url="{{ f.url }}">

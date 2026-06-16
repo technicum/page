@@ -280,40 +280,22 @@ body{font-family:'DM Sans',sans-serif;background:#0f0f1a;overflow:hidden;}
 
     <!-- ── Engage tab ── -->
     <div class="tab-pane" id="tab-engage">
-      <div class="sec-title">Lead Capture Form</div>
-      <div class="fg">
-        <label class="fg-label">Form Heading</label>
-        <input class="fg-input" id="f-lead-heading" type="text" placeholder="Get in Touch" oninput="leadForm.heading=this.value;dirty();debouncedPreview()">
-      </div>
-      <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 12px;margin-bottom:12px;">
-        <label class="fg-label" style="margin-bottom:8px;">Show Fields</label>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.6);cursor:pointer;">
-            <input type="checkbox" id="lf-name" onchange="leadForm.show_name=this.checked?'yes':'no';dirty();debouncedPreview()"> Name
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.6);cursor:pointer;">
-            <input type="checkbox" id="lf-phone" checked onchange="leadForm.show_phone=this.checked?'yes':'no';dirty();debouncedPreview()"> Phone
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.6);cursor:pointer;">
-            <input type="checkbox" id="lf-email" onchange="leadForm.show_email=this.checked?'yes':'no';dirty();debouncedPreview()"> Email
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.6);cursor:pointer;">
-            <input type="checkbox" id="lf-msg" onchange="leadForm.show_message=this.checked?'yes':'no';dirty();debouncedPreview()"> Message
-          </label>
-        </div>
+      <div class="sec-title">Embed Form</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:12px;line-height:1.5;">
+        Create a form in the <a href="/dashboard/forms" target="_blank" style="color:#818cf8;">Forms module</a>, then paste its Form ID below to embed it here.
       </div>
       <div class="fg">
-        <label class="fg-label">Button Text</label>
-        <input class="fg-input" id="f-lead-btn" type="text" placeholder="Send" oninput="leadForm.btn_label=this.value;dirty();debouncedPreview()">
+        <label class="fg-label">Form ID</label>
+        <input class="fg-input" id="f-form-id" type="text" placeholder="e.g. 1" oninput="formEmbed.form_id=this.value;dirty();debouncedPreview()">
       </div>
       <div class="fg">
-        <label class="fg-label">Success Message</label>
-        <input class="fg-input" id="f-lead-ok" type="text" placeholder="Thanks! We'll be in touch." oninput="leadForm.success_msg=this.value;dirty();debouncedPreview()">
+        <label class="fg-label">Heading (optional)</label>
+        <input class="fg-input" id="f-form-heading" type="text" placeholder="Get in Touch" oninput="formEmbed.heading=this.value;dirty();debouncedPreview()">
       </div>
-      <a id="leadsLink" href="/dashboard/biolink/{{ site.id }}/leads" target="_blank"
-        style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#818cf8;text-decoration:none;padding:8px 12px;background:rgba(99,102,241,0.1);border-radius:8px;margin-top:4px;">
-        📊 View Leads →
-      </a>
+      <div class="fg">
+        <label class="fg-label">Subheading (optional)</label>
+        <input class="fg-input" id="f-form-subheading" type="text" placeholder="Fill in the form below" oninput="formEmbed.subheading=this.value;dirty();debouncedPreview()">
+      </div>
 
       <div class="sec-title" style="margin-top:20px;">Video Embed</div>
       <div class="fg">
@@ -403,7 +385,7 @@ let contact  = savedFields('contact_card', {phone:'',email:'',website:'',address
 let shop     = savedFields('products',     {heading:'Products & Services',wa_phone:'',items:[]});
 let shopItems = Array.from(shop.items || []);
 let upi      = savedFields('upi_pay',      {upi_id:'',display_name:'',amount:'',btn_label:'💳 Pay with UPI'});
-let leadForm = savedFields('lead_form',    {heading:'Get in Touch',show_name:'yes',show_phone:'yes',show_email:'yes',show_message:'no',btn_label:'Send',success_msg:"Thanks! We'll be in touch soon."});
+let formEmbed = savedFields('form_embed', {form_id:'',heading:'',subheading:''});
 let video    = savedFields('video_embed',  {url:'',caption:''});
 let currentAccent    = {{ (settings.theme or 'violet') | dump | safe }};
 let currentPageTheme = {{ (settings.biolink_theme or 'light') | dump | safe }};
@@ -429,16 +411,11 @@ function init() {
   setv('f-upi-name',     upi.display_name);
   setv('f-upi-amount',   upi.amount);
   setv('f-upi-btn',      upi.btn_label);
-  setv('f-lead-heading', leadForm.heading);
-  setv('f-lead-btn',     leadForm.btn_label);
-  setv('f-lead-ok',      leadForm.success_msg);
+  setv('f-form-id',         formEmbed.form_id);
+  setv('f-form-heading',    formEmbed.heading);
+  setv('f-form-subheading', formEmbed.subheading);
   setv('f-video-url',    video.url);
   setv('f-video-caption',video.caption);
-  // checkboxes
-  document.getElementById('lf-name').checked  = leadForm.show_name    !== 'no';
-  document.getElementById('lf-phone').checked = leadForm.show_phone   !== 'no';
-  document.getElementById('lf-email').checked = leadForm.show_email   !== 'no';
-  document.getElementById('lf-msg').checked   = leadForm.show_message === 'yes';
   renderProducts();
   setv('f-phone',      contact.phone);
   setv('f-email',      contact.email);
@@ -598,7 +575,7 @@ function buildSections() {
     {id:'links',        fields:{items:links.map(l=>({...l}))}},
     {id:'products',     fields:{...shop, items:shopItems.map(p=>({...p}))}},
     {id:'upi_pay',      fields:{...upi}},
-    {id:'lead_form',    fields:{...leadForm}},
+    {id:'form_embed',   fields:{...formEmbed}},
     {id:'video_embed',  fields:{...video}},
     {id:'socials',      fields:{...socials}},
     {id:'contact_card', fields:{...contact}}
