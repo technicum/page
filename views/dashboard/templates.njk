@@ -51,6 +51,7 @@ body{font-family:"DM Sans",sans-serif;}
       <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
       <a class="nav-item" href="/dashboard/wizard">✨ New Site</a>
       <a class="nav-item" href="/dashboard/settings">⚙️ Settings</a>
+      {% if user.is_admin %}<a class="nav-item" href="/admin" style="margin-top:12px;border-top:1px solid var(--border);padding-top:16px;">🔧 Admin Panel</a>{% endif %}
     </nav>
     <div class="sidebar-bottom">
       <div class="user-chip">
