@@ -96,7 +96,7 @@
   {% elsif section.id == 'products' %}
   {% if f.items.size > 0 %}
   <div class="section-divider">{{ f.heading | default: 'Products & Services' }}</div>
-  <div class="products-grid">
+  <div class="{% if f.display_mode == 'slider' %}products-slider{% else %}products-grid{% endif %}">
     {% for item in f.items %}
     <div class="product-card">
       {% if item.image != '' and item.image != nil %}<img class="product-img" src="{{ item.image }}" alt="{{ item.name }}">
