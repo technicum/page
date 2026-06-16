@@ -477,7 +477,6 @@ function renderLinks() {
   links.forEach((lk,i) => {
     const d = document.createElement('div'); d.className='link-card';
     d.innerHTML=`<div class="link-top">
-      <input class="link-emoji-in" value="${h(lk.emoji||'🌐')}" maxlength="4" oninput="links[${i}].emoji=this.value;dirty();debouncedPreview()">
       <input class="link-label-in" value="${h(lk.label||'')}" placeholder="Label" oninput="links[${i}].label=this.value;dirty();debouncedPreview()">
       <button class="link-del" onclick="delLink(${i})">✕</button></div>
     <input class="link-url-in" value="${h(lk.url||'')}" placeholder="https://..." oninput="links[${i}].url=this.value;dirty();debouncedPreview()">
@@ -505,12 +504,39 @@ function renderProducts() {
       <button class="link-del" onclick="delProduct(${i})">✕</button></div>
     <input class="link-url-in" value="${h(p.price||'')}" placeholder="Price e.g. ₹999" style="margin-bottom:5px;" oninput="shopItems[${i}].price=this.value;dirty();debouncedPreview()">
     <input class="link-url-in" value="${h(p.desc||'')}" placeholder="Short description" style="margin-bottom:5px;" oninput="shopItems[${i}].desc=this.value;dirty();debouncedPreview()">
-    <input class="link-url-in" value="${h(p.image||'')}" placeholder="Image URL (optional)" oninput="shopItems[${i}].image=this.value;dirty();debouncedPreview()">`;
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:2px;">
+      <input class="link-url-in" id="prod-img-${i}" value="${h(p.image||'')}" placeholder="Image URL" style="flex:1;margin-bottom:0;" oninput="shopItems[${i}].image=this.value;dirty();debouncedPreview()">
+      <label style="flex-shrink:0;padding:6px 10px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:6px;font-size:11px;color:#818cf8;cursor:pointer;white-space:nowrap;">
+        📷 Upload
+        <input type="file" accept="image/*" style="display:none;" onchange="uploadProductImage(this,${i})">
+      </label>
+    </div>
+    <div id="prod-img-preview-${i}" style="${p.image?'':'display:none;'}margin-top:4px;">
+      <img src="${h(p.image||'')}" style="width:100%;max-height:100px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.1);">
+    </div>`;
     list.appendChild(d);
   });
 }
 function addProduct()  { shopItems.push({emoji:'📦',name:'New Product',price:'₹999',desc:'',image:''}); renderProducts(); dirty(); debouncedPreview(); }
 function delProduct(i) { shopItems.splice(i,1); renderProducts(); dirty(); debouncedPreview(); }
+function uploadProductImage(input, i) {
+  const file = input.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append('image', file);
+  const siteId = {{ site.id }};
+  fetch('/dashboard/media/' + siteId + '/upload', { method:'POST', body:fd })
+    .then(r => r.json())
+    .then(d => {
+      if (d.url) {
+        shopItems[i].image = d.url;
+        const urlInput = document.getElementById('prod-img-' + i);
+        if (urlInput) urlInput.value = d.url;
+        const preview = document.getElementById('prod-img-preview-' + i);
+        if (preview) { preview.style.display=''; preview.querySelector('img').src = d.url; }
+        dirty(); debouncedPreview();
+      }
+    })
+    .catch(() => alert('Upload failed. Please try again.'));
+}
 
 // ── Colors ────────────────────────────────────────────────────────────────────
 function renderAccentColors() {
