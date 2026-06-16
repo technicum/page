@@ -134,15 +134,30 @@
       <button class="pz-cart-order" onclick="pzOrderWA()">📲 Order on WhatsApp</button>
     </div>
   </div>
+  <button class="pz-cart-fab" id="pzCartFab" onclick="pzOpenCart()">
+    🛒<span class="pz-cart-fab-badge" id="pzCartBadge">0</span>
+  </button>
   <div class="pz-overlay" id="pzOverlay" onclick="pzCloseCart()"></div>
   <script>
   if(!window._pzCartInit){window._pzCartInit=true;
     window._pzCart=[];window._pzWaPhone='';
+    window.pzUpdateFab=function(){
+      var total=window._pzCart.reduce(function(a,i){return a+i.qty;},0);
+      var fab=document.getElementById('pzCartFab');
+      var badge=document.getElementById('pzCartBadge');
+      if(fab){fab.classList.toggle('visible',total>0);}
+      if(badge){badge.textContent=total;}
+    };
     window.pzAddToCart=function(n,p,e,wa){
       window._pzWaPhone=wa;
       var ex=window._pzCart.find(function(i){return i.name===n;});
       if(ex)ex.qty++;else window._pzCart.push({name:n,price:p,emoji:e,qty:1});
       pzRenderCart();
+      pzUpdateFab();
+      document.getElementById('pzCart').classList.add('open');
+      document.getElementById('pzOverlay').classList.add('show');
+    };
+    window.pzOpenCart=function(){
       document.getElementById('pzCart').classList.add('open');
       document.getElementById('pzOverlay').classList.add('show');
     };
@@ -154,6 +169,7 @@
       window._pzCart[i].qty+=d;
       if(window._pzCart[i].qty<=0)window._pzCart.splice(i,1);
       pzRenderCart();
+      pzUpdateFab();
       if(!window._pzCart.length)pzCloseCart();
     };
     window.pzRenderCart=function(){
@@ -163,7 +179,8 @@
       el.innerHTML=window._pzCart.map(function(item,i){
         return '<div class="pz-ci"><span class="pz-ci-n">'+item.emoji+' '+item.name+'</span><div class="pz-ci-r"><button onclick="pzQty('+i+',-1)">−</button><span>'+item.qty+'</span><button onclick="pzQty('+i+',1)">+</button><span class="pz-ci-p">'+item.price+'</span></div></div>';
       }).join('');
-      if(tot)tot.textContent=window._pzCart.reduce(function(a,i){return a+i.qty;},0)+' item'+(window._pzCart.length!==1?'s':'');
+      var total=window._pzCart.reduce(function(a,i){return a+i.qty;},0);
+      if(tot)tot.innerHTML='<strong>'+total+'</strong> item'+(total!==1?'s':'')+' in cart';
     };
     window.pzOrderWA=function(){
       if(!window._pzCart.length)return;
