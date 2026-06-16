@@ -71,12 +71,14 @@
 
     <!-- Social -->
     {% assign c = settings.contact %}
+    {% if c.whatsapp or c.phone or c.email or c.instagram %}
     <div class="socials">
       {% if c.whatsapp %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
       {% if c.phone %}<a class="soc-btn" href="tel:{{ c.phone }}">📞 Call</a>{% endif %}
       {% if c.email %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
       {% if c.instagram %}<a class="soc-btn" href="{{ c.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
     </div>
+    {% endif %}
   </div>
 
   <!-- Share -->

@@ -1,0 +1,66 @@
+{
+  "name": "Shop Link",
+  "description": "Biolink for ecommerce & product sellers — product grid, order links, contact.",
+  "for": ["linktree"],
+  "preview": "preview.jpg",
+  "sections": [
+    {
+      "id": "profile",
+      "label": "Shop Profile",
+      "fields": [
+        { "id": "logo",    "label": "Shop Logo URL",  "type": "image",    "default": "" },
+        { "id": "name",    "label": "Shop Name",      "type": "text",     "default": "My Online Store" },
+        { "id": "tagline", "label": "Tagline",        "type": "text",     "default": "Quality products, fast delivery" },
+        { "id": "accent",  "label": "Accent Color",   "type": "color",    "default": "#f97316" }
+      ]
+    },
+    {
+      "id": "products",
+      "label": "Products",
+      "fields": [
+        { "id": "heading",      "label": "Section Heading",             "type": "text", "default": "Our Products" },
+        { "id": "display_mode", "label": "Display (grid / slider)",     "type": "text", "default": "grid" },
+        { "id": "items", "label": "Products", "type": "repeater",
+          "default": [
+            { "image": "", "name": "Product One",   "price": "₹499",  "link": "" },
+            { "image": "", "name": "Product Two",   "price": "₹799",  "link": "" },
+            { "image": "", "name": "Product Three", "price": "₹1299", "link": "" }
+          ],
+          "item_fields": [
+            { "id": "image", "label": "Product Image URL", "type": "image", "default": "" },
+            { "id": "name",  "label": "Product Name",      "type": "text",  "default": "New Product" },
+            { "id": "price", "label": "Price",             "type": "text",  "default": "₹499" },
+            { "id": "link",  "label": "Order / Buy Link",  "type": "text",  "default": "" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Quick Links",
+      "fields": [
+        { "id": "items", "label": "Links", "type": "repeater",
+          "default": [
+            { "emoji": "🛍️", "label": "Shop All Products", "url": "", "primary": "yes" },
+            { "emoji": "⭐", "label": "Read Our Reviews",  "url": "", "primary": "no" }
+          ],
+          "item_fields": [
+            { "id": "emoji",   "label": "Emoji",            "type": "text", "default": "🛍️" },
+            { "id": "label",   "label": "Label",            "type": "text", "default": "Visit Store" },
+            { "id": "url",     "label": "URL",              "type": "text", "default": "" },
+            { "id": "primary", "label": "Primary (yes/no)", "type": "text", "default": "no" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "fields": [
+        { "id": "whatsapp",  "label": "WhatsApp Number", "type": "text", "default": "" },
+        { "id": "instagram", "label": "Instagram URL",   "type": "text", "default": "" },
+        { "id": "email",     "label": "Email",           "type": "text", "default": "" }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "name": "Service Link",
-  "description": "Biolink for service providers — services list, booking CTA, testimonials.",
+  "description": "Biolink for service providers — services list, booking CTA, contact.",
   "for": ["linktree"],
   "preview": "preview.jpg",
   "sections": [
@@ -8,11 +8,11 @@
       "id": "profile",
       "label": "Profile",
       "fields": [
-        { "id": "avatar",   "label": "Avatar URL",    "type": "image", "default": "" },
-        { "id": "name",     "label": "Your Name",     "type": "text",  "default": "Jane Smith" },
-        { "id": "title",    "label": "Title / Role",  "type": "text",  "default": "Professional Services" },
-        { "id": "bio",      "label": "Short Bio",     "type": "textarea", "default": "" },
-        { "id": "accent",   "label": "Accent Color",  "type": "color", "default": "#2563eb" }
+        { "id": "avatar", "label": "Avatar URL",   "type": "image",    "default": "" },
+        { "id": "name",   "label": "Your Name",    "type": "text",     "default": "Your Name" },
+        { "id": "title",  "label": "Title / Role", "type": "text",     "default": "Professional Hair Stylist" },
+        { "id": "bio",    "label": "Short Bio",    "type": "textarea", "default": "5+ years experience · 500+ happy clients · Book your appointment today!" },
+        { "id": "accent", "label": "Accent Color", "type": "color",    "default": "#2563eb" }
       ]
     },
     {
@@ -20,12 +20,17 @@
       "label": "Services",
       "fields": [
         { "id": "heading", "label": "Section Heading", "type": "text", "default": "What I Offer" },
-        { "id": "items", "label": "Services", "type": "repeater", "default": [],
+        { "id": "items", "label": "Services", "type": "repeater",
+          "default": [
+            { "emoji": "✂️", "name": "Hair Cut & Style",   "description": "Wash, cut and blow-dry",         "price": "Starting ₹500" },
+            { "emoji": "💆", "name": "Head Massage",        "description": "Relaxing 30-min session",        "price": "Starting ₹300" },
+            { "emoji": "🎨", "name": "Hair Colouring",      "description": "Global or highlight colouring", "price": "Starting ₹1500" }
+          ],
           "item_fields": [
-            { "id": "emoji",       "label": "Emoji / Icon", "type": "text", "default": "✅" },
-            { "id": "name",        "label": "Service Name", "type": "text", "default": "Service" },
-            { "id": "description", "label": "Description",  "type": "text", "default": "" },
-            { "id": "price",       "label": "Price / Starting From", "type": "text", "default": "" }
+            { "id": "emoji",       "label": "Emoji / Icon",          "type": "text", "default": "✅" },
+            { "id": "name",        "label": "Service Name",           "type": "text", "default": "Service" },
+            { "id": "description", "label": "Description",            "type": "text", "default": "" },
+            { "id": "price",       "label": "Price / Starting From",  "type": "text", "default": "" }
           ]
         }
       ]
@@ -34,12 +39,16 @@
       "id": "links",
       "label": "Booking & Links",
       "fields": [
-        { "id": "items", "label": "Links", "type": "repeater", "default": [],
+        { "id": "items", "label": "Links", "type": "repeater",
+          "default": [
+            { "label": "Book Appointment", "url": "", "emoji": "📅", "primary": "yes" },
+            { "label": "View My Work",     "url": "", "emoji": "📸", "primary": "no"  }
+          ],
           "item_fields": [
-            { "id": "label",    "label": "Label",    "type": "text", "default": "Book a Call" },
-            { "id": "url",      "label": "URL",      "type": "text", "default": "" },
-            { "id": "emoji",    "label": "Emoji",    "type": "text", "default": "📅" },
-            { "id": "primary",  "label": "Primary Button (yes/no)", "type": "text", "default": "no" }
+            { "id": "label",   "label": "Label",                   "type": "text", "default": "Book a Call" },
+            { "id": "url",     "label": "URL",                     "type": "text", "default": "" },
+            { "id": "emoji",   "label": "Emoji",                   "type": "text", "default": "📅" },
+            { "id": "primary", "label": "Primary Button (yes/no)", "type": "text", "default": "no" }
           ]
         }
       ]

@@ -8,11 +8,11 @@
       "id": "profile",
       "label": "Profile",
       "fields": [
-        { "id": "avatar",   "label": "Avatar URL",      "type": "image",    "default": "" },
-        { "id": "name",     "label": "Your Name / Handle", "type": "text", "default": "@yourchannel" },
-        { "id": "tagline",  "label": "Tagline",         "type": "text",     "default": "Content Creator" },
-        { "id": "bio",      "label": "Short Bio",       "type": "textarea", "default": "" },
-        { "id": "accent",   "label": "Accent Color",    "type": "color",    "default": "#e11d48" }
+        { "id": "avatar",  "label": "Avatar URL",          "type": "image",    "default": "" },
+        { "id": "name",    "label": "Your Name / Handle",  "type": "text",     "default": "Your Name" },
+        { "id": "tagline", "label": "Tagline",             "type": "text",     "default": "Content Creator · Photographer" },
+        { "id": "bio",     "label": "Short Bio",           "type": "textarea", "default": "Creating content that inspires ✨ Based in Mumbai 🇮🇳" },
+        { "id": "accent",  "label": "Accent Color",        "type": "color",    "default": "#e11d48" }
       ]
     },
     {
@@ -20,12 +20,16 @@
       "label": "Featured Content",
       "fields": [
         { "id": "heading", "label": "Section Heading", "type": "text", "default": "Latest Content" },
-        { "id": "items", "label": "Content", "type": "repeater", "default": [],
+        { "id": "items", "label": "Content", "type": "repeater",
+          "default": [
+            { "thumbnail": "", "title": "My Latest Video", "platform": "YouTube", "link": "" },
+            { "thumbnail": "", "title": "Behind the Scenes", "platform": "Instagram", "link": "" }
+          ],
           "item_fields": [
-            { "id": "thumbnail",  "label": "Thumbnail URL", "type": "image", "default": "" },
-            { "id": "title",      "label": "Title",         "type": "text",  "default": "My Latest Video" },
-            { "id": "platform",   "label": "Platform (YouTube/Instagram/etc)", "type": "text", "default": "YouTube" },
-            { "id": "link",       "label": "Link",          "type": "text",  "default": "" }
+            { "id": "thumbnail", "label": "Thumbnail URL",                    "type": "image", "default": "" },
+            { "id": "title",     "label": "Title",                            "type": "text",  "default": "New Video" },
+            { "id": "platform",  "label": "Platform (YouTube/Instagram/etc)", "type": "text",  "default": "YouTube" },
+            { "id": "link",      "label": "Link",                             "type": "text",  "default": "" }
           ]
         }
       ]
@@ -34,11 +38,16 @@
       "id": "links",
       "label": "Links",
       "fields": [
-        { "id": "items", "label": "Links", "type": "repeater", "default": [],
+        { "id": "items", "label": "Links", "type": "repeater",
+          "default": [
+            { "label": "Subscribe to my channel", "url": "", "emoji": "▶️", "primary": "yes" },
+            { "label": "Follow on Instagram",      "url": "", "emoji": "📸", "primary": "no"  },
+            { "label": "Shop my presets",          "url": "", "emoji": "🛍️", "primary": "no"  }
+          ],
           "item_fields": [
-            { "id": "label",   "label": "Label",   "type": "text", "default": "Subscribe" },
-            { "id": "url",     "label": "URL",     "type": "text", "default": "" },
-            { "id": "emoji",   "label": "Emoji",   "type": "text", "default": "▶️" },
+            { "id": "label",   "label": "Label",            "type": "text", "default": "My Link" },
+            { "id": "url",     "label": "URL",              "type": "text", "default": "" },
+            { "id": "emoji",   "label": "Emoji",            "type": "text", "default": "🔗" },
             { "id": "primary", "label": "Primary (yes/no)", "type": "text", "default": "no" }
           ]
         }
@@ -48,12 +57,12 @@
       "id": "socials",
       "label": "Social Platforms",
       "fields": [
-        { "id": "youtube",   "label": "YouTube URL",   "type": "text", "default": "" },
-        { "id": "instagram", "label": "Instagram URL", "type": "text", "default": "" },
-        { "id": "tiktok",    "label": "TikTok URL",    "type": "text", "default": "" },
-        { "id": "twitter",   "label": "X / Twitter URL","type": "text", "default": "" },
-        { "id": "spotify",   "label": "Spotify URL",   "type": "text", "default": "" },
-        { "id": "email",     "label": "Collab Email",  "type": "text", "default": "" }
+        { "id": "youtube",   "label": "YouTube URL",    "type": "text", "default": "" },
+        { "id": "instagram", "label": "Instagram URL",  "type": "text", "default": "" },
+        { "id": "tiktok",   "label": "TikTok URL",     "type": "text", "default": "" },
+        { "id": "twitter",  "label": "X / Twitter URL", "type": "text", "default": "" },
+        { "id": "spotify",  "label": "Spotify URL",    "type": "text", "default": "" },
+        { "id": "email",    "label": "Collab Email",   "type": "text", "default": "" }
       ]
     }
   ]

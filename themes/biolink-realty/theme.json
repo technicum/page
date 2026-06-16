@@ -8,12 +8,12 @@
       "id": "profile",
       "label": "Agent Profile",
       "fields": [
-        { "id": "avatar",   "label": "Photo URL",        "type": "image",    "default": "" },
-        { "id": "name",     "label": "Agent Name",       "type": "text",     "default": "Raj Verma" },
-        { "id": "title",    "label": "Title",            "type": "text",     "default": "Real Estate Broker" },
-        { "id": "agency",   "label": "Agency Name",      "type": "text",     "default": "" },
-        { "id": "bio",      "label": "Short Bio",        "type": "textarea", "default": "" },
-        { "id": "accent",   "label": "Accent Color",     "type": "color",    "default": "#0f766e" }
+        { "id": "avatar", "label": "Agent Photo URL", "type": "image",    "default": "" },
+        { "id": "name",   "label": "Agent Name",      "type": "text",     "default": "Your Name" },
+        { "id": "title",  "label": "Title",           "type": "text",     "default": "Real Estate Broker" },
+        { "id": "agency", "label": "Agency Name",     "type": "text",     "default": "Your Agency" },
+        { "id": "bio",    "label": "Short Bio",       "type": "textarea", "default": "10+ years experience in residential & commercial properties. I'll find you the perfect home." },
+        { "id": "accent", "label": "Accent Color",   "type": "color",    "default": "#0f766e" }
       ]
     },
     {
@@ -21,14 +21,19 @@
       "label": "Property Listings",
       "fields": [
         { "id": "heading", "label": "Section Heading", "type": "text", "default": "Featured Properties" },
-        { "id": "items", "label": "Properties", "type": "repeater", "default": [],
+        { "id": "items", "label": "Properties", "type": "repeater",
+          "default": [
+            { "image": "", "title": "3BHK Premium Apartment",  "location": "Sector 15, Gurgaon",  "price": "₹1.2 Cr",  "type": "Sale", "link": "" },
+            { "image": "", "title": "2BHK Ready to Move",      "location": "Powai, Mumbai",        "price": "₹85 Lac",  "type": "Sale", "link": "" },
+            { "image": "", "title": "Commercial Office Space",  "location": "Koramangala, Bengaluru", "price": "₹45K/mo", "type": "Rent", "link": "" }
+          ],
           "item_fields": [
-            { "id": "image",    "label": "Property Image URL", "type": "image", "default": "" },
-            { "id": "title",    "label": "Property Title",     "type": "text",  "default": "3BHK Apartment" },
-            { "id": "location", "label": "Location",           "type": "text",  "default": "" },
-            { "id": "price",    "label": "Price",              "type": "text",  "default": "₹45 Lac" },
-            { "id": "type",     "label": "Type (Sale/Rent)",   "type": "text",  "default": "Sale" },
-            { "id": "link",     "label": "Details / Inquiry Link", "type": "text", "default": "" }
+            { "id": "image",    "label": "Property Image URL",     "type": "image", "default": "" },
+            { "id": "title",    "label": "Property Title",         "type": "text",  "default": "3BHK Apartment" },
+            { "id": "location", "label": "Location",               "type": "text",  "default": "" },
+            { "id": "price",    "label": "Price",                  "type": "text",  "default": "₹45 Lac" },
+            { "id": "type",     "label": "Type (Sale / Rent)",     "type": "text",  "default": "Sale" },
+            { "id": "link",     "label": "Details / Inquiry Link", "type": "text",  "default": "" }
           ]
         }
       ]
@@ -37,11 +42,15 @@
       "id": "links",
       "label": "Links",
       "fields": [
-        { "id": "items", "label": "Links", "type": "repeater", "default": [],
+        { "id": "items", "label": "Links", "type": "repeater",
+          "default": [
+            { "label": "Schedule a Site Visit", "url": "", "emoji": "🏠", "primary": "yes" },
+            { "label": "WhatsApp Me Now",       "url": "", "emoji": "💬", "primary": "no"  }
+          ],
           "item_fields": [
-            { "id": "label",   "label": "Label", "type": "text", "default": "Schedule a Visit" },
-            { "id": "url",     "label": "URL",   "type": "text", "default": "" },
-            { "id": "emoji",   "label": "Emoji", "type": "text", "default": "🏠" },
+            { "id": "label",   "label": "Label",            "type": "text", "default": "Schedule a Visit" },
+            { "id": "url",     "label": "URL",              "type": "text", "default": "" },
+            { "id": "emoji",   "label": "Emoji",            "type": "text", "default": "🏠" },
             { "id": "primary", "label": "Primary (yes/no)", "type": "text", "default": "no" }
           ]
         }

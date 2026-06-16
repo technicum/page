@@ -8,12 +8,12 @@
       "id": "profile",
       "label": "Profile",
       "fields": [
-        { "id": "avatar",      "label": "Avatar URL",      "type": "image",    "default": "" },
-        { "id": "name",        "label": "Your Name",       "type": "text",     "default": "Abhi Singh" },
-        { "id": "title",       "label": "What You Do",     "type": "text",     "default": "UI Designer & Developer" },
-        { "id": "bio",         "label": "Short Bio",       "type": "textarea", "default": "" },
-        { "id": "availability","label": "Available for Work (yes/no)", "type": "text", "default": "yes" },
-        { "id": "accent",      "label": "Accent Color",    "type": "color",    "default": "#7c3aed" }
+        { "id": "avatar",       "label": "Avatar URL",               "type": "image",    "default": "" },
+        { "id": "name",         "label": "Your Name",                "type": "text",     "default": "Your Name" },
+        { "id": "title",        "label": "What You Do",              "type": "text",     "default": "UI Designer & Developer" },
+        { "id": "bio",          "label": "Short Bio",                "type": "textarea", "default": "I help brands look great online. 5+ years experience in design & development." },
+        { "id": "availability", "label": "Available for Work (yes/no)", "type": "text", "default": "yes" },
+        { "id": "accent",       "label": "Accent Color",             "type": "color",    "default": "#7c3aed" }
       ]
     },
     {
@@ -21,10 +21,16 @@
       "label": "Skills",
       "fields": [
         { "id": "heading", "label": "Heading", "type": "text", "default": "What I Do" },
-        { "id": "items", "label": "Skills", "type": "repeater", "default": [],
+        { "id": "items", "label": "Skills", "type": "repeater",
+          "default": [
+            { "emoji": "💻", "name": "Web Design" },
+            { "emoji": "⚡", "name": "React / Node" },
+            { "emoji": "🎨", "name": "UI/UX Design" },
+            { "emoji": "📱", "name": "Mobile Apps" }
+          ],
           "item_fields": [
             { "id": "emoji", "label": "Emoji",      "type": "text", "default": "💻" },
-            { "id": "name",  "label": "Skill Name", "type": "text", "default": "Web Design" }
+            { "id": "name",  "label": "Skill Name", "type": "text", "default": "Skill" }
           ]
         }
       ]
@@ -34,12 +40,16 @@
       "label": "Portfolio",
       "fields": [
         { "id": "heading", "label": "Heading", "type": "text", "default": "Recent Work" },
-        { "id": "items", "label": "Projects", "type": "repeater", "default": [],
+        { "id": "items", "label": "Projects", "type": "repeater",
+          "default": [
+            { "image": "", "title": "Brand Redesign",      "description": "Full identity refresh for a fintech startup", "link": "" },
+            { "image": "", "title": "E-commerce App",      "description": "Mobile-first shopping experience",           "link": "" }
+          ],
           "item_fields": [
-            { "id": "image",       "label": "Image URL",    "type": "image", "default": "" },
-            { "id": "title",       "label": "Project Name", "type": "text",  "default": "Project" },
-            { "id": "description", "label": "Description",  "type": "text",  "default": "" },
-            { "id": "link",        "label": "Live / Case Study Link", "type": "text", "default": "" }
+            { "id": "image",       "label": "Image URL",              "type": "image", "default": "" },
+            { "id": "title",       "label": "Project Name",           "type": "text",  "default": "My Project" },
+            { "id": "description", "label": "Brief Description",      "type": "text",  "default": "" },
+            { "id": "link",        "label": "Live / Case Study Link", "type": "text",  "default": "" }
           ]
         }
       ]
@@ -48,11 +58,15 @@
       "id": "links",
       "label": "Links",
       "fields": [
-        { "id": "items", "label": "Links", "type": "repeater", "default": [],
+        { "id": "items", "label": "Links", "type": "repeater",
+          "default": [
+            { "label": "Hire Me",          "url": "", "emoji": "🤝", "primary": "yes" },
+            { "label": "View Full Portfolio", "url": "", "emoji": "🎨", "primary": "no"  }
+          ],
           "item_fields": [
-            { "id": "label",   "label": "Label",   "type": "text", "default": "Hire Me" },
-            { "id": "url",     "label": "URL",     "type": "text", "default": "" },
-            { "id": "emoji",   "label": "Emoji",   "type": "text", "default": "🤝" },
+            { "id": "label",   "label": "Label",            "type": "text", "default": "My Link" },
+            { "id": "url",     "label": "URL",              "type": "text", "default": "" },
+            { "id": "emoji",   "label": "Emoji",            "type": "text", "default": "🤝" },
             { "id": "primary", "label": "Primary (yes/no)", "type": "text", "default": "no" }
           ]
         }
