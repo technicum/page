@@ -2,6 +2,7 @@
 html,body{min-height:100%;}
 body{font-family:'DM Sans',sans-serif;background:#050510;background-attachment:fixed;color:#e2e8f0;display:flex;flex-direction:column;align-items:center;padding:40px 16px 80px;min-height:100vh;}
 .pz-sec{display:block;width:100%;}
+.pz-sec:has(.products-slider){overflow:visible;}
 .page{width:100%;max-width:480px;display:flex;flex-direction:column;gap:0;}
 
 /* ── Profile ── */
@@ -59,9 +60,9 @@ body{font-family:'DM Sans',sans-serif;background:#050510;background-attachment:f
 
 /* ══ PRODUCTS ══ */
 .products-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.products-slider{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:8px;scrollbar-width:none;}
+.products-slider{display:flex;flex-wrap:nowrap;gap:10px;overflow-x:auto;overflow-y:visible;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 0 8px;scrollbar-width:none;width:100%;}
 .products-slider::-webkit-scrollbar{display:none;}
-.products-slider .product-card{flex:0 0 62%;scroll-snap-align:start;}
+.products-slider .product-card{flex:0 0 68%;min-width:0;scroll-snap-align:start;}
 
 .product-card{background:rgba(255,255,255,0.05);border-radius:18px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s;}
 .product-card:hover{transform:translateY(-3px);}
