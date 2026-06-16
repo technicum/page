@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name }}</title>
+<link rel="stylesheet" href="/themes/biolink-freelancer/assets/css/style.css">
+<style>
+:root{
+  --accent: {{ settings.profile.accent | default: '#7c3aed' }};
+  --ink: #1a1a18; --muted: #6b6b66; --border: #e5e5e2;
+  --bg: #fafaf8; --white: #fff; --radius: 14px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Profile -->
+  {% assign pr = settings.profile %}
+  <div class="profile">
+    {% if pr.avatar %}
+      <img class="avatar" src="{{ pr.avatar }}" alt="{{ pr.name }}">
+    {% else %}
+      <div class="avatar-ph">{{ pr.name | slice: 0, 1 | upcase }}</div>
+    {% endif %}
+    {% if pr.availability == 'yes' %}<div class="avail-dot">Available for work</div>{% endif %}
+    <div class="name">{{ pr.name }}</div>
+    {% if pr.title %}<div class="title">{{ pr.title }}</div>{% endif %}
+    {% if pr.bio %}<div class="bio">{{ pr.bio }}</div>{% endif %}
+  </div>
+
+  <!-- Skills -->
+  {% assign sk = settings.skills %}
+  {% if sk.items and sk.items.size > 0 %}
+    <div class="sec-heading">{{ sk.heading | default: 'What I Do' }}</div>
+    <div class="skills-wrap">
+      {% for item in sk.items %}
+      <div class="skill-chip"><span class="skill-emoji">{{ item.emoji }}</span>{{ item.name }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Portfolio -->
+  {% assign pf = settings.portfolio %}
+  {% if pf.items and pf.items.size > 0 %}
+    <div class="sec-heading">{{ pf.heading | default: 'Recent Work' }}</div>
+    <div class="portfolio">
+      {% for item in pf.items %}
+      <div class="proj-card">
+        {% if item.image %}<img class="proj-img" src="{{ item.image }}" alt="{{ item.title }}">
+        {% else %}<div class="proj-img-ph">🎨</div>{% endif %}
+        <div class="proj-body">
+          <div class="proj-title">{{ item.title }}</div>
+          {% if item.description %}<div class="proj-desc">{{ item.description }}</div>{% endif %}
+          {% if item.link %}<a class="proj-link" href="{{ item.link }}" target="_blank">View Project →</a>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Links -->
+  {% assign lk = settings.links %}
+  {% if lk.items and lk.items.size > 0 %}
+    <div class="sec-heading">Work With Me</div>
+    <div class="links">
+      {% for item in lk.items %}
+      <a class="link-btn {% if item.primary == 'yes' %}primary{% else %}secondary{% endif %}" href="{{ item.url }}" target="_blank">
+        {% if item.emoji and item.primary != 'yes' %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
+        {{ item.label }}
+      </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Social -->
+  {% assign c = settings.contact %}
+  <div class="socials">
+    {% if c.email %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
+    {% if c.whatsapp %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
+    {% if c.linkedin %}<a class="soc-btn" href="{{ c.linkedin }}" target="_blank">💼 LinkedIn</a>{% endif %}
+    {% if c.github %}<a class="soc-btn" href="{{ c.github }}" target="_blank">🐙 GitHub</a>{% endif %}
+    {% if c.instagram %}<a class="soc-btn" href="{{ c.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
+  </div>
+
+</div>
+</body>
+</html>

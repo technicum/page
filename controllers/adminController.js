@@ -96,7 +96,7 @@ exports.uploadTheme = async (req, res) => {
 // ── Delete theme ──────────────────────────────────────────────────────────────
 exports.deleteTheme = (req, res) => {
   const slug    = (req.body.slug || '').replace(/[^a-z0-9-]/g, '')
-  const protect = ['minimal', 'bold', 'modern', 'biolink', 'biolink-neon', 'biolink-card', '_starter']
+  const protect = ['biolink-shop', 'biolink-service', 'biolink-realty', 'biolink-freelancer', 'biolink-creator', '_starter']
   if (!slug || protect.includes(slug)) {
     req.flash('errors', ['Cannot delete built-in themes.'])
     return res.redirect('/admin/themes')

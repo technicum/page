@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name }}</title>
+<link rel="stylesheet" href="/themes/biolink-shop/assets/css/style.css">
+<style>
+:root{
+  --accent: {{ settings.profile.accent | default: '#f97316' }};
+  --ink: #1a1a18; --muted: #6b6b66; --border: #e5e5e2;
+  --bg: #fafaf8; --white: #fff; --radius: 14px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Profile -->
+  <div class="profile">
+    {% if settings.profile.logo %}
+      <img class="avatar" src="{{ settings.profile.logo }}" alt="{{ settings.profile.name }}">
+    {% else %}
+      <div class="avatar-ph">{{ settings.profile.name | slice: 0, 1 | upcase }}</div>
+    {% endif %}
+    <div class="shop-name">{{ settings.profile.name }}</div>
+    {% if settings.profile.tagline %}<div class="tagline">{{ settings.profile.tagline }}</div>{% endif %}
+  </div>
+
+  <!-- Products -->
+  {% assign p = settings.products %}
+  {% if p.items and p.items.size > 0 %}
+    {% if p.heading %}<div class="section-heading">{{ p.heading }}</div>{% endif %}
+
+    {% if p.display_mode == 'slider' %}
+      <div class="pz-slider-wrap" id="pzWrap">
+        <div class="pz-slider-track" id="pzTrack">
+          {% for item in p.items %}
+          <div class="product-card">
+            {% if item.image %}<img class="product-img" src="{{ item.image }}" alt="{{ item.name }}">
+            {% else %}<div class="product-img-ph">🛍</div>{% endif %}
+            <div class="product-info">
+              <div class="product-name">{{ item.name }}</div>
+              <div class="product-price">{{ item.price }}</div>
+              {% if item.link %}<a class="product-btn" href="{{ item.link }}" target="_blank">Order Now</a>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="pz-slider-arrows">
+          <button class="pz-slider-arrow" onclick="pzSlide(-1)">‹</button>
+          <button class="pz-slider-arrow" onclick="pzSlide(1)">›</button>
+        </div>
+      </div>
+      <div class="pz-slider-dots" id="pzDots"></div>
+    {% else %}
+      <div class="products-grid">
+        {% for item in p.items %}
+        <div class="product-card">
+          {% if item.image %}<img class="product-img" src="{{ item.image }}" alt="{{ item.name }}">
+          {% else %}<div class="product-img-ph">🛍</div>{% endif %}
+          <div class="product-info">
+            <div class="product-name">{{ item.name }}</div>
+            <div class="product-price">{{ item.price }}</div>
+            {% if item.link %}<a class="product-btn" href="{{ item.link }}" target="_blank">Order Now</a>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <!-- Quick Links -->
+  {% assign l = settings.links %}
+  {% if l.items and l.items.size > 0 %}
+  <div class="links">
+    {% for item in l.items %}
+    <a class="link-btn" href="{{ item.url }}" target="_blank">
+      {% if item.emoji %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
+      {{ item.label }}
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Social -->
+  {% assign c = settings.contact %}
+  <div class="socials">
+    {% if c.whatsapp %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
+    {% if c.instagram %}<a class="soc-btn" href="{{ c.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
+    {% if c.email %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
+  </div>
+
+</div>
+<script src="/themes/biolink-shop/assets/js/slider.js"></script>
+</body>
+</html>

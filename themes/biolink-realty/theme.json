@@ -1,0 +1,61 @@
+{
+  "name": "Realty Link",
+  "description": "Biolink for real estate brokers — property listings, agent profile, inquiry CTA.",
+  "for": ["linktree"],
+  "preview": "preview.jpg",
+  "sections": [
+    {
+      "id": "profile",
+      "label": "Agent Profile",
+      "fields": [
+        { "id": "avatar",   "label": "Photo URL",        "type": "image",    "default": "" },
+        { "id": "name",     "label": "Agent Name",       "type": "text",     "default": "Raj Verma" },
+        { "id": "title",    "label": "Title",            "type": "text",     "default": "Real Estate Broker" },
+        { "id": "agency",   "label": "Agency Name",      "type": "text",     "default": "" },
+        { "id": "bio",      "label": "Short Bio",        "type": "textarea", "default": "" },
+        { "id": "accent",   "label": "Accent Color",     "type": "color",    "default": "#0f766e" }
+      ]
+    },
+    {
+      "id": "listings",
+      "label": "Property Listings",
+      "fields": [
+        { "id": "heading", "label": "Section Heading", "type": "text", "default": "Featured Properties" },
+        { "id": "items", "label": "Properties", "type": "repeater", "default": [],
+          "item_fields": [
+            { "id": "image",    "label": "Property Image URL", "type": "image", "default": "" },
+            { "id": "title",    "label": "Property Title",     "type": "text",  "default": "3BHK Apartment" },
+            { "id": "location", "label": "Location",           "type": "text",  "default": "" },
+            { "id": "price",    "label": "Price",              "type": "text",  "default": "₹45 Lac" },
+            { "id": "type",     "label": "Type (Sale/Rent)",   "type": "text",  "default": "Sale" },
+            { "id": "link",     "label": "Details / Inquiry Link", "type": "text", "default": "" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links",
+      "fields": [
+        { "id": "items", "label": "Links", "type": "repeater", "default": [],
+          "item_fields": [
+            { "id": "label",   "label": "Label", "type": "text", "default": "Schedule a Visit" },
+            { "id": "url",     "label": "URL",   "type": "text", "default": "" },
+            { "id": "emoji",   "label": "Emoji", "type": "text", "default": "🏠" },
+            { "id": "primary", "label": "Primary (yes/no)", "type": "text", "default": "no" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "fields": [
+        { "id": "whatsapp",  "label": "WhatsApp Number", "type": "text", "default": "" },
+        { "id": "phone",     "label": "Phone Number",    "type": "text", "default": "" },
+        { "id": "email",     "label": "Email",           "type": "text", "default": "" },
+        { "id": "instagram", "label": "Instagram URL",   "type": "text", "default": "" }
+      ]
+    }
+  ]
+}

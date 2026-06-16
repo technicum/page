@@ -1,0 +1,73 @@
+{
+  "name": "Freelancer Link",
+  "description": "Biolink for freelancers — skills, portfolio work, hire me CTA.",
+  "for": ["linktree"],
+  "preview": "preview.jpg",
+  "sections": [
+    {
+      "id": "profile",
+      "label": "Profile",
+      "fields": [
+        { "id": "avatar",      "label": "Avatar URL",      "type": "image",    "default": "" },
+        { "id": "name",        "label": "Your Name",       "type": "text",     "default": "Abhi Singh" },
+        { "id": "title",       "label": "What You Do",     "type": "text",     "default": "UI Designer & Developer" },
+        { "id": "bio",         "label": "Short Bio",       "type": "textarea", "default": "" },
+        { "id": "availability","label": "Available for Work (yes/no)", "type": "text", "default": "yes" },
+        { "id": "accent",      "label": "Accent Color",    "type": "color",    "default": "#7c3aed" }
+      ]
+    },
+    {
+      "id": "skills",
+      "label": "Skills",
+      "fields": [
+        { "id": "heading", "label": "Heading", "type": "text", "default": "What I Do" },
+        { "id": "items", "label": "Skills", "type": "repeater", "default": [],
+          "item_fields": [
+            { "id": "emoji", "label": "Emoji",      "type": "text", "default": "💻" },
+            { "id": "name",  "label": "Skill Name", "type": "text", "default": "Web Design" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "portfolio",
+      "label": "Portfolio",
+      "fields": [
+        { "id": "heading", "label": "Heading", "type": "text", "default": "Recent Work" },
+        { "id": "items", "label": "Projects", "type": "repeater", "default": [],
+          "item_fields": [
+            { "id": "image",       "label": "Image URL",    "type": "image", "default": "" },
+            { "id": "title",       "label": "Project Name", "type": "text",  "default": "Project" },
+            { "id": "description", "label": "Description",  "type": "text",  "default": "" },
+            { "id": "link",        "label": "Live / Case Study Link", "type": "text", "default": "" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links",
+      "fields": [
+        { "id": "items", "label": "Links", "type": "repeater", "default": [],
+          "item_fields": [
+            { "id": "label",   "label": "Label",   "type": "text", "default": "Hire Me" },
+            { "id": "url",     "label": "URL",     "type": "text", "default": "" },
+            { "id": "emoji",   "label": "Emoji",   "type": "text", "default": "🤝" },
+            { "id": "primary", "label": "Primary (yes/no)", "type": "text", "default": "no" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "fields": [
+        { "id": "email",     "label": "Email",         "type": "text", "default": "" },
+        { "id": "whatsapp",  "label": "WhatsApp",      "type": "text", "default": "" },
+        { "id": "linkedin",  "label": "LinkedIn URL",  "type": "text", "default": "" },
+        { "id": "github",    "label": "GitHub URL",    "type": "text", "default": "" },
+        { "id": "instagram", "label": "Instagram URL", "type": "text", "default": "" }
+      ]
+    }
+  ]
+}

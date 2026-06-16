@@ -1,0 +1,58 @@
+{
+  "name": "Service Link",
+  "description": "Biolink for service providers — services list, booking CTA, testimonials.",
+  "for": ["linktree"],
+  "preview": "preview.jpg",
+  "sections": [
+    {
+      "id": "profile",
+      "label": "Profile",
+      "fields": [
+        { "id": "avatar",   "label": "Avatar URL",    "type": "image", "default": "" },
+        { "id": "name",     "label": "Your Name",     "type": "text",  "default": "Jane Smith" },
+        { "id": "title",    "label": "Title / Role",  "type": "text",  "default": "Professional Services" },
+        { "id": "bio",      "label": "Short Bio",     "type": "textarea", "default": "" },
+        { "id": "accent",   "label": "Accent Color",  "type": "color", "default": "#2563eb" }
+      ]
+    },
+    {
+      "id": "services",
+      "label": "Services",
+      "fields": [
+        { "id": "heading", "label": "Section Heading", "type": "text", "default": "What I Offer" },
+        { "id": "items", "label": "Services", "type": "repeater", "default": [],
+          "item_fields": [
+            { "id": "emoji",       "label": "Emoji / Icon", "type": "text", "default": "✅" },
+            { "id": "name",        "label": "Service Name", "type": "text", "default": "Service" },
+            { "id": "description", "label": "Description",  "type": "text", "default": "" },
+            { "id": "price",       "label": "Price / Starting From", "type": "text", "default": "" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Booking & Links",
+      "fields": [
+        { "id": "items", "label": "Links", "type": "repeater", "default": [],
+          "item_fields": [
+            { "id": "label",    "label": "Label",    "type": "text", "default": "Book a Call" },
+            { "id": "url",      "label": "URL",      "type": "text", "default": "" },
+            { "id": "emoji",    "label": "Emoji",    "type": "text", "default": "📅" },
+            { "id": "primary",  "label": "Primary Button (yes/no)", "type": "text", "default": "no" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "fields": [
+        { "id": "whatsapp",  "label": "WhatsApp Number", "type": "text", "default": "" },
+        { "id": "email",     "label": "Email",           "type": "text", "default": "" },
+        { "id": "instagram", "label": "Instagram URL",   "type": "text", "default": "" },
+        { "id": "linkedin",  "label": "LinkedIn URL",    "type": "text", "default": "" }
+      ]
+    }
+  ]
+}

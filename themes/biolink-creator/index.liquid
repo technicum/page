@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name }}</title>
+<link rel="stylesheet" href="/themes/biolink-creator/assets/css/style.css">
+<style>
+:root{
+  --accent: {{ settings.profile.accent | default: '#e11d48' }};
+  --ink: #1a1a18; --muted: #6b6b66; --border: #e5e5e2;
+  --bg: #fafaf8; --white: #fff; --radius: 14px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Hero -->
+  {% assign pr = settings.profile %}
+  <div class="hero">
+    {% if pr.avatar %}
+      <img class="avatar" src="{{ pr.avatar }}" alt="{{ pr.name }}">
+    {% else %}
+      <div class="avatar-ph">{{ pr.name | slice: 0, 1 | upcase }}</div>
+    {% endif %}
+    <div class="creator-name">{{ pr.name }}</div>
+    {% if pr.tagline %}<div class="tagline">{{ pr.tagline }}</div>{% endif %}
+    {% if pr.bio %}<div class="bio">{{ pr.bio }}</div>{% endif %}
+  </div>
+
+  <!-- Social row -->
+  {% assign s = settings.socials %}
+  <div class="social-row">
+    {% if s.youtube %}<a class="soc-pill" href="{{ s.youtube }}" target="_blank">▶️ YouTube</a>{% endif %}
+    {% if s.instagram %}<a class="soc-pill" href="{{ s.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
+    {% if s.tiktok %}<a class="soc-pill" href="{{ s.tiktok }}" target="_blank">🎵 TikTok</a>{% endif %}
+    {% if s.twitter %}<a class="soc-pill" href="{{ s.twitter }}" target="_blank">𝕏 Twitter</a>{% endif %}
+    {% if s.spotify %}<a class="soc-pill" href="{{ s.spotify }}" target="_blank">🎧 Spotify</a>{% endif %}
+  </div>
+
+  <div class="body">
+
+    <!-- Featured Content -->
+    {% assign fc = settings.featured %}
+    {% if fc.items and fc.items.size > 0 %}
+      <div class="sec-heading">{{ fc.heading | default: 'Latest Content' }}</div>
+      <div class="content-list">
+        {% for item in fc.items %}
+        <a class="content-card" href="{{ item.link }}" target="_blank">
+          {% if item.thumbnail %}<img class="content-thumb" src="{{ item.thumbnail }}" alt="{{ item.title }}">
+          {% else %}<div class="content-thumb-ph">🎬</div>{% endif %}
+          <div class="content-info">
+            {% if item.platform %}<div class="content-platform">{{ item.platform }}</div>{% endif %}
+            <div class="content-title">{{ item.title }}</div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Links -->
+    {% assign lk = settings.links %}
+    {% if lk.items and lk.items.size > 0 %}
+      <div class="sec-heading">Links</div>
+      <div class="links">
+        {% for item in lk.items %}
+        <a class="link-btn {% if item.primary == 'yes' %}primary{% else %}secondary{% endif %}" href="{{ item.url }}" target="_blank">
+          {% if item.emoji and item.primary != 'yes' %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
+          {{ item.label }}
+        </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Collab -->
+    {% if s.email %}
+    <div class="collab">
+      <a href="mailto:{{ s.email }}">✉️ Collabs & Partnerships: {{ s.email }}</a>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name }}</title>
+<link rel="stylesheet" href="/themes/biolink-realty/assets/css/style.css">
+<style>
+:root{
+  --accent: {{ settings.profile.accent | default: '#0f766e' }};
+  --ink: #1a1a18; --muted: #6b6b66; --border: #e5e5e2;
+  --bg: #fafaf8; --white: #fff; --radius: 14px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Hero -->
+  {% assign pr = settings.profile %}
+  <div class="hero">
+    {% if pr.avatar %}
+      <img class="avatar" src="{{ pr.avatar }}" alt="{{ pr.name }}">
+    {% else %}
+      <div class="avatar-ph">{{ pr.name | slice: 0, 1 | upcase }}</div>
+    {% endif %}
+    <div class="agent-name">{{ pr.name }}</div>
+    {% if pr.title %}<div class="agent-title">{{ pr.title }}</div>{% endif %}
+    {% if pr.agency %}<div class="agent-agency">{{ pr.agency }}</div>{% endif %}
+  </div>
+
+  <div class="body">
+    {% if pr.bio %}<div class="bio">{{ pr.bio }}</div>{% endif %}
+
+    <!-- Properties -->
+    {% assign ls = settings.listings %}
+    {% if ls.items and ls.items.size > 0 %}
+      <div class="sec-heading">{{ ls.heading | default: 'Featured Properties' }}</div>
+      <div class="properties">
+        {% for item in ls.items %}
+        <div class="prop-card">
+          {% if item.image %}<img class="prop-img" src="{{ item.image }}" alt="{{ item.title }}">
+          {% else %}<div class="prop-img-ph">🏠</div>{% endif %}
+          <div class="prop-body">
+            <div class="prop-badges">
+              {% if item.type %}<span class="badge badge-type">{{ item.type }}</span>{% endif %}
+              {% if item.price %}<span class="badge badge-price">{{ item.price }}</span>{% endif %}
+            </div>
+            <div class="prop-title">{{ item.title }}</div>
+            {% if item.location %}<div class="prop-location">📍 {{ item.location }}</div>{% endif %}
+            {% if item.link %}<a class="prop-btn" href="{{ item.link }}" target="_blank">View Details →</a>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Links -->
+    {% assign lk = settings.links %}
+    {% if lk.items and lk.items.size > 0 %}
+      <div class="sec-heading">Get in Touch</div>
+      <div class="links">
+        {% for item in lk.items %}
+        <a class="link-btn {% if item.primary == 'yes' %}primary{% else %}secondary{% endif %}" href="{{ item.url }}" target="_blank">
+          {% if item.emoji and item.primary != 'yes' %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
+          {{ item.label }}
+        </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Social -->
+    {% assign c = settings.contact %}
+    <div class="socials">
+      {% if c.whatsapp %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
+      {% if c.phone %}<a class="soc-btn" href="tel:{{ c.phone }}">📞 Call</a>{% endif %}
+      {% if c.email %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
+      {% if c.instagram %}<a class="soc-btn" href="{{ c.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name }}</title>
+<link rel="stylesheet" href="/themes/biolink-service/assets/css/style.css">
+<style>
+:root{
+  --accent: {{ settings.profile.accent | default: '#2563eb' }};
+  --ink: #1a1a18; --muted: #6b6b66; --border: #e5e5e2;
+  --bg: #fafaf8; --white: #fff; --radius: 14px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Profile -->
+  {% assign pr = settings.profile %}
+  <div class="profile">
+    {% if pr.avatar %}
+      <img class="avatar" src="{{ pr.avatar }}" alt="{{ pr.name }}">
+    {% else %}
+      <div class="avatar-ph">{{ pr.name | slice: 0, 1 | upcase }}</div>
+    {% endif %}
+    <div class="name">{{ pr.name }}</div>
+    {% if pr.title %}<div class="title">{{ pr.title }}</div>{% endif %}
+    {% if pr.bio %}<div class="bio">{{ pr.bio }}</div>{% endif %}
+  </div>
+
+  <!-- Services -->
+  {% assign sv = settings.services %}
+  {% if sv.items and sv.items.size > 0 %}
+    <div class="sec-heading">{{ sv.heading | default: 'What I Offer' }}</div>
+    <div class="services">
+      {% for item in sv.items %}
+      <div class="service-card">
+        <div class="svc-emoji">{{ item.emoji | default: '✅' }}</div>
+        <div class="svc-body">
+          <div class="svc-name">{{ item.name }}</div>
+          {% if item.description %}<div class="svc-desc">{{ item.description }}</div>{% endif %}
+          {% if item.price %}<div class="svc-price">{{ item.price }}</div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Links -->
+  {% assign lk = settings.links %}
+  {% if lk.items and lk.items.size > 0 %}
+    <div class="sec-heading">Book / Connect</div>
+    <div class="links">
+      {% for item in lk.items %}
+      <a class="link-btn {% if item.primary == 'yes' %}primary{% else %}secondary{% endif %}" href="{{ item.url }}" target="_blank">
+        {% if item.emoji and item.primary != 'yes' %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
+        {{ item.label }}
+      </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Social -->
+  {% assign c = settings.contact %}
+  <div class="socials">
+    {% if c.whatsapp %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
+    {% if c.email %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
+    {% if c.instagram %}<a class="soc-btn" href="{{ c.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
+    {% if c.linkedin %}<a class="soc-btn" href="{{ c.linkedin }}" target="_blank">💼 LinkedIn</a>{% endif %}
+  </div>
+
+</div>
+</body>
+</html>
