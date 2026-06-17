@@ -67,7 +67,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .color-preview-row{display:flex;align-items:center;gap:8px;}
 .color-thumb{width:36px;height:36px;border-radius:8px;border:1px solid #e5e7eb;flex-shrink:0;cursor:pointer;position:relative;}
 .color-hex{flex:1;}
-.palette-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.palette-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
 .pal-chip{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 4px;border-radius:8px;border:2px solid transparent;transition:all 0.15s;background:transparent;}
 .pal-chip:hover{background:#f9fafb;}
 .pal-chip.selected{border-color:#6366f1;background:#eef2ff;}
@@ -299,7 +299,7 @@ document.getElementById('hiddenFileInput').addEventListener('change', function()
   var file = this.files[0];
   if (!file || !_imgCb) return;
   var fd = new FormData();
-  fd.append('file', file);
+  fd.append('image', file);
   fd.append('site_id', SITE_ID);
   fetch('/dashboard/media/' + SITE_ID + '/upload', { method: 'POST', body: fd })
     .then(function(r) { return r.json(); })
@@ -313,16 +313,18 @@ function triggerUpload(cb) {
 
 // ── Named color palette ───────────────────────────────────────────────────────
 var PALETTE = [
-  { name: 'Rose',    hex: '#e11d48' },
-  { name: 'Violet',  hex: '#6366f1' },
-  { name: 'Orange',  hex: '#f97316' },
-  { name: 'Sky',     hex: '#0ea5e9' },
-  { name: 'Green',   hex: '#16a34a' },
-  { name: 'Purple',  hex: '#7c3aed' },
-  { name: 'Teal',    hex: '#0f766e' },
-  { name: 'Pink',    hex: '#db2777' },
-  { name: 'Amber',   hex: '#d97706' },
-  { name: 'Slate',   hex: '#475569' }
+  { name: 'Obsidian',  hex: '#0a0a0a' },
+  { name: 'Midnight',  hex: '#1e1b4b' },
+  { name: 'Cobalt',    hex: '#2563eb' },
+  { name: 'Indigo',    hex: '#6366f1' },
+  { name: 'Violet',    hex: '#8b5cf6' },
+  { name: 'Fuchsia',   hex: '#d946ef' },
+  { name: 'Rose',      hex: '#f43f5e' },
+  { name: 'Ember',     hex: '#ea580c' },
+  { name: 'Lime',      hex: '#84cc16' },
+  { name: 'Emerald',   hex: '#10b981' },
+  { name: 'Cyan',      hex: '#06b6d4' },
+  { name: 'Sand',      hex: '#d4a96a' }
 ];
 
 // ── Field builders ────────────────────────────────────────────────────────────
