@@ -19,7 +19,7 @@
   <!-- Profile -->
   {% assign pr = settings.profile %}
   <div class="profile">
-    {% if pr.avatar %}
+    {% if pr.avatar != blank %}
       <img class="avatar" src="{{ pr.avatar }}" alt="{{ pr.name }}">
     {% else %}
       <div class="avatar-ph">{{ pr.name | slice: 0, 1 | upcase }}</div>
@@ -29,36 +29,53 @@
     {% if pr.bio %}<div class="bio">{{ pr.bio }}</div>{% endif %}
   </div>
 
-  <!-- Services -->
-  {% assign sv = settings.services %}
-  {% if sv.items and sv.items.size > 0 %}
-    <div class="sec-heading">{{ sv.heading | default: 'What I Offer' }}</div>
-    <div class="services">
-      {% for item in sv.items %}
-      <div class="service-card">
-        <div class="svc-emoji">{{ item.emoji | default: '✅' }}</div>
-        <div class="svc-body">
-          <div class="svc-name">{{ item.name }}</div>
-          {% if item.description %}<div class="svc-desc">{{ item.description }}</div>{% endif %}
-          {% if item.price %}<div class="svc-price">{{ item.price }}</div>{% endif %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-
-  <!-- Links -->
+  <!-- Links (always visible) -->
   {% assign lk = settings.links %}
   {% if lk.items and lk.items.size > 0 %}
-    <div class="sec-heading">Book / Connect</div>
-    <div class="links">
-      {% for item in lk.items %}
-      <a class="link-btn {% if item.primary == 'yes' %}primary{% else %}secondary{% endif %}" href="{{ item.url }}" target="_blank">
-        {% if item.emoji and item.primary != 'yes' %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
-        {{ item.label }}
-      </a>
-      {% endfor %}
+  <div class="links" style="margin-bottom:20px;">
+    {% for item in lk.items %}
+    <a class="link-btn {% if item.primary == 'yes' %}primary{% else %}secondary{% endif %}" href="{{ item.url }}" target="_blank">
+      {% if item.emoji and item.primary != 'yes' %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
+      {{ item.label }}
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Accordion: Services -->
+  {% assign sv = settings.services %}
+  {% if sv.items and sv.items.size > 0 %}
+  <div class="pz-sections">
+    <div class="pz-sec" id="sec-services">
+      <div class="pz-sec-head" onclick="pzToggle('sec-services')">
+        <div class="pz-sec-icon">✅</div>
+        <div class="pz-sec-meta">
+          <div class="pz-sec-title">{{ sv.heading | default: 'What I Offer' }}</div>
+          <div class="pz-sec-sub">{{ sv.items.size }} service{% if sv.items.size != 1 %}s{% endif %}</div>
+        </div>
+        <div class="pz-sec-right">
+          <span class="pz-count">{{ sv.items.size }}</span>
+          <svg class="pz-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="pz-sec-body">
+        <div class="pz-sec-inner">
+          <div class="services">
+            {% for item in sv.items %}
+            <div class="service-card">
+              <div class="svc-emoji">{{ item.emoji | default: '✅' }}</div>
+              <div class="svc-body">
+                <div class="svc-name">{{ item.name }}</div>
+                {% if item.description %}<div class="svc-desc">{{ item.description }}</div>{% endif %}
+                {% if item.price %}<div class="svc-price">{{ item.price }}</div>{% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
   {% endif %}
 
   <!-- Social -->
@@ -75,7 +92,7 @@
   <!-- Share -->
   <div class="share-bar">
     <button class="share-btn" onclick="pzShare()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
       Share this page
     </button>
     <div class="share-toast" id="pzToast">✓ Link copied!</div>
@@ -83,6 +100,7 @@
 
 </div>
 <script>
+function pzToggle(id){var el=document.getElementById(id);el.classList.toggle('open');}
 function pzShare(){var u=location.href,t=document.title;if(navigator.share){navigator.share({title:t,url:u});}else{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
 </script>
 </body>
