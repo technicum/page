@@ -76,13 +76,13 @@
 
   <!-- Social -->
   {% assign c = settings.contact %}
-  {% if c.email or c.whatsapp or c.linkedin or c.github or c.instagram %}
+  {% if c.email != blank or c.whatsapp != blank or c.linkedin != blank or c.github != blank or c.instagram != blank %}
   <div class="socials">
-    {% if c.email %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
-    {% if c.whatsapp %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
-    {% if c.linkedin %}<a class="soc-btn" href="{{ c.linkedin }}" target="_blank">💼 LinkedIn</a>{% endif %}
-    {% if c.github %}<a class="soc-btn" href="{{ c.github }}" target="_blank">🐙 GitHub</a>{% endif %}
-    {% if c.instagram %}<a class="soc-btn" href="{{ c.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
+    {% if c.email != blank %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
+    {% if c.whatsapp != blank %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
+    {% if c.linkedin != blank %}<a class="soc-btn" href="{{ c.linkedin }}" target="_blank">💼 LinkedIn</a>{% endif %}
+    {% if c.github != blank %}<a class="soc-btn" href="{{ c.github }}" target="_blank">🐙 GitHub</a>{% endif %}
+    {% if c.instagram != blank %}<a class="soc-btn" href="{{ c.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
   </div>
   {% endif %}
 

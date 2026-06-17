@@ -110,6 +110,7 @@ router.post('/dashboard/blog/:siteId/edit/:postId',       requireAuth, blog.upda
 router.post('/dashboard/blog/:siteId/delete/:postId',     requireAuth, blog.destroy)
 
 // Media library
+router.get ('/dashboard/media/:siteId/library',      requireAuth, media.library)
 router.get ('/dashboard/media/:siteId',              requireAuth, media.list)
 router.post('/dashboard/media/:siteId/upload',       requireAuth, media.upload)
 router.delete('/dashboard/media/:siteId/:filename',  requireAuth, media.destroy)

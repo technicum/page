@@ -31,13 +31,13 @@
 
   <!-- Social row -->
   {% assign s = settings.socials %}
-  {% if s.youtube or s.instagram or s.tiktok or s.twitter or s.spotify %}
+  {% if s.youtube != blank or s.instagram != blank or s.tiktok != blank or s.twitter != blank or s.spotify != blank %}
   <div class="social-row">
-    {% if s.youtube %}<a class="soc-pill" href="{{ s.youtube }}" target="_blank">▶️ YouTube</a>{% endif %}
-    {% if s.instagram %}<a class="soc-pill" href="{{ s.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
-    {% if s.tiktok %}<a class="soc-pill" href="{{ s.tiktok }}" target="_blank">🎵 TikTok</a>{% endif %}
-    {% if s.twitter %}<a class="soc-pill" href="{{ s.twitter }}" target="_blank">𝕏 Twitter</a>{% endif %}
-    {% if s.spotify %}<a class="soc-pill" href="{{ s.spotify }}" target="_blank">🎧 Spotify</a>{% endif %}
+    {% if s.youtube != blank %}<a class="soc-pill" href="{{ s.youtube }}" target="_blank">▶️ YouTube</a>{% endif %}
+    {% if s.instagram != blank %}<a class="soc-pill" href="{{ s.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
+    {% if s.tiktok != blank %}<a class="soc-pill" href="{{ s.tiktok }}" target="_blank">🎵 TikTok</a>{% endif %}
+    {% if s.twitter != blank %}<a class="soc-pill" href="{{ s.twitter }}" target="_blank">𝕏 Twitter</a>{% endif %}
+    {% if s.spotify != blank %}<a class="soc-pill" href="{{ s.spotify }}" target="_blank">🎧 Spotify</a>{% endif %}
   </div>
   {% endif %}
 
@@ -76,7 +76,7 @@
     {% endif %}
 
     <!-- Collab -->
-    {% if s.email %}
+    {% if s.email != blank %}
     <div class="collab">
       <a href="mailto:{{ s.email }}">✉️ Collabs & Partnerships: {{ s.email }}</a>
     </div>

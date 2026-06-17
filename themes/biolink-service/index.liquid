@@ -63,12 +63,12 @@
 
   <!-- Social -->
   {% assign c = settings.contact %}
-  {% if c.whatsapp or c.email or c.instagram or c.linkedin %}
+  {% if c.whatsapp != blank or c.email != blank or c.instagram != blank or c.linkedin != blank %}
   <div class="socials">
-    {% if c.whatsapp %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
-    {% if c.email %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
-    {% if c.instagram %}<a class="soc-btn" href="{{ c.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
-    {% if c.linkedin %}<a class="soc-btn" href="{{ c.linkedin }}" target="_blank">💼 LinkedIn</a>{% endif %}
+    {% if c.whatsapp != blank %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
+    {% if c.email != blank %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
+    {% if c.instagram != blank %}<a class="soc-btn" href="{{ c.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
+    {% if c.linkedin != blank %}<a class="soc-btn" href="{{ c.linkedin }}" target="_blank">💼 LinkedIn</a>{% endif %}
   </div>
   {% endif %}
 

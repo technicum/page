@@ -38,7 +38,43 @@ function uploaderFor(siteId) {
   return multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } })
 }
 
-// ── List media for a site ─────────────────────────────────────────────────────
+// ── Library page (HTML) ───────────────────────────────────────────────────────
+exports.library = async (req, res) => {
+  const user   = req.session.user
+  const siteId = parseInt(req.params.siteId) || 0
+
+  const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
+  if (!site) return res.status(403).send('Not found')
+
+  const dir = siteUploadDir(siteId)
+  ensureDir(dir)
+
+  const files = fs.readdirSync(dir)
+    .filter(f => /\.(jpg|jpeg|png|gif|webp|svg|avif)$/i.test(f))
+    .map(f => {
+      const stat = fs.statSync(path.join(dir, f))
+      return {
+        name: f,
+        url:  `/media/${siteId}/${f}`,
+        size: stat.size,
+        sizeLabel: stat.size > 1024 * 1024
+          ? (stat.size / (1024 * 1024)).toFixed(1) + ' MB'
+          : Math.round(stat.size / 1024) + ' KB',
+        modified: stat.mtime.toISOString().slice(0, 10)
+      }
+    })
+    .reverse()
+
+  res.render('dashboard/media-library.njk', {
+    title: 'Media Library',
+    user,
+    site,
+    files,
+    siteId
+  })
+}
+
+// ── List media for a site (JSON API) ─────────────────────────────────────────
 exports.list = async (req, res) => {
   const user   = req.session.user
   const siteId = parseInt(req.params.siteId) || 0
