@@ -188,7 +188,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
           <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
           <td>
             <div class="table-actions">
-              <a class="btn-table-action" href="/dashboard/site/{% if site.template_id == 'biolink' or site.template_id == 'biolink-neon' or site.template_id == 'biolink-card' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}" title="Edit site">Edit</a>
+              <a class="btn-table-action" href="/dashboard/site/{% if 'biolink' in site.template_id %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}" title="Edit site">Edit</a>
               <a class="btn-table-action" href="/dashboard/site/templates?id={{ site.id }}" title="Change theme">Theme</a>
               <div style="display:flex;gap:4px;">
                 <a class="btn-table-action" href="/dashboard/blog/{{ site.id }}" title="Manage blog">Blog</a>
@@ -242,7 +242,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
               <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
               <td>
                 <div class="table-actions">
-                  <a class="btn-table-action" href="/dashboard/site/${site.template_id === 'biolink' || site.template_id === 'biolink-neon' || site.template_id === 'biolink-card' ? 'biolink-builder' : 'builder'}?id=${site.id}" title="Edit site">Edit</a>
+                  <a class="btn-table-action" href="/dashboard/site/${site.template_id && site.template_id.startsWith('biolink') ? 'biolink-builder' : 'builder'}?id=${site.id}" title="Edit site">Edit</a>
                   <a class="btn-table-action" href="/dashboard/site/templates?id=${site.id}" title="Change theme">Theme</a>
                   <div style="display:flex;gap:4px;">
                     <a class="btn-table-action" href="/dashboard/blog/${site.id}" title="Manage blog">Blog</a>
