@@ -68,11 +68,20 @@ async function seedAvailability (siteId) {
 // GET /dashboard/booking/:siteId — overview
 exports.dashboard = async (req, res) => {
   try {
-const user = req.session.user
+        const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(404).send('Site not found')
 
     const today = new Date().toISOString().slice(0, 10)
+
+    // Compute week bounds in JS to avoid complex SQL date functions
+    const now = new Date()
+    const dayOfWeek = now.getDay()
+    const weekStart = new Date(now); weekStart.setDate(now.getDate() - dayOfWeek)
+    const weekEnd   = new Date(now); weekEnd.setDate(now.getDate() + (6 - dayOfWeek))
+    const wStart = weekStart.toISOString().slice(0, 10)
+    const wEnd   = weekEnd.toISOString().slice(0, 10)
+
     const upcoming = await db.query(
       `SELECT b.*, e.name AS event_name, e.color
        FROM ms_bookings b
@@ -81,20 +90,30 @@ const user = req.session.user
        ORDER BY b.booking_date, b.start_time LIMIT 20`,
       [site.id, today]
     )
-    const stats = await db.first(
-      `SELECT
-        COUNT(*) AS total,
-        SUM(booking_date = ?) AS today_count,
-        SUM(WEEK(booking_date) = WEEK(?) AND YEAR(booking_date) = YEAR(?)) AS week_count
-       FROM ms_bookings WHERE site_id = ? AND status = 'confirmed'`,
-      [today, today, today, site.id]
+    const totalRow = await db.first(
+      `SELECT COUNT(*) AS c FROM ms_bookings WHERE site_id = ? AND status = 'confirmed'`,
+      [site.id]
     )
+    const todayRow = await db.first(
+      `SELECT COUNT(*) AS c FROM ms_bookings WHERE site_id = ? AND status = 'confirmed' AND booking_date = ?`,
+      [site.id, today]
+    )
+    const weekRow = await db.first(
+      `SELECT COUNT(*) AS c FROM ms_bookings WHERE site_id = ? AND status = 'confirmed' AND booking_date BETWEEN ? AND ?`,
+      [site.id, wStart, wEnd]
+    )
+
+    const stats = {
+      total:       (totalRow && totalRow.c) || 0,
+      today_count: (todayRow && todayRow.c) || 0,
+      week_count:  (weekRow  && weekRow.c)  || 0
+    }
 
     res.render('dashboard/booking.njk', {
       title: 'Booking — ' + site.title,
       user, site,
       upcoming: upcoming || [],
-      stats: stats || { total: 0, today_count: 0, week_count: 0 }
+      stats
     })
   } catch (err) {
     console.error('booking.dashboard', err)
@@ -105,7 +124,7 @@ const user = req.session.user
 // GET /dashboard/booking/:siteId/events — list event types
 exports.events = async (req, res) => {
   try {
-const user = req.session.user
+    const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(404).send('Site not found')
 
@@ -134,7 +153,7 @@ const user = req.session.user
 // POST /dashboard/booking/:siteId/events/save
 exports.saveEvent = async (req, res) => {
   try {
-const user = req.session.user
+    const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(403).json({ error: 'Forbidden' })
 
@@ -164,7 +183,7 @@ const user = req.session.user
 // POST /dashboard/booking/:siteId/events/delete
 exports.deleteEvent = async (req, res) => {
   try {
-    const user = req.session.user
+        const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(403).send('Forbidden')
 
@@ -180,7 +199,7 @@ exports.deleteEvent = async (req, res) => {
 // GET /dashboard/booking/:siteId/availability
 exports.availability = async (req, res) => {
   try {
-const user = req.session.user
+    const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(404).send('Site not found')
 
@@ -207,7 +226,7 @@ const user = req.session.user
 // POST /dashboard/booking/:siteId/availability/save
 exports.saveAvailability = async (req, res) => {
   try {
-    const user = req.session.user
+        const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(403).send('Forbidden')
 
@@ -234,7 +253,7 @@ exports.saveAvailability = async (req, res) => {
 // GET /dashboard/booking/:siteId/list
 exports.bookingList = async (req, res) => {
   try {
-const user = req.session.user
+    const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(404).send('Site not found')
 
@@ -267,7 +286,7 @@ const user = req.session.user
 // POST /dashboard/booking/:siteId/cancel
 exports.cancelBooking = async (req, res) => {
   try {
-    const user = req.session.user
+        const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(403).send('Forbidden')
 
