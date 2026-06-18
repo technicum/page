@@ -146,6 +146,11 @@ router.get('/dashboard/api/forms/:siteId', requireAuth, form.apiList)
 router.post('/f/:formId', form.submit)
 
 // ── Booking ───────────────────────────────────────────────────────────────────
+router.get ('/dashboard/booking', requireAuth, async (req, res) => {
+  const site = await db.first('SELECT id FROM ms_sites WHERE user_id = ? ORDER BY id ASC LIMIT 1', [req.session.userId])
+  if (!site) return res.redirect('/dashboard/wizard')
+  res.redirect(`/dashboard/booking/${site.id}`)
+})
 router.get ('/dashboard/booking/:siteId',                       requireAuth, booking.dashboard)
 router.get ('/dashboard/booking/:siteId/events',                requireAuth, booking.events)
 router.post('/dashboard/booking/:siteId/events/save',           requireAuth, booking.saveEvent)
