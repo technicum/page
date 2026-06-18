@@ -76,7 +76,10 @@
       "id": "socials",
       "label": "Socials",
       "fields": [
-        { "id": "heading",   "label": "Section Heading", "type": "text", "default": "Follow me" },
+        { "id": "heading",    "label": "Section Heading",          "type": "text",  "default": "Follow me" },
+        { "id": "sub",        "label": "Sub Heading (leave blank to hide)", "type": "text", "default": "" },
+        { "id": "icon_color", "label": "Icon Color",                "type": "color", "default": "" },
+        { "id": "icon_size",  "label": "Icon Size (sm / md / lg / xl)", "type": "text", "default": "md" },
         { "id": "instagram", "label": "Instagram URL",  "type": "text", "default": "" },
         { "id": "linkedin",  "label": "LinkedIn URL",   "type": "text", "default": "" },
         { "id": "github",    "label": "GitHub URL",     "type": "text", "default": "" },

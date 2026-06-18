@@ -88,13 +88,18 @@
         <div class="pz-sec-icon">📱</div>
         <div class="pz-sec-meta">
           <div class="pz-sec-title">{{ s.heading | default: 'Follow me' }}</div>
-          <div class="pz-sec-sub">Connect on social media</div>
+          {% if s.sub != blank %}<div class="pz-sec-sub">{{ s.sub }}</div>{% endif %}
         </div>
         <div class="pz-sec-right">
           <svg class="pz-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
       <div class="pz-sec-body">
+        {% assign _sz = 58 %}{% assign _fz = 24 %}
+        {% if s.icon_size == 'sm' %}{% assign _sz = 44 %}{% assign _fz = 18 %}{% endif %}
+        {% if s.icon_size == 'lg' %}{% assign _sz = 70 %}{% assign _fz = 30 %}{% endif %}
+        {% if s.icon_size == 'xl' %}{% assign _sz = 86 %}{% assign _fz = 38 %}{% endif %}
+        <style>#sec-socials .soc-icon{width:{{ _sz }}px;height:{{ _sz }}px;font-size:{{ _fz }}px;{% if s.icon_color != blank %}color:{{ s.icon_color }};border-color:{{ s.icon_color }};background:{{ s.icon_color }}1a;{% endif %}}{% if s.icon_color != blank %}#sec-socials .soc-icon:hover{background:{{ s.icon_color }};color:#fff;}{% endif %}</style>
         <div class="pz-sec-inner" style="padding:20px 16px;text-align:center;">
           <div class="social-row">
             {% if s.instagram != blank %}<a class="soc-icon" href="{{ s.instagram }}" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>{% endif %}
