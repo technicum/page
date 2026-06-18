@@ -85,7 +85,7 @@ async function serveSite(req, res, next, lookup) {
       return serveBookingPage(req, res, site, settings, 'meeting', subPath || null)
     }
     if (pageId === 'appointment') {
-      return serveBookingPage(req, res, site, settings, 'appointment', null)
+      return serveBookingPage(req, res, site, settings, 'appointment', subPath || null)
     }
 
     // ── Blog: post detail (/blog/my-post-slug) ─────────────────────────────────
