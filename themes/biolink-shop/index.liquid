@@ -158,7 +158,6 @@
             {% if c.phone != blank %}<a class="contact-btn" href="tel:{{ c.phone }}"><span class="contact-btn-icon"><i class="fa-solid fa-phone"></i></span><span class="contact-btn-label">Call</span><span class="contact-btn-val">{{ c.phone }}</span></a>{% endif %}
             {% if c.email != blank %}<a class="contact-btn" href="mailto:{{ c.email }}"><span class="contact-btn-icon"><i class="fa-solid fa-envelope"></i></span><span class="contact-btn-label">Email</span><span class="contact-btn-val">{{ c.email }}</span></a>{% endif %}
           </div>
-          <button class="save-contact-btn" onclick="pzSaveContact()"><i class="fa-solid fa-user-plus"></i> {{ c.save_label | default: 'Save Contact' }}</button>
         </div>
       </div>
     </div>
@@ -194,6 +193,13 @@
       </button>
     </div>
   </div>
+
+  <!-- Save Contact -->
+  {% if settings.contact.email != blank or settings.contact.phone != blank or settings.contact.whatsapp != blank %}
+  <div class="save-contact-bar">
+    <button class="save-contact-btn" onclick="pzSaveContact()"><i class="fa-solid fa-user-plus"></i> {{ settings.contact.save_label | default: 'Save Contact' }}</button>
+  </div>
+  {% endif %}
 
   <!-- Share -->
   <div class="share-bar">

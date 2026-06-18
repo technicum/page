@@ -166,10 +166,16 @@
             {% if c.whatsapp != blank %}<a class="contact-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank"><span class="contact-btn-icon"><i class="fa-brands fa-whatsapp"></i></span><span class="contact-btn-label">WhatsApp</span></a>{% endif %}
             {% if c.phone != blank %}<a class="contact-btn" href="tel:{{ c.phone }}"><span class="contact-btn-icon"><i class="fa-solid fa-phone"></i></span><span class="contact-btn-label">Call</span><span class="contact-btn-val">{{ c.phone }}</span></a>{% endif %}
           </div>
-          <button class="save-contact-btn" onclick="pzSaveContact()"><i class="fa-solid fa-user-plus"></i> {{ c.save_label | default: 'Save Contact' }}</button>
         </div>
       </div>
     </div>
+  </div>
+  {% endif %}
+
+  <!-- Save Contact -->
+  {% if settings.contact.email != blank or settings.contact.phone != blank or settings.contact.whatsapp != blank %}
+  <div class="save-contact-bar">
+    <button class="save-contact-btn" onclick="pzSaveContact()"><i class="fa-solid fa-user-plus"></i> {{ settings.contact.save_label | default: 'Save Contact' }}</button>
   </div>
   {% endif %}
 
