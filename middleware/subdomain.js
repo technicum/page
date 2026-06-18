@@ -62,6 +62,9 @@ async function serveSite(req, res, next, lookup) {
     const pageId    = pathParts[0] || 'home'
     const subPath   = pathParts[1] || null
 
+    // ── Pass API requests to main router ──────────────────────────────────────
+    if (rawPath.startsWith('api/')) return next()
+
     // ── Special routes: sitemap.xml ────────────────────────────────────────────
     if (rawPath === 'sitemap.xml') {
       return serveSitemap(req, res, site, settings)
