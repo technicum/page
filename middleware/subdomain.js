@@ -218,6 +218,7 @@ a{color:inherit;text-decoration:none;}
 .cal-nav{background:none;border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--ink-m);}
 .cal-nav:hover{background:var(--off);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0;}
+#calDays{display:contents;}
 .cal-dh{font-size:11px;font-weight:600;color:var(--ink-f);text-align:center;padding:10px 0;text-transform:uppercase;}
 .cal-day{text-align:center;padding:10px 0;font-size:14px;color:var(--ink-f);cursor:default;}
 .cal-day.avail{color:var(--ink);cursor:pointer;font-weight:500;}
