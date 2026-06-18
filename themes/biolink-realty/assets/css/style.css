@@ -72,9 +72,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .soc-btn i{font-size:14px;line-height:1;}
 .save-contact-btn i{font-size:15px;line-height:1;}
 
+/* Contact actions */
+.contact-actions{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.contact-btn{display:flex;align-items:center;gap:12px;padding:11px 14px;background:color-mix(in srgb,var(--accent) 6%,#fff);border:1.5px solid color-mix(in srgb,var(--accent) 18%,#fff);border-radius:12px;text-decoration:none;color:var(--ink);transition:all 0.2s;}
+.contact-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+.contact-btn-icon{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:background 0.2s;}
+.contact-btn:hover .contact-btn-icon{background:rgba(255,255,255,0.22);}
+.contact-btn-label{font-size:14px;font-weight:600;flex:1;}
+.contact-btn-val{font-size:12px;color:var(--muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.contact-btn:hover .contact-btn-val{color:rgba(255,255,255,0.75);}
+
 /* Save contact */
-.save-contact-bar{text-align:center;margin:16px 0 24px;}
-.save-contact-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--accent);color:#fff;border:none;border-radius:40px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.15s;box-shadow:0 2px 10px rgba(0,0,0,0.12);}
+.save-contact-btn{display:flex;width:100%;justify-content:center;align-items:center;gap:8px;padding:12px 20px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.15s;box-shadow:0 2px 10px rgba(0,0,0,0.12);}
 .save-contact-btn:hover{opacity:0.88;}
 
 /* Share bar */
