@@ -104,7 +104,7 @@ body{font-family:"DM Sans",sans-serif;}
                 {{ ev.name }}
                 {% if not ev.is_active %}<span class="inactive-badge">Inactive</span>{% endif %}
               </div>
-              <div class="event-meta">{{ ev.duration }} min{% if ev.location %} · {{ ev.location }}{% endif %}{% if ev.description %} · {{ ev.description | truncate(60) }}{% endif %}</div>
+              <div class="event-meta">{% if ev.event_type == 'appointment' %}📍 In-Person{% else %}🖥️ Meeting{% endif %} · {{ ev.duration }} min{% if ev.location %} · {{ ev.location }}{% endif %}{% if ev.description %} · {{ ev.description | truncate(50) }}{% endif %}</div>
             </div>
             <div class="event-actions">
               <a class="btn-edit" href="/dashboard/booking/{{ site.id }}/events?edit={{ ev.id }}">Edit</a>
@@ -124,6 +124,15 @@ body{font-family:"DM Sans",sans-serif;}
         <div class="form-title">{{ 'Edit Event Type' if edit else 'New Event Type' }}</div>
         <form method="POST" action="/dashboard/booking/{{ site.id }}/events/save">
           {% if edit %}<input type="hidden" name="id" value="{{ edit.id }}">{% endif %}
+
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select class="form-input" name="event_type">
+              <option value="meeting" {% if not edit or edit.event_type == 'meeting' %}selected{% endif %}>🖥️ Online Meeting (video / phone call)</option>
+              <option value="appointment" {% if edit and edit.event_type == 'appointment' %}selected{% endif %}>📍 In-Person Appointment (clinic, salon, etc.)</option>
+            </select>
+            <div class="form-hint">Determines which booking page shows this event type — /book for meetings, /appointment for in-person.</div>
+          </div>
 
           <div class="form-group">
             <label class="form-label">Name</label>

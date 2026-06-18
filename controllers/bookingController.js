@@ -157,20 +157,21 @@ exports.saveEvent = async (req, res) => {
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(403).json({ error: 'Forbidden' })
 
-    const { id, name, duration, description, color, location, is_active } = req.body
+    const { id, name, duration, description, color, location, event_type, is_active } = req.body
     if (!name || !duration) return res.redirect(`/dashboard/booking/${site.id}/events`)
+    const evType = event_type === 'appointment' ? 'appointment' : 'meeting'
 
     if (id) {
       await db.execute(
-        `UPDATE ms_booking_events SET name=?, duration=?, description=?, color=?, location=?, is_active=?
+        `UPDATE ms_booking_events SET name=?, duration=?, description=?, color=?, location=?, event_type=?, is_active=?
          WHERE id = ? AND site_id = ?`,
-        [name, parseInt(duration), description || '', color || '#7c3aed', location || '', is_active ? 1 : 0, id, site.id]
+        [name, parseInt(duration), description || '', color || '#7c3aed', location || '', evType, is_active ? 1 : 0, id, site.id]
       )
     } else {
       await db.execute(
-        `INSERT INTO ms_booking_events (site_id, name, duration, description, color, location, is_active)
-         VALUES (?, ?, ?, ?, ?, ?, 1)`,
-        [site.id, name, parseInt(duration), description || '', color || '#7c3aed', location || '']
+        `INSERT INTO ms_booking_events (site_id, name, duration, description, color, location, event_type, is_active)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+        [site.id, name, parseInt(duration), description || '', color || '#7c3aed', location || '', evType]
       )
     }
     res.redirect(`/dashboard/booking/${site.id}/events?saved=1`)
@@ -307,17 +308,27 @@ exports.cancelBooking = async (req, res) => {
 // PUBLIC API (no auth — uses subdomain)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// GET /api/booking/:subdomain/events
+// GET /api/booking/:subdomain/events[?type=meeting|appointment]
 exports.apiEvents = async (req, res) => {
   try {
-const site = await db.first('SELECT id FROM ms_sites WHERE subdomain = ?', [req.params.subdomain])
+    const site = await db.first('SELECT id FROM ms_sites WHERE subdomain = ?', [req.params.subdomain])
     if (!site) return res.json([])
 
-    const events = await db.query(
-      `SELECT id, name, duration, description, color, location
-       FROM ms_booking_events WHERE site_id = ? AND is_active = 1 ORDER BY created_at`,
-      [site.id]
-    )
+    const type = req.query.type  // 'meeting', 'appointment', or undefined (all)
+    let events
+    if (type === 'meeting' || type === 'appointment') {
+      events = await db.query(
+        `SELECT id, name, duration, description, color, location, event_type
+         FROM ms_booking_events WHERE site_id = ? AND is_active = 1 AND event_type = ? ORDER BY created_at`,
+        [site.id, type]
+      )
+    } else {
+      events = await db.query(
+        `SELECT id, name, duration, description, color, location, event_type
+         FROM ms_booking_events WHERE site_id = ? AND is_active = 1 ORDER BY created_at`,
+        [site.id]
+      )
+    }
     res.json(events || [])
   } catch (err) {
     console.error('booking.apiEvents', err)
@@ -328,7 +339,7 @@ const site = await db.first('SELECT id FROM ms_sites WHERE subdomain = ?', [req.
 // GET /api/booking/:subdomain/slots/:eventId/:date  (date = YYYY-MM-DD)
 exports.apiSlots = async (req, res) => {
   try {
-const { subdomain, eventId, date } = req.params
+    const { subdomain, eventId, date } = req.params
 
     // Validate date
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.json([])
@@ -368,7 +379,7 @@ const { subdomain, eventId, date } = req.params
 // POST /api/booking/:subdomain/create
 exports.apiCreate = async (req, res) => {
   try {
-const { subdomain } = req.params
+    const { subdomain } = req.params
     const { event_id, booking_date, start_time, booker_name, booker_email, booker_phone, notes } = req.body
 
     // Basic validation

@@ -9,10 +9,14 @@ CREATE TABLE IF NOT EXISTS ms_booking_events (
   description TEXT,
   color       VARCHAR(20) DEFAULT '#7c3aed',
   location    VARCHAR(255) DEFAULT '',
+  event_type  ENUM('meeting','appointment') DEFAULT 'meeting',
   is_active   TINYINT(1) DEFAULT 1,
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_site (site_id)
 ) CHARACTER SET utf8mb4;
+
+-- If the table already exists, run this to add the event_type column:
+-- ALTER TABLE ms_booking_events ADD COLUMN event_type ENUM('meeting','appointment') DEFAULT 'meeting' AFTER location;
 
 CREATE TABLE IF NOT EXISTS ms_booking_availability (
   id           INT AUTO_INCREMENT PRIMARY KEY,
