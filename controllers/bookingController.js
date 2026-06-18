@@ -109,11 +109,17 @@ exports.dashboard = async (req, res) => {
       week_count:  (weekRow  && weekRow.c)  || 0
     }
 
+    const baseDomain = process.env.BASE_DOMAIN || 'pagezapper.com'
+    const bookUrl       = `https://${site.subdomain}.${baseDomain}/book`
+    const appointmentUrl = `https://${site.subdomain}.${baseDomain}/appointment`
+
     res.render('dashboard/booking.njk', {
       title: 'Booking — ' + site.title,
       user, site,
       upcoming: upcoming || [],
-      stats
+      stats,
+      bookUrl,
+      appointmentUrl
     })
   } catch (err) {
     console.error('booking.dashboard', err)

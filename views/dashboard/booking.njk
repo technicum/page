@@ -85,6 +85,39 @@ body{font-family:"DM Sans",sans-serif;}
       <a class="quick-link" href="/dashboard/booking/{{ site.id }}/list">📋 View All Bookings</a>
     </div>
 
+    <div class="section-head" style="margin-top:28px;">
+      <div class="section-title">Your Booking Links</div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;max-width:600px;margin-bottom:28px;">
+      <div style="font-size:13px;color:var(--ink-muted);margin-bottom:16px;">Copy these links and add them to your bio link page via the <strong>Links</strong> module in the editor.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">🖥️ Online Meetings</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input id="url-book" type="text" value="{{ bookUrl }}" readonly style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);color:var(--ink);cursor:default;">
+            <button onclick="pzCopy('url-book','btn-book')" id="btn-book" style="padding:8px 16px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">📍 In-Person Appointments</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input id="url-appt" type="text" value="{{ appointmentUrl }}" readonly style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);color:var(--ink);cursor:default;">
+            <button onclick="pzCopy('url-appt','btn-appt')" id="btn-appt" style="padding:8px 16px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+    function pzCopy(inputId, btnId) {
+      var el = document.getElementById(inputId);
+      el.select(); el.setSelectionRange(0, 999);
+      try { document.execCommand('copy'); } catch(e) {}
+      var btn = document.getElementById(btnId);
+      btn.textContent = 'Copied!';
+      setTimeout(function(){ btn.textContent = 'Copy'; }, 2000);
+    }
+    </script>
+
     <div class="section-head">
       <div class="section-title">Upcoming Bookings</div>
       <a href="/dashboard/booking/{{ site.id }}/list" style="font-size:13px;color:var(--blue);">View all →</a>
