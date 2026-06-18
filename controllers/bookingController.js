@@ -1,50 +1,5 @@
 const { db } = require('../config/db')
 
-// ── Auto-bootstrap tables ─────────────────────────────────────────────────────
-let _ready = false
-async function ensureTables () {
-  if (_ready) return
-  await db.execute(`CREATE TABLE IF NOT EXISTS ms_booking_events (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    site_id INT NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    duration INT NOT NULL DEFAULT 30,
-    description TEXT,
-    color VARCHAR(20) DEFAULT '#7c3aed',
-    location VARCHAR(255) DEFAULT '',
-    is_active TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_site (site_id)
-  ) CHARACTER SET utf8mb4`)
-  await db.execute(`CREATE TABLE IF NOT EXISTS ms_booking_availability (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    site_id INT NOT NULL,
-    day_of_week TINYINT NOT NULL COMMENT '0=Sun,1=Mon,...,6=Sat',
-    start_time TIME NOT NULL DEFAULT '09:00:00',
-    end_time TIME NOT NULL DEFAULT '17:00:00',
-    is_available TINYINT(1) DEFAULT 1,
-    UNIQUE KEY site_day (site_id, day_of_week)
-  ) CHARACTER SET utf8mb4`)
-  await db.execute(`CREATE TABLE IF NOT EXISTS ms_bookings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    site_id INT NOT NULL,
-    event_id INT NOT NULL,
-    booker_name VARCHAR(255) NOT NULL,
-    booker_email VARCHAR(255) NOT NULL,
-    booker_phone VARCHAR(100) DEFAULT '',
-    booking_date DATE NOT NULL,
-    start_time TIME NOT NULL,
-    end_time TIME NOT NULL,
-    notes TEXT,
-    status ENUM('confirmed','cancelled') DEFAULT 'confirmed',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_site (site_id),
-    INDEX idx_date (booking_date),
-    INDEX idx_event (event_id)
-  ) CHARACTER SET utf8mb4`)
-  _ready = true
-}
-
 // ── Slot generation helpers ────────────────────────────────────────────────────
 function toMin (t) {
   const [h, m] = String(t).split(':').map(Number)
@@ -113,8 +68,7 @@ async function seedAvailability (siteId) {
 // GET /dashboard/booking/:siteId — overview
 exports.dashboard = async (req, res) => {
   try {
-    await ensureTables()
-    const user = req.session.user
+const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(404).send('Site not found')
 
@@ -151,8 +105,7 @@ exports.dashboard = async (req, res) => {
 // GET /dashboard/booking/:siteId/events — list event types
 exports.events = async (req, res) => {
   try {
-    await ensureTables()
-    const user = req.session.user
+const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(404).send('Site not found')
 
@@ -181,8 +134,7 @@ exports.events = async (req, res) => {
 // POST /dashboard/booking/:siteId/events/save
 exports.saveEvent = async (req, res) => {
   try {
-    await ensureTables()
-    const user = req.session.user
+const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(403).json({ error: 'Forbidden' })
 
@@ -228,8 +180,7 @@ exports.deleteEvent = async (req, res) => {
 // GET /dashboard/booking/:siteId/availability
 exports.availability = async (req, res) => {
   try {
-    await ensureTables()
-    const user = req.session.user
+const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(404).send('Site not found')
 
@@ -283,8 +234,7 @@ exports.saveAvailability = async (req, res) => {
 // GET /dashboard/booking/:siteId/list
 exports.bookingList = async (req, res) => {
   try {
-    await ensureTables()
-    const user = req.session.user
+const user = req.session.user
     const site = await getSite(req.params.siteId, user.id)
     if (!site) return res.status(404).send('Site not found')
 
@@ -341,8 +291,7 @@ exports.cancelBooking = async (req, res) => {
 // GET /api/booking/:subdomain/events
 exports.apiEvents = async (req, res) => {
   try {
-    await ensureTables()
-    const site = await db.first('SELECT id FROM ms_sites WHERE subdomain = ?', [req.params.subdomain])
+const site = await db.first('SELECT id FROM ms_sites WHERE subdomain = ?', [req.params.subdomain])
     if (!site) return res.json([])
 
     const events = await db.query(
@@ -360,8 +309,7 @@ exports.apiEvents = async (req, res) => {
 // GET /api/booking/:subdomain/slots/:eventId/:date  (date = YYYY-MM-DD)
 exports.apiSlots = async (req, res) => {
   try {
-    await ensureTables()
-    const { subdomain, eventId, date } = req.params
+const { subdomain, eventId, date } = req.params
 
     // Validate date
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.json([])
@@ -401,8 +349,7 @@ exports.apiSlots = async (req, res) => {
 // POST /api/booking/:subdomain/create
 exports.apiCreate = async (req, res) => {
   try {
-    await ensureTables()
-    const { subdomain } = req.params
+const { subdomain } = req.params
     const { event_id, booking_date, start_time, booker_name, booker_email, booker_phone, notes } = req.body
 
     // Basic validation
