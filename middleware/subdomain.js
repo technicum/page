@@ -411,7 +411,7 @@ window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn})};
       var dt=new Date(calYear,calMonth,d)
       var isPast=ds<todayStr
       var cls='cal-day'+(isPast?'':' avail')+(ds===todayStr?' today-mark':'')+(ds===selDate?' selected':'')
-      var click=isPast?'':'onclick="pickDay(\''+ds+'\')"'
+      var click=isPast?'':'onclick="pickDay(&#39;'+ds+'&#39;)"'
       html+='<div class="'+cls+'" '+click+'>'+d+'</div>'
     }
     document.getElementById('calDays').innerHTML=html
@@ -438,7 +438,7 @@ window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn})};
         grid.innerHTML='<div style="color:var(--ink-m);font-size:13px;grid-column:1/-1;">No available slots on this day.</div>';return
       }
       grid.innerHTML=slots.map(function(s){
-        return '<div class="slot-btn'+(s.time===selTime?' selected':'')+'" onclick="pickSlot(\''+s.time+'\',\''+s.label+'\')">'+s.label+'</div>'
+        return '<div class="slot-btn'+(s.time===selTime?' selected':'')+'" onclick="pickSlot(&#39;'+s.time+'&#39;,&#39;'+s.label+'&#39;)">'+s.label+'</div>'
       }).join('')
     }).catch(function(){
       grid.innerHTML='<div style="color:var(--ink-m);font-size:13px;grid-column:1/-1;">Could not load slots.</div>'
