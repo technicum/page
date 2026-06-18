@@ -349,9 +349,13 @@ a{color:inherit;text-decoration:none;}
 </div>
 
 <script>
+window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn})};
+</script>
+<script>
 (function(){
-  var SUB='${sub}', ev=null, selDate=null, selTime=null, TYPE='${typeParam}'
-  var calYear=0, calMonth=0, evList=[]
+  var SUB=_PZ.sub, TYPE=_PZ.type, CONFIRM_BTN=_PZ.btn;
+  var ev=null, selDate=null, selTime=null;
+  var calYear=0, calMonth=0, evList=[];
 
   // ── Load events ──────────────────────────────────────────────────────────────
   fetch('/api/booking/'+SUB+'/events?type='+TYPE).then(r=>r.json()).then(function(evs){
@@ -462,7 +466,7 @@ a{color:inherit;text-decoration:none;}
     var errEl=document.getElementById('formErr')
     errEl.style.display='none'
     if(!name||!email){errEl.textContent='Please fill in your name and email.';errEl.style.display='block';return}
-    if(!/^[^@]+@[^@]+\\.[^@]+$/.test(email)){errEl.textContent='Please enter a valid email address.';errEl.style.display='block';return}
+    if(!/^[^@]+@[^@]+[.][^@]+$/.test(email)){errEl.textContent='Please enter a valid email address.';errEl.style.display='block';return}
     var btn=document.getElementById('submitBtn')
     btn.disabled=true; btn.textContent='Confirming...'
     fetch('/api/booking/'+SUB+'/create',{
@@ -470,8 +474,8 @@ a{color:inherit;text-decoration:none;}
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({event_id:ev.id,booking_date:selDate,start_time:selTime,booker_name:name,booker_email:email,booker_phone:phone,notes:notes})
     }).then(r=>r.json()).then(function(res){
-      btn.disabled=false; btn.textContent='Confirm Appointment'
-      if(!res.ok){errEl.textContent=res.error||'Something went wrong. Please try again.';errEl.style.display='block';btn.disabled=false;btn.textContent='${confirmBtn}';return}
+      btn.disabled=false; btn.textContent=CONFIRM_BTN;
+      if(!res.ok){errEl.textContent=res.error||'Something went wrong. Please try again.';errEl.style.display='block';return;}
       var d=new Date(selDate+'T00:00:00')
       var wd=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
       var MONTHS2=['January','February','March','April','May','June','July','August','September','October','November','December']
@@ -485,8 +489,8 @@ a{color:inherit;text-decoration:none;}
         '<div><span>Email</span><span>'+email+'</span></div>'
       goStep(4)
     }).catch(function(){
-      btn.disabled=false; btn.textContent='${confirmBtn}'
-      errEl.textContent='Network error. Please try again.';errEl.style.display='block'
+      btn.disabled=false; btn.textContent=CONFIRM_BTN;
+      errEl.textContent='Network error. Please try again.'; errEl.style.display='block';
     })
   }
 })()
