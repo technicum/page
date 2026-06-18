@@ -79,15 +79,18 @@
   </div>
   {% endif %}
 
-  <!-- Socials row -->
+  <!-- Socials -->
   {% assign s = settings.socials %}
   {% if s.instagram != blank or s.linkedin != blank or s.facebook != blank or s.twitter != blank or s.youtube != blank %}
-  <div class="social-row">
-    {% if s.instagram != blank %}<a class="soc-pill" href="{{ s.instagram }}" target="_blank"><i class="fa-brands fa-instagram"></i> Instagram</a>{% endif %}
-    {% if s.linkedin != blank %}<a class="soc-pill" href="{{ s.linkedin }}" target="_blank"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>{% endif %}
-    {% if s.facebook != blank %}<a class="soc-pill" href="{{ s.facebook }}" target="_blank"><i class="fa-brands fa-facebook"></i> Facebook</a>{% endif %}
-    {% if s.twitter != blank %}<a class="soc-pill" href="{{ s.twitter }}" target="_blank"><i class="fa-brands fa-x-twitter"></i> Twitter</a>{% endif %}
-    {% if s.youtube != blank %}<a class="soc-pill" href="{{ s.youtube }}" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube</a>{% endif %}
+  <div class="social-section">
+    <div class="social-label">{{ s.heading | default: 'Follow me' }}</div>
+    <div class="social-row">
+      {% if s.instagram != blank %}<a class="soc-icon" href="{{ s.instagram }}" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>{% endif %}
+      {% if s.linkedin != blank %}<a class="soc-icon" href="{{ s.linkedin }}" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>{% endif %}
+      {% if s.facebook != blank %}<a class="soc-icon" href="{{ s.facebook }}" target="_blank" title="Facebook"><i class="fa-brands fa-facebook"></i></a>{% endif %}
+      {% if s.twitter != blank %}<a class="soc-icon" href="{{ s.twitter }}" target="_blank" title="Twitter"><i class="fa-brands fa-x-twitter"></i></a>{% endif %}
+      {% if s.youtube != blank %}<a class="soc-icon" href="{{ s.youtube }}" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>{% endif %}
+    </div>
   </div>
   {% endif %}
 

@@ -57,6 +57,7 @@
       "id": "socials",
       "label": "Socials",
       "fields": [
+        { "id": "heading",   "label": "Section Heading",  "type": "text", "default": "Follow us" },
         { "id": "instagram", "label": "Instagram URL",   "type": "text", "default": "" },
         { "id": "facebook",  "label": "Facebook URL",    "type": "text", "default": "" },
         { "id": "twitter",   "label": "Twitter / X URL", "type": "text", "default": "" },

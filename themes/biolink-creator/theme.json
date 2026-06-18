@@ -57,6 +57,7 @@
       "id": "socials",
       "label": "Social Platforms",
       "fields": [
+        { "id": "heading",   "label": "Section Heading", "type": "text", "default": "Follow me" },
         { "id": "youtube",   "label": "YouTube URL",     "type": "text", "default": "" },
         { "id": "instagram", "label": "Instagram URL",   "type": "text", "default": "" },
         { "id": "tiktok",    "label": "TikTok URL",      "type": "text", "default": "" },
