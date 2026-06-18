@@ -351,7 +351,7 @@ a{color:inherit;text-decoration:none;}
 <script>
 (function(){
   var SUB='${sub}', ev=null, selDate=null, selTime=null, TYPE='${typeParam}'
-  var calYear=0, calMonth=0
+  var calYear=0, calMonth=0, evList=[]
 
   // ── Load events ──────────────────────────────────────────────────────────────
   fetch('/api/booking/'+SUB+'/events?type='+TYPE).then(r=>r.json()).then(function(evs){
@@ -359,9 +359,10 @@ a{color:inherit;text-decoration:none;}
     if(!evs||!evs.length){
       el.innerHTML='<div class="empty">No appointment types available yet.</div>';return
     }
-    el.innerHTML=evs.map(function(e){
+    evList=evs
+    el.innerHTML=evs.map(function(e,i){
       var loc=e.location?'<span>📍 '+e.location+'</span>':''
-      return '<div class="ev-card" onclick=\'pickEv('+JSON.stringify(e).replace(/'/g,"&#39;")+')\'>'+
+      return '<div class="ev-card" onclick="pickEv('+i+')">'+
         '<div class="ev-dot" style="background:'+e.color+'"></div>'+
         '<div class="ev-info">'+
           '<div class="ev-name">'+e.name+'</div>'+
@@ -382,10 +383,10 @@ a{color:inherit;text-decoration:none;}
   }
 
   // ── Pick event type ───────────────────────────────────────────────────────────
-  window.pickEv=function(e){
-    ev=e; selDate=null; selTime=null
+  window.pickEv=function(i){
+    ev=evList[i]; selDate=null; selTime=null
     document.getElementById('evSummary').innerHTML=
-      '<strong>'+e.name+'</strong> &nbsp;·&nbsp; ⏱ '+e.duration+' min'+(e.location?' &nbsp;·&nbsp; 📍 '+e.location:'')
+      '<strong>'+ev.name+'</strong> &nbsp;·&nbsp; ⏱ '+ev.duration+' min'+(ev.location?' &nbsp;·&nbsp; 📍 '+ev.location:'')
     var now=new Date(); calYear=now.getFullYear(); calMonth=now.getMonth()
     renderCal()
     document.getElementById('slotsWrap').style.display='none'
