@@ -1,0 +1,122 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{font-family:"DM Sans",sans-serif;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:22px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;}
+.sidebar-logo em{font-style:italic;color:var(--blue);}
+.sidebar-nav{padding:16px 12px;flex:1;}
+.nav-label{font-size:11px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.06em;padding:10px 12px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;margin-bottom:2px;}
+.nav-item:hover{background:var(--off);color:var(--ink);}
+.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:500;}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;}
+.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:6px 12px;margin-top:4px;}
+.content{flex:1;padding:36px 40px;min-width:0;}
+.page-title{font-family:"DM Serif Display",serif;font-size:26px;font-weight:400;margin-bottom:4px;}
+.page-sub{font-size:14px;color:var(--ink-muted);margin-bottom:28px;}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-muted);text-decoration:none;margin-bottom:20px;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--white);}
+.back-btn:hover{background:var(--off);}
+.filter-tabs{display:flex;gap:8px;margin-bottom:20px;}
+.filter-tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;text-decoration:none;border:1px solid var(--border);color:var(--ink-muted);background:var(--white);}
+.filter-tab:hover{border-color:var(--blue);color:var(--blue);}
+.filter-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.bk-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.bk-table th{font-size:11px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.5px;padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;background:var(--off);}
+.bk-table td{padding:12px 16px;font-size:14px;color:var(--ink);border-bottom:1px solid var(--border);vertical-align:middle;}
+.bk-table tr:last-child td{border-bottom:none;}
+.bk-table tr:hover td{background:var(--off);}
+.event-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+.badge{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;}
+.badge-confirmed{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+.badge-cancelled{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+.cancel-btn{padding:5px 12px;border:1px solid #fecaca;border-radius:var(--radius);font-size:12px;font-weight:500;color:#dc2626;background:transparent;cursor:pointer;transition:all 0.15s;}
+.cancel-btn:hover{background:#dc2626;color:#fff;border-color:#dc2626;}
+.restore-btn{padding:5px 12px;border:1px solid #bbf7d0;border-radius:var(--radius);font-size:12px;font-weight:500;color:#16a34a;background:transparent;cursor:pointer;transition:all 0.15s;}
+.restore-btn:hover{background:#16a34a;color:#fff;border-color:#16a34a;}
+.empty{text-align:center;padding:60px 24px;color:var(--ink-muted);}
+.alert-ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;padding:10px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:16px;}
+</style>
+{% endblock %}
+{% block body %}
+<div class="layout">
+  <aside class="sidebar">
+    <a class="sidebar-logo" href="/">page<em>zapper</em></a>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
+      <a class="nav-item" href="/dashboard/wizard">✨ New Site</a>
+      <div class="nav-label">Booking</div>
+      <a class="nav-item" href="/dashboard/booking/{{ site.id }}">📊 Overview</a>
+      <a class="nav-item" href="/dashboard/booking/{{ site.id }}/events">🎯 Event Types</a>
+      <a class="nav-item" href="/dashboard/booking/{{ site.id }}/availability">📅 Availability</a>
+      <a class="nav-item active" href="/dashboard/booking/{{ site.id }}/list">📋 All Bookings</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;">
+        <div class="user-avatar">{{ user.name[0] | upper }}</div>
+        <div style="font-size:13px;font-weight:500;">{{ user.name }}</div>
+      </div>
+      <a class="logout-link" href="/logout">← Logout</a>
+    </div>
+  </aside>
+  <main class="content">
+    <a class="back-btn" href="/dashboard/booking/{{ site.id }}">← Overview</a>
+    <div class="page-title">All Bookings</div>
+    <div class="page-sub">{{ bookings.length }} booking{{ 's' if bookings.length != 1 else '' }} found.</div>
+
+    {% if cancelled %}<div class="alert-ok">✅ Booking status updated.</div>{% endif %}
+
+    <div class="filter-tabs">
+      <a class="filter-tab {% if filter == 'confirmed' %}active{% endif %}" href="?status=confirmed">Confirmed</a>
+      <a class="filter-tab {% if filter == 'cancelled' %}active{% endif %}" href="?status=cancelled">Cancelled</a>
+      <a class="filter-tab {% if filter == 'all' %}active{% endif %}" href="?status=all">All</a>
+    </div>
+
+    {% if not bookings.length %}
+    <div class="empty">
+      <div style="font-size:36px;margin-bottom:12px;">📋</div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:6px;">No bookings yet</div>
+      <div>Bookings will appear here when visitors schedule meetings from your bio link.</div>
+    </div>
+    {% else %}
+    <table class="bk-table">
+      <thead>
+        <tr><th>Date</th><th>Time</th><th>Event</th><th>Name</th><th>Contact</th><th>Notes</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for b in bookings %}
+        <tr>
+          <td style="font-weight:600;white-space:nowrap;">{{ b.booking_date | string | truncate(10, true, '') }}</td>
+          <td style="white-space:nowrap;">{{ b.start_time | string | truncate(5, true, '') }}</td>
+          <td><span class="event-dot" style="background:{{ b.color }}"></span>{{ b.event_name }}</td>
+          <td>{{ b.booker_name }}</td>
+          <td>
+            {% if b.booker_email %}<div><a href="mailto:{{ b.booker_email }}" style="color:var(--blue);">{{ b.booker_email }}</a></div>{% endif %}
+            {% if b.booker_phone %}<div style="color:var(--ink-muted);font-size:12px;">{{ b.booker_phone }}</div>{% endif %}
+          </td>
+          <td style="color:var(--ink-muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ b.notes or '—' }}</td>
+          <td>
+            {% if b.status == 'confirmed' %}<span class="badge badge-confirmed">Confirmed</span>
+            {% else %}<span class="badge badge-cancelled">Cancelled</span>{% endif %}
+          </td>
+          <td>
+            <form method="POST" action="/dashboard/booking/{{ site.id }}/cancel">
+              <input type="hidden" name="id" value="{{ b.id }}">
+              <input type="hidden" name="status" value="{{ b.status }}">
+              {% if b.status == 'confirmed' %}
+              <button type="submit" class="cancel-btn" onclick="return confirm('Cancel this booking?')">Cancel</button>
+              {% else %}
+              <button type="submit" class="restore-btn">Restore</button>
+              {% endif %}
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

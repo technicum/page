@@ -1,0 +1,120 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{font-family:"DM Sans",sans-serif;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:22px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;}
+.sidebar-logo em{font-style:italic;color:var(--blue);}
+.sidebar-nav{padding:16px 12px;flex:1;}
+.nav-label{font-size:11px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.06em;padding:10px 12px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;margin-bottom:2px;}
+.nav-item:hover{background:var(--off);color:var(--ink);}
+.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:500;}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;}
+.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:6px 12px;margin-top:4px;}
+.content{flex:1;padding:36px 40px;min-width:0;}
+.page-title{font-family:"DM Serif Display",serif;font-size:26px;font-weight:400;margin-bottom:4px;}
+.page-sub{font-size:14px;color:var(--ink-muted);margin-bottom:28px;}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-muted);text-decoration:none;margin-bottom:20px;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--white);}
+.back-btn:hover{background:var(--off);}
+.stats-row{display:flex;gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;flex:1;}
+.stat-num{font-size:32px;font-weight:700;color:var(--ink);line-height:1;}
+.stat-label{font-size:13px;color:var(--ink-muted);margin-top:6px;}
+.quick-links{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap;}
+.quick-link{display:flex;align-items:center;gap:8px;padding:11px 18px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:500;color:var(--ink);text-decoration:none;transition:all 0.15s;}
+.quick-link:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-title{font-size:16px;font-weight:700;}
+.bk-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.bk-table th{font-size:11px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.5px;padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;background:var(--off);}
+.bk-table td{padding:12px 16px;font-size:14px;color:var(--ink);border-bottom:1px solid var(--border);}
+.bk-table tr:last-child td{border-bottom:none;}
+.bk-table tr:hover td{background:var(--off);}
+.event-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+.empty{text-align:center;padding:48px 24px;color:var(--ink-muted);}
+.badge-confirmed{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;}
+</style>
+{% endblock %}
+{% block body %}
+<div class="layout">
+  <aside class="sidebar">
+    <a class="sidebar-logo" href="/">page<em>zapper</em></a>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
+      <a class="nav-item" href="/dashboard/wizard">✨ New Site</a>
+      <div class="nav-label">Booking</div>
+      <a class="nav-item active" href="/dashboard/booking/{{ site.id }}">📊 Overview</a>
+      <a class="nav-item" href="/dashboard/booking/{{ site.id }}/events">🎯 Event Types</a>
+      <a class="nav-item" href="/dashboard/booking/{{ site.id }}/availability">📅 Availability</a>
+      <a class="nav-item" href="/dashboard/booking/{{ site.id }}/list">📋 All Bookings</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;">
+        <div class="user-avatar">{{ user.name[0] | upper }}</div>
+        <div style="font-size:13px;font-weight:500;">{{ user.name }}</div>
+      </div>
+      <a class="logout-link" href="/logout">← Logout</a>
+    </div>
+  </aside>
+  <main class="content">
+    <a class="back-btn" href="/dashboard/site/biolink-builder?id={{ site.id }}">← Back to Editor</a>
+    <div class="page-title">Booking — {{ site.title }}</div>
+    <div class="page-sub">Manage appointments and availability for your bio link page.</div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">{{ stats.total or 0 }}</div>
+        <div class="stat-label">Total bookings</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">{{ stats.week_count or 0 }}</div>
+        <div class="stat-label">This week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">{{ stats.today_count or 0 }}</div>
+        <div class="stat-label">Today</div>
+      </div>
+    </div>
+
+    <div class="quick-links">
+      <a class="quick-link" href="/dashboard/booking/{{ site.id }}/events">🎯 Manage Event Types</a>
+      <a class="quick-link" href="/dashboard/booking/{{ site.id }}/availability">📅 Set Availability</a>
+      <a class="quick-link" href="/dashboard/booking/{{ site.id }}/list">📋 View All Bookings</a>
+    </div>
+
+    <div class="section-head">
+      <div class="section-title">Upcoming Bookings</div>
+      <a href="/dashboard/booking/{{ site.id }}/list" style="font-size:13px;color:var(--blue);">View all →</a>
+    </div>
+
+    {% if not upcoming.length %}
+    <div class="empty">
+      <div style="font-size:36px;margin-bottom:12px;">📅</div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:6px;">No upcoming bookings</div>
+      <div>Add the booking widget to your bio link page so visitors can schedule meetings.</div>
+    </div>
+    {% else %}
+    <table class="bk-table">
+      <thead>
+        <tr><th>Date</th><th>Time</th><th>Event</th><th>Name</th><th>Email</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for b in upcoming %}
+        <tr>
+          <td style="font-weight:600;">{{ b.booking_date | string | truncate(10, true, '') }}</td>
+          <td>{{ b.start_time | string | truncate(5, true, '') }}</td>
+          <td><span class="event-dot" style="background:{{ b.color }}"></span>{{ b.event_name }}</td>
+          <td>{{ b.booker_name }}</td>
+          <td style="color:var(--ink-muted);">{{ b.booker_email }}</td>
+          <td><span class="badge-confirmed">Confirmed</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

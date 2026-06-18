@@ -8,7 +8,8 @@ const blog        = require('../controllers/blogController')
 const media       = require('../controllers/mediaController')
 const form        = require('../controllers/formController')
 const { requireAuth, redirectIfAuth, requireAdmin } = require('../middleware/auth')
-const admin  = require('../controllers/adminController')
+const admin   = require('../controllers/adminController')
+const booking = require('../controllers/bookingController')
 const multer = require('multer')
 const os     = require('os')
 const themeUpload = multer({ dest: os.tmpdir() })
@@ -143,6 +144,21 @@ router.get('/dashboard/api/forms/:siteId', requireAuth, form.apiList)
 
 // Public form submission (no auth)
 router.post('/f/:formId', form.submit)
+
+// ── Booking ───────────────────────────────────────────────────────────────────
+router.get ('/dashboard/booking/:siteId',                       requireAuth, booking.dashboard)
+router.get ('/dashboard/booking/:siteId/events',                requireAuth, booking.events)
+router.post('/dashboard/booking/:siteId/events/save',           requireAuth, booking.saveEvent)
+router.post('/dashboard/booking/:siteId/events/delete',         requireAuth, booking.deleteEvent)
+router.get ('/dashboard/booking/:siteId/availability',          requireAuth, booking.availability)
+router.post('/dashboard/booking/:siteId/availability/save',     requireAuth, booking.saveAvailability)
+router.get ('/dashboard/booking/:siteId/list',                  requireAuth, booking.bookingList)
+router.post('/dashboard/booking/:siteId/cancel',                requireAuth, booking.cancelBooking)
+
+// Booking public API (no auth)
+router.get ('/api/booking/:subdomain/events',                   booking.apiEvents)
+router.get ('/api/booking/:subdomain/slots/:eventId/:date',     booking.apiSlots)
+router.post('/api/booking/:subdomain/create',                   booking.apiCreate)
 
 // ── Admin panel ───────────────────────────────────────────────────────────────
 router.get ('/admin',                   requireAuth, requireAdmin, admin.index)

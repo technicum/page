@@ -384,6 +384,7 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}) {
 
   const context = {
     site: {
+      id:        site.id,
       title:     site.title,
       subdomain: site.subdomain,
       url:       `https://${site.subdomain}.${process.env.BASE_DOMAIN || 'pagezapper.com'}`

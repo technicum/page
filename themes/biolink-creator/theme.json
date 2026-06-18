@@ -80,6 +80,14 @@
         { "id": "website",   "label": "Website URL",             "type": "text", "default": "" },
         { "id": "save_label","label": "Save Contact Button Label","type": "text", "default": "💾 Save Contact" }
       ]
+    },
+    {
+      "id": "booking",
+      "label": "Booking",
+      "fields": [
+        { "id": "show",    "label": "Show Booking Widget (yes / no)", "type": "text", "default": "yes" },
+        { "id": "heading", "label": "Section Heading",                "type": "text", "default": "Book a Meeting" }
+      ]
     }
   ]
 }
