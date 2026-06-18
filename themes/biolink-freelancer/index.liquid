@@ -109,18 +109,33 @@
 
   </div>
 
-  <!-- Socials -->
+  <!-- Socials accordion -->
   {% assign s = settings.socials %}
   {% if s.instagram != blank or s.linkedin != blank or s.github != blank or s.twitter != blank or s.youtube != blank or s.tiktok != blank %}
-  <div class="social-section">
-    <div class="social-label">{{ s.heading | default: 'Follow me' }}</div>
-    <div class="social-row">
-      {% if s.instagram != blank %}<a class="soc-icon" href="{{ s.instagram }}" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>{% endif %}
-      {% if s.linkedin != blank %}<a class="soc-icon" href="{{ s.linkedin }}" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>{% endif %}
-      {% if s.github != blank %}<a class="soc-icon" href="{{ s.github }}" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>{% endif %}
-      {% if s.twitter != blank %}<a class="soc-icon" href="{{ s.twitter }}" target="_blank" title="Twitter"><i class="fa-brands fa-x-twitter"></i></a>{% endif %}
-      {% if s.youtube != blank %}<a class="soc-icon" href="{{ s.youtube }}" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>{% endif %}
-      {% if s.tiktok != blank %}<a class="soc-icon" href="{{ s.tiktok }}" target="_blank" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>{% endif %}
+  <div class="pz-sections">
+    <div class="pz-sec" id="sec-socials">
+      <div class="pz-sec-head" onclick="pzToggle('sec-socials')">
+        <div class="pz-sec-icon">📱</div>
+        <div class="pz-sec-meta">
+          <div class="pz-sec-title">{{ s.heading | default: 'Follow me' }}</div>
+          <div class="pz-sec-sub">Connect on social media</div>
+        </div>
+        <div class="pz-sec-right">
+          <svg class="pz-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="pz-sec-body">
+        <div class="pz-sec-inner" style="padding:20px 16px;text-align:center;">
+          <div class="social-row">
+            {% if s.instagram != blank %}<a class="soc-icon" href="{{ s.instagram }}" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>{% endif %}
+            {% if s.linkedin != blank %}<a class="soc-icon" href="{{ s.linkedin }}" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>{% endif %}
+            {% if s.github != blank %}<a class="soc-icon" href="{{ s.github }}" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>{% endif %}
+            {% if s.twitter != blank %}<a class="soc-icon" href="{{ s.twitter }}" target="_blank" title="Twitter"><i class="fa-brands fa-x-twitter"></i></a>{% endif %}
+            {% if s.youtube != blank %}<a class="soc-icon" href="{{ s.youtube }}" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>{% endif %}
+            {% if s.tiktok != blank %}<a class="soc-icon" href="{{ s.tiktok }}" target="_blank" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>{% endif %}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   {% endif %}
