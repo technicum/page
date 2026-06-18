@@ -31,6 +31,10 @@ body{font-family:"DM Sans",sans-serif;}
 .btn-edit:hover{border-color:var(--blue);color:var(--blue);}
 .btn-del{padding:7px 14px;border:1px solid #fecaca;border-radius:var(--radius);font-size:13px;font-weight:500;color:#dc2626;background:#fff5f5;cursor:pointer;transition:all 0.15s;}
 .btn-del:hover{background:#dc2626;color:#fff;border-color:#dc2626;}
+.event-link-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.event-link-url{flex:1;font-size:12px;color:var(--ink-muted);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:monospace;}
+.btn-copy{padding:5px 12px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0;transition:opacity 0.15s;}
+.btn-copy:hover{opacity:0.85;}
 .inactive-badge{background:var(--off);color:var(--ink-faint);font-size:11px;padding:2px 8px;border-radius:20px;margin-left:8px;}
 .form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;}
 .form-title{font-size:16px;font-weight:700;margin-bottom:20px;}
@@ -97,21 +101,27 @@ body{font-family:"DM Sans",sans-serif;}
         {% else %}
         <div class="events-list">
           {% for ev in events %}
-          <div class="event-card">
-            <div class="event-swatch" style="background:{{ ev.color }}"></div>
-            <div class="event-info">
-              <div class="event-name">
-                {{ ev.name }}
-                {% if not ev.is_active %}<span class="inactive-badge">Inactive</span>{% endif %}
+          <div class="event-card" style="flex-direction:column;align-items:stretch;">
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div class="event-swatch" style="background:{{ ev.color }}"></div>
+              <div class="event-info">
+                <div class="event-name">
+                  {{ ev.name }}
+                  {% if not ev.is_active %}<span class="inactive-badge">Inactive</span>{% endif %}
+                </div>
+                <div class="event-meta">{% if ev.event_type == 'appointment' %}📍 In-Person{% else %}🖥️ Meeting{% endif %} · {{ ev.duration }} min{% if ev.location %} · {{ ev.location }}{% endif %}{% if ev.description %} · {{ ev.description | truncate(50) }}{% endif %}</div>
               </div>
-              <div class="event-meta">{% if ev.event_type == 'appointment' %}📍 In-Person{% else %}🖥️ Meeting{% endif %} · {{ ev.duration }} min{% if ev.location %} · {{ ev.location }}{% endif %}{% if ev.description %} · {{ ev.description | truncate(50) }}{% endif %}</div>
+              <div class="event-actions">
+                <a class="btn-edit" href="/dashboard/booking/{{ site.id }}/events?edit={{ ev.id }}">Edit</a>
+                <form method="POST" action="/dashboard/booking/{{ site.id }}/events/delete" onsubmit="return confirm('Delete this event type?')">
+                  <input type="hidden" name="id" value="{{ ev.id }}">
+                  <button type="submit" class="btn-del">Delete</button>
+                </form>
+              </div>
             </div>
-            <div class="event-actions">
-              <a class="btn-edit" href="/dashboard/booking/{{ site.id }}/events?edit={{ ev.id }}">Edit</a>
-              <form method="POST" action="/dashboard/booking/{{ site.id }}/events/delete" onsubmit="return confirm('Delete this event type?')">
-                <input type="hidden" name="id" value="{{ ev.id }}">
-                <button type="submit" class="btn-del">Delete</button>
-              </form>
+            <div class="event-link-row">
+              <input class="event-link-url" id="evurl-{{ ev.id }}" type="text" value="https://{{ site.subdomain }}.{{ baseDomain }}/book/{{ ev.id }}" readonly>
+              <button class="btn-copy" onclick="pzCopyEvLink('evurl-{{ ev.id }}', this)">Copy Link</button>
             </div>
           </div>
           {% endfor %}
@@ -193,6 +203,14 @@ function pickColor(hex, el) {
   document.getElementById('colorVal').value = hex;
   document.querySelectorAll('.color-opt').forEach(e => e.classList.remove('active'));
   el.classList.add('active');
+}
+function pzCopyEvLink(inputId, btn) {
+  var el = document.getElementById(inputId);
+  el.select(); el.setSelectionRange(0, 999);
+  try { document.execCommand('copy'); } catch(e) {}
+  var orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(function(){ btn.textContent = orig; }, 2000);
 }
 </script>
 {% endblock %}

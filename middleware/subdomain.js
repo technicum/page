@@ -81,10 +81,11 @@ async function serveSite(req, res, next, lookup) {
 
     // ── Standalone booking pages ──────────────────────────────────────────────
     if (pageId === 'book') {
-      return serveBookingPage(req, res, site, settings, 'meeting')
+      // /book → all meetings; /book/123 → direct link to event 123
+      return serveBookingPage(req, res, site, settings, 'meeting', subPath || null)
     }
     if (pageId === 'appointment') {
-      return serveBookingPage(req, res, site, settings, 'appointment')
+      return serveBookingPage(req, res, site, settings, 'appointment', null)
     }
 
     // ── Blog: post detail (/blog/my-post-slug) ─────────────────────────────────
@@ -162,8 +163,9 @@ ${urls.join('\n')}
 }
 
 // ── Standalone booking page ───────────────────────────────────────────────────
-function serveBookingPage(req, res, site, settings, type) {
+function serveBookingPage(req, res, site, settings, type, eventId) {
   type = type || 'meeting'
+  eventId = eventId ? parseInt(eventId, 10) || null : null
   const sub      = site.subdomain
   const accent   = (settings.profile && settings.profile.accent) || '#7c3aed'
   const siteName = (settings.profile && (settings.profile.name || settings.profile.title)) || site.title || sub
@@ -353,7 +355,7 @@ a{color:inherit;text-decoration:none;}
 </div>
 
 <script>
-window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn})};
+window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn,eventId:eventId})};
 </script>
 <script>
 (function(){
@@ -362,12 +364,19 @@ window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn})};
   var calYear=0, calMonth=0, evList=[];
 
   // ── Load events ──────────────────────────────────────────────────────────────
-  fetch('/api/booking/'+SUB+'/events?type='+TYPE).then(r=>r.json()).then(function(evs){
+  var EV_ID=_PZ.eventId||null
+  var evFetchUrl=EV_ID?'/api/booking/'+SUB+'/events':'/api/booking/'+SUB+'/events?type='+TYPE
+  fetch(evFetchUrl).then(r=>r.json()).then(function(evs){
     var el=document.getElementById('evList')
     if(!evs||!evs.length){
       el.innerHTML='<div class="empty">No appointment types available yet.</div>';return
     }
     evList=evs
+    // Direct event link — auto-select and skip to calendar
+    if(EV_ID){
+      var idx=evs.findIndex(function(e){return e.id===EV_ID})
+      if(idx>=0){pickEv(idx);return}
+    }
     el.innerHTML=evs.map(function(e,i){
       var loc=e.location?'<span>📍 '+e.location+'</span>':''
       return '<div class="ev-card" onclick="pickEv('+i+')">'+
@@ -398,6 +407,9 @@ window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn})};
     var now=new Date(); calYear=now.getFullYear(); calMonth=now.getMonth()
     renderCal()
     document.getElementById('slotsWrap').style.display='none'
+    // Hide back button if arrived via direct event link
+    var s2back=document.querySelector('#s2 .back-link')
+    if(s2back) s2back.style.display=EV_ID?'none':''
     goStep(2)
   }
 

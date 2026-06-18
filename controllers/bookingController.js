@@ -142,13 +142,15 @@ exports.events = async (req, res) => {
       ? await db.first('SELECT * FROM ms_booking_events WHERE id = ? AND site_id = ?', [req.query.edit, site.id])
       : null
 
+    const baseDomain = process.env.BASE_DOMAIN || 'pagezapper.com'
     res.render('dashboard/booking-events.njk', {
       title: 'Event Types — ' + site.title,
       user, site,
       events: events || [],
       edit: edit || null,
       saved: req.query.saved,
-      deleted: req.query.deleted
+      deleted: req.query.deleted,
+      baseDomain
     })
   } catch (err) {
     console.error('booking.events', err)
