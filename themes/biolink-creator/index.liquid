@@ -92,10 +92,20 @@
     </div>
     {% endif %}
 
-    <!-- Collab -->
-    {% if s.email != blank %}
-    <div class="collab" style="margin-top:20px;">
-      <a href="mailto:{{ s.email }}">✉️ Collabs & Partnerships: {{ s.email }}</a>
+    <!-- Contact actions -->
+    {% assign c = settings.contact %}
+    {% if c.email != blank or c.whatsapp != blank or c.phone != blank %}
+    <div class="socials" style="margin-top:20px;margin-bottom:8px;">
+      {% if c.email != blank %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
+      {% if c.whatsapp != blank %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
+      {% if c.phone != blank %}<a class="soc-btn" href="tel:{{ c.phone }}">📞 Call</a>{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Save Contact -->
+    {% if c.email != blank or c.phone != blank or c.whatsapp != blank %}
+    <div class="save-contact-bar">
+      <button class="save-contact-btn" onclick="pzSaveContact()">{{ c.save_label | default: '💾 Save Contact' }}</button>
     </div>
     {% endif %}
 
@@ -113,6 +123,7 @@
 </div>
 <script>
 function pzToggle(id){var el=document.getElementById(id);el.classList.toggle('open');}
+function pzSaveContact(){var n='{{ settings.profile.name | escape }}';var t='{{ settings.profile.tagline | default: "" | escape }}';var p='{{ settings.contact.phone | default: "" | escape }}';if(!p)p='{{ settings.contact.whatsapp | default: "" | escape }}';var e='{{ settings.contact.email | default: "" | escape }}';var w='{{ settings.contact.website | default: "" | escape }}';var vcf='BEGIN:VCARD\nVERSION:3.0\nFN:'+n+'\n'+(t?'TITLE:'+t+'\n':'')+(p?'TEL;TYPE=CELL:'+p+'\n':'')+(e?'EMAIL:'+e+'\n':'')+(w?'URL:'+w+'\n':'')+'URL:'+location.href+'\nEND:VCARD';var b=new Blob([vcf],{type:'text/vcard'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(n||'contact').replace(/\s+/g,'-')+'.vcf';a.click();}
 function pzShare(){var u=location.href,t=document.title;if(navigator.share){navigator.share({title:t,url:u});}else{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
 </script>
 </body>

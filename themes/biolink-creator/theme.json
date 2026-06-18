@@ -57,12 +57,24 @@
       "id": "socials",
       "label": "Social Platforms",
       "fields": [
-        { "id": "youtube",   "label": "YouTube URL",    "type": "text", "default": "" },
-        { "id": "instagram", "label": "Instagram URL",  "type": "text", "default": "" },
-        { "id": "tiktok",   "label": "TikTok URL",     "type": "text", "default": "" },
-        { "id": "twitter",  "label": "X / Twitter URL", "type": "text", "default": "" },
-        { "id": "spotify",  "label": "Spotify URL",    "type": "text", "default": "" },
-        { "id": "email",    "label": "Collab Email",   "type": "text", "default": "" }
+        { "id": "youtube",   "label": "YouTube URL",     "type": "text", "default": "" },
+        { "id": "instagram", "label": "Instagram URL",   "type": "text", "default": "" },
+        { "id": "tiktok",    "label": "TikTok URL",      "type": "text", "default": "" },
+        { "id": "twitter",   "label": "X / Twitter URL", "type": "text", "default": "" },
+        { "id": "spotify",   "label": "Spotify URL",     "type": "text", "default": "" },
+        { "id": "linkedin",  "label": "LinkedIn URL",    "type": "text", "default": "" },
+        { "id": "github",    "label": "GitHub URL",      "type": "text", "default": "" }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "fields": [
+        { "id": "email",     "label": "Collab / Business Email", "type": "text", "default": "" },
+        { "id": "whatsapp",  "label": "WhatsApp Number",         "type": "text", "default": "" },
+        { "id": "phone",     "label": "Phone Number",            "type": "text", "default": "" },
+        { "id": "website",   "label": "Website URL",             "type": "text", "default": "" },
+        { "id": "save_label","label": "Save Contact Button Label","type": "text", "default": "💾 Save Contact" }
       ]
     }
   ]

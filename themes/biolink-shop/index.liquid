@@ -100,13 +100,33 @@
   </div>
   {% endif %}
 
-  <!-- Social -->
+  <!-- Socials row -->
+  {% assign s = settings.socials %}
+  {% if s.instagram != blank or s.facebook != blank or s.twitter != blank or s.youtube != blank or s.tiktok != blank or s.pinterest != blank %}
+  <div class="social-row">
+    {% if s.instagram != blank %}<a class="soc-pill" href="{{ s.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
+    {% if s.facebook != blank %}<a class="soc-pill" href="{{ s.facebook }}" target="_blank">📘 Facebook</a>{% endif %}
+    {% if s.twitter != blank %}<a class="soc-pill" href="{{ s.twitter }}" target="_blank">𝕏 Twitter</a>{% endif %}
+    {% if s.youtube != blank %}<a class="soc-pill" href="{{ s.youtube }}" target="_blank">▶️ YouTube</a>{% endif %}
+    {% if s.tiktok != blank %}<a class="soc-pill" href="{{ s.tiktok }}" target="_blank">🎵 TikTok</a>{% endif %}
+    {% if s.pinterest != blank %}<a class="soc-pill" href="{{ s.pinterest }}" target="_blank">📌 Pinterest</a>{% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Contact actions -->
   {% assign c = settings.contact %}
-  {% if c.whatsapp != blank or c.instagram != blank or c.email != blank %}
-  <div class="socials">
+  {% if c.whatsapp != blank or c.phone != blank or c.email != blank %}
+  <div class="socials" style="margin-top:16px;margin-bottom:8px;">
     {% if c.whatsapp != blank %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
-    {% if c.instagram != blank %}<a class="soc-btn" href="{{ c.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
+    {% if c.phone != blank %}<a class="soc-btn" href="tel:{{ c.phone }}">📞 Call</a>{% endif %}
     {% if c.email != blank %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Save Contact -->
+  {% if c.email != blank or c.phone != blank or c.whatsapp != blank %}
+  <div class="save-contact-bar">
+    <button class="save-contact-btn" onclick="pzSaveContact()">{{ c.save_label | default: '💾 Save Contact' }}</button>
   </div>
   {% endif %}
 
@@ -154,6 +174,9 @@
 <script>
 // ── Accordion ────────────────────────────────────────────────────────────────
 function pzToggle(id){var el=document.getElementById(id);el.classList.toggle('open');}
+
+// ── Save Contact ──────────────────────────────────────────────────────────────
+function pzSaveContact(){var n='{{ settings.profile.name | escape }}';var p='{{ settings.contact.phone | default: "" | escape }}';if(!p)p='{{ settings.contact.whatsapp | default: "" | escape }}';var e='{{ settings.contact.email | default: "" | escape }}';var w='{{ settings.contact.website | default: "" | escape }}';var vcf='BEGIN:VCARD\nVERSION:3.0\nFN:'+n+'\n'+(p?'TEL;TYPE=CELL:'+p+'\n':'')+(e?'EMAIL:'+e+'\n':'')+(w?'URL:'+w+'\n':'')+'URL:'+location.href+'\nEND:VCARD';var b=new Blob([vcf],{type:'text/vcard'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(n||'contact').replace(/\s+/g,'-')+'.vcf';a.click();}
 
 // ── Cart ──────────────────────────────────────────────────────────────────────
 var pzCart = [];

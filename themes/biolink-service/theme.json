@@ -54,13 +54,26 @@
       ]
     },
     {
+      "id": "socials",
+      "label": "Socials",
+      "fields": [
+        { "id": "instagram", "label": "Instagram URL",   "type": "text", "default": "" },
+        { "id": "linkedin",  "label": "LinkedIn URL",    "type": "text", "default": "" },
+        { "id": "facebook",  "label": "Facebook URL",    "type": "text", "default": "" },
+        { "id": "twitter",   "label": "Twitter / X URL", "type": "text", "default": "" },
+        { "id": "youtube",   "label": "YouTube URL",     "type": "text", "default": "" }
+      ]
+    },
+    {
       "id": "contact",
       "label": "Contact",
       "fields": [
         { "id": "whatsapp",  "label": "WhatsApp Number", "type": "text", "default": "" },
+        { "id": "phone",     "label": "Phone Number",    "type": "text", "default": "" },
         { "id": "email",     "label": "Email",           "type": "text", "default": "" },
-        { "id": "instagram", "label": "Instagram URL",   "type": "text", "default": "" },
-        { "id": "linkedin",  "label": "LinkedIn URL",    "type": "text", "default": "" }
+        { "id": "website",   "label": "Website URL",     "type": "text", "default": "" },
+        { "id": "address",   "label": "Address",         "type": "text", "default": "" },
+        { "id": "save_label","label": "Save Contact Button Label", "type": "text", "default": "💾 Save Contact" }
       ]
     }
   ]
