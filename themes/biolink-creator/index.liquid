@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ settings.profile.name }}</title>
 <link rel="stylesheet" href="/themes/biolink-creator/assets/css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root{
   --accent: {{ settings.profile.accent | default: '#e11d48' }};
@@ -33,11 +34,13 @@
   {% assign s = settings.socials %}
   {% if s.youtube != blank or s.instagram != blank or s.tiktok != blank or s.twitter != blank or s.spotify != blank %}
   <div class="social-row">
-    {% if s.youtube != blank %}<a class="soc-pill" href="{{ s.youtube }}" target="_blank">▶️ YouTube</a>{% endif %}
-    {% if s.instagram != blank %}<a class="soc-pill" href="{{ s.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
-    {% if s.tiktok != blank %}<a class="soc-pill" href="{{ s.tiktok }}" target="_blank">🎵 TikTok</a>{% endif %}
-    {% if s.twitter != blank %}<a class="soc-pill" href="{{ s.twitter }}" target="_blank">𝕏 Twitter</a>{% endif %}
-    {% if s.spotify != blank %}<a class="soc-pill" href="{{ s.spotify }}" target="_blank">🎧 Spotify</a>{% endif %}
+    {% if s.youtube != blank %}<a class="soc-pill" href="{{ s.youtube }}" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube</a>{% endif %}
+    {% if s.instagram != blank %}<a class="soc-pill" href="{{ s.instagram }}" target="_blank"><i class="fa-brands fa-instagram"></i> Instagram</a>{% endif %}
+    {% if s.tiktok != blank %}<a class="soc-pill" href="{{ s.tiktok }}" target="_blank"><i class="fa-brands fa-tiktok"></i> TikTok</a>{% endif %}
+    {% if s.twitter != blank %}<a class="soc-pill" href="{{ s.twitter }}" target="_blank"><i class="fa-brands fa-x-twitter"></i> Twitter</a>{% endif %}
+    {% if s.spotify != blank %}<a class="soc-pill" href="{{ s.spotify }}" target="_blank"><i class="fa-brands fa-spotify"></i> Spotify</a>{% endif %}
+    {% if s.linkedin != blank %}<a class="soc-pill" href="{{ s.linkedin }}" target="_blank"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>{% endif %}
+    {% if s.github != blank %}<a class="soc-pill" href="{{ s.github }}" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>{% endif %}
   </div>
   {% endif %}
 
@@ -96,16 +99,16 @@
     {% assign c = settings.contact %}
     {% if c.email != blank or c.whatsapp != blank or c.phone != blank %}
     <div class="socials" style="margin-top:20px;margin-bottom:8px;">
-      {% if c.email != blank %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
-      {% if c.whatsapp != blank %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
-      {% if c.phone != blank %}<a class="soc-btn" href="tel:{{ c.phone }}">📞 Call</a>{% endif %}
+      {% if c.email != blank %}<a class="soc-btn" href="mailto:{{ c.email }}"><i class="fa-solid fa-envelope"></i> Email</a>{% endif %}
+      {% if c.whatsapp != blank %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>{% endif %}
+      {% if c.phone != blank %}<a class="soc-btn" href="tel:{{ c.phone }}"><i class="fa-solid fa-phone"></i> Call</a>{% endif %}
     </div>
     {% endif %}
 
     <!-- Save Contact -->
     {% if c.email != blank or c.phone != blank or c.whatsapp != blank %}
     <div class="save-contact-bar">
-      <button class="save-contact-btn" onclick="pzSaveContact()">{{ c.save_label | default: '💾 Save Contact' }}</button>
+      <button class="save-contact-btn" onclick="pzSaveContact()"><i class="fa-solid fa-user-plus"></i> {{ c.save_label | default: 'Save Contact' }}</button>
     </div>
     {% endif %}
 

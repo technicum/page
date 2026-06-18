@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ settings.profile.name }}</title>
 <link rel="stylesheet" href="/themes/biolink-realty/assets/css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root{
   --accent: {{ settings.profile.accent | default: '#0f766e' }};
@@ -90,11 +91,11 @@
     {% assign s = settings.socials %}
     {% if s.instagram != blank or s.linkedin != blank or s.facebook != blank or s.twitter != blank or s.youtube != blank %}
     <div class="social-row">
-      {% if s.instagram != blank %}<a class="soc-pill" href="{{ s.instagram }}" target="_blank">📸 Instagram</a>{% endif %}
-      {% if s.linkedin != blank %}<a class="soc-pill" href="{{ s.linkedin }}" target="_blank">💼 LinkedIn</a>{% endif %}
-      {% if s.facebook != blank %}<a class="soc-pill" href="{{ s.facebook }}" target="_blank">📘 Facebook</a>{% endif %}
-      {% if s.twitter != blank %}<a class="soc-pill" href="{{ s.twitter }}" target="_blank">𝕏 Twitter</a>{% endif %}
-      {% if s.youtube != blank %}<a class="soc-pill" href="{{ s.youtube }}" target="_blank">▶️ YouTube</a>{% endif %}
+      {% if s.instagram != blank %}<a class="soc-pill" href="{{ s.instagram }}" target="_blank"><i class="fa-brands fa-instagram"></i> Instagram</a>{% endif %}
+      {% if s.linkedin != blank %}<a class="soc-pill" href="{{ s.linkedin }}" target="_blank"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>{% endif %}
+      {% if s.facebook != blank %}<a class="soc-pill" href="{{ s.facebook }}" target="_blank"><i class="fa-brands fa-facebook"></i> Facebook</a>{% endif %}
+      {% if s.twitter != blank %}<a class="soc-pill" href="{{ s.twitter }}" target="_blank"><i class="fa-brands fa-x-twitter"></i> Twitter</a>{% endif %}
+      {% if s.youtube != blank %}<a class="soc-pill" href="{{ s.youtube }}" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube</a>{% endif %}
     </div>
     {% endif %}
 
@@ -102,16 +103,16 @@
     {% assign c = settings.contact %}
     {% if c.whatsapp != blank or c.phone != blank or c.email != blank %}
     <div class="socials" style="margin-top:16px;margin-bottom:8px;">
-      {% if c.whatsapp != blank %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank">💬 WhatsApp</a>{% endif %}
-      {% if c.phone != blank %}<a class="soc-btn" href="tel:{{ c.phone }}">📞 Call</a>{% endif %}
-      {% if c.email != blank %}<a class="soc-btn" href="mailto:{{ c.email }}">✉️ Email</a>{% endif %}
+      {% if c.whatsapp != blank %}<a class="soc-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>{% endif %}
+      {% if c.phone != blank %}<a class="soc-btn" href="tel:{{ c.phone }}"><i class="fa-solid fa-phone"></i> Call</a>{% endif %}
+      {% if c.email != blank %}<a class="soc-btn" href="mailto:{{ c.email }}"><i class="fa-solid fa-envelope"></i> Email</a>{% endif %}
     </div>
     {% endif %}
 
     <!-- Save Contact -->
     {% if c.email != blank or c.phone != blank or c.whatsapp != blank %}
     <div class="save-contact-bar">
-      <button class="save-contact-btn" onclick="pzSaveContact()">{{ c.save_label | default: '💾 Save Contact' }}</button>
+      <button class="save-contact-btn" onclick="pzSaveContact()"><i class="fa-solid fa-user-plus"></i> {{ c.save_label | default: 'Save Contact' }}</button>
     </div>
     {% endif %}
   </div>
