@@ -148,7 +148,7 @@ router.post('/f/:formId', form.submit)
 // ── Booking ───────────────────────────────────────────────────────────────────
 router.get ('/dashboard/booking', requireAuth, async (req, res) => {
   try {
-    const site = await db.first('SELECT id FROM ms_sites WHERE user_id = ? ORDER BY id ASC LIMIT 1', [req.session.user.id])
+    const site = await db.first('SELECT id FROM ms_sites WHERE account_id = ? ORDER BY id ASC LIMIT 1', [req.session.user.id])
     if (!site) return res.redirect('/dashboard/wizard')
     res.redirect(`/dashboard/booking/${site.id}`)
   } catch (err) {

@@ -38,7 +38,7 @@ function generateSlots (avail, durationMin, booked, dateStr) {
 
 // ── getSite — verify ownership ─────────────────────────────────────────────────
 async function getSite (siteId, userId) {
-  return db.first('SELECT * FROM ms_sites WHERE id = ? AND user_id = ?', [siteId, userId])
+  return db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, userId])
 }
 
 // ── Default availability (Mon–Fri 9–5) ────────────────────────────────────────
