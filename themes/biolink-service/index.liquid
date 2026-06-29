@@ -19,7 +19,7 @@
 
   <!-- Profile -->
   {% assign pr = settings.profile %}
-  <div class="profile">
+  <div class="profile" data-sec="profile">
     {% if pr.avatar != blank %}
       <img class="avatar" src="{{ pr.avatar }}" alt="{{ pr.name }}">
     {% else %}
@@ -33,7 +33,7 @@
   <!-- Links (always visible) -->
   {% assign lk = settings.links %}
   {% if lk.items and lk.items.size > 0 %}
-  <div class="links" style="margin-bottom:20px;">
+  <div class="links" data-sec="links" style="margin-bottom:20px;">
     {% for item in lk.items %}
     <a class="link-btn {% if item.primary == 'yes' %}primary{% else %}secondary{% endif %}" href="{{ item.url }}" target="_blank">
       {% if item.emoji and item.primary != 'yes' %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
@@ -46,7 +46,7 @@
   <!-- Accordion: Services -->
   {% assign sv = settings.services %}
   {% if sv.items and sv.items.size > 0 %}
-  <div class="pz-sections">
+  <div class="pz-sections" data-sec="services">
     <div class="pz-sec" id="sec-services">
       <div class="pz-sec-head" onclick="pzToggle('sec-services')">
         <div class="pz-sec-icon">✅</div>
@@ -82,7 +82,7 @@
   <!-- Socials accordion -->
   {% assign s = settings.socials %}
   {% if s.instagram != blank or s.linkedin != blank or s.facebook != blank or s.twitter != blank or s.youtube != blank %}
-  <div class="pz-sections">
+  <div class="pz-sections" data-sec="socials">
     <div class="pz-sec" id="sec-socials">
       <div class="pz-sec-head" onclick="pzToggle('sec-socials')">
         <div class="pz-sec-icon">📱</div>
@@ -117,7 +117,7 @@
   <!-- Contact accordion -->
   {% assign c = settings.contact %}
   {% if c.whatsapp != blank or c.phone != blank or c.email != blank %}
-  <div class="pz-sections">
+  <div class="pz-sections" data-sec="contact">
     <div class="pz-sec" id="sec-contact">
       <div class="pz-sec-head" onclick="pzToggle('sec-contact')">
         <div class="pz-sec-icon">📞</div>

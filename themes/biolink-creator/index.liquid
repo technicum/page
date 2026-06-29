@@ -19,7 +19,7 @@
 
   <!-- Hero -->
   {% assign pr = settings.profile %}
-  <div class="hero">
+  <div class="hero" data-sec="profile">
     {% if pr.avatar != blank %}
       <img class="avatar" src="{{ pr.avatar }}" alt="{{ pr.name }}">
     {% else %}
@@ -33,7 +33,7 @@
   <!-- Socials accordion -->
   {% assign s = settings.socials %}
   {% if s.youtube != blank or s.instagram != blank or s.tiktok != blank or s.twitter != blank or s.spotify != blank or s.linkedin != blank or s.github != blank %}
-  <div class="pz-sections" style="padding:16px 16px 0;">
+  <div class="pz-sections" data-sec="socials" style="padding:16px 16px 0;">
     <div class="pz-sec" id="sec-socials">
       <div class="pz-sec-head" onclick="pzToggle('sec-socials')">
         <div class="pz-sec-icon">📱</div>
@@ -67,25 +67,23 @@
   </div>
   {% endif %}
 
-  <div class="body">
-
-    <!-- Links (always visible) -->
-    {% assign lk = settings.links %}
-    {% if lk.items and lk.items.size > 0 %}
-    <div class="links" style="margin-bottom:20px;">
+  <!-- Links (always visible) -->
+  {% assign lk = settings.links %}
+  {% if lk.items and lk.items.size > 0 %}
+  <div class="links" data-sec="links" style="padding:0 16px;margin-bottom:20px;">
       {% for item in lk.items %}
       <a class="link-btn {% if item.primary == 'yes' %}primary{% else %}secondary{% endif %}" href="{{ item.url }}" target="_blank">
         {% if item.emoji and item.primary != 'yes' %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
         {{ item.label }}
       </a>
       {% endfor %}
-    </div>
-    {% endif %}
+  </div>
+  {% endif %}
 
-    <!-- Accordion: Featured Content -->
-    {% assign fc = settings.featured %}
-    {% if fc.items and fc.items.size > 0 %}
-    <div class="pz-sections" style="padding:0;">
+  <!-- Accordion: Featured Content -->
+  {% assign fc = settings.featured %}
+  {% if fc.items and fc.items.size > 0 %}
+  <div class="pz-sections" data-sec="featured" style="padding:0;">
       <div class="pz-sec" id="sec-featured">
         <div class="pz-sec-head" onclick="pzToggle('sec-featured')">
           <div class="pz-sec-icon">🎬</div>
@@ -118,10 +116,10 @@
     </div>
     {% endif %}
 
-    <!-- Contact accordion -->
-    {% assign c = settings.contact %}
-    {% if c.email != blank or c.whatsapp != blank or c.phone != blank %}
-    <div class="pz-sections" style="padding:0;">
+  <!-- Contact accordion -->
+  {% assign c = settings.contact %}
+  {% if c.email != blank or c.whatsapp != blank or c.phone != blank %}
+  <div class="pz-sections" data-sec="contact" style="padding:0;">
       <div class="pz-sec" id="sec-contact">
         <div class="pz-sec-head" onclick="pzToggle('sec-contact')">
           <div class="pz-sec-icon">📞</div>
@@ -142,10 +140,8 @@
           </div>
         </div>
       </div>
-    </div>
-    {% endif %}
-
   </div>
+  {% endif %}
 
   <!-- Save Contact -->
   {% if settings.contact.email != blank or settings.contact.phone != blank or settings.contact.whatsapp != blank %}

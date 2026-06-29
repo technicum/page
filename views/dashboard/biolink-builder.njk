@@ -36,6 +36,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .snav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 5px;border-radius:8px;cursor:pointer;width:50px;font-size:9px;font-weight:600;color:#9ca3af;text-align:center;transition:all 0.15s;border:none;background:transparent;font-family:inherit;}
 .snav-item:hover{background:#f5f5ff;color:#6366f1;}
 .snav-item.active{background:#eef2ff;color:#6366f1;}
+.snav-item{cursor:grab;}
+.snav-item.dragging{opacity:0.35;pointer-events:none;}
+.snav-item.drag-over{background:#e0e7ff;border:1.5px dashed #6366f1;box-shadow:0 0 0 2px rgba(99,102,241,0.15);}
 .snav-icon{font-size:18px;line-height:1;}
 
 /* ── Editor panel ────────────────────────────────────────────────────── */
@@ -191,6 +194,15 @@ function initDefaults(secs) {
   });
 }
 initDefaults(SECTIONS);
+
+// Apply saved section order
+if (S._section_order && S._section_order.length) {
+  var _om = {};
+  S._section_order.forEach(function(id, i) { _om[id] = i; });
+  SECTIONS.sort(function(a, b) {
+    return (_om[a.id] !== undefined ? _om[a.id] : 999) - (_om[b.id] !== undefined ? _om[b.id] : 999);
+  });
+}
 
 // ── Section icons map ─────────────────────────────────────────────────────────
 var SEC_ICONS = {
@@ -708,6 +720,8 @@ function buildPane(sec) {
 
 // ── Build sidebar + activate first section ─────────────────────────────────────
 var activeSecId = null;
+var _dragSrcIdx = null;
+
 function buildEditor() {
   var nav = document.getElementById('sideNav');
   nav.innerHTML = '';
@@ -719,20 +733,56 @@ function buildEditor() {
 
   SECTIONS.forEach(function(sec, idx) {
     var btn = document.createElement('button');
-    btn.className = 'snav-item' + (idx === 0 ? ' active' : '');
+    btn.className = 'snav-item' + (activeSecId === sec.id || (activeSecId === null && idx === 0) ? ' active' : '');
     btn.dataset.secId = sec.id;
+    btn.draggable = true;
+    btn.title = 'Drag to reorder';
     btn.innerHTML = '<span class="snav-icon">' + (SEC_ICONS[sec.id] || '⚙️') + '</span>' + sec.label;
-    btn.onclick = function() {
+
+    // ── Drag-and-drop ────────────────────────────────────────────────────────
+    btn.addEventListener('dragstart', function(e) {
+      _dragSrcIdx = idx;
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(function() { btn.classList.add('dragging'); }, 0);
+    });
+    btn.addEventListener('dragend', function() {
+      btn.classList.remove('dragging');
+      nav.querySelectorAll('.snav-item').forEach(function(b) { b.classList.remove('drag-over'); });
+    });
+    btn.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      nav.querySelectorAll('.snav-item').forEach(function(b) { b.classList.remove('drag-over'); });
+      if (_dragSrcIdx !== idx) btn.classList.add('drag-over');
+    });
+    btn.addEventListener('dragleave', function() {
+      btn.classList.remove('drag-over');
+    });
+    btn.addEventListener('drop', function(e) {
+      e.preventDefault();
+      btn.classList.remove('drag-over');
+      if (_dragSrcIdx === null || _dragSrcIdx === idx) { _dragSrcIdx = null; return; }
+      var moved = SECTIONS.splice(_dragSrcIdx, 1)[0];
+      SECTIONS.splice(idx, 0, moved);
+      S._section_order = SECTIONS.map(function(s) { return s.id; });
+      _dragSrcIdx = null;
+      markDirty(); debouncedPreview();
+      buildEditor();
+    });
+    // ── Click to switch panel ─────────────────────────────────────────────────
+    btn.addEventListener('click', function() {
       nav.querySelectorAll('.snav-item').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       activeSecId = sec.id;
       buildPane(sec);
-    };
+    });
+
     nav.appendChild(btn);
   });
 
-  activeSecId = SECTIONS[0].id;
-  buildPane(SECTIONS[0]);
+  if (activeSecId === null) activeSecId = SECTIONS[0].id;
+  var activeSec = SECTIONS.find(function(s) { return s.id === activeSecId; }) || SECTIONS[0];
+  buildPane(activeSec);
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────────
