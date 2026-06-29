@@ -36,9 +36,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .snav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 5px;border-radius:8px;cursor:pointer;width:50px;font-size:9px;font-weight:600;color:#9ca3af;text-align:center;transition:all 0.15s;border:none;background:transparent;font-family:inherit;}
 .snav-item:hover{background:#f5f5ff;color:#6366f1;}
 .snav-item.active{background:#eef2ff;color:#6366f1;}
-.snav-item{cursor:grab;}
+.snav-item{cursor:grab;user-select:none;}
 .snav-item.dragging{opacity:0.35;pointer-events:none;}
 .snav-item.drag-over{background:#e0e7ff;border:1.5px dashed #6366f1;box-shadow:0 0 0 2px rgba(99,102,241,0.15);}
+.snav-drag-handle{font-size:10px;color:#d1d5db;display:block;line-height:1;}
 .snav-icon{font-size:18px;line-height:1;}
 
 /* ── Editor panel ────────────────────────────────────────────────────── */
@@ -85,7 +86,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .rep-list{display:flex;flex-direction:column;gap:6px;margin-bottom:4px;}
 .rep-card{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;}
 .rep-card-head{display:flex;align-items:center;gap:6px;padding:9px 10px;cursor:pointer;}
-.rep-drag{font-size:12px;color:#d1d5db;cursor:grab;flex-shrink:0;}
+.rep-drag{font-size:12px;color:#d1d5db;cursor:grab;flex-shrink:0;padding:0 2px;user-select:none;}
+.rep-card.rep-dragging{opacity:0.4;}
+.rep-card.rep-drag-over{border:1.5px dashed #6366f1;background:#eef2ff;}
 .rep-card-label{font-size:12px;font-weight:500;color:#374151;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .rep-toggle{font-size:11px;color:#9ca3af;padding:2px 5px;border-radius:4px;border:none;background:transparent;cursor:pointer;font-family:inherit;transition:color 0.15s;}
 .rep-toggle:hover{color:#6366f1;}
@@ -545,6 +548,8 @@ function buildRepeater(secId, field) {
   list.className = 'rep-list';
   wrap.appendChild(list);
 
+  var repDragIdx = null;
+
   function renderItems() {
     list.innerHTML = '';
     var items = S[secId][field.id] || [];
@@ -558,6 +563,44 @@ function buildRepeater(secId, field) {
       var drag = document.createElement('span');
       drag.className = 'rep-drag';
       drag.textContent = '⠿';
+
+      // Drag-and-drop for repeater items
+      (function(i, c) {
+        drag.addEventListener('mousedown', function(e) {
+          e.stopPropagation();
+          c.setAttribute('draggable', 'true');
+        });
+        c.addEventListener('dragstart', function(e) {
+          repDragIdx = i;
+          e.dataTransfer.effectAllowed = 'move';
+          setTimeout(function() { c.classList.add('rep-dragging'); }, 0);
+        });
+        c.addEventListener('dragend', function() {
+          c.removeAttribute('draggable');
+          c.classList.remove('rep-dragging');
+          list.querySelectorAll('.rep-card').forEach(function(x) { x.classList.remove('rep-drag-over'); });
+        });
+        c.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          if (repDragIdx !== null && repDragIdx !== i) {
+            list.querySelectorAll('.rep-card').forEach(function(x) { x.classList.remove('rep-drag-over'); });
+            c.classList.add('rep-drag-over');
+          }
+        });
+        c.addEventListener('dragleave', function(e) {
+          if (!c.contains(e.relatedTarget)) c.classList.remove('rep-drag-over');
+        });
+        c.addEventListener('drop', function(e) {
+          e.preventDefault();
+          c.classList.remove('rep-drag-over');
+          if (repDragIdx === null || repDragIdx === i) return;
+          var arr = S[secId][field.id];
+          var moved = arr.splice(repDragIdx, 1)[0];
+          arr.splice(i, 0, moved);
+          repDragIdx = null;
+          markDirty(); debouncedPreview(); renderItems();
+        });
+      })(idx, card);
 
       var labelEl = document.createElement('span');
       labelEl.className = 'rep-card-label';
@@ -732,12 +775,14 @@ function buildEditor() {
   }
 
   SECTIONS.forEach(function(sec, idx) {
-    var btn = document.createElement('button');
+    var btn = document.createElement('div');
     btn.className = 'snav-item' + (activeSecId === sec.id || (activeSecId === null && idx === 0) ? ' active' : '');
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('tabindex', '0');
     btn.dataset.secId = sec.id;
     btn.draggable = true;
     btn.title = 'Drag to reorder';
-    btn.innerHTML = '<span class="snav-icon">' + (SEC_ICONS[sec.id] || '⚙️') + '</span>' + sec.label;
+    btn.innerHTML = '<span class="snav-drag-handle">⠿</span><span class="snav-icon">' + (SEC_ICONS[sec.id] || '⚙️') + '</span>' + sec.label;
 
     // ── Drag-and-drop ────────────────────────────────────────────────────────
     btn.addEventListener('dragstart', function(e) {
