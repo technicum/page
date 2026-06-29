@@ -1,1 +1,77 @@
-{% extends "layouts/base.njk" %}{% block body %}<h1 style="padding:40px">Settings — coming soon</h1>{% endblock %}
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+.settings-wrap{max-width:640px;margin:48px auto;padding:0 20px;}
+.settings-title{font-size:22px;font-weight:700;margin-bottom:28px;}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;margin-bottom:20px;}
+.card-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.fg:last-child{margin-bottom:0;}
+.fg label{font-size:12px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.04em;}
+.fg-input{padding:10px 14px;border:1px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;color:var(--ink);background:#fafafa;outline:none;transition:border 0.15s;}
+.fg-input:focus{border-color:var(--red);background:#fff;}
+.fg-input:disabled{opacity:0.55;cursor:not-allowed;}
+select.fg-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;background-color:#fafafa;}
+.fg-hint{font-size:12px;color:var(--ink-faint);}
+.btn-save{padding:10px 24px;background:var(--red);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.15s;}
+.btn-save:hover{opacity:0.85;}
+.flash-ok{background:var(--green-light);border:1px solid #bbf7d0;color:var(--green);padding:12px 16px;border-radius:var(--radius);margin-bottom:20px;font-size:14px;}
+.flash-err{background:var(--red-light);border:1px solid #fecaca;color:var(--red);padding:12px 16px;border-radius:var(--radius);margin-bottom:20px;font-size:14px;}
+.cat-option-icon{margin-right:6px;}
+</style>
+{% endblock %}
+{% block body %}
+<div class="settings-wrap">
+  <div class="settings-title">⚙️ Settings</div>
+
+  {% if flash_success and flash_success.length %}
+    <div class="flash-ok">✅ {{ flash_success[0] }}</div>
+  {% endif %}
+  {% if flash_errors and flash_errors.length %}
+    <div class="flash-err">❌ {{ flash_errors[0] }}</div>
+  {% endif %}
+
+  <form method="POST" action="/dashboard/settings">
+
+    <!-- Account -->
+    <div class="card">
+      <div class="card-title">👤 Account</div>
+      <div class="fg">
+        <label>Display Name</label>
+        <input class="fg-input" name="name" value="{{ user.name }}" placeholder="Your name">
+      </div>
+      <div class="fg">
+        <label>Email</label>
+        <input class="fg-input" value="{{ user.email }}" disabled>
+        <span class="fg-hint">Email cannot be changed here.</span>
+      </div>
+    </div>
+
+    <!-- Site -->
+    {% if site %}
+    <div class="card">
+      <div class="card-title">🌐 Site Info</div>
+      <div class="fg">
+        <label>Business Category</label>
+        <select class="fg-input" name="category_id">
+          <option value="">— No category selected —</option>
+          {% for cat in categories %}
+          <option value="{{ cat.id }}" {% if site.category_id == cat.id %}selected{% endif %}>
+            {{ cat.icon }} {{ cat.name }}
+          </option>
+          {% endfor %}
+        </select>
+        <span class="fg-hint">Choose the category that best describes your business.</span>
+      </div>
+      <div class="fg">
+        <label>Subdomain</label>
+        <input class="fg-input" value="{{ site.subdomain }}" disabled>
+        <span class="fg-hint">Subdomain cannot be changed after creation.</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <button type="submit" class="btn-save">Save Changes</button>
+  </form>
+</div>
+{% endblock %}

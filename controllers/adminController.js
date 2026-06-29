@@ -125,6 +125,86 @@ exports.users = async (req, res) => {
   })
 }
 
+// ── Categories list ───────────────────────────────────────────────────────────
+exports.categories = async (req, res) => {
+  const categories = await db.query(
+    'SELECT c.*, COUNT(s.id) as site_count FROM ms_categories c LEFT JOIN ms_sites s ON s.category_id = c.id GROUP BY c.id ORDER BY c.sort_order ASC, c.name ASC'
+  )
+  res.render('admin/categories.njk', {
+    title: 'Categories',
+    user: req.session.user,
+    categories,
+    flash_success: req.flash('success'),
+    flash_errors:  req.flash('errors')
+  })
+}
+
+// ── Create category ───────────────────────────────────────────────────────────
+exports.createCategory = async (req, res) => {
+  let { name, icon, description, sort_order } = req.body
+  name = (name || '').trim()
+  icon = (icon || '🏢').trim()
+  description = (description || '').trim()
+  sort_order = parseInt(sort_order) || 0
+
+  if (!name) {
+    req.flash('errors', ['Category name is required.'])
+    return res.redirect('/admin/categories')
+  }
+
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+  try {
+    await db.execute(
+      'INSERT INTO ms_categories (name, slug, icon, description, sort_order) VALUES (?, ?, ?, ?, ?)',
+      [name, slug, icon, description || null, sort_order]
+    )
+    req.flash('success', `Category "${name}" created.`)
+  } catch (e) {
+    req.flash('errors', ['Category with that name already exists.'])
+  }
+  res.redirect('/admin/categories')
+}
+
+// ── Update category ───────────────────────────────────────────────────────────
+exports.updateCategory = async (req, res) => {
+  const id = parseInt(req.body.id) || 0
+  let { name, icon, description, sort_order, status } = req.body
+  name = (name || '').trim()
+  icon = (icon || '🏢').trim()
+  description = (description || '').trim()
+  sort_order = parseInt(sort_order) || 0
+  status = status === '1' ? 1 : 0
+
+  if (!name || !id) {
+    req.flash('errors', ['Invalid request.'])
+    return res.redirect('/admin/categories')
+  }
+
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+  try {
+    await db.execute(
+      'UPDATE ms_categories SET name=?, slug=?, icon=?, description=?, sort_order=?, status=? WHERE id=?',
+      [name, slug, icon, description || null, sort_order, status, id]
+    )
+    req.flash('success', `Category "${name}" updated.`)
+  } catch (e) {
+    req.flash('errors', ['Update failed: ' + e.message])
+  }
+  res.redirect('/admin/categories')
+}
+
+// ── Delete category ───────────────────────────────────────────────────────────
+exports.deleteCategory = async (req, res) => {
+  const id = parseInt(req.body.id) || 0
+  if (!id) return res.redirect('/admin/categories')
+  // Sites with this category will have category_id set to NULL (FK ON DELETE SET NULL)
+  await db.execute('DELETE FROM ms_categories WHERE id = ?', [id])
+  req.flash('success', 'Category deleted.')
+  res.redirect('/admin/categories')
+}
+
 // ── Toggle admin ──────────────────────────────────────────────────────────────
 exports.toggleAdmin = async (req, res) => {
   const targetId = parseInt(req.body.user_id) || 0

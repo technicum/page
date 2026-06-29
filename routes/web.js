@@ -175,7 +175,11 @@ router.get ('/admin',                   requireAuth, requireAdmin, admin.index)
 router.get ('/admin/themes',            requireAuth, requireAdmin, admin.themes)
 router.post('/admin/themes/upload',     requireAuth, requireAdmin, themeUpload.single('theme_zip'), admin.uploadTheme)
 router.post('/admin/themes/delete',     requireAuth, requireAdmin, admin.deleteTheme)
-router.get ('/admin/users',             requireAuth, requireAdmin, admin.users)
-router.post('/admin/users/toggle-admin',requireAuth, requireAdmin, admin.toggleAdmin)
+router.get ('/admin/users',                  requireAuth, requireAdmin, admin.users)
+router.post('/admin/users/toggle-admin',     requireAuth, requireAdmin, admin.toggleAdmin)
+router.get ('/admin/categories',             requireAuth, requireAdmin, admin.categories)
+router.post('/admin/categories/create',      requireAuth, requireAdmin, admin.createCategory)
+router.post('/admin/categories/update',      requireAuth, requireAdmin, admin.updateCategory)
+router.post('/admin/categories/delete',      requireAuth, requireAdmin, admin.deleteCategory)
 
 module.exports = router

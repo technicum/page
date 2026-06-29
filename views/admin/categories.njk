@@ -1,0 +1,236 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{background:var(--off);}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sidebar-logo{font-family:"DM Serif Display",serif;font-size:18px;padding:24px 20px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;}
+.sidebar-logo em{font-style:italic;color:var(--red);}
+.sidebar-nav{padding:16px 12px;flex:1;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:2px;font-weight:500;}
+.nav-item:hover{background:var(--off);color:var(--ink);}
+.nav-item.active{background:var(--red-light);color:var(--red);font-weight:600;}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
+.main{flex:1;overflow-y:auto;padding:40px;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.page-header h1{font-size:22px;font-weight:700;}
+.flash-ok{background:var(--green-light);border:1px solid #bbf7d0;color:var(--green);padding:12px 16px;border-radius:var(--radius);margin-bottom:20px;font-size:14px;}
+.flash-err{background:var(--red-light);border:1px solid #fecaca;color:var(--red);padding:12px 16px;border-radius:var(--radius);margin-bottom:20px;font-size:14px;}
+
+/* Add form card */
+.add-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:28px;}
+.add-card h2{font-size:15px;font-weight:700;margin-bottom:16px;color:var(--ink);}
+.form-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:12px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.04em;}
+.fg-input{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:var(--off);color:var(--ink);outline:none;transition:border 0.15s;}
+.fg-input:focus{border-color:var(--red);background:#fff;}
+.fg-icon{width:60px;text-align:center;font-size:18px;}
+.fg-name{flex:1;min-width:160px;}
+.fg-desc{flex:2;min-width:200px;}
+.fg-num{width:80px;}
+.btn-add{padding:10px 20px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.btn-add:hover{opacity:0.88;}
+
+/* Table */
+.cat-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);}
+.cat-table th{background:var(--off);font-size:12px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;padding:12px 16px;text-align:left;}
+.cat-table td{padding:13px 16px;border-top:1px solid var(--border);vertical-align:middle;font-size:14px;}
+.cat-icon{font-size:20px;line-height:1;}
+.badge-active{display:inline-block;background:var(--green-light);color:var(--green);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.badge-off{display:inline-block;background:var(--off);color:var(--ink-faint);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.count-badge{display:inline-block;background:#eef2ff;color:#4f46e5;font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;min-width:28px;text-align:center;}
+.btn-sm{padding:6px 11px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:opacity 0.15s;font-family:inherit;}
+.btn-edit{background:#eef2ff;color:#4f46e5;}
+.btn-del{background:var(--red-light);color:var(--red);}
+.btn-sm:hover{opacity:0.75;}
+
+/* Edit modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:16px;padding:28px;width:480px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.15);}
+.modal h2{font-size:17px;font-weight:700;margin-bottom:20px;}
+.modal-grid{display:grid;grid-template-columns:70px 1fr;gap:12px;margin-bottom:12px;}
+.modal-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.modal-full{margin-bottom:12px;}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+.btn-cancel{padding:9px 18px;background:var(--off);color:var(--ink-muted);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-save{padding:9px 22px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-save:hover,.btn-add:hover{opacity:0.88;}
+select.fg-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+.empty{text-align:center;padding:48px;color:var(--ink-faint);font-size:14px;}
+</style>
+{% endblock %}
+{% block body %}
+<div class="layout">
+  <aside class="sidebar">
+    <a class="sidebar-logo" href="/admin">⚙️ <em>Admin</em></a>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/admin">🏠 Dashboard</a>
+      <a class="nav-item" href="/admin/themes">🎨 Themes</a>
+      <a class="nav-item" href="/admin/users">👤 Users</a>
+      <a class="nav-item active" href="/admin/categories">📂 Categories</a>
+      <a class="nav-item" href="/dashboard">← Back to App</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <span style="font-size:12px;color:var(--ink-faint);">{{ user.name }}</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <h1>📂 Business Categories</h1>
+      <span style="font-size:13px;color:var(--ink-muted);">{{ categories | length }} categories</span>
+    </div>
+
+    {% if flash_success and flash_success.length %}
+      <div class="flash-ok">✅ {{ flash_success[0] }}</div>
+    {% endif %}
+    {% if flash_errors and flash_errors.length %}
+      <div class="flash-err">❌ {{ flash_errors[0] }}</div>
+    {% endif %}
+
+    <!-- Add category -->
+    <div class="add-card">
+      <h2>Add New Category</h2>
+      <form method="POST" action="/admin/categories/create">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Icon</label>
+            <input class="fg-input fg-icon" name="icon" placeholder="🏢" maxlength="4" value="🏢">
+          </div>
+          <div class="form-group fg-name">
+            <label>Name *</label>
+            <input class="fg-input" name="name" placeholder="e.g. Restaurant & Food" required>
+          </div>
+          <div class="form-group fg-desc">
+            <label>Description</label>
+            <input class="fg-input" name="description" placeholder="Short description (optional)">
+          </div>
+          <div class="form-group fg-num">
+            <label>Sort Order</label>
+            <input class="fg-input" name="sort_order" type="number" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn-add">+ Add Category</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Category table -->
+    {% if categories and categories.length %}
+    <table class="cat-table">
+      <thead>
+        <tr>
+          <th>Icon</th>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Description</th>
+          <th>Sites</th>
+          <th>Order</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cat in categories %}
+        <tr>
+          <td><span class="cat-icon">{{ cat.icon }}</span></td>
+          <td style="font-weight:600;">{{ cat.name }}</td>
+          <td style="color:var(--ink-muted);font-size:12px;font-family:monospace;">{{ cat.slug }}</td>
+          <td style="color:var(--ink-muted);font-size:13px;">{{ cat.description or '—' }}</td>
+          <td><span class="count-badge">{{ cat.site_count }}</span></td>
+          <td style="color:var(--ink-muted);">{{ cat.sort_order }}</td>
+          <td>
+            {% if cat.status %}
+              <span class="badge-active">Active</span>
+            {% else %}
+              <span class="badge-off">Inactive</span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-sm btn-edit"
+                onclick="openEdit({{ cat.id }}, '{{ cat.icon | escape }}', {{ cat.name | dump }}, {{ cat.description | dump | default('null') }}, {{ cat.sort_order }}, {{ cat.status }})">
+                ✎ Edit
+              </button>
+              <form method="POST" action="/admin/categories/delete"
+                onsubmit="return confirm('Delete category {{ cat.name }}? Sites using it will have no category.')">
+                <input type="hidden" name="id" value="{{ cat.id }}">
+                <button type="submit" class="btn-sm btn-del">✕</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No categories yet. Add one above.</div>
+    {% endif %}
+  </main>
+</div>
+
+<!-- Edit modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h2>✎ Edit Category</h2>
+    <form method="POST" action="/admin/categories/update" id="editForm">
+      <input type="hidden" name="id" id="editId">
+      <div class="modal-grid">
+        <div class="form-group">
+          <label>Icon</label>
+          <input class="fg-input fg-icon" name="icon" id="editIcon" maxlength="4">
+        </div>
+        <div class="form-group">
+          <label>Name *</label>
+          <input class="fg-input" name="name" id="editName" required>
+        </div>
+      </div>
+      <div class="modal-full">
+        <div class="form-group">
+          <label>Description</label>
+          <input class="fg-input" name="description" id="editDesc" placeholder="Optional">
+        </div>
+      </div>
+      <div class="modal-row">
+        <div class="form-group">
+          <label>Sort Order</label>
+          <input class="fg-input" name="sort_order" id="editOrder" type="number" min="0">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select class="fg-input" name="status" id="editStatus">
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="closeEdit()">Cancel</button>
+        <button type="submit" class="btn-save">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openEdit(id, icon, name, desc, order, status) {
+  document.getElementById('editId').value    = id;
+  document.getElementById('editIcon').value  = icon;
+  document.getElementById('editName').value  = name;
+  document.getElementById('editDesc').value  = desc || '';
+  document.getElementById('editOrder').value = order;
+  document.getElementById('editStatus').value = status ? '1' : '0';
+  document.getElementById('editModal').classList.add('open');
+}
+function closeEdit() {
+  document.getElementById('editModal').classList.remove('open');
+}
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEdit();
+});
+</script>
+{% endblock %}

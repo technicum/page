@@ -416,7 +416,7 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}) {
   const secOrder = settings._section_order
   if (secOrder && Array.isArray(secOrder) && secOrder.length) {
     const orderCss = secOrder.map((id, i) => `[data-sec="${id}"]{order:${i};}`).join('')
-    const orderStyle = `<style>.page{display:flex!important;flex-direction:column!important;}${orderCss}</style>`
+    const orderStyle = `<style>.page{display:flex!important;flex-direction:column!important;}${orderCss}.save-contact-bar{order:9998!important;}.share-bar{order:9999!important;}</style>`
     html = html.replace('</head>', orderStyle + '</head>')
   }
 

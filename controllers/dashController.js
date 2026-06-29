@@ -113,17 +113,31 @@ exports.biolinkBuilder = async (req, res) => {
 
 exports.settings = async (req, res) => {
   const user = req.session.user
-  res.render('dashboard/settings.njk', { title: 'Settings', user })
+  const site = await db.first('SELECT * FROM ms_sites WHERE account_id = ? LIMIT 1', [user.id])
+  const categories = await db.query('SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC')
+  res.render('dashboard/settings.njk', {
+    title: 'Settings',
+    user,
+    site: site || null,
+    categories: categories || [],
+    flash_success: req.flash('success'),
+    flash_errors:  req.flash('errors')
+  })
 }
 
 exports.updateSettings = async (req, res) => {
   const user = req.session.user
-  const { name } = req.body
+  const { name, category_id } = req.body
 
   if (name) {
     await db.execute('UPDATE ms_accounts SET name = ? WHERE id = ?', [name, user.id])
     const updated = await db.first('SELECT * FROM ms_accounts WHERE id = ?', [user.id])
     req.session.user = updated
+  }
+
+  if (category_id !== undefined) {
+    const catId = parseInt(category_id) || null
+    await db.execute('UPDATE ms_sites SET category_id = ? WHERE account_id = ?', [catId, user.id])
   }
 
   req.flash('success', 'Settings updated.')
