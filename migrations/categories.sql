@@ -30,5 +30,5 @@ INSERT INTO ms_categories (name, slug, icon, sort_order) VALUES
 
 -- Add category_id to sites table
 ALTER TABLE ms_sites
-  ADD COLUMN category_id INT UNSIGNED DEFAULT NULL AFTER type,
+  ADD COLUMN category_id INT UNSIGNED DEFAULT NULL,
   ADD CONSTRAINT fk_site_category FOREIGN KEY (category_id) REFERENCES ms_categories(id) ON DELETE SET NULL;
