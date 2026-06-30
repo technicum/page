@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --accent: {{ settings.profile.accent | default: '#D85A30' }};
+  --bg: #FDF0EB;
+  --ink: #2C2C2A;
+  --ink-muted: #993C1D;
+  --border: #F0997B;
+  --accent-faint: rgba(216,90,48,.1);
+  --accent-glow: rgba(216,90,48,.18);
+}
+body{min-height:100vh;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:flex-start;}
+.page{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;padding:48px 20px 60px;margin:0 auto;}
+
+/* Avatar */
+[data-sec="profile"]{display:flex;flex-direction:column;align-items:center;width:100%;}
+.avatar-wrap{position:relative;width:96px;height:96px;animation:popIn .65s cubic-bezier(.34,1.56,.64,1) both,float 4s 1.4s ease-in-out infinite;}
+.avatar-ring{position:absolute;inset:-5px;border-radius:50%;border:2.5px solid var(--accent-glow);border-top-color:var(--accent);border-right-color:rgba(216,90,48,.6);animation:spin 2.4s linear infinite;}
+.avatar-ring-2{position:absolute;inset:-10px;border-radius:50%;border:1.5px solid rgba(216,90,48,.08);border-bottom-color:rgba(216,90,48,.35);border-left-color:rgba(216,90,48,.35);animation:spin 4s linear infinite reverse;}
+.avatar{position:absolute;inset:0;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:600;color:var(--bg);letter-spacing:-1px;}
+.avatar-img{position:absolute;inset:0;border-radius:50%;width:100%;height:100%;object-fit:cover;}
+
+/* Name / Meta */
+.name{margin-top:18px;font-size:22px;font-weight:600;color:var(--ink);letter-spacing:-0.3px;animation:fadeUp .45s .4s both;}
+.tagline{margin-top:4px;font-size:12px;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;animation:fadeUp .45s .5s both;}
+
+/* Badges */
+.badges{display:flex;align-items:center;gap:14px;margin-top:12px;animation:fadeUp .45s .6s both;}
+.badge-open{display:flex;align-items:center;gap:5px;background:rgba(29,158,117,.12);border-radius:20px;padding:4px 10px;}
+.dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;animation:dotBlink 2s ease-in-out infinite;}
+.badge-open span{font-size:11px;font-weight:500;color:#0F6E56;}
+.badge-stars{display:flex;align-items:center;gap:4px;}
+.stars{font-size:13px;color:var(--accent);letter-spacing:1px;}
+.review-count{font-size:11px;color:#888780;}
+
+/* Divider */
+.divider{width:40px;height:2px;background:var(--border);border-radius:2px;margin:20px 0;animation:fadeUp .45s .68s both;}
+
+/* Links */
+[data-sec="links"]{width:100%;}
+.links{width:100%;display:flex;flex-direction:column;gap:10px;}
+.link-btn{display:flex;align-items:center;gap:12px;border-radius:14px;padding:13px 16px;text-decoration:none;cursor:pointer;transition:transform .18s ease,opacity .18s ease;position:relative;overflow:hidden;}
+.link-btn:hover{transform:scale(1.025);opacity:.92;}
+.link-btn:active{transform:scale(.98);}
+.link-btn.primary{background:var(--accent);animation:slideUp .4s .76s both,ctaPulse 3s 2s ease-in-out infinite;}
+.link-btn.primary .shimmer{position:absolute;top:0;left:-80%;width:55%;height:100%;background:rgba(255,255,255,.22);transform:skewX(-18deg);animation:shimmerPass 3.8s 1.8s ease-in-out infinite;pointer-events:none;}
+.link-btn.primary i,.link-btn.primary .link-emoji{color:var(--bg);font-size:20px;}
+.link-btn.primary .btn-text{color:var(--bg);font-size:14px;font-weight:600;}
+.link-btn.primary .btn-sub{color:rgba(253,240,235,.7);font-size:11px;margin-top:1px;}
+.link-btn.secondary{background:#fff;border:1px solid var(--border);}
+.link-btn.secondary i,.link-btn.secondary .link-emoji{color:var(--accent);font-size:20px;}
+.link-btn.secondary .btn-text{color:var(--ink);font-size:14px;font-weight:500;}
+.link-btn.secondary .btn-sub{color:rgba(44,44,42,.5);font-size:11px;margin-top:1px;}
+.link-btn.n1{animation:slideL .4s .86s both;}
+.link-btn.n2{animation:slideR .4s .96s both;}
+.link-btn.n3{animation:slideL .4s 1.06s both;}
+.link-btn.n4{animation:slideR .4s 1.16s both;}
+.link-btn.n5{animation:slideL .4s 1.26s both;}
+.link-btn.n6{animation:slideR .4s 1.36s both;}
+.link-btn.n7{animation:slideL .4s 1.46s both;}
+.link-btn.n8{animation:slideR .4s 1.56s both;}
+.btn-label{display:flex;flex-direction:column;}
+
+/* Socials */
+[data-sec="socials"]{display:flex;flex-direction:column;align-items:center;}
+.social-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;justify-content:center;animation:fadeUp .45s 1.4s both;}
+.social-icon{width:42px;height:42px;border-radius:50%;background:var(--accent-faint);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .18s ease,background .18s ease;text-decoration:none;}
+.social-icon:hover{transform:scale(1.12);background:var(--accent-glow);}
+.social-icon i{font-size:18px;color:var(--accent);}
+
+/* Share bar */
+.share-bar{margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:8px;animation:fadeUp .45s 1.6s both;}
+.share-btn{background:transparent;border:1px solid var(--border);color:var(--ink-muted);padding:8px 18px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:background .15s;}
+.share-btn:hover{background:var(--accent-faint);}
+.share-toast{font-size:12px;color:#1D9E75;opacity:0;transition:opacity .3s;}
+.share-toast.show{opacity:1;}
+
+/* Keyframes */
+@keyframes popIn{0%{transform:scale(.25);opacity:0;}65%{transform:scale(1.12);opacity:1;}100%{transform:scale(1);opacity:1;}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes fadeUp{from{transform:translateY(18px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes slideL{from{transform:translateX(-30px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes slideR{from{transform:translateX(30px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes shimmerPass{0%{left:-80%;}40%,100%{left:130%;}}
+@keyframes ctaPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.018);}}
+@keyframes dotBlink{0%,100%{opacity:1;}50%{opacity:.2;}}
+</style>
+</head>
+<body>
+<div class="page">
+
+{% assign pr = settings.profile %}
+
+<!-- Profile -->
+<div data-sec="profile">
+  <div class="avatar-wrap">
+    <div class="avatar-ring-2"></div>
+    <div class="avatar-ring"></div>
+    {% if pr.avatar != blank %}
+      <img class="avatar-img" src="{{ pr.avatar }}" alt="{{ pr.name }}">
+    {% else %}
+      <div class="avatar">{{ pr.name | slice: 0, 2 | upcase }}</div>
+    {% endif %}
+  </div>
+
+  <h1 class="name">{{ pr.name }}</h1>
+  {% if pr.title != blank %}<p class="tagline">{{ pr.title }}</p>{% endif %}
+
+  {% if pr.show_open == 'yes' or pr.rating != blank %}
+  <div class="badges">
+    {% if pr.show_open == 'yes' %}
+    <div class="badge-open"><span class="dot"></span><span>Open now</span></div>
+    {% endif %}
+    {% if pr.rating != blank %}
+    <div class="badge-stars">
+      <span class="stars">★★★★★</span>
+      <span class="review-count">{{ pr.rating }}{% if pr.review_count != blank %} · {{ pr.review_count }}{% endif %}</span>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="divider"></div>
+</div>
+
+<!-- Links -->
+{% assign lk = settings.links %}
+{% if lk.items and lk.items.size > 0 %}
+<div data-sec="links">
+  <div class="links">
+    {% for item in lk.items %}
+      {% if item.primary == 'yes' %}
+      <a class="link-btn primary" href="{{ item.url }}" target="_blank">
+        <div class="shimmer"></div>
+        {% if item.emoji != blank %}
+          {% if item.emoji contains 'ti ' %}<i class="{{ item.emoji }}"></i>{% else %}<span class="link-emoji" style="font-size:20px;">{{ item.emoji }}</span>{% endif %}
+        {% endif %}
+        <div class="btn-label">
+          <span class="btn-text">{{ item.label }}</span>
+          {% if item.sub != blank %}<span class="btn-sub">{{ item.sub }}</span>{% endif %}
+        </div>
+      </a>
+      {% else %}
+      {% assign nidx = forloop.index %}
+      <a class="link-btn secondary n{{ nidx }}" href="{{ item.url }}" target="_blank">
+        {% if item.emoji != blank %}
+          {% if item.emoji contains 'ti ' %}<i class="{{ item.emoji }}"></i>{% else %}<span class="link-emoji" style="font-size:20px;">{{ item.emoji }}</span>{% endif %}
+        {% endif %}
+        <div class="btn-label">
+          <span class="btn-text">{{ item.label }}</span>
+          {% if item.sub != blank %}<span class="btn-sub">{{ item.sub }}</span>{% endif %}
+        </div>
+      </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Socials -->
+{% assign s = settings.socials %}
+{% if s.instagram != blank or s.facebook != blank or s.tiktok != blank or s.youtube != blank or s.twitter != blank or s.linkedin != blank %}
+<div data-sec="socials">
+  <div class="social-row">
+    {% if s.instagram != blank %}<a href="{{ s.instagram }}" class="social-icon" target="_blank"><i class="ti ti-brand-instagram"></i></a>{% endif %}
+    {% if s.facebook != blank %}<a href="{{ s.facebook }}" class="social-icon" target="_blank"><i class="ti ti-brand-facebook"></i></a>{% endif %}
+    {% if s.tiktok != blank %}<a href="{{ s.tiktok }}" class="social-icon" target="_blank"><i class="ti ti-brand-tiktok"></i></a>{% endif %}
+    {% if s.youtube != blank %}<a href="{{ s.youtube }}" class="social-icon" target="_blank"><i class="ti ti-brand-youtube"></i></a>{% endif %}
+    {% if s.twitter != blank %}<a href="{{ s.twitter }}" class="social-icon" target="_blank"><i class="ti ti-brand-x"></i></a>{% endif %}
+    {% if s.linkedin != blank %}<a href="{{ s.linkedin }}" class="social-icon" target="_blank"><i class="ti ti-brand-linkedin"></i></a>{% endif %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Share -->
+<div class="share-bar">
+  <button class="share-btn" onclick="pzShare()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    Share this page
+  </button>
+  <div class="share-toast" id="pzToast">✓ Link copied!</div>
+</div>
+
+</div>
+<script>
+function pzShare(){var u=location.href,t=document.title;if(navigator.share){navigator.share({title:t,url:u});}else{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
+</script>
+</body>
+</html>

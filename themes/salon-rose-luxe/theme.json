@@ -1,0 +1,66 @@
+{
+  "name": "Salon Rose Luxe",
+  "description": "Warm terracotta salon theme with animated avatar rings and shimmer CTA.",
+  "for": ["linktree"],
+  "preview": "",
+  "sections": [
+    {
+      "id": "profile",
+      "label": "Profile",
+      "fields": [
+        { "id": "avatar",       "label": "Avatar / Logo URL",       "type": "image",  "default": "" },
+        { "id": "name",         "label": "Business Name",            "type": "text",   "default": "Glamour Lounge" },
+        { "id": "title",        "label": "Tagline (specialty · city)", "type": "text", "default": "Beauty & Hair Studio · NYC" },
+        { "id": "show_open",    "label": "Show 'Open Now' badge (yes/no)", "type": "text", "default": "yes" },
+        { "id": "rating",       "label": "Rating (e.g. 4.9)",       "type": "text",   "default": "4.9" },
+        { "id": "review_count", "label": "Review count (e.g. 2.4k reviews)", "type": "text", "default": "2.4k reviews" },
+        { "id": "accent",       "label": "Accent Color",             "type": "color",  "default": "#D85A30" }
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links",
+      "fields": [
+        { "id": "items", "label": "Links", "type": "repeater",
+          "default": [
+            { "label": "Book appointment", "url": "", "emoji": "ti ti-calendar-event", "primary": "yes",  "sub": "Available slots this week" },
+            { "label": "Our services",     "url": "", "emoji": "ti ti-scissors",        "primary": "no",   "sub": "Hair, nails, skincare & more" },
+            { "label": "Photo gallery",    "url": "", "emoji": "ti ti-photo",           "primary": "no",   "sub": "See our latest work" },
+            { "label": "WhatsApp us",      "url": "", "emoji": "ti ti-brand-whatsapp",  "primary": "no",   "sub": "Quick replies, Mon – Sat" },
+            { "label": "Find us",          "url": "", "emoji": "ti ti-map-pin",         "primary": "no",   "sub": "" },
+            { "label": "Current offers",   "url": "", "emoji": "ti ti-tag",             "primary": "no",   "sub": "20% off Tuesdays" }
+          ],
+          "item_fields": [
+            { "id": "label",   "label": "Label",              "type": "text", "default": "My Link" },
+            { "id": "url",     "label": "URL",                "type": "text", "default": "" },
+            { "id": "emoji",   "label": "Icon class or emoji","type": "text", "default": "ti ti-link" },
+            { "id": "sub",     "label": "Subtitle (optional)","type": "text", "default": "" },
+            { "id": "primary", "label": "Primary CTA (yes/no)","type": "text", "default": "no" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "socials",
+      "label": "Socials",
+      "fields": [
+        { "id": "instagram", "label": "Instagram URL", "type": "text", "default": "" },
+        { "id": "facebook",  "label": "Facebook URL",  "type": "text", "default": "" },
+        { "id": "tiktok",    "label": "TikTok URL",    "type": "text", "default": "" },
+        { "id": "youtube",   "label": "YouTube URL",   "type": "text", "default": "" },
+        { "id": "twitter",   "label": "Twitter / X URL","type": "text", "default": "" },
+        { "id": "linkedin",  "label": "LinkedIn URL",  "type": "text", "default": "" }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "fields": [
+        { "id": "whatsapp", "label": "WhatsApp Number", "type": "text", "default": "" },
+        { "id": "phone",    "label": "Phone Number",    "type": "text", "default": "" },
+        { "id": "email",    "label": "Email",           "type": "text", "default": "" },
+        { "id": "address",  "label": "Address",         "type": "text", "default": "" }
+      ]
+    }
+  ]
+}
