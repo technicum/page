@@ -41,6 +41,46 @@
       ]
     },
     {
+      "id": "services",
+      "label": "Services",
+      "fields": [
+        { "id": "heading", "label": "Section Heading", "type": "text", "default": "Our Services" },
+        { "id": "items", "label": "Services", "type": "repeater",
+          "default": [
+            { "emoji": "✂️", "name": "Signature Haircut", "description": "Luxury cut & style experience", "price": "$75+" },
+            { "emoji": "💎", "name": "VIP Treatment",     "description": "Full glam package",             "price": "$150+" },
+            { "emoji": "🖤", "name": "Keratin Treatment", "description": "Smooth & sleek finish",         "price": "$200+" }
+          ],
+          "item_fields": [
+            { "id": "emoji",       "label": "Icon / Emoji",   "type": "text", "default": "✂️" },
+            { "id": "name",        "label": "Service Name",   "type": "text", "default": "Service" },
+            { "id": "description", "label": "Description",    "type": "text", "default": "" },
+            { "id": "price",       "label": "Price",          "type": "text", "default": "" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "products",
+      "label": "Products",
+      "fields": [
+        { "id": "heading", "label": "Section Heading", "type": "text", "default": "Shop Products" },
+        { "id": "items", "label": "Products", "type": "repeater",
+          "default": [
+            { "image": "", "name": "Noir Hair Oil",   "description": "Luxury overnight treatment", "price": "$48", "url": "" },
+            { "image": "", "name": "Velvet Lip Set",  "description": "Matte finish collection",    "price": "$55", "url": "" }
+          ],
+          "item_fields": [
+            { "id": "image",       "label": "Product Image URL", "type": "image", "default": "" },
+            { "id": "name",        "label": "Product Name",      "type": "text",  "default": "Product" },
+            { "id": "description", "label": "Description",       "type": "text",  "default": "" },
+            { "id": "price",       "label": "Price",             "type": "text",  "default": "" },
+            { "id": "url",         "label": "Buy / Shop URL",    "type": "text",  "default": "" }
+          ]
+        }
+      ]
+    },
+    {
       "id": "socials",
       "label": "Socials",
       "fields": [
