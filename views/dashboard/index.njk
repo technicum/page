@@ -352,8 +352,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
   </div>
 </div>
 
+<script type="application/json" id="pz-sites-json">{{ sites | dump | safe }}</script>
 <script>
-var ALL_SITES_DATA = {{ sites | tojson }};
+var ALL_SITES_DATA = JSON.parse(document.getElementById('pz-sites-json').textContent || '[]');
 
 function openInfoModal(siteId) {
   var site = ALL_SITES_DATA.find(function(s){ return s.id === siteId })
