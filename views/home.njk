@@ -25,9 +25,26 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop
 .search-input{flex:1;border:none;outline:none;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;min-width:0;}
 .search-input::placeholder{color:var(--ink-faint);}
 .search-sep{width:1px;height:28px;background:var(--border);flex-shrink:0;}
-.location-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.location-icon{color:var(--ink-faint);}
-.location-select{border:none;outline:none;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink-muted);background:transparent;cursor:pointer;max-width:130px;}
+.location-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0;min-width:0;}
+.location-icon{color:var(--ink-faint);flex-shrink:0;}
+.location-input{border:none;outline:none;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink-muted);background:transparent;width:110px;min-width:0;}
+.location-input::placeholder{color:var(--ink-faint);}
+.gps-btn{border:none;background:none;cursor:pointer;padding:2px 4px;font-size:14px;line-height:1;color:var(--ink-faint);transition:color 0.2s;flex-shrink:0;}
+.gps-btn:hover{color:var(--blue);}
+.gps-btn.loading{animation:spin 1s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loc-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-muted);background:var(--off);border:1px solid var(--border);border-radius:20px;padding:4px 12px;margin-top:10px;cursor:pointer;}
+.loc-pill svg{color:var(--blue);}
+.loc-pill:hover{border-color:var(--blue);color:var(--blue);}
+/* Skeleton loader for cards */
+.skeleton{background:linear-gradient(90deg,var(--paper) 25%,var(--off) 50%,var(--paper) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:6px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 18px;}
+.skel-icon{width:48px;height:48px;border-radius:var(--radius-sm);margin-bottom:14px;}
+.skel-badge{width:70px;height:20px;margin-bottom:10px;}
+.skel-name{width:80%;height:16px;margin-bottom:8px;}
+.skel-desc{width:55%;height:12px;margin-bottom:12px;}
+.skel-loc{width:40%;height:12px;}
 .search-btn{background:var(--blue);color:white;border:none;padding:11px 22px;border-radius:var(--radius-lg);font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background 0.2s;white-space:nowrap;flex-shrink:0;}
 .search-btn:hover{background:#1d4ed8;}
 .quick-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px;}
@@ -127,20 +144,16 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
         <div class="search-sep"></div>
         <div class="location-wrap">
           <svg class="location-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <select class="location-select" name="city">
-            <option>Ludhiana</option>
-            <option>Delhi</option>
-            <option>Mumbai</option>
-            <option>Bangalore</option>
-            <option>Chandigarh</option>
-            <option>Amritsar</option>
-          </select>
+          <input class="location-input" type="text" name="city" id="city-input" placeholder="Detecting…" autocomplete="off">
+          <button type="button" class="gps-btn" id="gps-btn" title="Use my precise location">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/><path d="M12 5a7 7 0 1 0 0 14A7 7 0 0 0 12 5z" opacity="0.3"/></svg>
+          </button>
         </div>
         <button class="search-btn" type="submit">Search</button>
       </div>
     </form>
   </div>
-  <div class="quick-tags">
+  <div class="quick-tags" id="quick-tags">
     <a class="qtag" href="/search?q=salon">💇 Salon</a>
     <a class="qtag" href="/search?q=gym">🏋️ Gym</a>
     <a class="qtag" href="/search?q=tutor">📚 Tutor</a>
@@ -158,32 +171,18 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
   <div class="section-header">
     <div>
       <div class="section-label">Featured</div>
-      <div class="section-title">Near Ludhiana</div>
+      <div class="section-title">Near <span id="near-city-label">you</span></div>
     </div>
-    <a class="see-all" href="/search">See all →</a>
+    <a class="see-all" id="see-all-link" href="/search">See all →</a>
   </div>
-  <div class="cards-grid">
-    {% if featured and featured.length %}
-      {% for site in featured %}
-      <a class="provider-card" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">
-        <div class="card-icon-wrap" style="background:var(--blue-light);">🏪</div>
-        <span class="card-badge badge-blue">{{ site.category or "Business" }}</span>
-        <div class="card-name">{{ site.title }}</div>
-        <div class="card-desc">{{ site.subdomain }}.{{ base_domain }}</div>
-        <div class="card-location">
-          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          India
-        </div>
-      </a>
-      {% endfor %}
-    {% else %}
-      <a class="provider-card" href="#"><div class="card-icon-wrap" style="background:var(--blue-light);">💇</div><span class="card-badge badge-blue">Salon</span><div class="card-name">Glamour Studio</div><div class="card-desc">Hair & Beauty</div><div class="card-location"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Model Town, Ludhiana</div></a>
-      <a class="provider-card" href="#"><div class="card-icon-wrap" style="background:var(--green-light);">🏋️</div><span class="card-badge badge-green">Fitness</span><div class="card-name">FitZone Gym</div><div class="card-desc">Gym & Wellness</div><div class="card-location"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>BRS Nagar</div></a>
-      <a class="provider-card" href="#"><div class="card-icon-wrap" style="background:var(--amber-light);">📚</div><span class="card-badge badge-amber">Education</span><div class="card-name">Ravi Maths Classes</div><div class="card-desc">Class 9–12 Maths</div><div class="card-location"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Sarabha Nagar</div></a>
-      <a class="provider-card" href="#"><div class="card-icon-wrap" style="background:var(--pink-light);">⚖️</div><span class="card-badge badge-pink">Legal</span><div class="card-name">Sharma & Associates</div><div class="card-desc">Civil & Property Law</div><div class="card-location"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Civil Lines</div></a>
-      <a class="provider-card" href="#"><div class="card-icon-wrap" style="background:var(--blue-light);">🔧</div><span class="card-badge badge-blue">Home Services</span><div class="card-name">QuickFix Pro</div><div class="card-desc">Plumbing & Electric</div><div class="card-location"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Dugri</div></a>
-      <a class="provider-card" href="#"><div class="card-icon-wrap" style="background:var(--green-light);">🍽️</div><span class="card-badge badge-green">Food</span><div class="card-name">Punjabi Tadka</div><div class="card-desc">Restaurant & Catering</div><div class="card-location"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Ferozepur Road</div></a>
-    {% endif %}
+  <div class="cards-grid" id="nearby-grid">
+    <!-- skeleton -->
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
   </div>
 </section>
 
@@ -262,5 +261,105 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
   </ul>
   <span class="footer-copy">© 2026 PageZaper</span>
 </footer>
+
+<script>
+(function() {
+  var cityInput  = document.getElementById('city-input')
+  var gpsBtn     = document.getElementById('gps-btn')
+  var nearLabel  = document.getElementById('near-city-label')
+  var grid       = document.getElementById('nearby-grid')
+  var seeAllLink = document.getElementById('see-all-link')
+  var BASE       = '{{ base_domain }}'
+  var detectedCity = ''
+
+  // ── Render vendor cards ──────────────────────────────────────────────────────
+  function renderCards(results) {
+    if (!results || !results.length) {
+      grid.innerHTML = '<p style="color:var(--ink-faint);font-size:14px;padding:20px 0;">No businesses found near this location yet.</p>'
+      return
+    }
+    var colors = ['var(--blue-light)','var(--green-light)','var(--amber-light)','var(--pink-light)']
+    var badges = ['badge-blue','badge-green','badge-amber','badge-pink']
+    grid.innerHTML = results.map(function(s, i) {
+      var ci   = i % 4
+      var icon = s.cat_icon  || '🏪'
+      var cat  = s.cat_name  || 'Business'
+      var city = s.city      || 'India'
+      var desc = s.description || (s.subdomain + '.' + BASE)
+      return '<a class="provider-card" href="https://' + s.subdomain + '.' + BASE + '" target="_blank">' +
+        '<div class="card-icon-wrap" style="background:' + colors[ci] + ';">' + icon + '</div>' +
+        '<span class="card-badge ' + badges[ci] + '">' + cat + '</span>' +
+        '<div class="card-name">' + s.title + '</div>' +
+        '<div class="card-desc">' + desc + '</div>' +
+        '<div class="card-location"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + city + '</div>' +
+        '</a>'
+    }).join('')
+  }
+
+  // ── Fetch nearby vendors ─────────────────────────────────────────────────────
+  function loadNearby(city) {
+    fetch('/api/nearby?city=' + encodeURIComponent(city))
+      .then(function(r) { return r.json() })
+      .then(function(d) { renderCards(d.results) })
+      .catch(function()  { renderCards([]) })
+  }
+
+  // ── Set city everywhere ──────────────────────────────────────────────────────
+  function setCity(city) {
+    if (!city) return
+    detectedCity          = city
+    cityInput.value       = city
+    nearLabel.textContent = city
+    if (seeAllLink) seeAllLink.href = '/search?city=' + encodeURIComponent(city)
+    // Update quick-tag links to include city
+    var tags = document.querySelectorAll('#quick-tags .qtag')
+    tags.forEach(function(a) {
+      var url = new URL(a.href, location.href)
+      url.searchParams.set('city', city)
+      a.href = url.toString()
+    })
+    loadNearby(city)
+  }
+
+  // ── Step 1: IP-based auto-detect (silent, no permission prompt) ──────────────
+  fetch('/api/detect-city')
+    .then(function(r) { return r.json() })
+    .then(function(d) {
+      if (d.city) { setCity(d.city) } else { loadNearby('') }
+    })
+    .catch(function() { loadNearby('') })
+
+  // ── Step 2: GPS precise location button ──────────────────────────────────────
+  gpsBtn.addEventListener('click', function() {
+    if (!navigator.geolocation) { alert('Geolocation not supported by your browser.'); return }
+    gpsBtn.style.opacity = '0.5'
+    gpsBtn.setAttribute('disabled', '')
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        fetch('/api/reverse-geocode?lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude)
+          .then(function(r) { return r.json() })
+          .then(function(d) {
+            gpsBtn.style.opacity = ''
+            gpsBtn.removeAttribute('disabled')
+            if (d.city) setCity(d.city)
+          })
+          .catch(function() { gpsBtn.style.opacity = ''; gpsBtn.removeAttribute('disabled') })
+      },
+      function() { gpsBtn.style.opacity = ''; gpsBtn.removeAttribute('disabled') },
+      { timeout: 8000 }
+    )
+  })
+
+  // ── Manual city typing also refreshes cards (debounced) ──────────────────────
+  var cityTimer
+  cityInput.addEventListener('input', function() {
+    clearTimeout(cityTimer)
+    var val = this.value.trim()
+    nearLabel.textContent = val || 'you'
+    if (seeAllLink) seeAllLink.href = '/search?city=' + encodeURIComponent(val)
+    cityTimer = setTimeout(function() { loadNearby(val) }, 600)
+  })
+})()
+</script>
 
 {% endblock %}
