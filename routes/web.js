@@ -71,8 +71,9 @@ router.get('/debug', async (req, res) => {
 })
 
 // Public
-router.get('/',                    home.index)
-router.get('/search',              home.search)
+router.get('/',           home.index)
+router.get('/search',     home.search)
+router.get('/sitemap.xml', home.sitemap)
 router.get('/api/detect-city',      home.detectCity)
 router.get('/api/reverse-geocode',  home.reverseGeocode)
 router.get('/api/nearby',           home.nearby)
@@ -189,5 +190,8 @@ router.get ('/admin/categories',             requireAuth, requireAdmin, admin.ca
 router.post('/admin/categories/create',      requireAuth, requireAdmin, admin.createCategory)
 router.post('/admin/categories/update',      requireAuth, requireAdmin, admin.updateCategory)
 router.post('/admin/categories/delete',      requireAuth, requireAdmin, admin.deleteCategory)
+
+// ── City landing pages (catch-all — must be LAST) ─────────────────────────────
+router.get('/:city', home.cityPage)
 
 module.exports = router

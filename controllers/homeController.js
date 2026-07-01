@@ -128,6 +128,100 @@ exports.reverseGeocode = async (req, res) => {
   }
 }
 
+// ── City landing pages ────────────────────────────────────────────────────────
+exports.cityPage = async (req, res, next) => {
+  try {
+    const rawSlug    = req.params.city.toLowerCase()
+    const citySearch = rawSlug.replace(/-/g, ' ')   // "new-delhi" → "new delhi"
+
+    // Try city match first, then state match
+    let rows = await db.query(`
+      SELECT s.id, s.title, s.subdomain, s.settings, s.state,
+             c.name AS cat_name, c.icon AS cat_icon
+      FROM ms_sites s
+      LEFT JOIN ms_categories c ON c.id = s.category_id
+      WHERE s.is_published = 1
+        AND s.parent_site_id IS NULL
+        AND LOWER(JSON_EXTRACT(s.settings, '$.city')) = ?
+      ORDER BY s.created_at DESC LIMIT 60
+    `, [citySearch])
+
+    if (!rows.length) {
+      rows = await db.query(`
+        SELECT s.id, s.title, s.subdomain, s.settings, s.state,
+               c.name AS cat_name, c.icon AS cat_icon
+        FROM ms_sites s
+        LEFT JOIN ms_categories c ON c.id = s.category_id
+        WHERE s.is_published = 1
+          AND s.parent_site_id IS NULL
+          AND LOWER(s.state) = ?
+        ORDER BY s.created_at DESC LIMIT 60
+      `, [citySearch])
+    }
+
+    if (!rows.length) return next()   // no businesses → fall through to 404
+
+    // Recover display name from first row's settings
+    const firstSt  = JSON.parse(rows[0].settings || '{}')
+    const cityName = firstSt.city || firstSt.state ||
+                     citySearch.replace(/\b\w/g, c => c.toUpperCase())
+
+    const results = rows.map(s => {
+      const st = JSON.parse(s.settings || '{}')
+      return { ...s, settings: st, logo: st.logo || (st.profile && st.profile.avatar) || '' }
+    })
+
+    const categories = await db.query(
+      'SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC'
+    )
+
+    res.render('city.njk', {
+      title:      `Businesses in ${cityName} | PageZaper`,
+      cityName,
+      citySlug:   rawSlug,
+      results,
+      categories: categories || []
+    })
+  } catch (e) {
+    next(e)
+  }
+}
+
+// ── Sitemap ───────────────────────────────────────────────────────────────────
+exports.sitemap = async (req, res) => {
+  try {
+    const BASE = process.env.APP_URL || 'https://pagezaper.com'
+
+    // Distinct cities with at least one published site
+    const cities = await db.query(`
+      SELECT DISTINCT LOWER(JSON_EXTRACT(s.settings, '$.city')) AS city
+      FROM ms_sites s
+      WHERE s.is_published = 1
+        AND s.parent_site_id IS NULL
+        AND JSON_EXTRACT(s.settings, '$.city') IS NOT NULL
+        AND JSON_EXTRACT(s.settings, '$.city') != ''
+    `)
+
+    const cityUrls = cities
+      .map(r => r.city ? r.city.trim().replace(/\s+/g, '-') : null)
+      .filter(Boolean)
+      .map(slug => `  <url><loc>${BASE}/${encodeURIComponent(slug)}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>`)
+      .join('\n')
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${BASE}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>${BASE}/search</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+${cityUrls}
+</urlset>`
+
+    res.set('Content-Type', 'application/xml')
+    res.send(xml)
+  } catch (e) {
+    res.status(500).send('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>')
+  }
+}
+
 // ── AJAX: nearby vendors for homepage cards ────────────────────────────────────
 exports.nearby = async (req, res) => {
   const { city = '', lat = '', lng = '', radius = '25' } = req.query
