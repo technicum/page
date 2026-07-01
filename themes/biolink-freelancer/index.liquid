@@ -12,6 +12,7 @@
   --ink: #1a1a18; --muted: #6b6b66; --border: #e5e5e2;
   --bg: #fafaf8; --white: #fff; --radius: 14px;
 }
+.pz-company{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted);background:rgba(0,0,0,0.05);padding:3px 10px;border-radius:20px;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -28,6 +29,7 @@
     {% if pr.availability == 'yes' %}<div class="avail-dot">Available for work</div>{% endif %}
     <div class="name">{{ pr.name }}</div>
     {% if pr.title %}<div class="title">{{ pr.title }}</div>{% endif %}
+    {% if pr.company %}<div class="pz-company">🏢 {{ pr.company }}</div>{% endif %}
     {% if pr.bio %}<div class="bio">{{ pr.bio }}</div>{% endif %}
   </div>
 

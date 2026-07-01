@@ -12,6 +12,7 @@
   --ink: #1a1a18; --muted: #6b6b66; --border: #e5e5e2;
   --bg: #fafaf8; --white: #fff; --radius: 14px;
 }
+.pz-company{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted);background:rgba(0,0,0,0.05);padding:3px 10px;border-radius:20px;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -26,6 +27,7 @@
     {% endif %}
     <div class="shop-name">{{ settings.profile.name }}</div>
     {% if settings.profile.tagline %}<div class="tagline">{{ settings.profile.tagline }}</div>{% endif %}
+    {% if settings.profile.company %}<div class="pz-company">🏢 {{ settings.profile.company }}</div>{% endif %}
   </div>
 
   <!-- Links (always visible) -->

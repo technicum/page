@@ -133,6 +133,9 @@ async function serveSite(req, res, next, lookup) {
       )
       if (staffSite) {
         const staffSettings  = JSON.parse(staffSite.settings || '{}')
+        // Inject parent business name so the theme can show it as a company badge
+        if (!staffSettings.profile) staffSettings.profile = {}
+        if (!staffSettings.profile.company) staffSettings.profile.company = site.title
         const staffThemeSlug = staffSettings.template_id || staffSite.template_id || 'biolink-creator'
         let   staffForms     = {}
         try { staffForms = await loadFormsForAccount(staffSite.account_id) } catch(e) {}
