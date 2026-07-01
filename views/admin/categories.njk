@@ -247,43 +247,114 @@ select.fg-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
 
 <script>
 /* ── Emoji Picker ─────────────────────────────────────── */
-var EP = {
-  all: ['🏢','💼','📊','📈','📉','💰','🤝','📋','📝','🖊️','🏦','💳','🏪','🏬','🏭','🏗️','🏨','🔑','📫','📞','📠','🖨️','🏧','💹','📌','📎',
-        '🍔','🍕','🍣','🍜','🍰','🥗','🍷','🍸','🥤','🍦','☕','🍵','🥂','🍳','🥞','🍱','🍛','🌮','🌯','🥙','🍝','🥩','🍖','🧁','🎂','🍫','🍬','🍭','🛒','🥬',
-        '💊','🏥','🦷','❤️','🩺','🧬','💉','🔬','🩹','🌡️','🧪','🫀','🫁','🦴','👁️','🧠','💪','🩻','🏃','⚕️',
-        '💄','👗','👠','👒','💍','💎','🛍️','👜','🧴','🪞','✂️','💅','💆','💇','🧖','🪥','🧼','🪷','🌸','✨',
-        '📚','🎓','✏️','🎨','🖌️','🎭','📐','📏','🏫','📓','📔','📒','📕','📗','📘','📙','🔭','🧮','🖼️','🗂️',
-        '💻','📱','🖥️','🖨️','⌨️','🖱️','📡','🔧','⚙️','🤖','📷','🎥','📺','📻','🔋','💾','💿','📀','🛰️','🔌',
-        '🏋️','🏊','⚽','🎾','🧘','🤸','🏌️','🎿','🏄','🏈','⚾','🏀','🏐','🏉','🎯','🎱','🏓','🥊','🤼','🚴',
-        '✈️','🏖️','🗺️','🚢','🏔️','🚗','🌍','🧳','🎡','🚂','🏕️','🗼','🗽','🏰','🎢','🌅','🚁','⛵','🚌','🚀',
-        '🏠','🏡','🛋️','🪴','🧹','🪣','🛁','🪟','🚪','🛏️','🧺','🧻','🪑','🚿','🧽','🪒','🧯','🪤','🔨','🪛',
-        '🎭','🎬','🎮','🎵','🎸','🎹','🎲','🎰','🎤','🎧','🎻','🥁','🎺','📸','🪗','🎠','🎪','🃏','🎯','🕹️'],
-  cats: {
-    '🏢 Business': ['🏢','💼','📊','📈','📉','💰','🤝','📋','📝','🖊️','🏦','💳','🏪','🏬','🏭','🏗️','🏨','🔑','📫','📞','📠','🖨️','🏧','💹','📌','📎'],
-    '🍔 Food':     ['🍔','🍕','🍣','🍜','🍰','🥗','🍷','🍸','🥤','🍦','☕','🍵','🥂','🍳','🥞','🍱','🍛','🌮','🌯','🥙','🍝','🥩','🍖','🧁','🎂','🍫','🍬','🍭','🛒','🥬'],
-    '❤️ Health':   ['💊','🏥','🦷','❤️','🩺','🧬','💉','🔬','🩹','🌡️','🧪','🫀','🫁','🦴','👁️','🧠','💪','🩻','🏃','⚕️'],
-    '💄 Beauty':   ['💄','👗','👠','👒','💍','💎','🛍️','👜','🧴','🪞','✂️','💅','💆','💇','🧖','🪥','🧼','🪷','🌸','✨'],
-    '📚 Education':['📚','🎓','✏️','🎨','🖌️','🎭','📐','📏','🏫','📓','📔','📒','📕','📗','📘','📙','🔭','🧮','🖼️','🗂️'],
-    '💻 Tech':     ['💻','📱','🖥️','🖨️','⌨️','🖱️','📡','🔧','⚙️','🤖','📷','🎥','📺','📻','🔋','💾','💿','📀','🛰️','🔌'],
-    '🏋️ Sports':   ['🏋️','🏊','⚽','🎾','🧘','🤸','🏌️','🎿','🏄','🏈','⚾','🏀','🏐','🏉','🎯','🎱','🏓','🥊','🤼','🚴'],
-    '✈️ Travel':   ['✈️','🏖️','🗺️','🚢','🏔️','🚗','🌍','🧳','🎡','🚂','🏕️','🗼','🗽','🏰','🎢','🌅','🚁','⛵','🚌','🚀'],
-    '🏠 Home':     ['🏠','🏡','🛋️','🪴','🧹','🪣','🛁','🪟','🚪','🛏️','🧺','🧻','🪑','🚿','🧽','🪒','🧯','🪤','🔨','🪛'],
-    '🎭 Fun':      ['🎭','🎬','🎮','🎵','🎸','🎹','🎲','🎰','🎤','🎧','🎻','🥁','🎺','📸','🪗','🎠','🎪','🃏','🎯','🕹️']
-  }
-};
-var _epInput = null, _epBtn = null, _epCat = 'all';
+// Each entry: [emoji, keywords]
+var EP_CATS = [
+  {icon:'🏢',name:'Business',list:[
+    ['🏢','office building company'],['💼','briefcase work job'],['📊','bar chart graph analytics'],
+    ['📈','chart growth trending'],['📉','chart decline loss'],['💰','money bag cash'],
+    ['🤝','handshake deal partnership'],['📋','clipboard notes task'],['📝','memo notes writing'],
+    ['🖊️','pen writing'],['🏦','bank finance'],['💳','credit card payment'],
+    ['🏪','convenience store shop retail'],['🏬','department store mall'],['🏭','factory manufacturing'],
+    ['🏗️','construction building'],['🏨','hotel accommodation'],['🔑','key access'],
+    ['📫','mailbox inbox post'],['📞','telephone phone call'],['📠','fax machine office'],
+    ['🖨️','printer office'],['🏧','atm cash machine'],['💹','yen chart finance'],
+    ['📌','pushpin location pinned'],['📎','paperclip attach']
+  ]},
+  {icon:'🍔',name:'Food',list:[
+    ['🍔','burger hamburger food'],['🍕','pizza food italian'],['🍣','sushi japanese food'],
+    ['🍜','noodle ramen soup food'],['🍰','cake dessert sweet'],['🥗','salad healthy food'],
+    ['🍷','wine glass drink alcohol'],['🍸','cocktail drink bar'],['🥤','cup drink beverage'],
+    ['🍦','ice cream dessert'],['☕','coffee hot drink cafe'],['🍵','tea hot drink'],
+    ['🥂','champagne toast celebrate'],['🍳','egg cooking breakfast'],['🥞','pancake breakfast'],
+    ['🍱','bento box lunch food'],['🍛','curry rice food'],['🌮','taco mexican food'],
+    ['🌯','wrap burrito food'],['🥙','pita falafel food'],['🍝','pasta spaghetti italian'],
+    ['🥩','steak meat beef'],['🍖','drumstick chicken meat'],['🧁','cupcake dessert bakery'],
+    ['🎂','birthday cake'],['🍫','chocolate candy'],['🍬','candy sweet'],
+    ['🍭','lollipop sweet candy'],['🛒','shopping cart grocery'],['🥬','vegetable greens']
+  ]},
+  {icon:'❤️',name:'Health',list:[
+    ['💊','pill medicine drug'],['🏥','hospital clinic medical'],['🦷','tooth dentist dental'],
+    ['❤️','heart love health'],['🩺','stethoscope doctor medical'],['🧬','dna science biology'],
+    ['💉','syringe injection vaccine'],['🔬','microscope science lab'],['🩹','bandage first aid'],
+    ['🌡️','thermometer temperature fever'],['🧪','test tube lab science'],['🫀','heart organ cardio'],
+    ['🫁','lungs respiratory'],['🦴','bone orthopedic'],['👁️','eye vision optician'],
+    ['🧠','brain mental mind'],['💪','muscle strong fitness'],['🩻','xray scan medical'],
+    ['🏃','running exercise fitness'],['⚕️','medical health caduceus']
+  ]},
+  {icon:'💄',name:'Beauty',list:[
+    ['💄','lipstick makeup beauty'],['👗','dress fashion clothing'],['👠','heels shoes fashion'],
+    ['👒','hat fashion accessory'],['💍','ring jewelry'],['💎','diamond gem jewel'],
+    ['🛍️','shopping bag retail'],['👜','handbag purse fashion'],['🧴','lotion skincare'],
+    ['🪞','mirror vanity beauty'],['✂️','scissors hair cut'],['💅','nail polish manicure'],
+    ['💆','massage spa relaxation'],['💇','haircut salon beauty'],['🧖','spa facial skincare'],
+    ['🪥','toothbrush hygiene'],['🧼','soap hygiene clean'],['🪷','lotus flower spa'],
+    ['🌸','cherry blossom flower beauty'],['✨','sparkle shine glamour']
+  ]},
+  {icon:'📚',name:'Education',list:[
+    ['📚','books education learning'],['🎓','graduation cap degree'],['✏️','pencil writing school'],
+    ['🎨','art palette creative'],['🖌️','paintbrush art'],['🎭','theatre drama arts'],
+    ['📐','set square geometry math'],['📏','ruler measure'],['🏫','school building education'],
+    ['📓','notebook study'],['📔','notebook cover'],['📒','ledger notes'],
+    ['📕','closed book reading'],['📗','green book study'],['📘','blue book knowledge'],
+    ['📙','orange book'],['🔭','telescope astronomy science'],['🧮','abacus math calculate'],
+    ['🖼️','art gallery museum'],['🗂️','card index folder organize']
+  ]},
+  {icon:'💻',name:'Tech',list:[
+    ['💻','laptop computer tech'],['📱','phone mobile smartphone'],['🖥️','desktop computer monitor'],
+    ['🖨️','printer office tech'],['⌨️','keyboard typing computer'],['🖱️','mouse cursor computer'],
+    ['📡','satellite antenna signal'],['🔧','wrench repair tool'],['⚙️','gear settings cog'],
+    ['🤖','robot ai technology'],['📷','camera photo'],['🎥','video camera film'],
+    ['📺','television tv screen'],['📻','radio broadcast'],['🔋','battery charge power'],
+    ['💾','floppy disk save storage'],['💿','cd disc media'],['📀','dvd disc storage'],
+    ['🛰️','satellite space tech'],['🔌','plug power electric']
+  ]},
+  {icon:'🏋️',name:'Sports',list:[
+    ['🏋️','weightlifting gym fitness'],['🏊','swimming pool sport'],['⚽','soccer football sport'],
+    ['🎾','tennis sport racket'],['🧘','yoga meditation wellness'],['🤸','gymnastics acrobatics'],
+    ['🏌️','golf sport club'],['🎿','skiing snow winter sport'],['🏄','surfing beach sport'],
+    ['🏈','american football sport'],['⚾','baseball sport'],['🏀','basketball sport'],
+    ['🏐','volleyball sport'],['🏉','rugby sport'],['🎯','dart target sport'],
+    ['🎱','billiards pool sport'],['🏓','table tennis ping pong'],['🥊','boxing glove fight'],
+    ['🤼','wrestling sport combat'],['🚴','cycling bike sport']
+  ]},
+  {icon:'✈️',name:'Travel',list:[
+    ['✈️','airplane flight travel'],['🏖️','beach vacation resort'],['🗺️','map travel navigate'],
+    ['🚢','ship cruise travel'],['🏔️','mountain adventure trek'],['🚗','car vehicle drive'],
+    ['🌍','globe earth world'],['🧳','luggage suitcase travel'],['🎡','ferris wheel fair'],
+    ['🚂','train railway travel'],['🏕️','camping tent outdoor'],['🗼','tower paris landmark'],
+    ['🗽','statue liberty landmark'],['🏰','castle landmark tourism'],['🎢','roller coaster fun'],
+    ['🌅','sunset sunrise landscape'],['🚁','helicopter flight'],['⛵','sailboat marine'],
+    ['🚌','bus transport public'],['🚀','rocket space launch']
+  ]},
+  {icon:'🏠',name:'Home',list:[
+    ['🏠','house home'],['🏡','house garden suburban'],['🛋️','sofa couch furniture'],
+    ['🪴','plant potted indoor'],['🧹','broom sweep clean'],['🪣','bucket cleaning'],
+    ['🛁','bathtub bath bathroom'],['🪟','window home'],['🚪','door entry home'],
+    ['🛏️','bed bedroom sleep'],['🧺','basket laundry'],['🧻','tissue paper roll'],
+    ['🪑','chair furniture seat'],['🚿','shower bathroom'],['🧽','sponge cleaning scrub'],
+    ['🪒','razor shave'],['🧯','fire extinguisher safety'],['🪤','mousetrap home'],
+    ['🔨','hammer tool'],['🪛','screwdriver repair tool']
+  ]},
+  {icon:'🎭',name:'Fun',list:[
+    ['🎭','theatre drama arts'],['🎬','clapper film cinema'],['🎮','controller gaming video game'],
+    ['🎵','music note melody'],['🎸','guitar music rock'],['🎹','piano keyboard music'],
+    ['🎲','dice game random'],['🎰','slot machine casino'],['🎤','microphone singer karaoke'],
+    ['🎧','headphones music listen'],['🎻','violin music classical'],['🥁','drum music beat'],
+    ['🎺','trumpet music brass'],['📸','camera photo selfie'],['🪗','accordion music'],
+    ['🎠','carousel merry go round'],['🎪','circus tent show'],['🃏','joker card game'],
+    ['🎯','target dart game'],['🕹️','joystick game arcade']
+  ]}
+];
+var EP_ALL = (function(){ var a=[]; EP_CATS.forEach(function(c){a=a.concat(c.list);}); return a; })();
+var _epInput=null,_epBtn=null,_epCatIdx=-1,_epCurList=EP_ALL;
 
 function epOpen(inputId, btnId, triggerEl) {
   var pk = document.getElementById('emojiPicker');
-  // toggle close if already open for same input
   if (_epInput === inputId && pk.classList.contains('open')) { epClose(); return; }
-  _epInput = inputId;
-  _epBtn   = btnId;
+  _epInput = inputId; _epBtn = btnId; _epCatIdx = -1;
   document.getElementById('epSearch').value = '';
-  _epCat = 'all';
   epBuildCats();
-  epRender(EP.all);
-  // Position popup near trigger
+  epRender(EP_ALL);
   var rect = triggerEl.getBoundingClientRect();
   pk.style.position = 'fixed';
   pk.style.top  = (rect.bottom + 6) + 'px';
@@ -294,41 +365,42 @@ function epClose() {
   document.getElementById('emojiPicker').classList.remove('open');
   _epInput = null; _epBtn = null;
 }
-function epPick(e) {
+function epPick(idx) {
   if (!_epInput) return;
+  var e = _epCurList[idx][0];
   document.getElementById(_epInput).value = e;
   document.getElementById(_epBtn).textContent = e;
   epClose();
 }
 function epFilter(q) {
-  _epCat = 'all';
+  _epCatIdx = -1;
   epBuildCats();
-  var list = q ? EP.all.filter(function(e){ return e.includes(q); }) : EP.all;
-  epRender(list);
+  var src = q ? EP_ALL.filter(function(item){ return item[1].indexOf(q.toLowerCase()) !== -1 || item[0] === q; }) : EP_ALL;
+  epRender(src);
 }
-function epCat(c) {
-  _epCat = c;
+function epCat(i) {
+  _epCatIdx = i;
   document.getElementById('epSearch').value = '';
   epBuildCats();
-  epRender(c === 'all' ? EP.all : EP.cats[c]);
+  epRender(i === -1 ? EP_ALL : EP_CATS[i].list);
 }
 function epBuildCats() {
-  var html = '<button class="ep-cat'+((_epCat==='all')?' active':'')+'" onclick="epCat(\'all\')">All</button>';
-  Object.keys(EP.cats).forEach(function(c){
-    html += '<button class="ep-cat'+((_epCat===c)?' active':'')+'" onclick="epCat(\''+c+'\')">'+c.split(' ')[0]+'</button>';
+  var html = '<button class="ep-cat'+(_epCatIdx===-1?' active':'')+'" onclick="epCat(-1)">All</button>';
+  EP_CATS.forEach(function(c, i){
+    html += '<button class="ep-cat'+(_epCatIdx===i?' active':'')+'" onclick="epCat('+i+')">'+c.icon+'</button>';
   });
   document.getElementById('epCats').innerHTML = html;
 }
 function epRender(list) {
+  _epCurList = list;
   if (!list || !list.length) {
     document.getElementById('epGrid').innerHTML = '<div class="ep-none">No emoji found</div>';
     return;
   }
-  document.getElementById('epGrid').innerHTML = list.map(function(e){
-    return '<button type="button" class="ep-btn" title="'+e+'" onclick="epPick(\''+e+'\')">'+e+'</button>';
+  document.getElementById('epGrid').innerHTML = list.map(function(item, i){
+    return '<button type="button" class="ep-btn" title="'+item[1]+'" onclick="epPick('+i+')">'+item[0]+'</button>';
   }).join('');
 }
-// Close on outside click
 document.addEventListener('click', function(e){
   var pk = document.getElementById('emojiPicker');
   if (!pk.classList.contains('open')) return;
