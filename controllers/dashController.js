@@ -3,9 +3,10 @@ const themeManager    = require('../config/themeManager')
 const { geocodeCity } = require('../config/geocode')
 
 exports.index = async (req, res) => {
-  const user  = req.session.user
-  const sites = await db.query('SELECT * FROM ms_sites WHERE account_id = ? ORDER BY created_at DESC', [user.id])
-  res.render('dashboard/index.njk', { title: 'Dashboard', user, sites })
+  const user       = req.session.user
+  const sites      = await db.query('SELECT * FROM ms_sites WHERE account_id = ? ORDER BY created_at DESC', [user.id])
+  const categories = await db.query('SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC')
+  res.render('dashboard/index.njk', { title: 'Dashboard', user, sites, categories: categories || [], flash_success: req.flash('success') })
 }
 
 exports.wizard = async (req, res) => {

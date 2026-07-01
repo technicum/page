@@ -90,6 +90,28 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
 .btn-load-more.loading{opacity:0.6;cursor:not-allowed;}
 .empty-table{text-align:center;padding:48px 20px;color:var(--ink-muted);}
 .pagination-info{font-size:13px;color:var(--ink-muted);margin-bottom:16px;text-align:center;}
+/* Info modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:900;backdrop-filter:blur(2px);}
+.modal-overlay.open{display:flex;align-items:center;justify-content:center;}
+.modal-box{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.18);margin:16px;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 18px;border-bottom:1px solid var(--border);}
+.modal-title{font-family:"DM Serif Display",serif;font-size:20px;font-weight:400;color:var(--ink);}
+.modal-close{border:none;background:none;font-size:22px;cursor:pointer;color:var(--ink-faint);line-height:1;padding:0 4px;}
+.modal-close:hover{color:var(--ink);}
+.modal-body{padding:24px;}
+.modal-field{margin-bottom:18px;}
+.modal-field label{display:block;font-size:13px;font-weight:500;color:var(--ink-muted);margin-bottom:6px;}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;padding:10px 13px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:14px;font-family:"DM Sans",sans-serif;color:var(--ink);outline:none;transition:border-color 0.2s;}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
+.modal-field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;gap:10px;}
+.btn-modal-save{background:var(--blue);color:#fff;border:none;padding:10px 24px;border-radius:var(--radius);font-size:14px;font-weight:600;font-family:"DM Sans",sans-serif;cursor:pointer;transition:opacity 0.2s;}
+.btn-modal-save:hover{opacity:0.88;}
+.btn-modal-save:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-modal-cancel{background:none;border:1px solid var(--border-md);color:var(--ink-muted);padding:10px 20px;border-radius:var(--radius);font-size:14px;font-family:"DM Sans",sans-serif;cursor:pointer;}
+.modal-msg{font-size:13px;margin-right:auto;}
+.modal-msg.ok{color:var(--green);}
+.modal-msg.err{color:var(--red);}
 @media(max-width:640px){
   .page-header{flex-direction:column;align-items:stretch;margin-bottom:24px;}
   .page-title{font-size:20px;}
@@ -189,16 +211,13 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
           <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
           <td>
             <div class="table-actions">
-              <a class="btn-table-action" href="/dashboard/site/{% if 'biolink' in site.template_id %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}" title="Edit site">Edit</a>
-              <a class="btn-table-action" href="/dashboard/site/templates?id={{ site.id }}" title="Change theme">Theme</a>
-              <div style="display:flex;gap:4px;">
-                <a class="btn-table-action" href="/dashboard/blog/{{ site.id }}" title="Manage blog">Blog</a>
-                <a class="btn-table-action" href="/dashboard/forms/{{ site.id }}" title="Manage forms">Forms</a>
-                <a class="btn-table-action" href="/dashboard/booking/{{ site.id }}" title="Manage bookings">Booking</a>
-              </div>
+              <a class="btn-table-action" href="/dashboard/site/{% if 'biolink' in site.template_id %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit</a>
+              <a class="btn-table-action" href="/dashboard/site/templates?id={{ site.id }}">Theme</a>
+              <button type="button" class="btn-table-action" onclick="openInfoModal({{ site.id }})">Info</button>
+              <a class="btn-table-action" href="/dashboard/booking/{{ site.id }}">Booking</a>
               <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Are you sure? This action cannot be undone.')">
                 <input type="hidden" name="site_id" value="{{ site.id }}">
-                <button type="submit" class="btn-table-action danger" title="Delete site">Delete</button>
+                <button type="submit" class="btn-table-action danger">Delete</button>
               </form>
             </div>
           </td>
@@ -244,16 +263,13 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
               <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
               <td>
                 <div class="table-actions">
-                  <a class="btn-table-action" href="/dashboard/site/${site.template_id && site.template_id.startsWith('biolink') ? 'biolink-builder' : 'builder'}?id=${site.id}" title="Edit site">Edit</a>
-                  <a class="btn-table-action" href="/dashboard/site/templates?id=${site.id}" title="Change theme">Theme</a>
-                  <div style="display:flex;gap:4px;">
-                    <a class="btn-table-action" href="/dashboard/blog/${site.id}" title="Manage blog">Blog</a>
-                    <a class="btn-table-action" href="/dashboard/forms/${site.id}" title="Manage forms">Forms</a>
-                    <a class="btn-table-action" href="/dashboard/booking/${site.id}" title="Manage bookings">Booking</a>
-                  </div>
+                  <a class="btn-table-action" href="/dashboard/site/${site.template_id && site.template_id.includes('biolink') ? 'biolink-builder' : 'builder'}?id=${site.id}">Edit</a>
+                  <a class="btn-table-action" href="/dashboard/site/templates?id=${site.id}">Theme</a>
+                  <button type="button" class="btn-table-action" onclick="openInfoModal(${site.id})">Info</button>
+                  <a class="btn-table-action" href="/dashboard/booking/${site.id}">Booking</a>
                   <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Are you sure? This action cannot be undone.')">
                     <input type="hidden" name="site_id" value="${site.id}">
-                    <button type="submit" class="btn-table-action danger" title="Delete site">Delete</button>
+                    <button type="submit" class="btn-table-action danger">Delete</button>
                   </form>
                 </div>
               </td>
@@ -280,4 +296,152 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
     {% endif %}
   </main>
 </div>
+
+<!-- ── Info / Edit modal ── -->
+<div class="modal-overlay" id="info-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Edit Site Info</div>
+      <button class="modal-close" onclick="closeInfoModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="info-site-id">
+      <div class="modal-field">
+        <label>Business Name</label>
+        <input type="text" id="info-title" placeholder="e.g. Glamour Studio">
+      </div>
+      <div class="modal-field">
+        <label>Category</label>
+        <select id="info-category">
+          <option value="">— No category —</option>
+          {% for cat in categories %}
+          <option value="{{ cat.id }}">{{ cat.icon }} {{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Description</label>
+        <input type="text" id="info-description" placeholder="Short description of your business">
+      </div>
+      <div class="modal-field-row">
+        <div class="modal-field" style="margin-bottom:0">
+          <label>City</label>
+          <input type="text" id="info-city" placeholder="e.g. Ludhiana">
+        </div>
+        <div class="modal-field" style="margin-bottom:0">
+          <label>Phone</label>
+          <input type="text" id="info-phone" placeholder="+91 98765 43210">
+        </div>
+      </div>
+      <div class="modal-field-row" style="margin-top:18px;">
+        <div class="modal-field" style="margin-bottom:0">
+          <label>WhatsApp</label>
+          <input type="text" id="info-whatsapp" placeholder="+91 98765 43210">
+        </div>
+        <div class="modal-field" style="margin-bottom:0">
+          <label>Address</label>
+          <input type="text" id="info-address" placeholder="Model Town, Ludhiana">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="modal-msg" id="info-msg"></span>
+      <button class="btn-modal-cancel" onclick="closeInfoModal()">Cancel</button>
+      <button class="btn-modal-save" id="info-save-btn" onclick="saveInfo()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var ALL_SITES_DATA = {{ sites | tojson }};
+
+function openInfoModal(siteId) {
+  var site = ALL_SITES_DATA.find(function(s){ return s.id === siteId })
+  if (!site) return
+  var st = {}
+  try { st = JSON.parse(site.settings || '{}') } catch(e) {}
+
+  document.getElementById('info-site-id').value    = site.id
+  document.getElementById('info-title').value       = site.title || ''
+  document.getElementById('info-description').value = st.description || ''
+  document.getElementById('info-city').value        = st.city        || ''
+  document.getElementById('info-phone').value       = st.phone       || ''
+  document.getElementById('info-whatsapp').value    = st.whatsapp    || ''
+  document.getElementById('info-address').value     = st.address     || ''
+
+  var catSel = document.getElementById('info-category')
+  catSel.value = site.category_id || ''
+
+  document.getElementById('info-msg').textContent = ''
+  document.getElementById('info-modal').classList.add('open')
+}
+
+function closeInfoModal() {
+  document.getElementById('info-modal').classList.remove('open')
+}
+
+// Close on overlay click
+document.getElementById('info-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeInfoModal()
+})
+
+function saveInfo() {
+  var btn = document.getElementById('info-save-btn')
+  var msg = document.getElementById('info-msg')
+  btn.disabled = true
+  btn.textContent = 'Saving…'
+  msg.textContent = ''
+  msg.className = 'modal-msg'
+
+  fetch('/dashboard/site/update-info', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      site_id:     document.getElementById('info-site-id').value,
+      title:       document.getElementById('info-title').value,
+      category_id: document.getElementById('info-category').value,
+      description: document.getElementById('info-description').value,
+      city:        document.getElementById('info-city').value,
+      phone:       document.getElementById('info-phone').value,
+      whatsapp:    document.getElementById('info-whatsapp').value,
+      address:     document.getElementById('info-address').value
+    })
+  })
+  .then(function(r){ return r.json() })
+  .then(function(d) {
+    btn.disabled = false
+    btn.textContent = 'Save Changes'
+    if (d.ok) {
+      msg.textContent = '✓ Saved successfully'
+      msg.className = 'modal-msg ok'
+      // Update local allSites data so re-open shows fresh values
+      var siteId = parseInt(document.getElementById('info-site-id').value)
+      var site = ALL_SITES_DATA.find(function(s){ return s.id === siteId })
+      if (site) {
+        site.title = document.getElementById('info-title').value
+        site.category_id = document.getElementById('info-category').value
+        var st = {}
+        try { st = JSON.parse(site.settings || '{}') } catch(e) {}
+        st.description = document.getElementById('info-description').value
+        st.city        = document.getElementById('info-city').value
+        st.phone       = document.getElementById('info-phone').value
+        st.whatsapp    = document.getElementById('info-whatsapp').value
+        st.address     = document.getElementById('info-address').value
+        site.settings  = JSON.stringify(st)
+      }
+      setTimeout(closeInfoModal, 1200)
+    } else {
+      msg.textContent = d.error || 'Something went wrong.'
+      msg.className = 'modal-msg err'
+    }
+  })
+  .catch(function() {
+    btn.disabled = false
+    btn.textContent = 'Save Changes'
+    msg.textContent = 'Network error. Try again.'
+    msg.className = 'modal-msg err'
+  })
+}
+</script>
+
 {% endblock %}

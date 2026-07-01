@@ -215,6 +215,40 @@ exports.biolinkSave = async (req, res) => {
   res.json({ ok: true })
 }
 
+exports.updateInfo = async (req, res) => {
+  const user = req.session.user
+  const { site_id, title, category_id, city, phone, whatsapp, address, description } = req.body
+
+  const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [parseInt(site_id), user.id])
+  if (!site) return res.json({ ok: false, error: 'Site not found' })
+
+  // Update title
+  if (title) await db.execute('UPDATE ms_sites SET title = ? WHERE id = ?', [title.trim(), site.id])
+
+  // Update category FK
+  if (category_id !== undefined) {
+    await db.execute('UPDATE ms_sites SET category_id = ? WHERE id = ?', [parseInt(category_id) || null, site.id])
+  }
+
+  // Merge settings
+  const settings = JSON.parse(site.settings || '{}')
+  if (city        !== undefined) settings.city        = city.trim()
+  if (phone       !== undefined) settings.phone       = phone.trim()
+  if (whatsapp    !== undefined) settings.whatsapp    = whatsapp.trim()
+  if (address     !== undefined) settings.address     = address.trim()
+  if (description !== undefined) settings.description = description.trim()
+  await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?', [JSON.stringify(settings), site.id])
+
+  // Re-geocode city in background
+  if (city && city.trim()) {
+    geocodeCity(city.trim()).then(geo => {
+      if (geo) db.execute('UPDATE ms_sites SET lat=?, lng=?, state=? WHERE id=?', [geo.lat, geo.lng, geo.state, site.id])
+    }).catch(() => {})
+  }
+
+  res.json({ ok: true })
+}
+
 exports.delete = async (req, res) => {
   const user    = req.session.user
   const siteId  = parseInt(req.body.site_id) || 0

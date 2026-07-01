@@ -105,6 +105,7 @@ router.post('/dashboard/site/biolink-save',    requireAuth, site.biolinkSave)
 router.post('/dashboard/site/builder-save',    requireAuth, site.builderSave)
 router.post('/dashboard/site/builder-preview', requireAuth, site.builderPreview)
 router.post('/dashboard/site/delete',          requireAuth, site.delete)
+router.post('/dashboard/site/update-info',     requireAuth, site.updateInfo)
 
 // Blog
 router.get ('/dashboard/blog/:siteId',                    requireAuth, blog.index)
