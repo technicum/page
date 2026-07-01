@@ -27,6 +27,7 @@ exports.search = async (req, res) => {
            FROM ms_sites s
            LEFT JOIN ms_categories c ON c.id = s.category_id
            WHERE s.is_published = 1
+             AND s.parent_site_id IS NULL
              AND s.lat IS NOT NULL AND s.lng IS NOT NULL`
     params = [userLat, userLng, userLat]
 
@@ -47,7 +48,8 @@ exports.search = async (req, res) => {
                   c.name AS cat_name, c.icon AS cat_icon
            FROM ms_sites s
            LEFT JOIN ms_categories c ON c.id = s.category_id
-           WHERE s.is_published = 1`
+           WHERE s.is_published = 1
+             AND s.parent_site_id IS NULL`
     params = []
 
     if (q) {
@@ -143,7 +145,7 @@ exports.nearby = async (req, res) => {
                     ))), 1) AS distance_km
              FROM ms_sites s
              LEFT JOIN ms_categories c ON c.id = s.category_id
-             WHERE s.is_published = 1 AND s.lat IS NOT NULL AND s.lng IS NOT NULL
+             WHERE s.is_published = 1 AND s.parent_site_id IS NULL AND s.lat IS NOT NULL AND s.lng IS NOT NULL
              HAVING distance_km <= ?
              ORDER BY distance_km ASC LIMIT 6`
       params = [uLat, uLng, uLat, parseInt(radius) || 25]
@@ -152,7 +154,7 @@ exports.nearby = async (req, res) => {
                     c.name as cat_name, c.icon as cat_icon
              FROM ms_sites s
              LEFT JOIN ms_categories c ON c.id = s.category_id
-             WHERE s.is_published = 1`
+             WHERE s.is_published = 1 AND s.parent_site_id IS NULL`
       params = []
       if (city) { sql += ' AND JSON_EXTRACT(s.settings, "$.city") LIKE ?'; params.push(`%${city}%`) }
       sql += ' ORDER BY s.created_at DESC LIMIT 6'

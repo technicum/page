@@ -456,22 +456,6 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
     })
   })
 
-  // ── Auto-detect city if nothing set ──────────────────────────────────────────
-  if (!fCity.value && !fLat.value) {
-    fetch('/api/detect-city')
-      .then(function(r) { return r.json() })
-      .then(function(d) {
-        if (d.city && !fCity.value) {
-          // Only update display label, don't auto-submit
-          sbDisplay.textContent = d.city
-          sbDisplay.classList.add('has-value')
-          fCity.value  = d.city
-          fState.value = d.region || ''
-          sbClear.classList.add('visible')
-        }
-      })
-      .catch(function() {})
-  }
 })()
 </script>
 
