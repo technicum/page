@@ -106,6 +106,7 @@ router.post('/dashboard/site/builder-save',    requireAuth, site.builderSave)
 router.post('/dashboard/site/builder-preview', requireAuth, site.builderPreview)
 router.post('/dashboard/site/delete',          requireAuth, site.delete)
 router.post('/dashboard/site/update-info',     requireAuth, site.updateInfo)
+router.post('/dashboard/site/create-staff',   requireAuth, site.createStaffSite)
 
 // Blog
 router.get ('/dashboard/blog/:siteId',                    requireAuth, blog.index)

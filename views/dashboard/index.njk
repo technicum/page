@@ -112,6 +112,15 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
 .modal-msg{font-size:13px;margin-right:auto;}
 .modal-msg.ok{color:var(--green);}
 .modal-msg.err{color:var(--red);}
+/* Staff bio link rows */
+.staff-row{background:linear-gradient(90deg,rgba(59,130,246,0.03) 0,transparent 400px);}
+.staff-row td:first-child{padding-left:32px;}
+.staff-indent{color:var(--ink-faint);font-size:13px;margin-right:6px;vertical-align:middle;}
+.table-badge.staff-badge{background:rgba(139,92,246,0.1);color:#7c3aed;}
+.btn-table-action.staff{color:#7c3aed;border-color:#c4b5fd;}
+.btn-table-action.staff:hover{background:rgba(139,92,246,0.08);border-color:#7c3aed;}
+/* Add Staff modal */
+.staff-modal-parent{font-size:13px;color:var(--ink-muted);margin-bottom:20px;padding:10px 14px;background:var(--off);border-radius:var(--radius);border-left:3px solid var(--blue);}
 @media(max-width:640px){
   .page-header{flex-direction:column;align-items:stretch;margin-bottom:24px;}
   .page-title{font-size:20px;}
@@ -162,7 +171,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-num">{{ sites.length }}</div>
-        <div class="stat-label">Total Sites</div>
+        <div class="stat-label">Total Bio Links</div>
       </div>
       <div class="stat-card">
         <div class="stat-num">∞</div>
@@ -182,25 +191,22 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
     </div>
     {% else %}
     <div style="margin-bottom:20px;">
-      <h2 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:600;color:var(--ink);margin-bottom:4px;">Your Sites</h2>
-      <p style="color:var(--ink-muted);font-size:13px;">Manage and edit your websites</p>
-    </div>
-    <div class="pagination-info">
-      Showing <span id="showing-count">{{ [sites.length, 10] | min }}</span> of {{ sites.length }} sites
+      <h2 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:600;color:var(--ink);margin-bottom:4px;">Your Bio Links</h2>
+      <p style="color:var(--ink-muted);font-size:13px;">Manage your business page and staff bio links</p>
     </div>
     <table class="sites-table" id="sites-table">
       <thead>
         <tr>
-          <th style="width:35%;">Site Name</th>
-          <th style="width:20%;">URL</th>
-          <th style="width:15%;">Category</th>
-          <th style="width:15%;">Status</th>
-          <th style="width:15%;">Actions</th>
+          <th style="width:32%;">Name</th>
+          <th style="width:22%;">URL</th>
+          <th style="width:14%;">Type</th>
+          <th style="width:10%;">Status</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody id="sites-tbody">
-        {% for site in sites.slice(0, 10) %}
-        {% set settings = site.settings | safe %}
+        {% for site in siteRows %}
+        {# ── Main / business site row ── #}
         <tr class="site-row">
           <td>
             <div class="table-site-name">{{ site.title }}</div>
@@ -215,84 +221,42 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
               <a class="btn-table-action" href="/dashboard/site/templates?id={{ site.id }}">Theme</a>
               <button type="button" class="btn-table-action" onclick="openInfoModal({{ site.id }})">Info</button>
               <a class="btn-table-action" href="/dashboard/booking/{{ site.id }}">Booking</a>
-              <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Are you sure? This action cannot be undone.')">
+              <button type="button" class="btn-table-action staff" onclick="openAddStaffModal({{ site.id }}, '{{ site.title | escape }}', '{{ site.subdomain }}')">+ Staff</button>
+              <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Delete this site and all its data?')">
                 <input type="hidden" name="site_id" value="{{ site.id }}">
                 <button type="submit" class="btn-table-action danger">Delete</button>
               </form>
             </div>
           </td>
         </tr>
+        {# ── Staff / employee bio link rows ── #}
+        {% if site.staffSites and site.staffSites.length %}
+        {% for staff in site.staffSites %}
+        <tr class="site-row staff-row">
+          <td>
+            <span class="staff-indent">↳</span>
+            <div class="table-site-name" style="display:inline-block;">{{ staff.title }}</div>
+            <div style="font-size:12px;color:var(--ink-muted);margin-top:2px;padding-left:20px;">Staff Bio Link</div>
+          </td>
+          <td><a class="table-site-url" href="https://{{ staff.subdomain }}.{{ base_domain }}" target="_blank">{{ staff.subdomain }}.{{ base_domain }}</a></td>
+          <td><span class="table-badge staff-badge">👤 Staff</span></td>
+          <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
+          <td>
+            <div class="table-actions">
+              <a class="btn-table-action" href="/dashboard/site/biolink-builder?id={{ staff.id }}">Edit</a>
+              <button type="button" class="btn-table-action" onclick="openInfoModal({{ staff.id }})">Info</button>
+              <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Delete this staff bio link?')">
+                <input type="hidden" name="site_id" value="{{ staff.id }}">
+                <button type="submit" class="btn-table-action danger">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+        {% endif %}
         {% endfor %}
       </tbody>
     </table>
-    {% if sites.length > 10 %}
-    <div class="load-more-container">
-      <button class="btn-load-more" id="load-more-btn" onclick="loadMoreSites()">
-        <span>Load More Sites</span>
-        <span id="load-more-count">({{ sites.length - 10 }} remaining)</span>
-      </button>
-    </div>
-    {% endif %}
-    <script>
-      let currentIndex = 10;
-      const allSites = {{ sites | tojson }};
-      const totalSites = {{ sites.length }};
-
-      function loadMoreSites() {
-        const btn = document.getElementById('load-more-btn');
-        const tbody = document.getElementById('sites-tbody');
-        const itemsPerLoad = 10;
-        const nextIndex = Math.min(currentIndex + itemsPerLoad, totalSites);
-
-        btn.classList.add('loading');
-        btn.disabled = true;
-
-        // Simulate slight delay for better UX
-        setTimeout(() => {
-          for (let i = currentIndex; i < nextIndex; i++) {
-            const site = allSites[i];
-            const row = document.createElement('tr');
-            row.className = 'site-row';
-            row.innerHTML = `
-              <td>
-                <div class="table-site-name">${site.title}</div>
-                <div style="font-size:12px;color:var(--ink-muted);margin-top:2px;">${site.template_id || 'Default'}</div>
-              </td>
-              <td><a class="table-site-url" href="https://${site.subdomain}.{{ base_domain }}" target="_blank">${site.subdomain}.{{ base_domain }}</a></td>
-              <td><span class="table-badge">${site.category || 'Site'}</span></td>
-              <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
-              <td>
-                <div class="table-actions">
-                  <a class="btn-table-action" href="/dashboard/site/${site.template_id && site.template_id.includes('biolink') ? 'biolink-builder' : 'builder'}?id=${site.id}">Edit</a>
-                  <a class="btn-table-action" href="/dashboard/site/templates?id=${site.id}">Theme</a>
-                  <button type="button" class="btn-table-action" onclick="openInfoModal(${site.id})">Info</button>
-                  <a class="btn-table-action" href="/dashboard/booking/${site.id}">Booking</a>
-                  <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Are you sure? This action cannot be undone.')">
-                    <input type="hidden" name="site_id" value="${site.id}">
-                    <button type="submit" class="btn-table-action danger">Delete</button>
-                  </form>
-                </div>
-              </td>
-            `;
-            tbody.appendChild(row);
-          }
-
-          currentIndex = nextIndex;
-
-          // Update pagination info
-          document.getElementById('showing-count').textContent = currentIndex;
-
-          // Update or hide load more button
-          if (currentIndex >= totalSites) {
-            btn.style.display = 'none';
-          } else {
-            btn.classList.remove('loading');
-            btn.disabled = false;
-            document.getElementById('load-more-count').textContent = `(${totalSites - currentIndex} remaining)`;
-          }
-        }, 300);
-      }
-    </script>
     {% endif %}
   </main>
 </div>
@@ -352,6 +316,34 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
   </div>
 </div>
 
+<!-- ── Add Staff Bio Link modal ── -->
+<div class="modal-overlay" id="staff-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Add Staff Bio Link</div>
+      <button class="modal-close" onclick="closeStaffModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="staff-parent-id">
+      <div class="staff-modal-parent" id="staff-modal-parent-label"></div>
+      <div class="modal-field">
+        <label>Employee Name</label>
+        <input type="text" id="staff-name" placeholder="e.g. Rahul Sharma" oninput="staffAutoSubdomain()">
+      </div>
+      <div class="modal-field">
+        <label>Subdomain <span style="font-weight:400;color:var(--ink-faint);">(their unique link)</span></label>
+        <input type="text" id="staff-subdomain" placeholder="e.g. rahul-sharma" style="font-family:monospace;">
+        <div style="font-size:12px;color:var(--ink-muted);margin-top:4px;">https://<span id="staff-sub-preview">…</span>.{{ base_domain }}</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="modal-msg" id="staff-msg"></span>
+      <button class="btn-modal-cancel" onclick="closeStaffModal()">Cancel</button>
+      <button class="btn-modal-save" id="staff-save-btn" onclick="saveStaffSite()">Create &amp; Edit</button>
+    </div>
+  </div>
+</div>
+
 <script type="application/json" id="pz-sites-json">{{ sites | dump | safe }}</script>
 <script>
 var ALL_SITES_DATA = JSON.parse(document.getElementById('pz-sites-json').textContent || '[]');
@@ -384,6 +376,9 @@ function closeInfoModal() {
 // Close on overlay click
 document.getElementById('info-modal').addEventListener('click', function(e) {
   if (e.target === this) closeInfoModal()
+})
+document.getElementById('staff-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeStaffModal()
 })
 
 function saveInfo() {
@@ -441,6 +436,79 @@ function saveInfo() {
     btn.textContent = 'Save Changes'
     msg.textContent = 'Network error. Try again.'
     msg.className = 'modal-msg err'
+  })
+}
+
+// ── Staff Bio Link modal ──────────────────────────────────────────────────────
+function openAddStaffModal(parentId, parentTitle, parentSub) {
+  document.getElementById('staff-parent-id').value = parentId
+  document.getElementById('staff-modal-parent-label').textContent = '📁 Business: ' + parentTitle
+  document.getElementById('staff-name').value      = ''
+  document.getElementById('staff-subdomain').value = ''
+  document.getElementById('staff-sub-preview').textContent = '…'
+  document.getElementById('staff-msg').textContent  = ''
+  document.getElementById('staff-msg').className    = 'modal-msg'
+  document.getElementById('staff-save-btn').disabled    = false
+  document.getElementById('staff-save-btn').textContent = 'Create & Edit'
+  document.getElementById('staff-modal').classList.add('open')
+  setTimeout(function(){ document.getElementById('staff-name').focus() }, 100)
+}
+
+function closeStaffModal() {
+  document.getElementById('staff-modal').classList.remove('open')
+}
+
+function staffAutoSubdomain() {
+  var name = document.getElementById('staff-name').value
+  var sub  = name.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .substring(0, 40)
+  document.getElementById('staff-subdomain').value    = sub
+  document.getElementById('staff-sub-preview').textContent = sub || '…'
+}
+
+document.getElementById('staff-subdomain').addEventListener('input', function() {
+  document.getElementById('staff-sub-preview').textContent = this.value || '…'
+})
+
+function saveStaffSite() {
+  var btn = document.getElementById('staff-save-btn')
+  var msg = document.getElementById('staff-msg')
+  btn.disabled    = true
+  btn.textContent = 'Creating…'
+  msg.textContent = ''
+  msg.className   = 'modal-msg'
+
+  fetch('/dashboard/site/create-staff', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      parent_site_id: document.getElementById('staff-parent-id').value,
+      employee_name:  document.getElementById('staff-name').value,
+      subdomain:      document.getElementById('staff-subdomain').value
+    })
+  })
+  .then(function(r){ return r.json() })
+  .then(function(d) {
+    if (d.ok) {
+      msg.textContent = '✓ Created! Opening editor…'
+      msg.className   = 'modal-msg ok'
+      setTimeout(function(){ window.location.href = d.redirect }, 700)
+    } else {
+      btn.disabled    = false
+      btn.textContent = 'Create & Edit'
+      msg.textContent = d.error || 'Something went wrong.'
+      msg.className   = 'modal-msg err'
+    }
+  })
+  .catch(function() {
+    btn.disabled    = false
+    btn.textContent = 'Create & Edit'
+    msg.textContent = 'Network error. Try again.'
+    msg.className   = 'modal-msg err'
   })
 }
 </script>

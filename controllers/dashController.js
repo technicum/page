@@ -4,9 +4,35 @@ const { geocodeCity } = require('../config/geocode')
 
 exports.index = async (req, res) => {
   const user       = req.session.user
-  const sites      = await db.query('SELECT * FROM ms_sites WHERE account_id = ? ORDER BY created_at DESC', [user.id])
+  const rows       = await db.query('SELECT * FROM ms_sites WHERE account_id = ? ORDER BY id ASC', [user.id])
   const categories = await db.query('SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC')
-  res.render('dashboard/index.njk', { title: 'Dashboard', user, sites, categories: categories || [], flash_success: req.flash('success') })
+
+  // Group: build siteRows where each main site has a .staffSites array
+  const mainMap  = new Map()
+  const children = []
+  for (const s of rows) {
+    if (!s.parent_site_id) {
+      s.staffSites = []
+      mainMap.set(s.id, s)
+    } else {
+      children.push(s)
+    }
+  }
+  for (const c of children) {
+    const parent = mainMap.get(c.parent_site_id)
+    if (parent) parent.staffSites.push(c)
+    else { c.staffSites = []; mainMap.set(c.id, c) } // orphan
+  }
+  const siteRows = [...mainMap.values()]
+
+  res.render('dashboard/index.njk', {
+    title: 'Dashboard',
+    user,
+    sites:    rows,      // flat array — used for data island / openInfoModal
+    siteRows,            // grouped array — used for table rendering
+    categories: categories || [],
+    flash_success: req.flash('success')
+  })
 }
 
 exports.wizard = async (req, res) => {
