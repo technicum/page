@@ -233,8 +233,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
           </td>
           <td>
             <div class="table-actions">
-              <a class="btn-table-action" href="/dashboard/site/{% if 'biolink' in site.template_id %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit</a>
-              <a class="btn-table-action" href="/dashboard/site/templates?id={{ site.id }}">Theme</a>
+              <a class="btn-table-action" href="/dashboard/site/{% if site.category == 'linktree' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit</a>
+              <a class="btn-table-action" href="/dashboard/site/{% if site.category == 'linktree' %}biolink-builder{% else %}templates{% endif %}?id={{ site.id }}">Theme</a>
               <button type="button" class="btn-table-action" onclick="openInfoModal({{ site.id }})">Info</button>
               <button type="button" class="btn-table-action seo" onclick="openSeoModal({{ site.id }})">SEO</button>
               <a class="btn-table-action" href="/dashboard/booking/{{ site.id }}">Booking</a>
