@@ -252,24 +252,33 @@ exports.updateInfo = async (req, res) => {
 exports.createStaffSite = async (req, res) => {
   try {
     const user = req.session.user
-    const { parent_site_id, employee_name, subdomain: rawSub } = req.body
+    const { parent_site_id, employee_name, path_slug: rawSlug } = req.body
 
-    const name      = (employee_name || '').trim()
-    const subdomain = (rawSub || '').toLowerCase().trim()
+    const name     = (employee_name || '').trim()
+    const pathSlug = (rawSlug || '').toLowerCase().trim()
       .replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
 
-    if (!name)      return res.json({ ok: false, error: 'Employee name is required.' })
-    if (!subdomain) return res.json({ ok: false, error: 'Subdomain is required.' })
-    if (!/^[a-z0-9-]+$/.test(subdomain)) return res.json({ ok: false, error: 'Subdomain: only lowercase letters, numbers, hyphens.' })
-    if (subdomain.length < 3)            return res.json({ ok: false, error: 'Subdomain must be at least 3 characters.' })
+    if (!name)     return res.json({ ok: false, error: 'Employee name is required.' })
+    if (!pathSlug) return res.json({ ok: false, error: 'URL slug is required.' })
+    if (!/^[a-z0-9-]+$/.test(pathSlug)) return res.json({ ok: false, error: 'Slug: only lowercase letters, numbers, hyphens.' })
+    if (pathSlug.length < 2)            return res.json({ ok: false, error: 'Slug must be at least 2 characters.' })
 
     // Verify parent belongs to this user
     const parent = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [parseInt(parent_site_id) || 0, user.id])
     if (!parent) return res.json({ ok: false, error: 'Invalid parent site.' })
 
-    // Check subdomain uniqueness
-    const exists = await db.first('SELECT id FROM ms_sites WHERE subdomain = ?', [subdomain])
-    if (exists) return res.json({ ok: false, error: 'That subdomain is already taken. Try another.' })
+    // Check path_slug uniqueness under this parent
+    const slugExists = await db.first(
+      'SELECT id FROM ms_sites WHERE parent_site_id = ? AND path_slug = ?',
+      [parent.id, pathSlug]
+    )
+    if (slugExists) return res.json({ ok: false, error: 'That slug is already used by another staff link on this business.' })
+
+    // Synthetic internal subdomain (must be globally unique, never served publicly)
+    // Pattern: {parent_sub}--{slug}  (double-hyphen prefix makes it visually distinct)
+    const syntheticSub = `${parent.subdomain}--${pathSlug}`.substring(0, 60)
+    const subExists = await db.first('SELECT id FROM ms_sites WHERE subdomain = ?', [syntheticSub])
+    if (subExists) return res.json({ ok: false, error: 'Slug conflict — please try a slightly different slug.' })
 
     // Inherit parent branding
     const parentSettings = JSON.parse(parent.settings || '{}')
@@ -284,13 +293,13 @@ exports.createStaffSite = async (req, res) => {
 
     const id = await db.lastId(
       `INSERT INTO ms_sites
-        (account_id, title, subdomain, category, template_id, settings, is_published, parent_site_id, category_id, lat, lng, state)
-       VALUES (?, ?, ?, 'linktree', ?, ?, 1, ?, ?, ?, ?, ?)`,
-      [user.id, name, subdomain, parent.template_id || 'biolink-creator', settings,
-       parent.id, parent.category_id || null, parent.lat || null, parent.lng || null, parent.state || null]
+        (account_id, title, subdomain, category, template_id, settings, is_published, parent_site_id, path_slug, category_id, lat, lng, state)
+       VALUES (?, ?, ?, 'linktree', ?, ?, 1, ?, ?, ?, ?, ?, ?)`,
+      [user.id, name, syntheticSub, parent.template_id || 'biolink-creator', settings,
+       parent.id, pathSlug, parent.category_id || null, parent.lat || null, parent.lng || null, parent.state || null]
     )
 
-    res.json({ ok: true, id, subdomain, redirect: `/dashboard/site/biolink-builder?id=${id}` })
+    res.json({ ok: true, id, pathSlug, parentSub: parent.subdomain, redirect: `/dashboard/site/biolink-builder?id=${id}` })
   } catch (err) {
     console.error('createStaffSite', err)
     res.json({ ok: false, error: 'Server error. Please try again.' })

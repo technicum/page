@@ -238,7 +238,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
             <div class="table-site-name" style="display:inline-block;">{{ staff.title }}</div>
             <div style="font-size:12px;color:var(--ink-muted);margin-top:2px;padding-left:20px;">Staff Bio Link</div>
           </td>
-          <td><a class="table-site-url" href="https://{{ staff.subdomain }}.{{ base_domain }}" target="_blank">{{ staff.subdomain }}.{{ base_domain }}</a></td>
+          <td><a class="table-site-url" href="https://{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}</a></td>
           <td><span class="table-badge staff-badge">👤 Staff</span></td>
           <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
           <td>
@@ -328,12 +328,14 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
       <div class="staff-modal-parent" id="staff-modal-parent-label"></div>
       <div class="modal-field">
         <label>Employee Name</label>
-        <input type="text" id="staff-name" placeholder="e.g. Rahul Sharma" oninput="staffAutoSubdomain()">
+        <input type="text" id="staff-name" placeholder="e.g. Rahul Sharma" oninput="staffAutoSlug()">
       </div>
       <div class="modal-field">
-        <label>Subdomain <span style="font-weight:400;color:var(--ink-faint);">(their unique link)</span></label>
-        <input type="text" id="staff-subdomain" placeholder="e.g. rahul-sharma" style="font-family:monospace;">
-        <div style="font-size:12px;color:var(--ink-muted);margin-top:4px;">https://<span id="staff-sub-preview">…</span>.{{ base_domain }}</div>
+        <label>URL Slug <span style="font-weight:400;color:var(--ink-faint);">(appears in their link)</span></label>
+        <input type="text" id="staff-subdomain" placeholder="e.g. rahul" style="font-family:monospace;" oninput="staffSlugPreview()">
+        <div style="font-size:12px;color:var(--ink-muted);margin-top:4px;">
+          🔗 <span id="staff-parent-sub-preview"></span>.{{ base_domain }}/<span id="staff-sub-preview" style="font-weight:600;">…</span>
+        </div>
       </div>
     </div>
     <div class="modal-foot">
@@ -440,9 +442,13 @@ function saveInfo() {
 }
 
 // ── Staff Bio Link modal ──────────────────────────────────────────────────────
+var _staffParentSub = ''
+
 function openAddStaffModal(parentId, parentTitle, parentSub) {
+  _staffParentSub = parentSub
   document.getElementById('staff-parent-id').value = parentId
   document.getElementById('staff-modal-parent-label').textContent = '📁 Business: ' + parentTitle
+  document.getElementById('staff-parent-sub-preview').textContent = parentSub
   document.getElementById('staff-name').value      = ''
   document.getElementById('staff-subdomain').value = ''
   document.getElementById('staff-sub-preview').textContent = '…'
@@ -458,21 +464,22 @@ function closeStaffModal() {
   document.getElementById('staff-modal').classList.remove('open')
 }
 
-function staffAutoSubdomain() {
+function staffAutoSlug() {
   var name = document.getElementById('staff-name').value
-  var sub  = name.toLowerCase()
+  var slug = name.toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
     .substring(0, 40)
-  document.getElementById('staff-subdomain').value    = sub
-  document.getElementById('staff-sub-preview').textContent = sub || '…'
+  document.getElementById('staff-subdomain').value    = slug
+  document.getElementById('staff-sub-preview').textContent = slug || '…'
 }
 
-document.getElementById('staff-subdomain').addEventListener('input', function() {
-  document.getElementById('staff-sub-preview').textContent = this.value || '…'
-})
+function staffSlugPreview() {
+  document.getElementById('staff-sub-preview').textContent =
+    document.getElementById('staff-subdomain').value || '…'
+}
 
 function saveStaffSite() {
   var btn = document.getElementById('staff-save-btn')
@@ -488,7 +495,7 @@ function saveStaffSite() {
     body: JSON.stringify({
       parent_site_id: document.getElementById('staff-parent-id').value,
       employee_name:  document.getElementById('staff-name').value,
-      subdomain:      document.getElementById('staff-subdomain').value
+      path_slug:      document.getElementById('staff-subdomain').value
     })
   })
   .then(function(r){ return r.json() })

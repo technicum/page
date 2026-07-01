@@ -62,6 +62,16 @@ async function serveSite(req, res, next, lookup) {
     const pageId    = pathParts[0] || 'home'
     const subPath   = pathParts[1] || null
 
+    // ── If this site is itself a staff site (accessed by synthetic subdomain),
+    //    redirect to the canonical parent/slug URL ────────────────────────────
+    if (site.parent_site_id && site.path_slug) {
+      const parent = await db.first('SELECT subdomain FROM ms_sites WHERE id = ?', [site.parent_site_id])
+      if (parent) {
+        const base = process.env.BASE_DOMAIN || 'pagezapper.com'
+        return res.redirect(301, `https://${parent.subdomain}.${base}/${site.path_slug}`)
+      }
+    }
+
     // ── Pass API requests to main router ──────────────────────────────────────
     if (rawPath.startsWith('api/')) return next()
 
@@ -109,6 +119,26 @@ async function serveSite(req, res, next, lookup) {
       )
       const html = await themeManager.renderBlog(slug, site, settings, posts)
       return res.send(html)
+    }
+
+    // ── Staff / employee bio link subpath (/staffslug) ────────────────────────
+    // Checked BEFORE normal page render so staff slugs take priority over page IDs
+    if (rawPath && rawPath !== 'home') {
+      const staffSite = await db.first(
+        `SELECT s.*, u.name as owner_name
+         FROM ms_sites s
+         JOIN ms_accounts u ON u.id = s.account_id
+         WHERE s.parent_site_id = ? AND s.path_slug = ?`,
+        [site.id, pageId]
+      )
+      if (staffSite) {
+        const staffSettings  = JSON.parse(staffSite.settings || '{}')
+        const staffThemeSlug = staffSettings.template_id || staffSite.template_id || 'biolink-creator'
+        let   staffForms     = {}
+        try { staffForms = await loadFormsForAccount(staffSite.account_id) } catch(e) {}
+        const html = await themeManager.render(staffThemeSlug, staffSite, staffSettings, 'home', staffForms)
+        return res.send(html)
+      }
     }
 
     // ── Normal page render ─────────────────────────────────────────────────────
