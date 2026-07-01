@@ -9,6 +9,7 @@ const media       = require('../controllers/mediaController')
 const form        = require('../controllers/formController')
 const { requireAuth, redirectIfAuth, requireAdmin } = require('../middleware/auth')
 const admin   = require('../controllers/adminController')
+const review  = require('../controllers/reviewController')
 const booking = require('../controllers/bookingController')
 const multer = require('multer')
 const os     = require('os')
@@ -78,6 +79,15 @@ router.get('/api/detect-city',      home.detectCity)
 router.get('/api/reverse-geocode',  home.reverseGeocode)
 router.get('/api/nearby',           home.nearby)
 router.get('/api/location-suggest', home.locationSuggest)
+
+// Reviews — public
+router.get ('/review/:subdomain',       review.showForm)
+router.post('/review/:subdomain',       review.submit)
+router.get ('/api/reviews/:subdomain',  review.apiReviews)
+
+// Reviews — dashboard
+router.get ('/dashboard/site/reviews',        requireAuth, review.siteReviews)
+router.post('/dashboard/site/reviews/delete', requireAuth, review.deleteReview)
 
 // Auth
 router.get ('/register', redirectIfAuth, auth.showRegister)

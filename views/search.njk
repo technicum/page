@@ -102,7 +102,13 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
 .card-dist{position:absolute;top:10px;right:10px;font-size:10px;font-weight:600;color:var(--blue);background:rgba(255,255,255,0.9);padding:2px 8px;border-radius:20px;}
 .card-body{padding:32px 18px 12px;text-align:center;flex:1;display:flex;flex-direction:column;}
 .card-name{font-size:14px;font-weight:600;color:var(--ink);line-height:1.35;margin-bottom:3px;}
-.card-cat{font-size:11px;color:var(--ink-muted);margin-bottom:10px;}
+.card-cat{font-size:11px;color:var(--ink-muted);margin-bottom:6px;}
+.card-stars{display:flex;align-items:center;gap:4px;justify-content:center;margin-bottom:8px;}
+.stars-filled{color:#f59e0b;font-size:12px;letter-spacing:1px;}
+.stars-empty{color:#e5e7eb;font-size:12px;letter-spacing:1px;}
+.rating-count{font-size:11px;color:var(--ink-faint);}
+.review-link{font-size:11px;color:var(--blue);text-decoration:none;margin-left:6px;}
+.review-link:hover{text-decoration:underline;}
 .card-desc{font-size:12px;color:var(--ink-muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:auto;}
 .card-foot{padding:11px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
 .card-location{font-size:12px;color:var(--ink-faint);display:flex;align-items:center;gap:4px;}
@@ -290,6 +296,14 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
       <div class="card-body">
         <div class="card-name">{{ site.title }}</div>
         <div class="card-cat">{{ site.cat_name or site.category or 'Business' }}</div>
+        {% if site.avg_rating %}
+        <div class="card-stars">
+          <span class="stars-filled">{% for i in range(0, site.avg_rating | round) %}★{% endfor %}</span><span class="stars-empty">{% for i in range(0, 5 - site.avg_rating | round) %}★{% endfor %}</span>
+          <span class="rating-count">{{ site.avg_rating }} ({{ site.review_count }})</span>
+        </div>
+        {% else %}
+        <a class="review-link" href="/review/{{ site.subdomain }}">+ Add review</a>
+        {% endif %}
         <div class="card-desc">{{ site.settings.description or ('Visit ' + site.subdomain + '.' + base_domain) }}</div>
       </div>
       <div class="card-foot">

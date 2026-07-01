@@ -20,12 +20,15 @@ exports.search = async (req, res) => {
     // ── Haversine radius search ────────────────────────────────────────────────
     sql = `SELECT s.id, s.title, s.subdomain, s.settings, s.lat, s.lng, s.state,
                   c.name AS cat_name, c.icon AS cat_icon,
+                  ROUND(AVG(rv.rating), 1) AS avg_rating,
+                  COUNT(rv.id)             AS review_count,
                   ROUND(6371 * ACOS(LEAST(1, GREATEST(-1,
                     COS(RADIANS(?)) * COS(RADIANS(s.lat)) * COS(RADIANS(s.lng) - RADIANS(?)) +
                     SIN(RADIANS(?)) * SIN(RADIANS(s.lat))
                   ))), 1) AS distance_km
            FROM ms_sites s
-           LEFT JOIN ms_categories c ON c.id = s.category_id
+           LEFT JOIN ms_categories c  ON c.id  = s.category_id
+           LEFT JOIN ms_reviews rv    ON rv.site_id = s.id AND rv.is_approved = 1
            WHERE s.is_published = 1
              AND s.parent_site_id IS NULL
              AND s.lat IS NOT NULL AND s.lng IS NOT NULL`
@@ -39,15 +42,18 @@ exports.search = async (req, res) => {
       sql += ' AND s.category_id = ?'
       params.push(category_id)
     }
-    sql += ' HAVING distance_km <= ? ORDER BY distance_km ASC LIMIT 48'
+    sql += ' GROUP BY s.id HAVING distance_km <= ? ORDER BY distance_km ASC LIMIT 48'
     params.push(userRadius)
 
   } else {
     // ── Text-based city / state search ────────────────────────────────────────
     sql = `SELECT s.id, s.title, s.subdomain, s.settings, s.state,
-                  c.name AS cat_name, c.icon AS cat_icon
+                  c.name AS cat_name, c.icon AS cat_icon,
+                  ROUND(AVG(rv.rating), 1) AS avg_rating,
+                  COUNT(rv.id)             AS review_count
            FROM ms_sites s
-           LEFT JOIN ms_categories c ON c.id = s.category_id
+           LEFT JOIN ms_categories c  ON c.id  = s.category_id
+           LEFT JOIN ms_reviews rv    ON rv.site_id = s.id AND rv.is_approved = 1
            WHERE s.is_published = 1
              AND s.parent_site_id IS NULL`
     params = []
@@ -68,7 +74,7 @@ exports.search = async (req, res) => {
       sql += ' AND s.category_id = ?'
       params.push(category_id)
     }
-    sql += ' ORDER BY s.created_at DESC LIMIT 48'
+    sql += ' GROUP BY s.id ORDER BY avg_rating DESC, review_count DESC, s.created_at DESC LIMIT 48'
   }
 
   let results = [], categories = []
@@ -137,25 +143,33 @@ exports.cityPage = async (req, res, next) => {
     // Try city match first, then state match
     let rows = await db.query(`
       SELECT s.id, s.title, s.subdomain, s.settings, s.state,
-             c.name AS cat_name, c.icon AS cat_icon
+             c.name AS cat_name, c.icon AS cat_icon,
+             ROUND(AVG(rv.rating), 1) AS avg_rating,
+             COUNT(rv.id)             AS review_count
       FROM ms_sites s
-      LEFT JOIN ms_categories c ON c.id = s.category_id
+      LEFT JOIN ms_categories c  ON c.id = s.category_id
+      LEFT JOIN ms_reviews rv    ON rv.site_id = s.id AND rv.is_approved = 1
       WHERE s.is_published = 1
         AND s.parent_site_id IS NULL
         AND LOWER(JSON_EXTRACT(s.settings, '$.city')) = ?
-      ORDER BY s.created_at DESC LIMIT 60
+      GROUP BY s.id
+      ORDER BY avg_rating DESC, review_count DESC, s.created_at DESC LIMIT 60
     `, [citySearch])
 
     if (!rows.length) {
       rows = await db.query(`
         SELECT s.id, s.title, s.subdomain, s.settings, s.state,
-               c.name AS cat_name, c.icon AS cat_icon
+               c.name AS cat_name, c.icon AS cat_icon,
+               ROUND(AVG(rv.rating), 1) AS avg_rating,
+               COUNT(rv.id)             AS review_count
         FROM ms_sites s
-        LEFT JOIN ms_categories c ON c.id = s.category_id
+        LEFT JOIN ms_categories c  ON c.id = s.category_id
+        LEFT JOIN ms_reviews rv    ON rv.site_id = s.id AND rv.is_approved = 1
         WHERE s.is_published = 1
           AND s.parent_site_id IS NULL
           AND LOWER(s.state) = ?
-        ORDER BY s.created_at DESC LIMIT 60
+        GROUP BY s.id
+        ORDER BY avg_rating DESC, review_count DESC, s.created_at DESC LIMIT 60
       `, [citySearch])
     }
 
@@ -233,39 +247,48 @@ exports.nearby = async (req, res) => {
     if (hasCoords) {
       sql = `SELECT s.id, s.title, s.subdomain, s.settings,
                     c.name as cat_name, c.icon as cat_icon,
+                    ROUND(AVG(rv.rating), 1) AS avg_rating,
+                    COUNT(rv.id)             AS review_count,
                     ROUND(6371 * ACOS(LEAST(1, GREATEST(-1,
                       COS(RADIANS(?)) * COS(RADIANS(s.lat)) * COS(RADIANS(s.lng) - RADIANS(?)) +
                       SIN(RADIANS(?)) * SIN(RADIANS(s.lat))
                     ))), 1) AS distance_km
              FROM ms_sites s
-             LEFT JOIN ms_categories c ON c.id = s.category_id
+             LEFT JOIN ms_categories c  ON c.id = s.category_id
+             LEFT JOIN ms_reviews rv    ON rv.site_id = s.id AND rv.is_approved = 1
              WHERE s.is_published = 1 AND s.parent_site_id IS NULL AND s.lat IS NOT NULL AND s.lng IS NOT NULL
+             GROUP BY s.id
              HAVING distance_km <= ?
              ORDER BY distance_km ASC LIMIT 6`
       params = [uLat, uLng, uLat, parseInt(radius) || 25]
     } else {
       sql = `SELECT s.id, s.title, s.subdomain, s.settings,
-                    c.name as cat_name, c.icon as cat_icon
+                    c.name as cat_name, c.icon as cat_icon,
+                    ROUND(AVG(rv.rating), 1) AS avg_rating,
+                    COUNT(rv.id)             AS review_count
              FROM ms_sites s
-             LEFT JOIN ms_categories c ON c.id = s.category_id
+             LEFT JOIN ms_categories c  ON c.id = s.category_id
+             LEFT JOIN ms_reviews rv    ON rv.site_id = s.id AND rv.is_approved = 1
              WHERE s.is_published = 1 AND s.parent_site_id IS NULL`
       params = []
       if (city) { sql += ' AND JSON_EXTRACT(s.settings, "$.city") LIKE ?'; params.push(`%${city}%`) }
-      sql += ' ORDER BY s.created_at DESC LIMIT 6'
+      sql += ' GROUP BY s.id ORDER BY avg_rating DESC, review_count DESC, s.created_at DESC LIMIT 6'
     }
     results = await db.query(sql, params)
     results = results.map(s => {
       const st = JSON.parse(s.settings || '{}')
       return {
-        id:          s.id,
-        title:       s.title,
-        subdomain:   s.subdomain,
-        cat_name:    s.cat_name    || st.subcategory || 'Business',
-        cat_icon:    s.cat_icon    || '🏪',
-        city:        st.city       || '',
-        description: st.description || '',
-        distance_km: s.distance_km || null,
-        logo:        st.logo || (st.profile && st.profile.avatar) || ''
+        id:           s.id,
+        title:        s.title,
+        subdomain:    s.subdomain,
+        cat_name:     s.cat_name    || st.subcategory || 'Business',
+        cat_icon:     s.cat_icon    || '🏪',
+        city:         st.city       || '',
+        description:  st.description || '',
+        distance_km:  s.distance_km || null,
+        logo:         st.logo || (st.profile && st.profile.avatar) || '',
+        avg_rating:   s.avg_rating  || null,
+        review_count: s.review_count || 0
       }
     })
   } catch(e) { results = [] }

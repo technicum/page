@@ -237,6 +237,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
               <a class="btn-table-action" href="/dashboard/site/templates?id={{ site.id }}">Theme</a>
               <button type="button" class="btn-table-action" onclick="openInfoModal({{ site.id }})">Info</button>
               <button type="button" class="btn-table-action seo" onclick="openSeoModal({{ site.id }})">SEO</button>
+              <button type="button" class="btn-table-action" onclick="openReviewsModal({{ site.id }}, '{{ site.subdomain }}')">Reviews</button>
               <a class="btn-table-action" href="/dashboard/booking/{{ site.id }}">Booking</a>
               <button type="button" class="btn-table-action staff" onclick="openAddStaffModal({{ site.id }}, '{{ site.title | escape }}', '{{ site.subdomain }}')">+ Staff</button>
               <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Delete this site and all its data?')">
@@ -415,6 +416,37 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
   </div>
 </div>
 
+<!-- ── Reviews modal ── -->
+<div class="modal-overlay" id="reviews-modal">
+  <div class="modal-box" style="max-width:600px;">
+    <div class="modal-head">
+      <div class="modal-title">⭐ Reviews</div>
+      <button class="modal-close" onclick="closeReviewsModal()">✕</button>
+    </div>
+    <div style="padding:24px;">
+      <!-- Stats bar -->
+      <div id="reviews-stats" style="background:var(--off);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+        <div style="text-align:center;">
+          <div id="reviews-avg" style="font-family:'DM Serif Display',serif;font-size:36px;color:var(--ink);line-height:1;">—</div>
+          <div id="reviews-stars-disp" style="color:#f59e0b;font-size:18px;letter-spacing:2px;">☆☆☆☆☆</div>
+          <div id="reviews-total" style="font-size:12px;color:var(--ink-muted);margin-top:2px;">No reviews yet</div>
+        </div>
+        <div style="flex:1;border-left:1px solid var(--border);padding-left:16px;">
+          <div style="font-size:13px;color:var(--ink-muted);margin-bottom:8px;">Share review link:</div>
+          <div style="display:flex;gap:8px;">
+            <input id="reviews-link" type="text" readonly style="flex:1;border:1px solid var(--border-md);border-radius:var(--radius-sm);padding:8px 12px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);min-width:0;">
+            <button onclick="copyReviewLink()" style="padding:8px 14px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Copy</button>
+          </div>
+        </div>
+      </div>
+      <!-- Reviews list -->
+      <div id="reviews-list" style="max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
+        <div style="text-align:center;padding:32px;color:var(--ink-faint);font-size:14px;">Loading…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="application/json" id="pz-sites-json">{{ sites | dump | safe }}</script>
 <script>
 var ALL_SITES_DATA = JSON.parse(document.getElementById('pz-sites-json').textContent || '[]');
@@ -455,6 +487,86 @@ document.getElementById('staff-modal').addEventListener('click', function(e) {
 document.getElementById('seo-modal').addEventListener('click', function(e) {
   if (e.target === this) closeSeoModal()
 })
+document.getElementById('reviews-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeReviewsModal()
+})
+
+// ── Reviews modal ─────────────────────────────────────────────────────────────
+var _reviewSiteId = null, _reviewSubdomain = null
+
+function openReviewsModal(siteId, subdomain) {
+  _reviewSiteId   = siteId
+  _reviewSubdomain = subdomain
+  document.getElementById('reviews-modal').classList.add('open')
+  document.getElementById('reviews-link').value = window.location.origin + '/review/' + subdomain
+  loadReviews(siteId)
+}
+
+function closeReviewsModal() {
+  document.getElementById('reviews-modal').classList.remove('open')
+}
+
+function copyReviewLink() {
+  var inp = document.getElementById('reviews-link')
+  inp.select(); document.execCommand('copy')
+  inp.blur()
+}
+
+function loadReviews(siteId) {
+  var list = document.getElementById('reviews-list')
+  list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--ink-faint);font-size:14px;">Loading…</div>'
+  fetch('/dashboard/site/reviews?id=' + siteId)
+    .then(function(r){ return r.json() })
+    .then(function(d) {
+      if (!d.ok) { list.innerHTML = '<div style="color:var(--red);padding:16px;">Error loading reviews.</div>'; return }
+
+      // Stats
+      var avg   = d.stats && d.stats.avg_rating ? parseFloat(d.stats.avg_rating) : 0
+      var total = d.stats && d.stats.total ? d.stats.total : 0
+      document.getElementById('reviews-avg').textContent   = avg ? avg.toFixed(1) : '—'
+      document.getElementById('reviews-total').textContent = total ? total + ' review' + (total !== 1 ? 's' : '') : 'No reviews yet'
+      var filled = Math.round(avg), empty = 5 - filled
+      document.getElementById('reviews-stars-disp').textContent = '★'.repeat(filled) + '☆'.repeat(empty)
+
+      if (!d.reviews.length) {
+        list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--ink-faint);font-size:14px;">No reviews yet. Share your review link to start collecting feedback!</div>'
+        return
+      }
+      list.innerHTML = d.reviews.map(function(r) {
+        var stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating)
+        var date  = new Date(r.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+        return '<div style="background:var(--off);border-radius:var(--radius);padding:14px 16px;">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
+            '<div style="display:flex;align-items:center;gap:8px;">' +
+              '<span style="font-size:14px;font-weight:600;color:var(--ink);">' + r.reviewer_name + '</span>' +
+              '<span style="color:#f59e0b;font-size:13px;">' + stars + '</span>' +
+            '</div>' +
+            '<div style="display:flex;align-items:center;gap:8px;">' +
+              '<span style="font-size:11px;color:var(--ink-faint);">' + date + '</span>' +
+              '<button onclick="deleteReview(' + r.id + ',' + siteId + ',this)" style="font-size:11px;color:var(--red);background:none;border:none;cursor:pointer;padding:0;">Delete</button>' +
+            '</div>' +
+          '</div>' +
+          (r.comment ? '<div style="font-size:13px;color:var(--ink-muted);line-height:1.6;margin-top:6px;">' + r.comment + '</div>' : '') +
+        '</div>'
+      }).join('')
+    })
+    .catch(function(){ list.innerHTML = '<div style="color:var(--red);padding:16px;">Could not load reviews.</div>' })
+}
+
+function deleteReview(reviewId, siteId, btn) {
+  if (!confirm('Delete this review?')) return
+  btn.textContent = '…'
+  fetch('/dashboard/site/reviews/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ review_id: reviewId, site_id: siteId })
+  })
+    .then(function(r){ return r.json() })
+    .then(function(d){
+      if (d.ok) loadReviews(siteId)
+      else alert('Could not delete review.')
+    })
+}
 
 function saveInfo() {
   var btn = document.getElementById('info-save-btn')
