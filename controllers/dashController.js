@@ -7,7 +7,7 @@ exports.index = async (req, res) => {
   res.render('dashboard/index.njk', { title: 'Dashboard', user, sites })
 }
 
-exports.wizard = (req, res) => {
+exports.wizard = async (req, res) => {
   const allThemes = themeManager.loadAll()
   // Send a simplified list: slug, name, for[], previewUrl, hasPreview
   const themes = Object.values(allThemes).map(t => ({
@@ -18,7 +18,8 @@ exports.wizard = (req, res) => {
     hasPreview: t.hasPreview,
     description: t.description || ''
   }))
-  res.render('dashboard/wizard.njk', { title: 'Create your site', user: req.session.user, themes })
+  const categories = await db.query('SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC')
+  res.render('dashboard/wizard.njk', { title: 'Create your site', user: req.session.user, themes, categories: categories || [] })
 }
 
 exports.templates = async (req, res) => {

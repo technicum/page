@@ -5,7 +5,7 @@ const axios         = require('axios')
 
 exports.store = async (req, res) => {
   const user = req.session.user
-  const { title, subdomain: rawSub, category, template_id, site_type,
+  const { title, subdomain: rawSub, category, category_id, template_id, site_type,
           description, city, phone, whatsapp, address,
           skills, bio, instagram, youtube, blog_topic, author,
           product_desc, theme } = req.body
@@ -43,6 +43,12 @@ exports.store = async (req, res) => {
     'INSERT INTO ms_sites (account_id, title, subdomain, category, template_id, settings, is_published) VALUES (?, ?, ?, ?, ?, ?, 1)',
     [user.id, title, subdomain, resolvedCategory, template_id || 'minimal', settings]
   )
+
+  // Save business category FK if provided
+  const catId = parseInt(category_id) || null
+  if (catId) {
+    await db.execute('UPDATE ms_sites SET category_id = ? WHERE id = ?', [catId, id])
+  }
 
   if (site_type === 'linktree') {
     res.redirect(`/dashboard/site/biolink-builder?id=${id}`)
