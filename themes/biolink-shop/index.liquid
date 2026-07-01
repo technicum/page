@@ -222,6 +222,28 @@
   </div>
   {% endif %}
 
+  <!-- Reviews -->
+  <div class="pz-sections" data-sec="reviews">
+    <div class="pz-sec open" id="sec-reviews">
+      <div class="pz-sec-head" onclick="pzToggle('sec-reviews')">
+        <div class="pz-sec-icon">⭐</div>
+        <div class="pz-sec-meta">
+          <div class="pz-sec-title">Reviews</div>
+          <div class="pz-sec-sub" id="pz-rev-sub">Loading…</div>
+        </div>
+        <div class="pz-sec-right">
+          <svg class="pz-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="pz-sec-body">
+        <div class="pz-sec-inner" style="padding:16px;">
+          <div id="pz-rev-list" style="margin-bottom:14px;"></div>
+          <a href="/review/{{ site.subdomain }}" style="display:block;text-align:center;background:var(--accent);color:#fff;padding:12px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;">✍️ Write a Review</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Share -->
   <div class="share-bar">
     <button class="share-btn" onclick="pzShare()">
@@ -236,6 +258,7 @@
 <script>
 // ── Accordion ────────────────────────────────────────────────────────────────
 function pzToggle(id){var el=document.getElementById(id);el.classList.toggle('open');}
+(function(){fetch('/api/reviews/{{ site.subdomain }}').then(function(r){return r.json()}).then(function(d){var sub=document.getElementById('pz-rev-sub');var list=document.getElementById('pz-rev-list');sub.textContent=d.avg_rating?('⭐ '+d.avg_rating+' · '+d.total+' review'+(d.total!==1?'s':'')):('No reviews yet');if(!d.reviews||!d.reviews.length){list.innerHTML='<div style="text-align:center;padding:12px 0;font-size:13px;color:#b0afa8;">No reviews yet — be the first!</div>';return;}list.innerHTML=d.reviews.map(function(r){var stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);var dt=new Date(r.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});return'<div style="border-bottom:1px solid #f0ede6;padding:12px 0;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;"><span style="font-weight:600;font-size:14px;color:var(--ink)">'+r.reviewer_name+'</span><span style="color:#f59e0b;font-size:13px;">'+stars+'</span></div><div style="font-size:11px;color:#b0afa8;margin-bottom:6px;">'+dt+'</div>'+(r.comment?'<div style="font-size:13px;color:var(--muted);line-height:1.6;">'+r.comment+'</div>':'')+'</div>';}).join('');}).catch(function(){document.getElementById('pz-rev-sub').textContent='Reviews';});})();
 
 // ── Save Contact ──────────────────────────────────────────────────────────────
 function pzSaveContact(){var n='{{ settings.profile.name | escape }}';var p='{{ settings.contact.phone | default: "" | escape }}';if(!p)p='{{ settings.contact.whatsapp | default: "" | escape }}';var e='{{ settings.contact.email | default: "" | escape }}';var w='{{ settings.contact.website | default: "" | escape }}';var vcf='BEGIN:VCARD\nVERSION:3.0\nFN:'+n+'\n'+(p?'TEL;TYPE=CELL:'+p+'\n':'')+(e?'EMAIL:'+e+'\n':'')+(w?'URL:'+w+'\n':'')+'URL:'+location.href+'\nEND:VCARD';var b=new Blob([vcf],{type:'text/vcard'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(n||'contact').replace(/\s+/g,'-')+'.vcf';a.click();}
