@@ -159,6 +159,17 @@ env.addFilter('max', function(arr) {
 env.addFilter('tojson', function(obj) {
   return JSON.stringify(obj)
 })
+env.addFilter('date', function(dateVal, format) {
+  const d = new Date(dateVal)
+  if (!dateVal || isNaN(d.getTime())) return ''
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  return (format || 'd MMM yyyy')
+    .replace('yyyy', d.getFullYear())
+    .replace('MMM',  months[d.getMonth()])
+    .replace('MM',   String(d.getMonth() + 1).padStart(2, '0'))
+    .replace('dd',   String(d.getDate()).padStart(2, '0'))
+    .replace('d',    d.getDate())
+})
 
 // Global template vars
 app.use((req, res, next) => {
