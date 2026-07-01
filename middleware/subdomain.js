@@ -136,6 +136,10 @@ async function serveSite(req, res, next, lookup) {
         // Inject parent business name so the theme can show it as a company badge
         if (!staffSettings.profile) staffSettings.profile = {}
         if (!staffSettings.profile.company) staffSettings.profile.company = site.title
+        if (!staffSettings.profile.company_url) {
+          const base = process.env.BASE_DOMAIN || 'pagezapper.com'
+          staffSettings.profile.company_url = `https://${site.subdomain}.${base}`
+        }
         const staffThemeSlug = staffSettings.template_id || staffSite.template_id || 'biolink-creator'
         let   staffForms     = {}
         try { staffForms = await loadFormsForAccount(staffSite.account_id) } catch(e) {}

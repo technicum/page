@@ -12,7 +12,8 @@
   --ink: #1a1a18; --muted: #6b6b66; --border: #e5e5e2;
   --bg: #fafaf8; --white: #fff; --radius: 14px;
 }
-.pz-company{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted);background:rgba(0,0,0,0.05);padding:3px 10px;border-radius:20px;margin-top:6px;}
+.pz-company{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted);background:rgba(0,0,0,0.05);padding:3px 10px;border-radius:20px;margin-top:6px;text-decoration:none;cursor:pointer;}
+.pz-company:hover{background:rgba(0,0,0,0.1);color:var(--ink);}
 </style>
 </head>
 <body>
@@ -27,7 +28,7 @@
     {% endif %}
     <div class="shop-name">{{ settings.profile.name }}</div>
     {% if settings.profile.tagline %}<div class="tagline">{{ settings.profile.tagline }}</div>{% endif %}
-    {% if settings.profile.company %}<div class="pz-company">🏢 {{ settings.profile.company }}</div>{% endif %}
+    {% if settings.profile.company %}<a class="pz-company" href="{{ settings.profile.company_url | default: '#' }}" target="_blank">🏢 {{ settings.profile.company }}</a>{% endif %}
   </div>
 
   <!-- Links (always visible) -->
