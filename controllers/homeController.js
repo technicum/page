@@ -170,7 +170,8 @@ exports.nearby = async (req, res) => {
         cat_icon:    s.cat_icon    || '🏪',
         city:        st.city       || '',
         description: st.description || '',
-        distance_km: s.distance_km || null
+        distance_km: s.distance_km || null,
+        logo:        st.logo || (st.profile && st.profile.avatar) || ''
       }
     })
   } catch(e) { results = [] }
