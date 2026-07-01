@@ -59,6 +59,22 @@ body{background:var(--off);}
 .btn-save:hover,.btn-add:hover{opacity:0.88;}
 select.fg-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
 .empty{text-align:center;padding:48px;color:var(--ink-faint);font-size:14px;}
+
+/* Emoji picker */
+.ep-wrap{position:relative;display:inline-block;}
+.ep-trigger{width:44px;height:38px;border:1px solid var(--border);border-radius:8px;background:var(--off);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border 0.15s;}
+.ep-trigger:hover{border-color:var(--red);}
+.ep-popup{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:9999;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.12);width:300px;padding:10px;}
+.ep-popup.open{display:block;}
+.ep-search{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;margin-bottom:8px;box-sizing:border-box;}
+.ep-search:focus{border-color:var(--red);}
+.ep-cats{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
+.ep-cat{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--off);cursor:pointer;color:var(--ink-muted);}
+.ep-cat.active,.ep-cat:hover{background:var(--red-light);color:var(--red);border-color:var(--red);}
+.ep-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;max-height:200px;overflow-y:auto;}
+.ep-btn{font-size:20px;padding:4px;border:none;background:transparent;cursor:pointer;border-radius:6px;line-height:1;text-align:center;}
+.ep-btn:hover{background:var(--off);}
+.ep-none{font-size:12px;color:var(--ink-faint);text-align:center;padding:16px;grid-column:1/-1;}
 </style>
 {% endblock %}
 {% block body %}
@@ -97,7 +113,10 @@ select.fg-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
         <div class="form-row">
           <div class="form-group">
             <label>Icon</label>
-            <input class="fg-input fg-icon" name="icon" placeholder="🏢" maxlength="4" value="🏢">
+            <div class="ep-wrap">
+              <input type="hidden" name="icon" id="addIconVal" value="🏢">
+              <button type="button" class="ep-trigger" id="addIconBtn" onclick="epOpen('addIconVal','addIconBtn',this)">🏢</button>
+            </div>
           </div>
           <div class="form-group fg-name">
             <label>Name *</label>
@@ -182,7 +201,10 @@ select.fg-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
       <div class="modal-grid">
         <div class="form-group">
           <label>Icon</label>
-          <input class="fg-input fg-icon" name="icon" id="editIcon" maxlength="4">
+          <div class="ep-wrap">
+            <input type="hidden" name="icon" id="editIcon" value="">
+            <button type="button" class="ep-trigger" id="editIconBtn" onclick="epOpen('editIcon','editIconBtn',this)">🏢</button>
+          </div>
         </div>
         <div class="form-group">
           <label>Name *</label>
@@ -216,13 +238,112 @@ select.fg-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   </div>
 </div>
 
+<!-- Emoji picker popup (shared) -->
+<div id="emojiPicker" class="ep-popup">
+  <input class="ep-search" id="epSearch" type="text" placeholder="🔍 Search emoji…" oninput="epFilter(this.value)">
+  <div class="ep-cats" id="epCats"></div>
+  <div class="ep-grid" id="epGrid"></div>
+</div>
+
 <script>
+/* ── Emoji Picker ─────────────────────────────────────── */
+var EP = {
+  all: ['🏢','💼','📊','📈','📉','💰','🤝','📋','📝','🖊️','🏦','💳','🏪','🏬','🏭','🏗️','🏨','🔑','📫','📞','📠','🖨️','🏧','💹','📌','📎',
+        '🍔','🍕','🍣','🍜','🍰','🥗','🍷','🍸','🥤','🍦','☕','🍵','🥂','🍳','🥞','🍱','🍛','🌮','🌯','🥙','🍝','🥩','🍖','🧁','🎂','🍫','🍬','🍭','🛒','🥬',
+        '💊','🏥','🦷','❤️','🩺','🧬','💉','🔬','🩹','🌡️','🧪','🫀','🫁','🦴','👁️','🧠','💪','🩻','🏃','⚕️',
+        '💄','👗','👠','👒','💍','💎','🛍️','👜','🧴','🪞','✂️','💅','💆','💇','🧖','🪥','🧼','🪷','🌸','✨',
+        '📚','🎓','✏️','🎨','🖌️','🎭','📐','📏','🏫','📓','📔','📒','📕','📗','📘','📙','🔭','🧮','🖼️','🗂️',
+        '💻','📱','🖥️','🖨️','⌨️','🖱️','📡','🔧','⚙️','🤖','📷','🎥','📺','📻','🔋','💾','💿','📀','🛰️','🔌',
+        '🏋️','🏊','⚽','🎾','🧘','🤸','🏌️','🎿','🏄','🏈','⚾','🏀','🏐','🏉','🎯','🎱','🏓','🥊','🤼','🚴',
+        '✈️','🏖️','🗺️','🚢','🏔️','🚗','🌍','🧳','🎡','🚂','🏕️','🗼','🗽','🏰','🎢','🌅','🚁','⛵','🚌','🚀',
+        '🏠','🏡','🛋️','🪴','🧹','🪣','🛁','🪟','🚪','🛏️','🧺','🧻','🪑','🚿','🧽','🪒','🧯','🪤','🔨','🪛',
+        '🎭','🎬','🎮','🎵','🎸','🎹','🎲','🎰','🎤','🎧','🎻','🥁','🎺','📸','🪗','🎠','🎪','🃏','🎯','🕹️'],
+  cats: {
+    '🏢 Business': ['🏢','💼','📊','📈','📉','💰','🤝','📋','📝','🖊️','🏦','💳','🏪','🏬','🏭','🏗️','🏨','🔑','📫','📞','📠','🖨️','🏧','💹','📌','📎'],
+    '🍔 Food':     ['🍔','🍕','🍣','🍜','🍰','🥗','🍷','🍸','🥤','🍦','☕','🍵','🥂','🍳','🥞','🍱','🍛','🌮','🌯','🥙','🍝','🥩','🍖','🧁','🎂','🍫','🍬','🍭','🛒','🥬'],
+    '❤️ Health':   ['💊','🏥','🦷','❤️','🩺','🧬','💉','🔬','🩹','🌡️','🧪','🫀','🫁','🦴','👁️','🧠','💪','🩻','🏃','⚕️'],
+    '💄 Beauty':   ['💄','👗','👠','👒','💍','💎','🛍️','👜','🧴','🪞','✂️','💅','💆','💇','🧖','🪥','🧼','🪷','🌸','✨'],
+    '📚 Education':['📚','🎓','✏️','🎨','🖌️','🎭','📐','📏','🏫','📓','📔','📒','📕','📗','📘','📙','🔭','🧮','🖼️','🗂️'],
+    '💻 Tech':     ['💻','📱','🖥️','🖨️','⌨️','🖱️','📡','🔧','⚙️','🤖','📷','🎥','📺','📻','🔋','💾','💿','📀','🛰️','🔌'],
+    '🏋️ Sports':   ['🏋️','🏊','⚽','🎾','🧘','🤸','🏌️','🎿','🏄','🏈','⚾','🏀','🏐','🏉','🎯','🎱','🏓','🥊','🤼','🚴'],
+    '✈️ Travel':   ['✈️','🏖️','🗺️','🚢','🏔️','🚗','🌍','🧳','🎡','🚂','🏕️','🗼','🗽','🏰','🎢','🌅','🚁','⛵','🚌','🚀'],
+    '🏠 Home':     ['🏠','🏡','🛋️','🪴','🧹','🪣','🛁','🪟','🚪','🛏️','🧺','🧻','🪑','🚿','🧽','🪒','🧯','🪤','🔨','🪛'],
+    '🎭 Fun':      ['🎭','🎬','🎮','🎵','🎸','🎹','🎲','🎰','🎤','🎧','🎻','🥁','🎺','📸','🪗','🎠','🎪','🃏','🎯','🕹️']
+  }
+};
+var _epInput = null, _epBtn = null, _epCat = 'all';
+
+function epOpen(inputId, btnId, triggerEl) {
+  var pk = document.getElementById('emojiPicker');
+  // toggle close if already open for same input
+  if (_epInput === inputId && pk.classList.contains('open')) { epClose(); return; }
+  _epInput = inputId;
+  _epBtn   = btnId;
+  document.getElementById('epSearch').value = '';
+  _epCat = 'all';
+  epBuildCats();
+  epRender(EP.all);
+  // Position popup near trigger
+  var rect = triggerEl.getBoundingClientRect();
+  pk.style.position = 'fixed';
+  pk.style.top  = (rect.bottom + 6) + 'px';
+  pk.style.left = Math.min(rect.left, window.innerWidth - 316) + 'px';
+  pk.classList.add('open');
+}
+function epClose() {
+  document.getElementById('emojiPicker').classList.remove('open');
+  _epInput = null; _epBtn = null;
+}
+function epPick(e) {
+  if (!_epInput) return;
+  document.getElementById(_epInput).value = e;
+  document.getElementById(_epBtn).textContent = e;
+  epClose();
+}
+function epFilter(q) {
+  _epCat = 'all';
+  epBuildCats();
+  var list = q ? EP.all.filter(function(e){ return e.includes(q); }) : EP.all;
+  epRender(list);
+}
+function epCat(c) {
+  _epCat = c;
+  document.getElementById('epSearch').value = '';
+  epBuildCats();
+  epRender(c === 'all' ? EP.all : EP.cats[c]);
+}
+function epBuildCats() {
+  var html = '<button class="ep-cat'+((_epCat==='all')?' active':'')+'" onclick="epCat(\'all\')">All</button>';
+  Object.keys(EP.cats).forEach(function(c){
+    html += '<button class="ep-cat'+((_epCat===c)?' active':'')+'" onclick="epCat(\''+c+'\')">'+c.split(' ')[0]+'</button>';
+  });
+  document.getElementById('epCats').innerHTML = html;
+}
+function epRender(list) {
+  if (!list || !list.length) {
+    document.getElementById('epGrid').innerHTML = '<div class="ep-none">No emoji found</div>';
+    return;
+  }
+  document.getElementById('epGrid').innerHTML = list.map(function(e){
+    return '<button type="button" class="ep-btn" title="'+e+'" onclick="epPick(\''+e+'\')">'+e+'</button>';
+  }).join('');
+}
+// Close on outside click
+document.addEventListener('click', function(e){
+  var pk = document.getElementById('emojiPicker');
+  if (!pk.classList.contains('open')) return;
+  if (e.target.closest('#emojiPicker') || e.target.closest('.ep-trigger')) return;
+  epClose();
+});
+/* ── End Emoji Picker ─────────────────────────────────── */
+
 function openEdit(id, icon, name, desc, order, status) {
-  document.getElementById('editId').value    = id;
-  document.getElementById('editIcon').value  = icon;
-  document.getElementById('editName').value  = name;
-  document.getElementById('editDesc').value  = desc || '';
-  document.getElementById('editOrder').value = order;
+  document.getElementById('editId').value     = id;
+  document.getElementById('editIcon').value   = icon;
+  document.getElementById('editIconBtn').textContent = icon || '🏢';
+  document.getElementById('editName').value   = name;
+  document.getElementById('editDesc').value   = desc || '';
+  document.getElementById('editOrder').value  = order;
   document.getElementById('editStatus').value = status ? '1' : '0';
   document.getElementById('editModal').classList.add('open');
 }
