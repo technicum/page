@@ -230,11 +230,11 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
 
   <!-- Category filter pills -->
   <div class="filter-row">
-    <a class="filter-pill {% if not category_id %}active{% endif %}"
-       href="/search?q={{ q | urlencode }}&city={{ city | urlencode }}&state={{ state | urlencode }}&lat={{ lat }}&lng={{ lng }}&radius={{ radius or 25 }}">All</a>
+    <a class="filter-pill {% if not q %}active{% endif %}"
+       href="/search?city={{ city | urlencode }}&state={{ state | urlencode }}&lat={{ lat }}&lng={{ lng }}&radius={{ radius or 25 }}">All</a>
     {% for cat in categories %}
-    <a class="filter-pill {% if category_id == cat.id | string %}active{% endif %}"
-       href="/search?q={{ q | urlencode }}&city={{ city | urlencode }}&state={{ state | urlencode }}&lat={{ lat }}&lng={{ lng }}&radius={{ radius or 25 }}&category_id={{ cat.id }}">
+    <a class="filter-pill {% if q | lower == cat.name | lower %}active{% endif %}"
+       href="/search?q={{ cat.name | urlencode }}&city={{ city | urlencode }}&state={{ state | urlencode }}&lat={{ lat }}&lng={{ lng }}&radius={{ radius or 25 }}">
       {{ cat.icon }} {{ cat.name }}
     </a>
     {% endfor %}
