@@ -112,6 +112,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
 .modal-msg{font-size:13px;margin-right:auto;}
 .modal-msg.ok{color:var(--green);}
 .modal-msg.err{color:var(--red);}
+/* Status toggle */
+.status-btn{background:none;border:1px solid transparent;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s;white-space:nowrap;}
+.status-btn.live{color:var(--green);border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.06);}
+.status-btn.live:hover{background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.5);}
+.status-btn.draft{color:var(--ink-muted);border-color:var(--border);background:var(--off);}
+.status-btn.draft:hover{border-color:var(--blue);color:var(--blue);}
 /* Staff bio link rows */
 .staff-row{background:linear-gradient(90deg,rgba(59,130,246,0.03) 0,transparent 400px);}
 .staff-row td:first-child{padding-left:32px;}
@@ -174,12 +180,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
         <div class="stat-label">Total Bio Links</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num">∞</div>
-        <div class="stat-label">Possibilities</div>
+        <div class="stat-num" style="color:var(--green);">{{ publishedCount }}</div>
+        <div class="stat-label">Published</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num">{{ user.plan | capitalize }}</div>
-        <div class="stat-label">Current Plan</div>
+        <div class="stat-num" style="color:var(--ink-muted);">{{ draftCount }}</div>
+        <div class="stat-label">Drafts</div>
       </div>
     </div>
     {% if not sites.length %}
@@ -214,7 +220,14 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
           </td>
           <td><a class="table-site-url" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a></td>
           <td><span class="table-badge">{{ site.category or "Site" }}</span></td>
-          <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
+          <td>
+            <button class="status-btn {% if site.is_published %}live{% else %}draft{% endif %}"
+                    id="status-{{ site.id }}"
+                    onclick="togglePublish({{ site.id }}, {{ site.is_published }})">
+              {% if site.is_published %}<span style="font-size:8px;">●</span> Live
+              {% else %}<span style="font-size:8px;">◌</span> Draft{% endif %}
+            </button>
+          </td>
           <td>
             <div class="table-actions">
               <a class="btn-table-action" href="/dashboard/site/{% if 'biolink' in site.template_id %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit</a>
@@ -240,7 +253,14 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
           </td>
           <td><a class="table-site-url" href="https://{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}</a></td>
           <td><span class="table-badge staff-badge">👤 Staff</span></td>
-          <td><span style="color:var(--green);font-weight:500;display:flex;align-items:center;gap:4px;"><span style="font-size:8px;">●</span> Live</span></td>
+          <td>
+            <button class="status-btn {% if staff.is_published %}live{% else %}draft{% endif %}"
+                    id="status-{{ staff.id }}"
+                    onclick="togglePublish({{ staff.id }}, {{ staff.is_published }})">
+              {% if staff.is_published %}<span style="font-size:8px;">●</span> Live
+              {% else %}<span style="font-size:8px;">◌</span> Draft{% endif %}
+            </button>
+          </td>
           <td>
             <div class="table-actions">
               <a class="btn-table-action" href="/dashboard/site/biolink-builder?id={{ staff.id }}">Edit</a>
@@ -438,6 +458,40 @@ function saveInfo() {
     msg.textContent = 'Network error. Try again.'
     msg.className = 'modal-msg err'
   })
+}
+
+// ── Publish / Draft toggle ───────────────────────────────────────────────────
+function togglePublish(siteId, currentlyPublished) {
+  var action = currentlyPublished ? 'unpublish (set to draft)' : 'publish'
+  if (!confirm('Are you sure you want to ' + action + ' this site?')) return
+
+  fetch('/dashboard/site/toggle-publish', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ site_id: siteId })
+  })
+  .then(function(r){ return r.json() })
+  .then(function(d) {
+    if (!d.ok) { alert(d.error || 'Failed to update status.'); return }
+    var btn = document.getElementById('status-' + siteId)
+    if (!btn) return
+    if (d.is_published) {
+      btn.className = 'status-btn live'
+      btn.innerHTML = '<span style="font-size:8px;">●</span> Live'
+      btn.setAttribute('onclick', 'togglePublish(' + siteId + ', 1)')
+    } else {
+      btn.className = 'status-btn draft'
+      btn.innerHTML = '<span style="font-size:8px;">◌</span> Draft'
+      btn.setAttribute('onclick', 'togglePublish(' + siteId + ', 0)')
+    }
+    // Update stat counters
+    var liveCount  = document.querySelectorAll('.status-btn.live').length
+    var draftCount = document.querySelectorAll('.status-btn.draft').length
+    var statNums = document.querySelectorAll('.stat-num')
+    if (statNums[1]) statNums[1].textContent = liveCount
+    if (statNums[2]) statNums[2].textContent = draftCount
+  })
+  .catch(function(){ alert('Network error. Please try again.') })
 }
 
 // ── Staff Bio Link modal ──────────────────────────────────────────────────────

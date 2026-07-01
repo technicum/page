@@ -25,12 +25,17 @@ exports.index = async (req, res) => {
   }
   const siteRows = [...mainMap.values()]
 
+  const publishedCount = rows.filter(r => r.is_published).length
+  const draftCount     = rows.length - publishedCount
+
   res.render('dashboard/index.njk', {
     title: 'Dashboard',
     user,
     sites:    rows,      // flat array — used for data island / openInfoModal
     siteRows,            // grouped array — used for table rendering
     categories: categories || [],
+    publishedCount,
+    draftCount,
     flash_success: req.flash('success')
   })
 }

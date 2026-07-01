@@ -306,6 +306,23 @@ exports.createStaffSite = async (req, res) => {
   }
 }
 
+exports.togglePublish = async (req, res) => {
+  try {
+    const user   = req.session.user
+    const siteId = parseInt(req.body.site_id) || 0
+
+    const site = await db.first('SELECT id, is_published FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
+    if (!site) return res.json({ ok: false, error: 'Site not found.' })
+
+    const newStatus = site.is_published ? 0 : 1
+    await db.execute('UPDATE ms_sites SET is_published = ? WHERE id = ?', [newStatus, siteId])
+    res.json({ ok: true, is_published: newStatus })
+  } catch (err) {
+    console.error('togglePublish', err)
+    res.json({ ok: false, error: err.message })
+  }
+}
+
 exports.delete = async (req, res) => {
   const user    = req.session.user
   const siteId  = parseInt(req.body.site_id) || 0

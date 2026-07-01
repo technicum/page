@@ -55,6 +55,11 @@ async function serveSite(req, res, next, lookup) {
       return res.status(404).send(page404(lookup.subdomain || lookup.customDomain))
     }
 
+    // Draft sites are not publicly accessible
+    if (!site.is_published) {
+      return res.status(200).send(pageDraft(site))
+    }
+
     const settings  = JSON.parse(site.settings || '{}')
     const slug      = settings.template_id || site.template_id || 'minimal'
     const rawPath   = req.path.replace(/^\/+|\/+$/g, '') || 'home'
@@ -551,6 +556,33 @@ window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn,eventId:event
 </body>
 </html>`
   res.send(html)
+}
+
+// ── Draft page ────────────────────────────────────────────────────────────────
+function pageDraft(site) {
+  const name = site.title || site.subdomain || 'This page'
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Coming Soon — ${name}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f8f7f4;color:#1a1a18;display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.box{text-align:center;padding:48px 32px;max-width:420px;}
+.icon{font-size:52px;margin-bottom:20px;}
+h1{font-size:26px;font-weight:700;margin-bottom:10px;}
+p{color:#6b6b66;font-size:15px;line-height:1.6;}
+.badge{display:inline-block;margin-top:24px;padding:5px 14px;border-radius:20px;background:#f0ede6;color:#b0afa8;font-size:12px;font-weight:600;letter-spacing:0.3px;}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="icon">🚧</div>
+  <h1>${name}</h1>
+  <p>This page is under construction and will be available soon.</p>
+  <span class="badge">DRAFT</span>
+</div>
+</body>
+</html>`
 }
 
 // ── 404 page ──────────────────────────────────────────────────────────────────
