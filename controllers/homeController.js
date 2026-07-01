@@ -32,8 +32,8 @@ exports.search = async (req, res) => {
     params = [userLat, userLng, userLat]
 
     if (q) {
-      sql += ' AND (s.title LIKE ? OR JSON_EXTRACT(s.settings, "$.description") LIKE ?)'
-      params.push(`%${q}%`, `%${q}%`)
+      sql += ' AND (s.title LIKE ? OR JSON_EXTRACT(s.settings, "$.description") LIKE ? OR c.name LIKE ?)'
+      params.push(`%${q}%`, `%${q}%`, `%${q}%`)
     }
     if (category_id) {
       sql += ' AND s.category_id = ?'
@@ -53,8 +53,8 @@ exports.search = async (req, res) => {
     params = []
 
     if (q) {
-      sql += ' AND (s.title LIKE ? OR JSON_EXTRACT(s.settings, "$.description") LIKE ?)'
-      params.push(`%${q}%`, `%${q}%`)
+      sql += ' AND (s.title LIKE ? OR JSON_EXTRACT(s.settings, "$.description") LIKE ? OR c.name LIKE ?)'
+      params.push(`%${q}%`, `%${q}%`, `%${q}%`)
     }
     if (city) {
       sql += ' AND JSON_EXTRACT(s.settings, "$.city") LIKE ?'
