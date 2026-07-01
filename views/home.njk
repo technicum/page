@@ -164,7 +164,7 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
         <div class="search-sep"></div>
         <div class="location-wrap" id="hloc-wrap">
           <svg class="location-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span class="loc-display" id="hloc-display">Detecting…</span>
+          <span class="loc-display" id="hloc-display">All India</span>
           <button type="button" class="loc-clear-x" id="hloc-clear" title="Clear location">✕</button>
           <!-- Dropdown -->
           <div class="hloc-drop" id="hloc-drop">
@@ -491,14 +491,14 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
     )
   })
 
-  // ── Auto-detect on load (IP-based, silent) ───────────────────────────────────
+  // ── Load all vendors immediately, then silently refine by detected city ───────
+  loadNearby('')
   fetch('/api/detect-city')
     .then(function(r){ return r.json() })
     .then(function(d) {
       if (d.city) setLocation({ label:d.city, city:d.city, state:d.region||'' })
-      else { hlocDisp.textContent='All India'; loadNearby('') }
     })
-    .catch(function(){ hlocDisp.textContent='All India'; loadNearby('') })
+    .catch(function(){})
 })()
 </script>
 
