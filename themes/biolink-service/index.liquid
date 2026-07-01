@@ -3,7 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{ settings.profile.name }}</title>
+{% comment %}── SEO ──{% endcomment %}
+{% assign _pr  = settings.profile %}
+{% assign _seo = settings.seo %}
+{% assign _t   = _seo.title | default: _pr.name %}
+{% assign _d   = _seo.description | default: _pr.bio | default: _pr.tagline %}
+{% assign _img = _seo.og_image | default: _pr.avatar %}
+<title>{{ _t }}</title>
+<meta name="description" content="{{ _d }}">
+<meta name="robots" content="{% if _seo.noindex %}noindex,nofollow{% else %}index,follow{% endif %}">
+<link rel="canonical" href="{{ site.url }}">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="{{ _t }}">
+<meta property="og:description" content="{{ _d }}">
+<meta property="og:url" content="{{ site.url }}">
+{% if _img != blank %}<meta property="og:image" content="{{ _img }}"><meta name="twitter:image" content="{{ _img }}">{% endif %}
+<meta name="twitter:card" content="{% if _img != blank %}summary_large_image{% else %}summary{% endif %}">
+<meta name="twitter:title" content="{{ _t }}">
+<meta name="twitter:description" content="{{ _d }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":{{ _pr.name | json }},"url":{{ site.url | json }}{% if _d != blank %},"description":{{ _d | json }}{% endif %}{% if _img != blank %},"image":{{ _img | json }}{% endif %}}</script>
 <link rel="stylesheet" href="/themes/biolink-service/assets/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>

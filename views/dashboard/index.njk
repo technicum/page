@@ -127,6 +127,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
 .btn-table-action.staff:hover{background:rgba(139,92,246,0.08);border-color:#7c3aed;}
 /* Add Staff modal */
 .staff-modal-parent{font-size:13px;color:var(--ink-muted);margin-bottom:20px;padding:10px 14px;background:var(--off);border-radius:var(--radius);border-left:3px solid var(--blue);}
+/* SEO button */
+.btn-table-action.seo{color:#059669;border-color:rgba(5,150,105,0.3);}
+.btn-table-action.seo:hover{background:rgba(5,150,105,0.07);border-color:rgba(5,150,105,0.6);}
 @media(max-width:640px){
   .page-header{flex-direction:column;align-items:stretch;margin-bottom:24px;}
   .page-title{font-size:20px;}
@@ -233,6 +236,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
               <a class="btn-table-action" href="/dashboard/site/{% if 'biolink' in site.template_id %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit</a>
               <a class="btn-table-action" href="/dashboard/site/templates?id={{ site.id }}">Theme</a>
               <button type="button" class="btn-table-action" onclick="openInfoModal({{ site.id }})">Info</button>
+              <button type="button" class="btn-table-action seo" onclick="openSeoModal({{ site.id }})">SEO</button>
               <a class="btn-table-action" href="/dashboard/booking/{{ site.id }}">Booking</a>
               <button type="button" class="btn-table-action staff" onclick="openAddStaffModal({{ site.id }}, '{{ site.title | escape }}', '{{ site.subdomain }}')">+ Staff</button>
               <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Delete this site and all its data?')">
@@ -264,6 +268,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
           <td>
             <div class="table-actions">
               <a class="btn-table-action" href="/dashboard/site/biolink-builder?id={{ staff.id }}">Edit</a>
+              <button type="button" class="btn-table-action seo" onclick="openSeoModal({{ staff.id }})">SEO</button>
               <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Delete this staff bio link?')">
                 <input type="hidden" name="site_id" value="{{ staff.id }}">
                 <button type="submit" class="btn-table-action danger">Delete</button>
@@ -365,6 +370,46 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
   </div>
 </div>
 
+<!-- ── SEO Settings modal ── -->
+<div class="modal-overlay" id="seo-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">🔍 SEO Settings</div>
+      <button class="modal-close" onclick="closeSeoModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="seo-site-id">
+      <p style="font-size:13px;color:var(--ink-muted);margin-bottom:20px;padding:10px 14px;background:var(--off);border-radius:var(--radius);border-left:3px solid var(--blue);">
+        Help your bio link appear in Google, WhatsApp previews, and social media.
+      </p>
+      <div class="modal-field">
+        <label>SEO Title <span style="font-weight:400;color:var(--ink-faint);">(shown in search results — defaults to your name)</span></label>
+        <input type="text" id="seo-title" placeholder="e.g. Rahul Sharma — Hair Stylist in Ludhiana" maxlength="70">
+      </div>
+      <div class="modal-field">
+        <label>Meta Description <span style="font-weight:400;color:var(--ink-faint);">(snippet shown in Google — aim for 120–160 chars)</span></label>
+        <textarea id="seo-description" rows="3" style="resize:vertical;" placeholder="e.g. Book Rahul Sharma for expert hair styling in Ludhiana. 10+ years experience. Walk-ins welcome."></textarea>
+      </div>
+      <div class="modal-field">
+        <label>Social Share Image URL <span style="font-weight:400;color:var(--ink-faint);">(WhatsApp, Facebook, LinkedIn preview image)</span></label>
+        <input type="text" id="seo-og-image" placeholder="https://example.com/photo.jpg">
+      </div>
+      <div class="modal-field">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500;color:var(--ink);">
+          <input type="checkbox" id="seo-noindex" style="width:auto;accent-color:var(--blue);cursor:pointer;">
+          Block this page from search engines (noindex)
+        </label>
+        <div style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Leave unchecked to allow Google to index your page.</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="modal-msg" id="seo-msg"></span>
+      <button class="btn-modal-cancel" onclick="closeSeoModal()">Cancel</button>
+      <button class="btn-modal-save" id="seo-save-btn" onclick="saveSeoSettings()">Save SEO</button>
+    </div>
+  </div>
+</div>
+
 <script type="application/json" id="pz-sites-json">{{ sites | dump | safe }}</script>
 <script>
 var ALL_SITES_DATA = JSON.parse(document.getElementById('pz-sites-json').textContent || '[]');
@@ -400,6 +445,9 @@ document.getElementById('info-modal').addEventListener('click', function(e) {
 })
 document.getElementById('staff-modal').addEventListener('click', function(e) {
   if (e.target === this) closeStaffModal()
+})
+document.getElementById('seo-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeSeoModal()
 })
 
 function saveInfo() {
@@ -532,6 +580,85 @@ function staffAutoSlug() {
 function staffSlugPreview() {
   document.getElementById('staff-sub-preview').textContent =
     document.getElementById('staff-subdomain').value || '…'
+}
+
+// ── SEO modal ────────────────────────────────────────────────────────────────
+function openSeoModal(siteId) {
+  var site = ALL_SITES_DATA.find(function(s){ return s.id === siteId })
+  if (!site) return
+  var st = {}
+  try { st = JSON.parse(site.settings || '{}') } catch(e) {}
+  var seo = st.seo || {}
+
+  document.getElementById('seo-site-id').value        = site.id
+  document.getElementById('seo-title').value           = seo.title       || ''
+  document.getElementById('seo-description').value    = seo.description || ''
+  document.getElementById('seo-og-image').value       = seo.og_image    || ''
+  document.getElementById('seo-noindex').checked      = !!seo.noindex
+  document.getElementById('seo-msg').textContent      = ''
+  document.getElementById('seo-msg').className        = 'modal-msg'
+  document.getElementById('seo-save-btn').disabled    = false
+  document.getElementById('seo-save-btn').textContent = 'Save SEO'
+  document.getElementById('seo-modal').classList.add('open')
+  setTimeout(function(){ document.getElementById('seo-title').focus() }, 100)
+}
+
+function closeSeoModal() {
+  document.getElementById('seo-modal').classList.remove('open')
+}
+
+function saveSeoSettings() {
+  var btn = document.getElementById('seo-save-btn')
+  var msg = document.getElementById('seo-msg')
+  btn.disabled    = true
+  btn.textContent = 'Saving…'
+  msg.textContent = ''
+  msg.className   = 'modal-msg'
+
+  fetch('/dashboard/site/update-seo', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      site_id:         document.getElementById('seo-site-id').value,
+      seo_title:       document.getElementById('seo-title').value,
+      seo_description: document.getElementById('seo-description').value,
+      seo_og_image:    document.getElementById('seo-og-image').value,
+      seo_noindex:     document.getElementById('seo-noindex').checked ? '1' : '0'
+    })
+  })
+  .then(function(r){ return r.json() })
+  .then(function(d) {
+    btn.disabled    = false
+    btn.textContent = 'Save SEO'
+    if (d.ok) {
+      msg.textContent = '✓ SEO settings saved'
+      msg.className   = 'modal-msg ok'
+      // Update local data so re-open shows fresh values
+      var siteId = parseInt(document.getElementById('seo-site-id').value)
+      var site   = ALL_SITES_DATA.find(function(s){ return s.id === siteId })
+      if (site) {
+        var st = {}
+        try { st = JSON.parse(site.settings || '{}') } catch(e) {}
+        st.seo = {
+          title:       document.getElementById('seo-title').value,
+          description: document.getElementById('seo-description').value,
+          og_image:    document.getElementById('seo-og-image').value,
+          noindex:     document.getElementById('seo-noindex').checked
+        }
+        site.settings = JSON.stringify(st)
+      }
+      setTimeout(closeSeoModal, 1200)
+    } else {
+      msg.textContent = d.error || 'Something went wrong.'
+      msg.className   = 'modal-msg err'
+    }
+  })
+  .catch(function() {
+    btn.disabled    = false
+    btn.textContent = 'Save SEO'
+    msg.textContent = 'Network error. Try again.'
+    msg.className   = 'modal-msg err'
+  })
 }
 
 function saveStaffSite() {

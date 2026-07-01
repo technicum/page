@@ -108,6 +108,7 @@ router.post('/dashboard/site/delete',          requireAuth, site.delete)
 router.post('/dashboard/site/update-info',     requireAuth, site.updateInfo)
 router.post('/dashboard/site/create-staff',   requireAuth, site.createStaffSite)
 router.post('/dashboard/site/toggle-publish', requireAuth, site.togglePublish)
+router.post('/dashboard/site/update-seo',    requireAuth, site.updateSeo)
 
 // Blog
 router.get ('/dashboard/blog/:siteId',                    requireAuth, blog.index)

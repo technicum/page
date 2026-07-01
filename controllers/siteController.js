@@ -249,6 +249,30 @@ exports.updateInfo = async (req, res) => {
   res.json({ ok: true })
 }
 
+exports.updateSeo = async (req, res) => {
+  try {
+    const user = req.session.user
+    const { site_id, seo_title, seo_description, seo_og_image, seo_noindex } = req.body
+
+    const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [parseInt(site_id) || 0, user.id])
+    if (!site) return res.json({ ok: false, error: 'Site not found' })
+
+    const settings   = JSON.parse(site.settings || '{}')
+    settings.seo     = settings.seo || {}
+    if (seo_title       !== undefined) settings.seo.title       = (seo_title       || '').trim()
+    if (seo_description !== undefined) settings.seo.description = (seo_description || '').trim()
+    if (seo_og_image    !== undefined) settings.seo.og_image    = (seo_og_image    || '').trim()
+    // seo_noindex: '1' = block, anything else = allow
+    settings.seo.noindex = seo_noindex === '1' || seo_noindex === true
+
+    await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?', [JSON.stringify(settings), site.id])
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('updateSeo', err)
+    res.json({ ok: false, error: err.message })
+  }
+}
+
 exports.createStaffSite = async (req, res) => {
   try {
     const user = req.session.user
