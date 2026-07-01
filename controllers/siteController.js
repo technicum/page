@@ -1,7 +1,8 @@
-const { db }               = require('../config/db')
-const themeManager         = require('../config/themeManager')
+const { db }                  = require('../config/db')
+const themeManager            = require('../config/themeManager')
 const { loadFormsForAccount } = require('./formController')
-const axios         = require('axios')
+const axios                   = require('axios')
+const { geocodeCity }         = require('../config/geocode')
 
 exports.store = async (req, res) => {
   const user = req.session.user
@@ -48,6 +49,13 @@ exports.store = async (req, res) => {
   const catId = parseInt(category_id) || null
   if (catId) {
     await db.execute('UPDATE ms_sites SET category_id = ? WHERE id = ?', [catId, id])
+  }
+
+  // Geocode city in background (non-blocking — don't await)
+  if (city) {
+    geocodeCity(city).then(geo => {
+      if (geo) db.execute('UPDATE ms_sites SET lat=?, lng=?, state=? WHERE id=?', [geo.lat, geo.lng, geo.state, id])
+    }).catch(() => {})
   }
 
   if (site_type === 'linktree') {

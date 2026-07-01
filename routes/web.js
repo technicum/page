@@ -73,9 +73,10 @@ router.get('/debug', async (req, res) => {
 // Public
 router.get('/',                    home.index)
 router.get('/search',              home.search)
-router.get('/api/detect-city',     home.detectCity)
-router.get('/api/reverse-geocode', home.reverseGeocode)
-router.get('/api/nearby',          home.nearby)
+router.get('/api/detect-city',      home.detectCity)
+router.get('/api/reverse-geocode',  home.reverseGeocode)
+router.get('/api/nearby',           home.nearby)
+router.get('/api/location-suggest', home.locationSuggest)
 
 // Auth
 router.get ('/register', redirectIfAuth, auth.showRegister)

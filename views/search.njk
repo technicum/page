@@ -2,111 +2,264 @@
 {% block head %}
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--ink:#1a1a18;--ink-muted:#6b6b66;--ink-faint:#b0afa8;--white:#fff;--off:#f8f7f4;--paper:#f2f0eb;--border:rgba(26,26,24,0.1);--border-md:rgba(26,26,24,0.18);--blue:#2563eb;--blue-light:#eff4ff;--blue-mid:#c7d9fd;--green-light:#ecfdf5;--green-dark:#065f46;--amber-light:#fffbeb;--amber-dark:#92400e;--pink-light:#fdf2f8;--pink-dark:#701a75;--radius-sm:8px;--radius-md:12px;--radius-lg:18px;}
+:root{
+  --ink:#1a1a18;--ink-muted:#6b6b66;--ink-faint:#b0afa8;
+  --white:#fff;--off:#f8f7f4;--paper:#f2f0eb;
+  --border:rgba(26,26,24,0.1);--border-md:rgba(26,26,24,0.18);
+  --blue:#2563eb;--blue-light:#eff4ff;--blue-mid:#c7d9fd;
+  --green-light:#ecfdf5;--green-dark:#065f46;
+  --amber-light:#fffbeb;--amber-dark:#92400e;
+  --pink-light:#fdf2f8;--pink-dark:#701a75;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:18px;
+}
 body{font-family:'DM Sans',sans-serif;background:var(--off);color:var(--ink);min-height:100vh;}
-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+
+/* ── Nav ── */
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:200;}
 .logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);text-decoration:none;flex-shrink:0;}
 .logo em{font-style:italic;color:var(--blue);}
-.nav-search{flex:1;max-width:540px;display:flex;align-items:center;background:var(--off);border:1.5px solid var(--border-md);border-radius:40px;padding:7px 7px 7px 16px;gap:8px;transition:border-color 0.2s,box-shadow 0.2s;}
-.nav-search:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);background:var(--white);}
-.nav-search svg{color:var(--ink-faint);flex-shrink:0;}
-.nav-q{flex:1;border:none;outline:none;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;min-width:0;}
-.nav-sep{width:1px;height:22px;background:var(--border);flex-shrink:0;}
-.nav-city{border:none;outline:none;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink-muted);background:transparent;width:100px;min-width:0;}
-.nav-city::placeholder{color:var(--ink-faint);}
-.nav-btn{background:var(--blue);color:#fff;border:none;padding:8px 18px;border-radius:30px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;}
-.nav-btn:hover{background:#1d4ed8;}
-.nav-user a{font-size:13px;color:var(--ink-muted);text-decoration:none;white-space:nowrap;}
+.nav-right a{font-size:13px;color:var(--ink-muted);text-decoration:none;}
+.nav-right a:hover{color:var(--ink);}
 
-.page-wrap{max-width:1100px;margin:0 auto;padding:32px 40px 80px;}
-.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
-.results-title{font-size:15px;color:var(--ink-muted);}
-.results-title strong{color:var(--ink);}
+/* ── Search hero bar ── */
+.search-hero{background:var(--white);border-bottom:1px solid var(--border);padding:20px 40px;}
+.search-bar{display:flex;align-items:stretch;max-width:860px;margin:0 auto;border:2px solid var(--border-md);border-radius:var(--radius-lg);overflow:visible;background:var(--white);box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s;}
+.search-bar:focus-within{box-shadow:0 4px 20px rgba(37,99,235,0.12);border-color:var(--blue);}
+.sb-what{display:flex;align-items:center;gap:10px;flex:1;padding:0 16px;min-width:0;border-right:1px solid var(--border);}
+.sb-what svg{color:var(--ink-faint);flex-shrink:0;}
+.sb-q{border:none;outline:none;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;width:100%;}
+.sb-q::placeholder{color:var(--ink-faint);}
+.sb-where{display:flex;align-items:center;gap:8px;width:260px;flex-shrink:0;padding:0 14px;position:relative;cursor:pointer;}
+.sb-where svg{color:var(--blue);flex-shrink:0;}
+.sb-loc-display{flex:1;font-size:14px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;cursor:pointer;user-select:none;}
+.sb-loc-display.has-value{color:var(--ink);font-weight:500;}
+.sb-clear{border:none;background:none;cursor:pointer;color:var(--ink-faint);padding:2px;font-size:16px;line-height:1;display:none;}
+.sb-clear.visible{display:block;}
+.sb-btn{background:var(--blue);color:#fff;border:none;padding:0 28px;font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background 0.2s;white-space:nowrap;border-radius:0 calc(var(--radius-lg) - 2px) calc(var(--radius-lg) - 2px) 0;}
+.sb-btn:hover{background:#1d4ed8;}
 
-/* Category filter pills */
-.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;}
-.filter-pill{font-size:13px;padding:6px 14px;border-radius:20px;border:1px solid var(--border-md);background:var(--white);color:var(--ink-muted);cursor:pointer;text-decoration:none;transition:all 0.18s;white-space:nowrap;}
+/* ── Location dropdown ── */
+.loc-dropdown{display:none;position:absolute;top:calc(100% + 10px);left:-14px;right:-14px;background:var(--white);border:1px solid var(--border-md);border-radius:var(--radius-md);box-shadow:0 12px 40px rgba(0,0,0,0.12);z-index:300;overflow:hidden;}
+.loc-dropdown.open{display:block;}
+.loc-gps{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;font-size:14px;font-weight:500;color:var(--blue);border-bottom:1px solid var(--border);transition:background 0.15s;}
+.loc-gps:hover{background:var(--blue-light);}
+.loc-gps svg{flex-shrink:0;}
+.loc-gps-sub{font-size:11px;color:var(--ink-faint);font-weight:400;display:block;margin-top:1px;}
+.loc-search-wrap{padding:10px 12px;border-bottom:1px solid var(--border);}
+.loc-search-inp{width:100%;border:1px solid var(--border-md);border-radius:var(--radius-sm);padding:9px 12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;color:var(--ink);}
+.loc-search-inp:focus{border-color:var(--blue);}
+.loc-suggestions{max-height:220px;overflow-y:auto;}
+.loc-suggestion{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;font-size:14px;color:var(--ink);border-bottom:1px solid var(--border);transition:background 0.12s;}
+.loc-suggestion:last-child{border-bottom:none;}
+.loc-suggestion:hover,.loc-suggestion.focused{background:var(--blue-light);}
+.loc-suggestion-icon{width:30px;height:30px;border-radius:50%;background:var(--paper);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:var(--ink-muted);}
+.loc-suggestion-name{font-weight:500;line-height:1.2;}
+.loc-suggestion-sub{font-size:12px;color:var(--ink-faint);}
+.loc-loading,.loc-empty{padding:14px 16px;font-size:13px;color:var(--ink-faint);text-align:center;}
+.popular-section{padding:10px 16px 6px;}
+.popular-label{font-size:11px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px;}
+.popular-cities{display:flex;flex-wrap:wrap;gap:6px;}
+.popular-city{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border-md);cursor:pointer;color:var(--ink-muted);transition:all 0.15s;}
+.popular-city:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+
+/* ── Radius selector ── */
+.radius-bar{display:none;background:var(--white);border-bottom:1px solid var(--border);padding:12px 40px;}
+.radius-bar.visible{display:block;}
+.radius-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.radius-label{font-size:13px;color:var(--ink-muted);font-weight:500;white-space:nowrap;}
+.radius-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.radius-chip{font-size:12px;padding:5px 14px;border-radius:20px;border:1px solid var(--border-md);cursor:pointer;color:var(--ink-muted);background:var(--white);transition:all 0.15s;white-space:nowrap;}
+.radius-chip:hover{border-color:var(--blue);color:var(--blue);}
+.radius-chip.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.radius-loc-name{font-size:13px;color:var(--blue);font-weight:500;}
+
+/* ── Page layout ── */
+.page-wrap{max-width:1100px;margin:0 auto;padding:28px 40px 80px;}
+
+/* ── Category pills ── */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.filter-pill{font-size:13px;padding:6px 14px;border-radius:20px;border:1px solid var(--border-md);background:var(--white);color:var(--ink-muted);cursor:pointer;text-decoration:none;transition:all 0.15s;white-space:nowrap;}
 .filter-pill:hover{border-color:var(--blue);color:var(--blue);}
 .filter-pill.active{background:var(--blue);color:#fff;border-color:var(--blue);}
 
-/* Cards */
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;}
-.provider-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 18px;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;text-decoration:none;display:block;}
-.provider-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.08);}
+/* ── Results header ── */
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.results-count{font-size:15px;color:var(--ink-muted);}
+.results-count strong{color:var(--ink);}
+.results-count .dist-badge{display:inline-flex;align-items:center;gap:4px;background:var(--blue-light);color:var(--blue);font-size:12px;padding:2px 10px;border-radius:20px;margin-left:8px;font-weight:500;}
+
+/* ── Cards ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.provider-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 18px;transition:transform 0.2s,box-shadow 0.2s;text-decoration:none;display:block;position:relative;}
+.provider-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.09);}
+.card-dist{position:absolute;top:14px;right:14px;font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-light);padding:2px 8px;border-radius:20px;}
 .card-icon-wrap{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;}
 .card-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:10px;}
 .badge-blue{background:var(--blue-light);color:#1d4ed8;}
 .badge-green{background:var(--green-light);color:var(--green-dark);}
 .badge-amber{background:var(--amber-light);color:var(--amber-dark);}
 .badge-pink{background:var(--pink-light);color:var(--pink-dark);}
-.card-name{font-size:15px;font-weight:500;color:var(--ink);margin-bottom:3px;}
+.card-name{font-size:15px;font-weight:500;color:var(--ink);margin-bottom:4px;}
 .card-desc{font-size:12px;color:var(--ink-muted);margin-bottom:12px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
 .card-location{font-size:12px;color:var(--ink-faint);display:flex;align-items:center;gap:4px;}
 
-/* Empty state */
+/* ── Empty state ── */
 .empty{text-align:center;padding:80px 20px;}
 .empty-icon{font-size:48px;margin-bottom:16px;}
 .empty h2{font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:var(--ink);margin-bottom:8px;}
 .empty p{font-size:15px;color:var(--ink-muted);margin-bottom:24px;}
-.btn-primary{background:var(--ink);color:#fff;border:none;padding:11px 24px;border-radius:var(--radius-md);font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-block;transition:opacity 0.2s;}
-.btn-primary:hover{opacity:0.85;}
+.btn-outline{border:1.5px solid var(--border-md);background:var(--white);color:var(--ink);padding:10px 22px;border-radius:var(--radius-md);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-block;transition:all 0.15s;}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue);}
+
+/* ── Overlay ── */
+.overlay{display:none;position:fixed;inset:0;z-index:250;}
+.overlay.open{display:block;}
 
 @media(max-width:768px){
-  nav{padding:0 16px;gap:10px;}
+  nav{padding:0 16px;}
+  .search-hero{padding:14px 16px;}
+  .search-bar{flex-direction:column;border-radius:var(--radius-md);}
+  .sb-what{padding:12px 14px;border-right:none;border-bottom:1px solid var(--border);}
+  .sb-where{width:100%;padding:12px 14px;}
+  .sb-btn{border-radius:0 0 calc(var(--radius-md) - 2px) calc(var(--radius-md) - 2px);padding:13px;}
+  .loc-dropdown{left:0;right:0;}
+  .radius-bar{padding:12px 16px;}
   .page-wrap{padding:20px 16px 60px;}
   .cards-grid{grid-template-columns:repeat(2,1fr);}
-  .nav-sep,.nav-city{display:none;}
 }
 </style>
 {% endblock %}
 {% block body %}
 
+<!-- Invisible overlay to close dropdowns -->
+<div class="overlay" id="overlay"></div>
+
 <nav>
   <a class="logo" href="/">page<em>zaper</em></a>
-  <form class="nav-search" action="/search" method="GET">
-    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input class="nav-q" type="text" name="q" value="{{ q }}" placeholder="Search businesses…" autocomplete="off">
-    <div class="nav-sep"></div>
-    <input class="nav-city" type="text" name="city" id="nav-city" value="{{ city }}" placeholder="City…" autocomplete="off">
-    {% if category_id %}<input type="hidden" name="category_id" value="{{ category_id }}">{% endif %}
-    <button class="nav-btn" type="submit">Search</button>
-  </form>
-  <div class="nav-user">
+  <div class="nav-right">
     {% if user %}<a href="/dashboard">Dashboard</a>{% else %}<a href="/register">Create site →</a>{% endif %}
   </div>
 </nav>
 
+<!-- ── Search Hero Bar ── -->
+<div class="search-hero">
+  <form class="search-bar" id="search-form" action="/search" method="GET">
+    <!-- Hidden fields populated by JS -->
+    <input type="hidden" id="f-city"   name="city"   value="{{ city }}">
+    <input type="hidden" id="f-state"  name="state"  value="{{ state }}">
+    <input type="hidden" id="f-lat"    name="lat"    value="{{ lat }}">
+    <input type="hidden" id="f-lng"    name="lng"    value="{{ lng }}">
+    <input type="hidden" id="f-radius" name="radius" value="{{ radius or 25 }}">
+    {% if category_id %}<input type="hidden" name="category_id" value="{{ category_id }}">{% endif %}
+
+    <!-- What -->
+    <div class="sb-what">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="sb-q" type="text" name="q" value="{{ q }}" placeholder="Search salon, gym, tutor, lawyer…" autocomplete="off" id="sb-q">
+    </div>
+
+    <!-- Where -->
+    <div class="sb-where" id="sb-where">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="sb-loc-display {% if city or state %}has-value{% endif %}" id="sb-loc-display">
+        {% if city %}{{ city }}{% elif state %}{{ state }}{% else %}All India{% endif %}
+      </span>
+      <button type="button" class="sb-clear {% if city or state or lat %}visible{% endif %}" id="sb-clear" title="Clear location">✕</button>
+
+      <!-- Location dropdown -->
+      <div class="loc-dropdown" id="loc-dropdown">
+        <div class="loc-gps" id="loc-gps">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+          <div>
+            Use my current location
+            <span class="loc-gps-sub">Precise results near you</span>
+          </div>
+        </div>
+        <div class="loc-search-wrap">
+          <input class="loc-search-inp" id="loc-search-inp" type="text" placeholder="Search city or state…" autocomplete="off">
+        </div>
+        <div class="loc-suggestions" id="loc-suggestions">
+          <!-- Popular cities shown by default -->
+          <div class="popular-section">
+            <div class="popular-label">Popular cities</div>
+            <div class="popular-cities">
+              <span class="popular-city" data-city="Delhi"     data-state="Delhi">Delhi</span>
+              <span class="popular-city" data-city="Mumbai"    data-state="Maharashtra">Mumbai</span>
+              <span class="popular-city" data-city="Bangalore" data-state="Karnataka">Bangalore</span>
+              <span class="popular-city" data-city="Hyderabad" data-state="Telangana">Hyderabad</span>
+              <span class="popular-city" data-city="Chennai"   data-state="Tamil Nadu">Chennai</span>
+              <span class="popular-city" data-city="Kolkata"   data-state="West Bengal">Kolkata</span>
+              <span class="popular-city" data-city="Pune"      data-state="Maharashtra">Pune</span>
+              <span class="popular-city" data-city="Ludhiana"  data-state="Punjab">Ludhiana</span>
+              <span class="popular-city" data-city="Chandigarh" data-state="Punjab">Chandigarh</span>
+              <span class="popular-city" data-city="Jaipur"    data-state="Rajasthan">Jaipur</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="sb-btn" type="submit">Search</button>
+  </form>
+</div>
+
+<!-- ── Radius Selector (shown when lat/lng is set) ── -->
+<div class="radius-bar {% if hasCoords %}visible{% endif %}" id="radius-bar">
+  <div class="radius-inner">
+    <span class="radius-label">Distance:</span>
+    <div class="radius-chips">
+      {% for km in [1, 5, 10, 25, 50, 100, 500] %}
+      <span class="radius-chip {% if (radius or 25) == km %}active{% endif %}" data-km="{{ km }}">{{ km }} km</span>
+      {% endfor %}
+    </div>
+    {% if city or state %}
+    <span class="radius-loc-name">📍 {{ city or state }}</span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ── Main content ── -->
 <div class="page-wrap">
 
   <!-- Category filter pills -->
   <div class="filter-row">
     <a class="filter-pill {% if not category_id %}active{% endif %}"
-       href="/search?q={{ q | urlencode }}&city={{ city | urlencode }}">All</a>
+       href="/search?q={{ q | urlencode }}&city={{ city | urlencode }}&state={{ state | urlencode }}&lat={{ lat }}&lng={{ lng }}&radius={{ radius or 25 }}">All</a>
     {% for cat in categories %}
     <a class="filter-pill {% if category_id == cat.id | string %}active{% endif %}"
-       href="/search?q={{ q | urlencode }}&city={{ city | urlencode }}&category_id={{ cat.id }}">
+       href="/search?q={{ q | urlencode }}&city={{ city | urlencode }}&state={{ state | urlencode }}&lat={{ lat }}&lng={{ lng }}&radius={{ radius or 25 }}&category_id={{ cat.id }}">
       {{ cat.icon }} {{ cat.name }}
     </a>
     {% endfor %}
   </div>
 
+  <!-- Results header -->
   <div class="results-header">
-    <div class="results-title">
+    <div class="results-count">
       {% if results.length %}
         <strong>{{ results.length }}</strong> result{{ 's' if results.length != 1 }}
         {% if q %} for <strong>"{{ q }}"</strong>{% endif %}
-        {% if city %} near <strong>{{ city }}</strong>{% endif %}
+        {% if hasCoords %}
+          <span class="dist-badge">
+            <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+            Within {{ radius or 25 }} km
+          </span>
+        {% elif city %}
+          near <strong>{{ city }}</strong>
+        {% elif state %}
+          in <strong>{{ state }}</strong>
+        {% endif %}
       {% else %}
-        No results
+        No results found
         {% if q %} for <strong>"{{ q }}"</strong>{% endif %}
-        {% if city %} near <strong>{{ city }}</strong>{% endif %}
       {% endif %}
     </div>
-    {% if city %}
+    {% if city or state or lat %}
     <a class="filter-pill" href="/search?q={{ q | urlencode }}">✕ Clear location</a>
     {% endif %}
   </div>
 
+  <!-- Cards -->
   {% if results.length %}
   <div class="cards-grid">
     {% for site in results %}
@@ -114,13 +267,16 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.95);backdrop
     {% set colors = ['var(--blue-light)','var(--green-light)','var(--amber-light)','var(--pink-light)'] %}
     {% set badges = ['badge-blue','badge-green','badge-amber','badge-pink'] %}
     <a class="provider-card" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">
+      {% if site.distance_km %}
+      <span class="card-dist">{{ site.distance_km }} km</span>
+      {% endif %}
       <div class="card-icon-wrap" style="background:{{ colors[ci] }};">{{ site.cat_icon or '🏪' }}</div>
       <span class="card-badge {{ badges[ci] }}">{{ site.cat_name or site.category or 'Business' }}</span>
       <div class="card-name">{{ site.title }}</div>
       <div class="card-desc">{{ site.settings.description or (site.subdomain + '.' + base_domain) }}</div>
       <div class="card-location">
         <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        {{ site.settings.city or 'India' }}
+        {{ site.settings.city or site.state or 'India' }}
       </div>
     </a>
     {% endfor %}
@@ -129,22 +285,193 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.95);backdrop
   <div class="empty">
     <div class="empty-icon">🔍</div>
     <h2>Nothing found yet</h2>
-    <p>Try a different keyword or broaden your location.</p>
-    <a class="btn-primary" href="/search">Clear filters</a>
+    <p>Try a different keyword, expand your radius, or search a different city.</p>
+    <a class="btn-outline" href="/search">Clear all filters</a>
   </div>
   {% endif %}
 
 </div>
 
 <script>
-// Auto-detect city if field is empty on search page
 (function() {
-  var cityEl = document.getElementById('nav-city')
-  if (!cityEl || cityEl.value.trim()) return
-  fetch('/api/detect-city')
-    .then(function(r) { return r.json() })
-    .then(function(d) { if (d.city) cityEl.value = d.city })
-    .catch(function() {})
+  var form      = document.getElementById('search-form')
+  var sbWhere   = document.getElementById('sb-where')
+  var locDrop   = document.getElementById('loc-dropdown')
+  var locInp    = document.getElementById('loc-search-inp')
+  var locSugg   = document.getElementById('loc-suggestions')
+  var locGps    = document.getElementById('loc-gps')
+  var sbDisplay = document.getElementById('sb-loc-display')
+  var sbClear   = document.getElementById('sb-clear')
+  var radiusBar = document.getElementById('radius-bar')
+  var overlay   = document.getElementById('overlay')
+  var fCity     = document.getElementById('f-city')
+  var fState    = document.getElementById('f-state')
+  var fLat      = document.getElementById('f-lat')
+  var fLng      = document.getElementById('f-lng')
+  var fRadius   = document.getElementById('f-radius')
+
+  var LOC_PIN = '<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+
+  // ── Open / close dropdown ────────────────────────────────────────────────────
+  function openDrop() {
+    locDrop.classList.add('open')
+    overlay.classList.add('open')
+    locInp.value = ''
+    showPopular()
+    setTimeout(function() { locInp.focus() }, 50)
+  }
+  function closeDrop() {
+    locDrop.classList.remove('open')
+    overlay.classList.remove('open')
+  }
+
+  sbWhere.addEventListener('click', function(e) {
+    if (e.target === sbClear || sbClear.contains(e.target)) return
+    if (locDrop.classList.contains('open')) { closeDrop(); return }
+    openDrop()
+  })
+  overlay.addEventListener('click', closeDrop)
+  locDrop.addEventListener('click', function(e) { e.stopPropagation() })
+
+  // ── Set location ─────────────────────────────────────────────────────────────
+  function setLocation(opts) {
+    // opts: { label, city, state, lat, lng }
+    fCity.value  = opts.city  || ''
+    fState.value = opts.state || ''
+    fLat.value   = opts.lat   != null ? opts.lat : ''
+    fLng.value   = opts.lng   != null ? opts.lng : ''
+    sbDisplay.textContent = opts.label || opts.city || opts.state || 'All India'
+    sbDisplay.classList.toggle('has-value', !!(opts.city || opts.state || opts.lat))
+    sbClear.classList.toggle('visible',     !!(opts.city || opts.state || opts.lat))
+    // Show/hide radius bar
+    if (opts.lat != null && opts.lng != null) {
+      radiusBar.classList.add('visible')
+    }
+    closeDrop()
+  }
+
+  // ── Clear location ───────────────────────────────────────────────────────────
+  sbClear.addEventListener('click', function(e) {
+    e.stopPropagation()
+    fCity.value = fState.value = fLat.value = fLng.value = ''
+    sbDisplay.textContent = 'All India'
+    sbDisplay.classList.remove('has-value')
+    sbClear.classList.remove('visible')
+    radiusBar.classList.remove('visible')
+  })
+
+  // ── Popular city chips ───────────────────────────────────────────────────────
+  function showPopular() {
+    locSugg.querySelectorAll('.loc-suggestion').forEach(function(el) { el.remove() })
+    var pop = locSugg.querySelector('.popular-section')
+    if (pop) pop.style.display = ''
+  }
+
+  document.querySelectorAll('.popular-city').forEach(function(el) {
+    el.addEventListener('click', function() {
+      setLocation({ label: el.dataset.city, city: el.dataset.city, state: el.dataset.state })
+    })
+  })
+
+  // ── Autocomplete ─────────────────────────────────────────────────────────────
+  var suggestTimer
+  locInp.addEventListener('input', function() {
+    clearTimeout(suggestTimer)
+    var q = this.value.trim()
+    if (!q) { showPopular(); return }
+    // Hide popular section
+    var pop = locSugg.querySelector('.popular-section')
+    if (pop) pop.style.display = 'none'
+    locSugg.innerHTML = '<div class="loc-loading">Searching…</div>'
+    suggestTimer = setTimeout(function() {
+      fetch('/api/location-suggest?q=' + encodeURIComponent(q))
+        .then(function(r) { return r.json() })
+        .then(function(list) {
+          if (!list.length) {
+            locSugg.innerHTML = '<div class="loc-empty">No results for "' + q + '"</div>'
+            return
+          }
+          // Deduplicate by label
+          var seen = {}
+          locSugg.innerHTML = list.filter(function(r) {
+            var key = r.label
+            if (seen[key]) return false
+            seen[key] = true
+            return true
+          }).map(function(r) {
+            var icon = r.type === 'state' ? '🗺️' : '📍'
+            var sub  = r.state && r.city ? r.state : (r.type === 'state' ? 'State' : '')
+            return '<div class="loc-suggestion" data-city="' + (r.city||'') + '" data-state="' + (r.state||'') + '" data-lat="' + r.lat + '" data-lng="' + r.lng + '">' +
+              '<div class="loc-suggestion-icon">' + icon + '</div>' +
+              '<div><div class="loc-suggestion-name">' + r.label + '</div>' +
+              (sub ? '<div class="loc-suggestion-sub">' + sub + '</div>' : '') +
+              '</div></div>'
+          }).join('')
+          // Attach click
+          locSugg.querySelectorAll('.loc-suggestion').forEach(function(el) {
+            el.addEventListener('click', function() {
+              setLocation({
+                label: el.querySelector('.loc-suggestion-name').textContent,
+                city:  el.dataset.city,
+                state: el.dataset.state,
+                lat:   parseFloat(el.dataset.lat) || null,
+                lng:   parseFloat(el.dataset.lng) || null
+              })
+            })
+          })
+        })
+        .catch(function() { locSugg.innerHTML = '<div class="loc-empty">Could not load suggestions.</div>' })
+    }, 300)
+  })
+
+  // ── GPS button ───────────────────────────────────────────────────────────────
+  locGps.addEventListener('click', function() {
+    if (!navigator.geolocation) { alert('Geolocation not supported.'); return }
+    locGps.querySelector('div').innerHTML = 'Detecting location… <span class="loc-gps-sub">Please allow access</span>'
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        var lat = pos.coords.latitude, lng = pos.coords.longitude
+        fetch('/api/reverse-geocode?lat=' + lat + '&lng=' + lng)
+          .then(function(r) { return r.json() })
+          .then(function(d) {
+            setLocation({ label: d.city || 'Current location', city: d.city || '', state: d.state || '', lat: lat, lng: lng })
+          })
+          .catch(function() { setLocation({ label: 'Current location', city: '', state: '', lat: lat, lng: lng }) })
+      },
+      function() {
+        locGps.querySelector('div').innerHTML = 'Use my current location <span class="loc-gps-sub">Precise results near you</span>'
+        alert('Could not access location. Please allow location permission and try again.')
+      },
+      { timeout: 10000 }
+    )
+  })
+
+  // ── Radius chips ─────────────────────────────────────────────────────────────
+  document.querySelectorAll('.radius-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.radius-chip').forEach(function(c) { c.classList.remove('active') })
+      chip.classList.add('active')
+      fRadius.value = chip.dataset.km
+      form.submit()
+    })
+  })
+
+  // ── Auto-detect city if nothing set ──────────────────────────────────────────
+  if (!fCity.value && !fLat.value) {
+    fetch('/api/detect-city')
+      .then(function(r) { return r.json() })
+      .then(function(d) {
+        if (d.city && !fCity.value) {
+          // Only update display label, don't auto-submit
+          sbDisplay.textContent = d.city
+          sbDisplay.classList.add('has-value')
+          fCity.value  = d.city
+          fState.value = d.region || ''
+          sbClear.classList.add('visible')
+        }
+      })
+      .catch(function() {})
+  }
 })()
 </script>
 

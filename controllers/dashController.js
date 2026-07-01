@@ -1,5 +1,6 @@
 const { db }          = require('../config/db')
 const themeManager    = require('../config/themeManager')
+const { geocodeCity } = require('../config/geocode')
 
 exports.index = async (req, res) => {
   const user  = req.session.user
@@ -139,6 +140,17 @@ exports.updateSettings = async (req, res) => {
   if (category_id !== undefined) {
     const catId = parseInt(category_id) || null
     await db.execute('UPDATE ms_sites SET category_id = ? WHERE account_id = ?', [catId, user.id])
+  }
+
+  // Re-geocode if city changed
+  const { city: newCity } = req.body
+  if (newCity) {
+    const site = await db.first('SELECT id FROM ms_sites WHERE account_id = ? LIMIT 1', [user.id])
+    if (site) {
+      geocodeCity(newCity).then(geo => {
+        if (geo) db.execute('UPDATE ms_sites SET lat=?, lng=?, state=? WHERE id=?', [geo.lat, geo.lng, geo.state, site.id])
+      }).catch(() => {})
+    }
   }
 
   req.flash('success', 'Settings updated.')
