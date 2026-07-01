@@ -21,21 +21,24 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
 .nav-right a{font-size:13px;color:var(--ink-muted);text-decoration:none;}
 .nav-right a:hover{color:var(--ink);}
 
-/* ── Search hero bar ── */
-.search-hero{background:var(--white);border-bottom:1px solid var(--border);padding:20px 40px;}
-.search-bar{display:flex;align-items:stretch;max-width:860px;margin:0 auto;border:2px solid var(--border-md);border-radius:var(--radius-lg);overflow:visible;background:var(--white);box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s;}
-.search-bar:focus-within{box-shadow:0 4px 20px rgba(37,99,235,0.12);border-color:var(--blue);}
-.sb-what{display:flex;align-items:center;gap:10px;flex:1;padding:0 16px;min-width:0;border-right:1px solid var(--border);}
+/* ── Search hero ── */
+.search-hero{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 60%,#3b82f6 100%);padding:44px 40px 36px;text-align:center;}
+.search-hero-title{font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,40px);font-weight:400;color:#fff;letter-spacing:-0.5px;margin-bottom:8px;}
+.search-hero-title em{font-style:italic;opacity:0.85;}
+.search-hero-sub{font-size:15px;color:rgba(255,255,255,0.72);margin-bottom:28px;font-weight:400;}
+.search-bar{display:flex;align-items:stretch;max-width:820px;margin:0 auto;border:none;border-radius:50px;overflow:visible;background:var(--white);box-shadow:0 8px 32px rgba(0,0,0,0.22);transition:box-shadow 0.2s;}
+.search-bar:focus-within{box-shadow:0 12px 40px rgba(0,0,0,0.28);}
+.sb-what{display:flex;align-items:center;gap:10px;flex:1;padding:0 22px;min-width:0;border-right:1px solid var(--border);}
 .sb-what svg{color:var(--ink-faint);flex-shrink:0;}
-.sb-q{border:none;outline:none;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;width:100%;}
+.sb-q{border:none;outline:none;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;width:100%;padding:18px 0;}
 .sb-q::placeholder{color:var(--ink-faint);}
-.sb-where{display:flex;align-items:center;gap:8px;width:260px;flex-shrink:0;padding:0 14px;position:relative;cursor:pointer;}
+.sb-where{display:flex;align-items:center;gap:8px;width:240px;flex-shrink:0;padding:0 18px;position:relative;cursor:pointer;}
 .sb-where svg{color:var(--blue);flex-shrink:0;}
 .sb-loc-display{flex:1;font-size:14px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;cursor:pointer;user-select:none;}
 .sb-loc-display.has-value{color:var(--ink);font-weight:500;}
 .sb-clear{border:none;background:none;cursor:pointer;color:var(--ink-faint);padding:2px;font-size:16px;line-height:1;display:none;}
 .sb-clear.visible{display:block;}
-.sb-btn{background:var(--blue);color:#fff;border:none;padding:0 28px;font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background 0.2s;white-space:nowrap;border-radius:0 calc(var(--radius-lg) - 2px) calc(var(--radius-lg) - 2px) 0;}
+.sb-btn{background:var(--blue);color:#fff;border:none;padding:0 32px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background 0.2s;white-space:nowrap;border-radius:0 50px 50px 0;margin:5px 5px 5px 0;border-radius:40px;}
 .sb-btn:hover{background:#1d4ed8;}
 
 /* ── Location dropdown ── */
@@ -89,19 +92,21 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
 .results-count .dist-badge{display:inline-flex;align-items:center;gap:4px;background:var(--blue-light);color:var(--blue);font-size:12px;padding:2px 10px;border-radius:20px;margin-left:8px;font-weight:500;}
 
 /* ── Cards ── */
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
-.provider-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 18px;transition:transform 0.2s,box-shadow 0.2s;text-decoration:none;display:block;position:relative;}
-.provider-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.09);}
-.card-dist{position:absolute;top:14px;right:14px;font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-light);padding:2px 8px;border-radius:20px;}
-.card-icon-wrap{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;}
-.card-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:10px;}
-.badge-blue{background:var(--blue-light);color:#1d4ed8;}
-.badge-green{background:var(--green-light);color:var(--green-dark);}
-.badge-amber{background:var(--amber-light);color:var(--amber-dark);}
-.badge-pink{background:var(--pink-light);color:var(--pink-dark);}
-.card-name{font-size:15px;font-weight:500;color:var(--ink);margin-bottom:4px;}
-.card-desc{font-size:12px;color:var(--ink-muted);margin-bottom:12px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
+.provider-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;transition:box-shadow 0.2s;position:relative;}
+.provider-card:hover{box-shadow:0 8px 28px rgba(0,0,0,0.1);border-color:var(--border-md);}
+.card-band{height:72px;flex-shrink:0;position:relative;display:flex;justify-content:center;}
+.card-avatar-wrap{position:absolute;bottom:-24px;display:flex;align-items:center;justify-content:center;}
+.card-icon-wrap{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid var(--white);box-shadow:0 1px 6px rgba(0,0,0,0.08);}
+.card-logo{width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid var(--white);box-shadow:0 1px 6px rgba(0,0,0,0.08);}
+.card-dist{position:absolute;top:10px;right:10px;font-size:10px;font-weight:600;color:var(--blue);background:rgba(255,255,255,0.9);padding:2px 8px;border-radius:20px;}
+.card-body{padding:32px 18px 12px;text-align:center;flex:1;display:flex;flex-direction:column;}
+.card-name{font-size:14px;font-weight:600;color:var(--ink);line-height:1.35;margin-bottom:3px;}
+.card-cat{font-size:11px;color:var(--ink-muted);margin-bottom:10px;}
+.card-desc{font-size:12px;color:var(--ink-muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:auto;}
+.card-foot{padding:11px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
 .card-location{font-size:12px;color:var(--ink-faint);display:flex;align-items:center;gap:4px;}
+.card-visit{font-size:12px;font-weight:600;color:var(--blue);}
 
 /* ── Empty state ── */
 .empty{text-align:center;padding:80px 20px;}
@@ -143,6 +148,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
 
 <!-- ── Search Hero Bar ── -->
 <div class="search-hero">
+  <h1 class="search-hero-title">Find local services <em>near you</em></h1>
+  <p class="search-hero-sub">Connect with businesses, freelancers &amp; service providers across India</p>
   <form class="search-bar" id="search-form" action="/search" method="GET">
     <!-- Hidden fields populated by JS -->
     <input type="hidden" id="f-city"   name="city"   value="{{ city }}">
@@ -263,20 +270,34 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
   {% if results.length %}
   <div class="cards-grid">
     {% for site in results %}
-    {% set ci = loop.index0 % 4 %}
-    {% set colors = ['var(--blue-light)','var(--green-light)','var(--amber-light)','var(--pink-light)'] %}
-    {% set badges = ['badge-blue','badge-green','badge-amber','badge-pink'] %}
+    {% set ci = loop.index0 % 6 %}
+    {% set bands  = ['#dbeafe','#d1fae5','#fef3c7','#fce7f3','#ede9fe','#ccfbf1'] %}
+    {% set avatarbg = ['#bfdbfe','#a7f3d0','#fde68a','#fbcfe8','#ddd6fe','#99f6e4'] %}
+    {% set logo = site.settings.logo or (site.settings.profile and site.settings.profile.avatar) %}
     <a class="provider-card" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">
-      {% if site.distance_km %}
-      <span class="card-dist">{{ site.distance_km }} km</span>
-      {% endif %}
-      <div class="card-icon-wrap" style="background:{{ colors[ci] }};">{{ site.cat_icon or '🏪' }}</div>
-      <span class="card-badge {{ badges[ci] }}">{{ site.cat_name or site.category or 'Business' }}</span>
-      <div class="card-name">{{ site.title }}</div>
-      <div class="card-desc">{{ site.settings.description or (site.subdomain + '.' + base_domain) }}</div>
-      <div class="card-location">
-        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        {{ site.settings.city or site.state or 'India' }}
+      <div class="card-band" style="background:{{ bands[ci] }};">
+        {% if site.distance_km %}<span class="card-dist">{{ site.distance_km }} km</span>{% endif %}
+        <div class="card-avatar-wrap">
+          {% if logo %}
+            <img class="card-logo" src="{{ logo }}" alt="{{ site.title }}"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="card-icon-wrap" style="background:{{ avatarbg[ci] }};display:none;">{{ site.cat_icon or site.title[0] | upper }}</div>
+          {% else %}
+            <div class="card-icon-wrap" style="background:{{ avatarbg[ci] }};">{{ site.cat_icon or site.title[0] | upper }}</div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">{{ site.title }}</div>
+        <div class="card-cat">{{ site.cat_name or site.category or 'Business' }}</div>
+        <div class="card-desc">{{ site.settings.description or ('Visit ' + site.subdomain + '.' + base_domain) }}</div>
+      </div>
+      <div class="card-foot">
+        <div class="card-location">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {{ site.settings.city or site.state or 'India' }}
+        </div>
+        <span class="card-visit">Visit →</span>
       </div>
     </a>
     {% endfor %}

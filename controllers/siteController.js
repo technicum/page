@@ -217,7 +217,7 @@ exports.biolinkSave = async (req, res) => {
 
 exports.updateInfo = async (req, res) => {
   const user = req.session.user
-  const { site_id, title, category_id, city, phone, whatsapp, address, description } = req.body
+  const { site_id, title, category_id, city, phone, whatsapp, address, description, logo } = req.body
 
   const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [parseInt(site_id), user.id])
   if (!site) return res.json({ ok: false, error: 'Site not found' })
@@ -237,6 +237,7 @@ exports.updateInfo = async (req, res) => {
   if (whatsapp    !== undefined) settings.whatsapp    = whatsapp.trim()
   if (address     !== undefined) settings.address     = address.trim()
   if (description !== undefined) settings.description = description.trim()
+  if (logo        !== undefined) settings.logo        = logo.trim()
   await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?', [JSON.stringify(settings), site.id])
 
   // Re-geocode city in background

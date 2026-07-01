@@ -332,6 +332,10 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
           <input type="text" id="info-address" placeholder="Model Town, Ludhiana">
         </div>
       </div>
+      <div class="modal-field" style="margin-top:18px;">
+        <label>Logo URL <span style="font-weight:400;color:var(--ink-faint);">(shown on search cards — paste image URL or use your avatar link)</span></label>
+        <input type="text" id="info-logo" placeholder="https://example.com/logo.png">
+      </div>
     </div>
     <div class="modal-foot">
       <span class="modal-msg" id="info-msg"></span>
@@ -428,6 +432,7 @@ function openInfoModal(siteId) {
   document.getElementById('info-phone').value       = st.phone       || ''
   document.getElementById('info-whatsapp').value    = st.whatsapp    || ''
   document.getElementById('info-address').value     = st.address     || ''
+  document.getElementById('info-logo').value        = st.logo        || ''
 
   var catSel = document.getElementById('info-category')
   catSel.value = site.category_id || ''
@@ -470,7 +475,8 @@ function saveInfo() {
       city:        document.getElementById('info-city').value,
       phone:       document.getElementById('info-phone').value,
       whatsapp:    document.getElementById('info-whatsapp').value,
-      address:     document.getElementById('info-address').value
+      address:     document.getElementById('info-address').value,
+      logo:        document.getElementById('info-logo').value
     })
   })
   .then(function(r){ return r.json() })
@@ -493,6 +499,7 @@ function saveInfo() {
         st.phone       = document.getElementById('info-phone').value
         st.whatsapp    = document.getElementById('info-whatsapp').value
         st.address     = document.getElementById('info-address').value
+        st.logo        = document.getElementById('info-logo').value
         site.settings  = JSON.stringify(st)
       }
       setTimeout(closeInfoModal, 1200)
