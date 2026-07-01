@@ -70,6 +70,12 @@ body{font-family:"DM Sans",sans-serif;}
 
     <div class="themes-grid" id="themesGrid">
       {% for slug, theme in allThemes %}
+      {% if site.category == 'linktree' %}
+        {% set _show = true if 'biolink' in slug else false %}
+      {% else %}
+        {% set _show = false if 'biolink' in slug else true %}
+      {% endif %}
+      {% if _show %}
       <div class="theme-card {% if settings.template_id == slug %}selected{% endif %}"
            data-slug="{{ slug }}"
            onclick="selectTheme('{{ slug }}', this)">
@@ -91,6 +97,7 @@ body{font-family:"DM Sans",sans-serif;}
           </div>
         </div>
       </div>
+      {% endif %}
       {% endfor %}
     </div>
   </main>
@@ -105,8 +112,9 @@ body{font-family:"DM Sans",sans-serif;}
 </div>
 
 <script>
-let selectedSlug = '{{ settings.template_id or "minimal" }}'
-const siteId     = {{ site.id }}
+let selectedSlug  = '{{ settings.template_id or "minimal" }}'
+const siteId      = {{ site.id }}
+const isBiolink   = {{ 'true' if site.category == 'linktree' else 'false' }}
 
 function selectTheme(slug, el) {
   selectedSlug = slug
@@ -134,7 +142,9 @@ async function applyTheme() {
     const data = await res.json()
 
     if (data.ok) {
-      window.location.href = `/dashboard/site/builder?id=${siteId}`
+      window.location.href = isBiolink
+        ? `/dashboard/site/biolink-builder?id=${siteId}`
+        : `/dashboard/site/builder?id=${siteId}`
     } else {
       alert('Error applying theme: ' + (data.error || 'Unknown'))
       btn.textContent = 'Use this theme →'
