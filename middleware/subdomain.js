@@ -80,6 +80,9 @@ async function serveSite(req, res, next, lookup) {
     // ── Pass API requests to main router ──────────────────────────────────────
     if (rawPath.startsWith('api/')) return next()
 
+    // ── Pass review pages to main router ──────────────────────────────────────
+    if (rawPath.startsWith('review/') || rawPath === 'review') return next()
+
     // ── Special routes: sitemap.xml ────────────────────────────────────────────
     if (rawPath === 'sitemap.xml') {
       return serveSitemap(req, res, site, settings)
