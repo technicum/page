@@ -302,7 +302,7 @@ exports.createStaffSite = async (req, res) => {
     res.json({ ok: true, id, pathSlug, parentSub: parent.subdomain, redirect: `/dashboard/site/biolink-builder?id=${id}` })
   } catch (err) {
     console.error('createStaffSite', err)
-    res.json({ ok: false, error: 'Server error. Please try again.' })
+    res.json({ ok: false, error: err.message || 'Server error. Please try again.' })
   }
 }
 
