@@ -25,17 +25,33 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop
 .search-input{flex:1;border:none;outline:none;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;min-width:0;}
 .search-input::placeholder{color:var(--ink-faint);}
 .search-sep{width:1px;height:28px;background:var(--border);flex-shrink:0;}
-.location-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0;min-width:0;}
-.location-icon{color:var(--ink-faint);flex-shrink:0;}
-.location-input{border:none;outline:none;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink-muted);background:transparent;width:110px;min-width:0;}
-.location-input::placeholder{color:var(--ink-faint);}
-.gps-btn{border:none;background:none;cursor:pointer;padding:2px 4px;font-size:14px;line-height:1;color:var(--ink-faint);transition:color 0.2s;flex-shrink:0;}
-.gps-btn:hover{color:var(--blue);}
-.gps-btn.loading{animation:spin 1s linear infinite;display:inline-block;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loc-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-muted);background:var(--off);border:1px solid var(--border);border-radius:20px;padding:4px 12px;margin-top:10px;cursor:pointer;}
-.loc-pill svg{color:var(--blue);}
-.loc-pill:hover{border-color:var(--blue);color:var(--blue);}
+.location-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0;min-width:0;position:relative;}
+.location-icon{color:var(--blue);flex-shrink:0;}
+.loc-display{font-size:14px;color:var(--ink-muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;user-select:none;}
+.loc-display.has-val{color:var(--ink);font-weight:500;}
+.loc-clear-x{border:none;background:none;cursor:pointer;color:var(--ink-faint);font-size:15px;line-height:1;padding:0 2px;display:none;flex-shrink:0;}
+.loc-clear-x.show{display:block;}
+/* Dropdown panel */
+.hloc-drop{display:none;position:absolute;top:calc(100% + 14px);right:-8px;width:290px;background:var(--white);border:1px solid var(--border-md);border-radius:var(--radius-lg);box-shadow:0 12px 40px rgba(0,0,0,0.13);z-index:500;overflow:hidden;}
+.hloc-drop.open{display:block;animation:fadeUp 0.18s ease both;}
+.loc-gps-row{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;font-size:14px;font-weight:500;color:var(--blue);border-bottom:1px solid var(--border);transition:background 0.15s;}
+.loc-gps-row:hover{background:var(--blue-light);}
+.loc-gps-sub{font-size:11px;color:var(--ink-faint);font-weight:400;display:block;margin-top:1px;}
+.loc-inp-wrap{padding:10px 12px;border-bottom:1px solid var(--border);}
+.loc-type-inp{width:100%;border:1px solid var(--border-md);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;color:var(--ink);}
+.loc-type-inp:focus{border-color:var(--blue);}
+.loc-results-list{max-height:200px;overflow-y:auto;}
+.pop-cities-wrap{padding:10px 14px 10px;}
+.pop-cities-label{font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px;}
+.pop-cities-list{display:flex;flex-wrap:wrap;gap:5px;}
+.pop-city-chip{font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid var(--border-md);cursor:pointer;color:var(--ink-muted);transition:all 0.15s;}
+.pop-city-chip:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+.loc-result-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border);transition:background 0.12s;}
+.loc-result-item:last-child{border-bottom:none;}
+.loc-result-item:hover{background:var(--blue-light);}
+.loc-result-name{font-weight:500;line-height:1.3;}
+.loc-result-sub{font-size:11px;color:var(--ink-faint);}
+.loc-result-msg{padding:12px 14px;font-size:12px;color:var(--ink-faint);text-align:center;}
 /* Skeleton loader for cards */
 .skeleton{background:linear-gradient(90deg,var(--paper) 25%,var(--off) 50%,var(--paper) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:6px;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -137,17 +153,46 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
   <h1>Find any service,<br>anywhere in <em>India</em></h1>
   <p class="hero-sub">Discover local businesses, freelancers & professionals — all with their own mini site.</p>
   <div class="search-wrap">
-    <form action="/search" method="GET">
+    <form action="/search" method="GET" id="home-form">
+      <input type="hidden" id="hf-city"  name="city">
+      <input type="hidden" id="hf-state" name="state">
+      <input type="hidden" id="hf-lat"   name="lat">
+      <input type="hidden" id="hf-lng"   name="lng">
       <div class="search-box">
         <svg class="search-icon" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input class="search-input" type="text" name="q" placeholder="Search salon, gym, tutor, lawyer…">
+        <input class="search-input" type="text" name="q" placeholder="Search salon, gym, tutor, lawyer…" autocomplete="off">
         <div class="search-sep"></div>
-        <div class="location-wrap">
-          <svg class="location-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <input class="location-input" type="text" name="city" id="city-input" placeholder="Detecting…" autocomplete="off">
-          <button type="button" class="gps-btn" id="gps-btn" title="Use my precise location">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/><path d="M12 5a7 7 0 1 0 0 14A7 7 0 0 0 12 5z" opacity="0.3"/></svg>
-          </button>
+        <div class="location-wrap" id="hloc-wrap">
+          <svg class="location-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="loc-display" id="hloc-display">Detecting…</span>
+          <button type="button" class="loc-clear-x" id="hloc-clear" title="Clear location">✕</button>
+          <!-- Dropdown -->
+          <div class="hloc-drop" id="hloc-drop">
+            <div class="loc-gps-row" id="hloc-gps">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+              <div>Use my current location<span class="loc-gps-sub">Precise results near you</span></div>
+            </div>
+            <div class="loc-inp-wrap">
+              <input class="loc-type-inp" id="hloc-inp" type="text" placeholder="Search city or state…" autocomplete="off">
+            </div>
+            <div class="loc-results-list" id="hloc-results">
+              <div class="pop-cities-wrap">
+                <div class="pop-cities-label">Popular cities</div>
+                <div class="pop-cities-list">
+                  <span class="pop-city-chip" data-city="Delhi"      data-state="Delhi">Delhi</span>
+                  <span class="pop-city-chip" data-city="Mumbai"     data-state="Maharashtra">Mumbai</span>
+                  <span class="pop-city-chip" data-city="Bangalore"  data-state="Karnataka">Bangalore</span>
+                  <span class="pop-city-chip" data-city="Hyderabad"  data-state="Telangana">Hyderabad</span>
+                  <span class="pop-city-chip" data-city="Chennai"    data-state="Tamil Nadu">Chennai</span>
+                  <span class="pop-city-chip" data-city="Kolkata"    data-state="West Bengal">Kolkata</span>
+                  <span class="pop-city-chip" data-city="Pune"       data-state="Maharashtra">Pune</span>
+                  <span class="pop-city-chip" data-city="Ludhiana"   data-state="Punjab">Ludhiana</span>
+                  <span class="pop-city-chip" data-city="Chandigarh" data-state="Punjab">Chandigarh</span>
+                  <span class="pop-city-chip" data-city="Jaipur"     data-state="Rajasthan">Jaipur</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <button class="search-btn" type="submit">Search</button>
       </div>
@@ -264,15 +309,25 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
 
 <script>
 (function() {
-  var cityInput  = document.getElementById('city-input')
-  var gpsBtn     = document.getElementById('gps-btn')
+  var BASE       = '{{ base_domain }}'
   var nearLabel  = document.getElementById('near-city-label')
   var grid       = document.getElementById('nearby-grid')
   var seeAllLink = document.getElementById('see-all-link')
-  var BASE       = '{{ base_domain }}'
-  var detectedCity = ''
 
-  // ── Render vendor cards ──────────────────────────────────────────────────────
+  // Location picker
+  var hfCity    = document.getElementById('hf-city')
+  var hfState   = document.getElementById('hf-state')
+  var hfLat     = document.getElementById('hf-lat')
+  var hfLng     = document.getElementById('hf-lng')
+  var hlocWrap  = document.getElementById('hloc-wrap')
+  var hlocDrop  = document.getElementById('hloc-drop')
+  var hlocDisp  = document.getElementById('hloc-display')
+  var hlocClear = document.getElementById('hloc-clear')
+  var hlocGps   = document.getElementById('hloc-gps')
+  var hlocInp   = document.getElementById('hloc-inp')
+  var hlocRes   = document.getElementById('hloc-results')
+
+  // ── Render nearby cards ───────────────────────────────────────────────────────
   function renderCards(results) {
     if (!results || !results.length) {
       grid.innerHTML = '<p style="color:var(--ink-faint);font-size:14px;padding:20px 0;">No businesses found near this location yet.</p>'
@@ -282,83 +337,168 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
     var badges = ['badge-blue','badge-green','badge-amber','badge-pink']
     grid.innerHTML = results.map(function(s, i) {
       var ci   = i % 4
-      var icon = s.cat_icon  || '🏪'
-      var cat  = s.cat_name  || 'Business'
-      var city = s.city      || 'India'
-      var desc = s.description || (s.subdomain + '.' + BASE)
+      var icon = s.cat_icon     || '🏪'
+      var cat  = s.cat_name     || 'Business'
+      var loc  = s.city         || 'India'
+      var desc = s.description  || (s.subdomain + '.' + BASE)
+      var dist = s.distance_km  ? '<span style="font-size:11px;color:var(--blue);margin-left:4px;">· ' + s.distance_km + ' km</span>' : ''
       return '<a class="provider-card" href="https://' + s.subdomain + '.' + BASE + '" target="_blank">' +
         '<div class="card-icon-wrap" style="background:' + colors[ci] + ';">' + icon + '</div>' +
         '<span class="card-badge ' + badges[ci] + '">' + cat + '</span>' +
         '<div class="card-name">' + s.title + '</div>' +
         '<div class="card-desc">' + desc + '</div>' +
-        '<div class="card-location"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + city + '</div>' +
+        '<div class="card-location"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + loc + dist + '</div>' +
         '</a>'
     }).join('')
   }
 
-  // ── Fetch nearby vendors ─────────────────────────────────────────────────────
-  function loadNearby(city) {
-    fetch('/api/nearby?city=' + encodeURIComponent(city))
-      .then(function(r) { return r.json() })
-      .then(function(d) { renderCards(d.results) })
-      .catch(function()  { renderCards([]) })
+  function loadNearby(city, lat, lng) {
+    var url = '/api/nearby?city=' + encodeURIComponent(city || '')
+    if (lat && lng) url += '&lat=' + lat + '&lng=' + lng + '&radius=25'
+    fetch(url).then(function(r){return r.json()}).then(function(d){renderCards(d.results)}).catch(function(){renderCards([])})
   }
 
-  // ── Set city everywhere ──────────────────────────────────────────────────────
-  function setCity(city) {
-    if (!city) return
-    detectedCity          = city
-    cityInput.value       = city
-    nearLabel.textContent = city
-    if (seeAllLink) seeAllLink.href = '/search?city=' + encodeURIComponent(city)
-    // Update quick-tag links to include city
-    var tags = document.querySelectorAll('#quick-tags .qtag')
-    tags.forEach(function(a) {
-      var url = new URL(a.href, location.href)
-      url.searchParams.set('city', city)
-      a.href = url.toString()
+  // ── Set location (updates display, hidden fields, nearby cards, quick-tags) ──
+  function setLocation(opts) {
+    hfCity.value  = opts.city  || ''
+    hfState.value = opts.state || ''
+    hfLat.value   = opts.lat  != null ? opts.lat  : ''
+    hfLng.value   = opts.lng  != null ? opts.lng  : ''
+
+    var label = opts.label || opts.city || opts.state || 'All India'
+    hlocDisp.textContent = label
+    hlocDisp.classList.toggle('has-val', !!(opts.city || opts.state || opts.lat))
+    hlocClear.classList.toggle('show',   !!(opts.city || opts.state || opts.lat))
+
+    nearLabel.textContent = opts.city || opts.state || 'you'
+    var seeUrl = '/search?city=' + encodeURIComponent(opts.city||'') + '&state=' + encodeURIComponent(opts.state||'')
+    if (opts.lat) seeUrl += '&lat=' + opts.lat + '&lng=' + opts.lng + '&radius=25'
+    if (seeAllLink) seeAllLink.href = seeUrl
+
+    document.querySelectorAll('#quick-tags .qtag').forEach(function(a) {
+      var u = new URL(a.href, location.href)
+      if (opts.city)  u.searchParams.set('city',  opts.city)
+      if (opts.state) u.searchParams.set('state', opts.state)
+      a.href = u.toString()
     })
-    loadNearby(city)
+
+    loadNearby(opts.city || '', opts.lat, opts.lng)
+    closeDrop()
   }
 
-  // ── Step 1: IP-based auto-detect (silent, no permission prompt) ──────────────
-  fetch('/api/detect-city')
-    .then(function(r) { return r.json() })
-    .then(function(d) {
-      if (d.city) { setCity(d.city) } else { loadNearby('') }
-    })
-    .catch(function() { loadNearby('') })
+  // ── Dropdown open/close ────────────────────────────────────────────────────
+  function openDrop() {
+    hlocDrop.classList.add('open')
+    showPopular()
+    hlocInp.value = ''
+    setTimeout(function(){ hlocInp.focus() }, 60)
+  }
+  function closeDrop() { hlocDrop.classList.remove('open') }
 
-  // ── Step 2: GPS precise location button ──────────────────────────────────────
-  gpsBtn.addEventListener('click', function() {
-    if (!navigator.geolocation) { alert('Geolocation not supported by your browser.'); return }
-    gpsBtn.style.opacity = '0.5'
-    gpsBtn.setAttribute('disabled', '')
+  hlocWrap.addEventListener('click', function(e) {
+    if (hlocClear.contains(e.target)) return
+    if (hlocDrop.classList.contains('open')) { closeDrop(); return }
+    openDrop()
+  })
+  hlocDrop.addEventListener('click', function(e){ e.stopPropagation() })
+  document.addEventListener('click', function(e){ if (!hlocWrap.contains(e.target)) closeDrop() })
+
+  // ── Clear button ───────────────────────────────────────────────────────────
+  hlocClear.addEventListener('click', function(e) {
+    e.stopPropagation()
+    setLocation({ city:'', state:'', lat:null, lng:null, label:'All India' })
+    hlocDisp.textContent = 'All India'
+  })
+
+  // ── Popular city chips ─────────────────────────────────────────────────────
+  function showPopular() {
+    hlocRes.innerHTML = document.getElementById('hloc-pop-tpl').innerHTML
+    hlocRes.querySelectorAll('.pop-city-chip').forEach(function(c) {
+      c.addEventListener('click', function() {
+        setLocation({ label:c.dataset.city, city:c.dataset.city, state:c.dataset.state })
+      })
+    })
+  }
+
+  // Store popular HTML as template
+  var popTpl = document.createElement('div')
+  popTpl.id  = 'hloc-pop-tpl'
+  popTpl.style.display = 'none'
+  popTpl.innerHTML = hlocRes.innerHTML
+  document.body.appendChild(popTpl)
+
+  // Attach clicks to initial popular chips
+  hlocRes.querySelectorAll('.pop-city-chip').forEach(function(c) {
+    c.addEventListener('click', function() {
+      setLocation({ label:c.dataset.city, city:c.dataset.city, state:c.dataset.state })
+    })
+  })
+
+  // ── Autocomplete ────────────────────────────────────────────────────────────
+  var sugTimer
+  hlocInp.addEventListener('input', function() {
+    clearTimeout(sugTimer)
+    var q = this.value.trim()
+    if (!q) { showPopular(); return }
+    hlocRes.innerHTML = '<div class="loc-result-msg">Searching…</div>'
+    sugTimer = setTimeout(function() {
+      fetch('/api/location-suggest?q=' + encodeURIComponent(q))
+        .then(function(r){ return r.json() })
+        .then(function(list) {
+          if (!list.length) { hlocRes.innerHTML = '<div class="loc-result-msg">No results for "' + q + '"</div>'; return }
+          var seen = {}
+          hlocRes.innerHTML = list.filter(function(r){
+            if (seen[r.label]) return false; seen[r.label]=true; return true
+          }).map(function(r) {
+            var sub = (r.city && r.state) ? r.state : (r.type==='state' ? 'State' : '')
+            return '<div class="loc-result-item" data-city="'+(r.city||'')+'" data-state="'+(r.state||'')+'" data-lat="'+r.lat+'" data-lng="'+r.lng+'">' +
+              '<span style="font-size:16px">'+(r.type==='state'?'🗺️':'📍')+'</span>' +
+              '<div><div class="loc-result-name">'+r.label+'</div>'+(sub?'<div class="loc-result-sub">'+sub+'</div>':'')+'</div></div>'
+          }).join('')
+          hlocRes.querySelectorAll('.loc-result-item').forEach(function(el) {
+            el.addEventListener('click', function() {
+              setLocation({
+                label: el.querySelector('.loc-result-name').textContent,
+                city:  el.dataset.city, state: el.dataset.state,
+                lat:   parseFloat(el.dataset.lat)||null, lng: parseFloat(el.dataset.lng)||null
+              })
+            })
+          })
+        })
+        .catch(function(){ hlocRes.innerHTML = '<div class="loc-result-msg">Could not load suggestions.</div>' })
+    }, 300)
+  })
+
+  // ── GPS ─────────────────────────────────────────────────────────────────────
+  hlocGps.addEventListener('click', function() {
+    if (!navigator.geolocation) { alert('Geolocation not supported.'); return }
+    hlocGps.querySelector('div').innerHTML = 'Detecting…<span class="loc-gps-sub">Allow location access</span>'
     navigator.geolocation.getCurrentPosition(
       function(pos) {
-        fetch('/api/reverse-geocode?lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude)
-          .then(function(r) { return r.json() })
+        var lat = pos.coords.latitude, lng = pos.coords.longitude
+        fetch('/api/reverse-geocode?lat=' + lat + '&lng=' + lng)
+          .then(function(r){ return r.json() })
           .then(function(d) {
-            gpsBtn.style.opacity = ''
-            gpsBtn.removeAttribute('disabled')
-            if (d.city) setCity(d.city)
+            setLocation({ label: d.city||'Current location', city:d.city||'', state:d.state||'', lat:lat, lng:lng })
           })
-          .catch(function() { gpsBtn.style.opacity = ''; gpsBtn.removeAttribute('disabled') })
+          .catch(function(){ setLocation({ label:'Current location', city:'', state:'', lat:lat, lng:lng }) })
       },
-      function() { gpsBtn.style.opacity = ''; gpsBtn.removeAttribute('disabled') },
-      { timeout: 8000 }
+      function() {
+        hlocGps.querySelector('div').innerHTML = 'Use my current location<span class="loc-gps-sub">Precise results near you</span>'
+        alert('Could not get location. Please allow access and try again.')
+      },
+      { timeout:10000 }
     )
   })
 
-  // ── Manual city typing also refreshes cards (debounced) ──────────────────────
-  var cityTimer
-  cityInput.addEventListener('input', function() {
-    clearTimeout(cityTimer)
-    var val = this.value.trim()
-    nearLabel.textContent = val || 'you'
-    if (seeAllLink) seeAllLink.href = '/search?city=' + encodeURIComponent(val)
-    cityTimer = setTimeout(function() { loadNearby(val) }, 600)
-  })
+  // ── Auto-detect on load (IP-based, silent) ───────────────────────────────────
+  fetch('/api/detect-city')
+    .then(function(r){ return r.json() })
+    .then(function(d) {
+      if (d.city) setLocation({ label:d.city, city:d.city, state:d.region||'' })
+      else { hlocDisp.textContent='All India'; loadNearby('') }
+    })
+    .catch(function(){ hlocDisp.textContent='All India'; loadNearby('') })
 })()
 </script>
 
