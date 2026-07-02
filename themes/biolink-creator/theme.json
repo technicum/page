@@ -2,6 +2,7 @@
   "name": "Creator Link",
   "description": "Biolink for content creators — social links, latest content, collabs CTA.",
   "for": ["linktree"],
+  "categories": ["creative", "education", "events", "technology", "nonprofit"],
   "preview": "preview.jpg",
   "sections": [
     {

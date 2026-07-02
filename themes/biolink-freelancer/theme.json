@@ -2,6 +2,7 @@
   "name": "Freelancer Link",
   "description": "Biolink for freelancers — skills, portfolio work, hire me CTA.",
   "for": ["linktree"],
+  "categories": ["freelancer", "creative", "technology", "education"],
   "preview": "preview.jpg",
   "sections": [
     {

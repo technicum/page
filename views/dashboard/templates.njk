@@ -1,159 +1,454 @@
 {% extends "layouts/base.njk" %}
 {% block head %}
 <style>
-body{font-family:"DM Sans",sans-serif;}
-.layout{display:flex;min-height:100vh;}
-.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
-.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:22px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;}
-.sidebar-logo em{font-style:italic;color:var(--blue);}
-.sidebar-nav{padding:16px 12px;flex:1;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;margin-bottom:2px;}
-.nav-item:hover{background:var(--off);color:var(--ink);}
-.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
-.user-chip{display:flex;align-items:center;gap:10px;padding:8px 12px;}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;}
-.user-name{font-size:13px;font-weight:500;}
-.user-plan{font-size:11px;color:var(--ink-faint);}
-.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:6px 12px;margin-top:4px;border-radius:var(--radius);}
-.logout-link:hover{color:var(--red);}
-.content{flex:1;padding:36px 40px;min-width:0;}
-.page-header{margin-bottom:8px;}
-.page-title{font-family:"DM Serif Display",serif;font-size:28px;font-weight:400;letter-spacing:-0.5px;}
-.page-sub{font-size:14px;color:var(--ink-muted);margin-top:4px;margin-bottom:32px;}
-.themes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
-.theme-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;}
-.theme-card:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(37,99,235,0.12);}
-.theme-card.selected{border-color:var(--blue);}
-.theme-preview{height:180px;background:var(--off);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
-.theme-preview iframe{width:200%;height:200%;transform:scale(0.5);transform-origin:top left;pointer-events:none;border:none;background:#fff;}
-.theme-preview-placeholder{font-size:48px;opacity:0.3;}
-.theme-info{padding:16px 18px;}
-.theme-name{font-size:15px;font-weight:500;margin-bottom:4px;}
-.theme-desc{font-size:13px;color:var(--ink-muted);line-height:1.5;margin-bottom:12px;}
-.theme-tags{display:flex;gap:6px;flex-wrap:wrap;}
-.theme-tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--off);color:var(--ink-muted);}
-.theme-select-btn{display:none;}
-.selected-badge{position:absolute;top:10px;right:10px;background:var(--blue);color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
-.action-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;z-index:100;}
-.action-bar-left{font-size:14px;color:var(--ink-muted);}
-.action-bar-left strong{color:var(--ink);}
-.btn-continue{padding:12px 28px;background:var(--ink);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:"DM Sans",sans-serif;}
-.btn-continue:hover{opacity:0.85;}
-.btn-skip{padding:12px 20px;background:transparent;color:var(--ink-muted);border:1px solid var(--border-md);border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:"DM Sans",sans-serif;margin-right:8px;}
+*,*::before,*::after{box-sizing:border-box;}
+.tm-wrap{display:flex;flex-direction:column;min-height:100vh;background:var(--off);}
+
+/* ── Topbar ── */
+.tm-topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tm-logo{font-family:"DM Serif Display",serif;font-size:18px;color:var(--ink);text-decoration:none;}
+.tm-logo em{font-style:italic;color:var(--blue);}
+.tm-topbar-right{display:flex;align-items:center;gap:10px;}
+.tm-btn-ghost{font-size:13px;color:var(--ink-muted);text-decoration:none;padding:6px 14px;border:1px solid var(--border-md);border-radius:var(--radius);background:transparent;}
+.tm-btn-ghost:hover{background:var(--off);}
+
+/* ── Hero ── */
+.tm-hero{background:var(--white);border-bottom:1px solid var(--border);padding:32px 28px 26px;text-align:center;}
+.tm-hero h1{font-family:"DM Serif Display",serif;font-size:26px;font-weight:400;color:var(--ink);margin-bottom:6px;}
+.tm-hero h1 em{font-style:italic;color:var(--blue);}
+.tm-hero p{font-size:14px;color:var(--ink-muted);margin-bottom:20px;}
+.tm-search-row{display:flex;align-items:center;gap:8px;max-width:520px;margin:0 auto;}
+.tm-search-row input{flex:1;height:40px;border:1px solid var(--border-md);border-radius:var(--radius);background:var(--off);color:var(--ink);padding:0 14px;font-size:14px;font-family:"DM Sans",sans-serif;outline:none;}
+.tm-search-row input:focus{border-color:var(--blue);background:var(--white);}
+.tm-search-row input::placeholder{color:var(--ink-faint);}
+.tm-search-row select{height:40px;border:1px solid var(--border-md);border-radius:var(--radius);background:var(--off);color:var(--ink);padding:0 12px;font-size:13px;font-family:"DM Sans",sans-serif;cursor:pointer;min-width:160px;outline:none;}
+.tm-search-row select:focus{border-color:var(--blue);}
+
+/* ── Filter bar ── */
+.tm-filter-bar{background:var(--white);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;}
+.tm-filter-bar::-webkit-scrollbar{display:none;}
+.tm-filter-label{font-size:12px;color:var(--ink-faint);margin-right:4px;white-space:nowrap;flex-shrink:0;}
+.tm-tag{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border-md);background:transparent;color:var(--ink-muted);cursor:pointer;font-family:"DM Sans",sans-serif;white-space:nowrap;flex-shrink:0;transition:all 0.15s;}
+.tm-tag:hover{border-color:var(--ink);color:var(--ink);}
+.tm-tag.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
+
+/* ── Main layout ── */
+.tm-main{display:flex;flex:1;min-height:0;}
+
+/* ── Sidebar ── */
+.tm-sidebar{width:210px;min-width:210px;border-right:1px solid var(--border);background:var(--white);padding:20px 14px;overflow-y:auto;}
+.tm-sidebar-section{margin-bottom:24px;}
+.tm-sidebar-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px;padding:0 8px;}
+.tm-sidebar-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--ink-muted);margin-bottom:2px;user-select:none;}
+.tm-sidebar-item:hover{background:var(--off);color:var(--ink);}
+.tm-sidebar-item.active{background:var(--blue-light);color:var(--blue);font-weight:500;}
+.tm-count{font-size:11px;color:var(--ink-faint);background:var(--off);border-radius:10px;padding:1px 7px;min-width:22px;text-align:center;}
+.tm-sidebar-item.active .tm-count{background:rgba(37,99,235,0.12);color:var(--blue);}
+
+/* ── Content ── */
+.tm-content{flex:1;padding:20px 24px 100px;min-width:0;overflow-y:auto;}
+.tm-result-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.tm-result-count{font-size:13px;color:var(--ink-muted);}
+.tm-sort-row{display:flex;align-items:center;gap:8px;}
+.tm-sort-row label{font-size:12px;color:var(--ink-faint);}
+.tm-sort-row select{font-size:13px;border:1px solid var(--border-md);border-radius:var(--radius);background:var(--white);color:var(--ink);padding:5px 10px;cursor:pointer;font-family:"DM Sans",sans-serif;outline:none;}
+
+/* ── Theme grid ── */
+.tm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+
+/* ── Theme card ── */
+.tm-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s;position:relative;}
+.tm-card:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(37,99,235,0.1);}
+.tm-card.tm-selected{border-color:var(--blue);}
+.tm-selected-badge{position:absolute;top:10px;right:10px;background:var(--blue);color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;z-index:5;}
+.tm-thumb{height:140px;background:var(--off);position:relative;overflow:hidden;}
+.tm-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.tm-thumb iframe{width:200%;height:200%;transform:scale(0.5);transform-origin:top left;pointer-events:none;border:none;background:#fff;}
+.tm-thumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background 0.2s;opacity:0;}
+.tm-card:hover .tm-thumb-overlay{background:rgba(0,0,0,0.35);opacity:1;}
+.tm-preview-btn{padding:7px 18px;background:var(--white);color:var(--ink);border:none;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.tm-preview-btn:hover{background:var(--off);}
+.tm-card-body{padding:12px 14px 8px;}
+.tm-card-name{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:3px;}
+.tm-card-desc{font-size:12px;color:var(--ink-muted);line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.tm-card-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
+.tm-card-tag{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--off);color:var(--ink-faint);}
+.tm-card-footer{padding:0 14px 12px;display:flex;gap:6px;}
+.tm-card-preview{flex:1;font-size:12px;padding:6px 0;border-radius:var(--radius);border:1px solid var(--border-md);background:transparent;color:var(--ink-muted);cursor:pointer;font-family:"DM Sans",sans-serif;text-align:center;}
+.tm-card-preview:hover{border-color:var(--ink);color:var(--ink);}
+.tm-card-select{flex:1;font-size:12px;padding:6px 0;border-radius:var(--radius);border:none;background:var(--ink);color:var(--white);cursor:pointer;font-family:"DM Sans",sans-serif;text-align:center;font-weight:500;}
+.tm-card-select:hover{opacity:0.85;}
+.tm-card.tm-selected .tm-card-select{background:var(--blue);}
+
+/* ── Empty state ── */
+.tm-empty{display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;}
+.tm-empty-icon{font-size:40px;margin-bottom:12px;opacity:0.4;}
+.tm-empty-title{font-size:16px;font-weight:500;color:var(--ink);margin-bottom:6px;}
+.tm-empty-sub{font-size:13px;color:var(--ink-muted);}
+.tm-empty-reset{margin-top:16px;font-size:13px;padding:8px 18px;border:1px solid var(--border-md);border-radius:var(--radius);background:transparent;color:var(--ink-muted);cursor:pointer;font-family:"DM Sans",sans-serif;}
+.tm-empty-reset:hover{border-color:var(--ink);color:var(--ink);}
+
+/* ── Action bar ── */
+.tm-action-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;z-index:100;}
+.tm-action-left{font-size:13px;color:var(--ink-muted);}
+.tm-action-left strong{color:var(--ink);}
+.tm-action-right{display:flex;align-items:center;gap:10px;}
+.tm-btn-skip{font-size:13px;padding:9px 18px;border:1px solid var(--border-md);border-radius:var(--radius);background:transparent;color:var(--ink-muted);text-decoration:none;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.tm-btn-skip:hover{border-color:var(--ink);color:var(--ink);}
+.tm-btn-apply{font-size:14px;padding:10px 24px;background:var(--ink);color:var(--white);border:none;border-radius:var(--radius);font-weight:500;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.tm-btn-apply:hover{opacity:0.85;}
+.tm-btn-apply:disabled{opacity:0.5;cursor:not-allowed;}
+
+@media(max-width:768px){
+  .tm-sidebar{display:none;}
+  .tm-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+  .tm-hero h1{font-size:20px;}
+  .tm-search-row{flex-direction:column;}
+  .tm-search-row select{width:100%;}
+}
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="layout">
-  <aside class="sidebar">
-    <a class="sidebar-logo" href="/">page<em>zapper</em></a>
-    <nav class="sidebar-nav">
-      <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
-      <a class="nav-item" href="/dashboard/wizard">✨ New Site</a>
-      <a class="nav-item" href="/dashboard/settings">⚙️ Settings</a>
-      {% if user.is_admin %}<a class="nav-item" href="/admin" style="margin-top:12px;border-top:1px solid var(--border);padding-top:16px;">🔧 Admin Panel</a>{% endif %}
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="user-chip">
-        <div class="user-avatar">{{ user.name[0] | upper }}</div>
-        <div><div class="user-name">{{ user.name }}</div><div class="user-plan">{{ user.plan | capitalize }} plan</div></div>
-      </div>
-      <a class="logout-link" href="/logout">← Logout</a>
-    </div>
-  </aside>
+<div class="tm-wrap">
 
-  <main class="content" style="padding-bottom:90px;">
-    <div class="page-header">
-      <div class="page-title">Choose a theme</div>
-      <div class="page-sub">Pick a starting point for <strong>{{ site.title }}</strong> — you can change it anytime.</div>
+  <!-- Topbar -->
+  <header class="tm-topbar">
+    <a href="/" class="tm-logo">page<em>zapper</em></a>
+    <div class="tm-topbar-right">
+      <a href="/dashboard" class="tm-btn-ghost">← Back to dashboard</a>
     </div>
+  </header>
 
-    <div class="themes-grid" id="themesGrid">
-      {% for slug, theme in allThemes %}
-      {% if site.category == 'linktree' %}
-        {% set _show = true if 'biolink' in slug else false %}
-      {% else %}
-        {% set _show = false if 'biolink' in slug else true %}
-      {% endif %}
-      {% if _show %}
-      <div class="theme-card {% if settings.template_id == slug %}selected{% endif %}"
-           data-slug="{{ slug }}"
-           onclick="selectTheme('{{ slug }}', this)">
-        {% if settings.template_id == slug %}
-        <div class="selected-badge">✓ Selected</div>
-        {% endif %}
-        <div class="theme-preview">
-          {% if theme.hasPreview %}
-            <img src="{{ theme.previewUrl }}" alt="{{ theme.name }}" style="width:100%;height:100%;object-fit:cover;">
-          {% else %}
-            <iframe src="/template-preview?id={{ slug }}" loading="lazy" scrolling="no" title="{{ theme.name }} preview"></iframe>
-          {% endif %}
+  <!-- Hero -->
+  <div class="tm-hero">
+    <h1>Choose a theme for <em>{{ site.title }}</em></h1>
+    <p>Pick a starting point — you can change it anytime.</p>
+    <div class="tm-search-row">
+      <input type="text" id="tm-search" placeholder="Search themes…">
+      <select id="tm-cat-select">
+        <option value="all">All categories</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tag filter bar -->
+  <div class="tm-filter-bar" id="tm-filter-bar">
+    <span class="tm-filter-label">Filter:</span>
+    <button class="tm-tag active" data-tag="all" onclick="filterByTag('all',this)">All</button>
+  </div>
+
+  <!-- Main -->
+  <div class="tm-main">
+
+    <!-- Sidebar -->
+    <aside class="tm-sidebar">
+      <div class="tm-sidebar-section" id="tm-cat-sidebar">
+        <div class="tm-sidebar-label">Category</div>
+        <div class="tm-sidebar-item active" data-cat="all" onclick="filterByCategory('all',this)">
+          All themes <span class="tm-count" id="count-all">0</span>
         </div>
-        <div class="theme-info">
-          <div class="theme-name">{{ theme.name }}</div>
-          <div class="theme-desc">{{ theme.description }}</div>
-          <div class="theme-tags">
-            {% for tag in theme.tags %}<span class="theme-tag">{{ tag }}</span>{% endfor %}
+      </div>
+      <div class="tm-sidebar-section" id="tm-tag-sidebar">
+        <div class="tm-sidebar-label">Style</div>
+      </div>
+    </aside>
+
+    <!-- Theme grid -->
+    <main class="tm-content">
+      <div class="tm-result-row">
+        <span class="tm-result-count" id="tm-result-count">Loading…</span>
+        <div class="tm-sort-row">
+          <label>Sort:</label>
+          <select id="tm-sort" onchange="sortThemes(this.value)">
+            <option value="default">Default order</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="tm-grid" id="tm-grid">
+        {% for slug, theme in allThemes %}
+        {%- set showIt = true -%}
+        {%- if site.category == 'linktree' -%}
+          {%- if 'biolink' not in slug -%}{%- set showIt = false -%}{%- endif -%}
+        {%- else -%}
+          {%- if 'biolink' in slug -%}{%- set showIt = false -%}{%- endif -%}
+        {%- endif -%}
+        {%- if showIt -%}
+        <div class="tm-card{% if settings.template_id == slug %} tm-selected{% endif %}"
+             data-slug="{{ slug }}"
+             data-name="{{ theme.name | lower }}"
+             data-for="{{ (theme.for or ['all']) | join(',') }}"
+             data-tags="{{ (theme.tags or []) | join(',') }}"
+             onclick="selectTheme('{{ slug }}','{{ theme.name }}',this)">
+          {% if settings.template_id == slug %}
+          <div class="tm-selected-badge">✓ Selected</div>
+          {% endif %}
+          <div class="tm-thumb">
+            {% if theme.hasPreview %}
+              <img src="{{ theme.previewUrl }}" alt="{{ theme.name }}" loading="lazy">
+            {% else %}
+              <iframe src="/template-preview?id={{ slug }}" loading="lazy" scrolling="no" title="{{ theme.name }} preview"></iframe>
+            {% endif %}
+            <div class="tm-thumb-overlay">
+              <button class="tm-preview-btn" onclick="previewTheme(event,'{{ slug }}')">Preview</button>
+            </div>
+          </div>
+          <div class="tm-card-body">
+            <div class="tm-card-name">{{ theme.name }}</div>
+            <div class="tm-card-desc">{{ theme.description or 'A clean, versatile theme for your site.' }}</div>
+            <div class="tm-card-tags">
+              {% for tag in theme.tags %}<span class="tm-card-tag">{{ tag }}</span>{% endfor %}
+            </div>
+          </div>
+          <div class="tm-card-footer">
+            <button class="tm-card-preview" onclick="previewTheme(event,'{{ slug }}')">Preview</button>
+            <button class="tm-card-select" onclick="selectTheme('{{ slug }}','{{ theme.name }}',document.querySelector('[data-slug=\'{{ slug }}\']'))">Select</button>
           </div>
         </div>
+        {%- endif -%}
+        {% endfor %}
       </div>
-      {% endif %}
-      {% endfor %}
-    </div>
-  </main>
+
+      <div id="tm-empty" class="tm-empty">
+        <div class="tm-empty-icon">🎨</div>
+        <div class="tm-empty-title">No themes found</div>
+        <div class="tm-empty-sub">Try a different category or clear the filter.</div>
+        <button class="tm-empty-reset" onclick="resetFilters()">Clear filters</button>
+      </div>
+    </main>
+  </div>
 </div>
 
-<div class="action-bar">
-  <div class="action-bar-left">Theme: <strong id="selectedLabel">{{ settings.template_id or 'minimal' }}</strong></div>
-  <div>
-    <a href="/dashboard" class="btn-skip" style="text-decoration:none;">Skip for now</a>
-    <button class="btn-continue" onclick="applyTheme()">Use this theme →</button>
+<!-- Action bar -->
+<div class="tm-action-bar">
+  <div class="tm-action-left">Theme: <strong id="tm-selected-label">{{ settings.template_id or 'None selected' }}</strong></div>
+  <div class="tm-action-right">
+    <a href="/dashboard" class="tm-btn-skip">Cancel</a>
+    <button class="tm-btn-apply" id="tm-apply-btn" onclick="applyTheme()">Use this theme →</button>
   </div>
 </div>
 
 <script>
-let selectedSlug  = '{{ settings.template_id or "minimal" }}'
-const siteId      = {{ site.id }}
-const isBiolink   = {{ 'true' if site.category == 'linktree' else 'false' }}
+const siteId    = {{ site.id }};
+const isBiolink = {{ 'true' if site.category == 'linktree' else 'false' }};
+let selectedSlug  = '{{ settings.template_id or "" }}';
+let activeCategory = 'all';
+let activeTag      = 'all';
+let searchQuery    = '';
 
-function selectTheme(slug, el) {
-  selectedSlug = slug
-  document.querySelectorAll('.theme-card').forEach(c => {
-    c.classList.remove('selected')
-    const badge = c.querySelector('.selected-badge')
-    if (badge) badge.remove()
-  })
-  el.classList.add('selected')
-  el.insertAdjacentHTML('afterbegin', '<div class="selected-badge">✓ Selected</div>')
-  document.getElementById('selectedLabel').textContent = slug
+// ── Bootstrap: gather categories + tags from rendered cards ──────────────────
+const allCards = Array.from(document.querySelectorAll('.tm-card'));
+const catCounts = {};
+const tagCounts = {};
+
+allCards.forEach(c => {
+  const forVals = (c.dataset.for || '').split(',').filter(Boolean);
+  const tagVals = (c.dataset.tags || '').split(',').filter(Boolean);
+  forVals.forEach(f => { catCounts[f] = (catCounts[f] || 0) + 1; });
+  tagVals.forEach(t => { tagCounts[t] = (tagCounts[t] || 0) + 1; });
+});
+
+document.getElementById('count-all').textContent = allCards.length;
+
+const catSelect  = document.getElementById('tm-cat-select');
+const catSidebar = document.getElementById('tm-cat-sidebar');
+const tagSidebar = document.getElementById('tm-tag-sidebar');
+const filterBar  = document.getElementById('tm-filter-bar');
+
+// Populate category dropdown + sidebar (skip 'all' — it's already there)
+Object.entries(catCounts)
+  .filter(([k]) => k !== 'all')
+  .sort((a, b) => b[1] - a[1])
+  .forEach(([cat, count]) => {
+    // Dropdown
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cap(cat);
+    catSelect.appendChild(opt);
+
+    // Sidebar
+    const item = document.createElement('div');
+    item.className = 'tm-sidebar-item';
+    item.dataset.cat = cat;
+    item.innerHTML = `${cap(cat)} <span class="tm-count">${count}</span>`;
+    item.onclick = () => filterByCategory(cat, item);
+    catSidebar.appendChild(item);
+  });
+
+// Populate tag pills + sidebar
+Object.entries(tagCounts)
+  .sort((a, b) => b[1] - a[1])
+  .forEach(([tag, count]) => {
+    // Filter bar pill
+    const pill = document.createElement('button');
+    pill.className = 'tm-tag';
+    pill.dataset.tag = tag;
+    pill.textContent = cap(tag);
+    pill.onclick = () => filterByTag(tag, pill);
+    filterBar.appendChild(pill);
+
+    // Sidebar style item
+    const item = document.createElement('div');
+    item.className = 'tm-sidebar-item';
+    item.dataset.tag = tag;
+    item.innerHTML = `${cap(tag)} <span class="tm-count">${count}</span>`;
+    item.onclick = () => filterByTag(tag, item);
+    tagSidebar.appendChild(item);
+  });
+
+updateResultCount();
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function cap(s) {
+  return s.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-async function applyTheme() {
-  const btn = document.querySelector('.btn-continue')
-  btn.textContent = 'Applying...'
-  btn.disabled = true
+function updateResultCount() {
+  const visible = allCards.filter(c => c.style.display !== 'none').length;
+  document.getElementById('tm-result-count').textContent =
+    visible === allCards.length
+      ? `Showing all ${allCards.length} theme${allCards.length !== 1 ? 's' : ''}`
+      : `Showing ${visible} of ${allCards.length} themes`;
+  document.getElementById('tm-empty').style.display = visible === 0 ? 'flex' : 'none';
+}
 
+// ── Filtering ────────────────────────────────────────────────────────────────
+function applyFilters() {
+  const q = searchQuery.toLowerCase().trim();
+  allCards.forEach(card => {
+    const forVals  = (card.dataset.for  || '').split(',');
+    const tagVals  = (card.dataset.tags || '').split(',');
+    const name     = card.dataset.name  || '';
+
+    const catMatch = activeCategory === 'all' ||
+                     forVals.includes(activeCategory) ||
+                     forVals.includes('all');
+    const tagMatch = activeTag === 'all' || tagVals.includes(activeTag);
+    const qMatch   = !q || name.includes(q) ||
+                     (card.querySelector('.tm-card-name') || {}).textContent?.toLowerCase().includes(q);
+
+    card.style.display = (catMatch && tagMatch && qMatch) ? '' : 'none';
+  });
+  updateResultCount();
+}
+
+function filterByCategory(cat, el) {
+  activeCategory = cat;
+  catSelect.value = cat;
+
+  document.querySelectorAll('.tm-sidebar-item[data-cat]').forEach(s => s.classList.remove('active'));
+  const target = el && el.dataset.cat
+    ? el
+    : document.querySelector(`.tm-sidebar-item[data-cat="${cat}"]`);
+  if (target) target.classList.add('active');
+
+  applyFilters();
+}
+
+function filterByTag(tag, el) {
+  activeTag = tag;
+
+  document.querySelectorAll('.tm-tag').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll(`.tm-tag[data-tag="${tag}"]`).forEach(t => t.classList.add('active'));
+
+  document.querySelectorAll('.tm-sidebar-item[data-tag]').forEach(s => s.classList.remove('active'));
+  const sidebarItem = document.querySelector(`.tm-sidebar-item[data-tag="${tag}"]`);
+  if (sidebarItem) sidebarItem.classList.add('active');
+
+  applyFilters();
+}
+
+function sortThemes(val) {
+  const grid = document.getElementById('tm-grid');
+  const cards = Array.from(grid.querySelectorAll('.tm-card'));
+  if (val === 'name') {
+    cards.sort((a, b) => (a.dataset.name || '').localeCompare(b.dataset.name || ''));
+  } else {
+    cards.sort((a, b) => {
+      const ai = parseInt(a.dataset.order || 99);
+      const bi = parseInt(b.dataset.order || 99);
+      return ai - bi;
+    });
+  }
+  cards.forEach(c => grid.appendChild(c));
+}
+
+function resetFilters() {
+  activeCategory = 'all';
+  activeTag = 'all';
+  searchQuery = '';
+  document.getElementById('tm-search').value = '';
+  catSelect.value = 'all';
+  document.querySelectorAll('.tm-sidebar-item').forEach(s => s.classList.remove('active'));
+  const allCatItem = document.querySelector('.tm-sidebar-item[data-cat="all"]');
+  if (allCatItem) allCatItem.classList.add('active');
+  document.querySelectorAll('.tm-tag').forEach(t => t.classList.remove('active'));
+  const allTagBtn = document.querySelector('.tm-tag[data-tag="all"]');
+  if (allTagBtn) allTagBtn.classList.add('active');
+  applyFilters();
+}
+
+// ── Search input ─────────────────────────────────────────────────────────────
+document.getElementById('tm-search').addEventListener('input', function() {
+  searchQuery = this.value;
+  applyFilters();
+});
+
+document.getElementById('tm-cat-select').addEventListener('change', function() {
+  filterByCategory(this.value);
+});
+
+// ── Theme selection ───────────────────────────────────────────────────────────
+function selectTheme(slug, name, el) {
+  selectedSlug = slug;
+  allCards.forEach(c => {
+    c.classList.remove('tm-selected');
+    const badge = c.querySelector('.tm-selected-badge');
+    if (badge) badge.remove();
+  });
+  if (el) {
+    el.classList.add('tm-selected');
+    el.insertAdjacentHTML('afterbegin', '<div class="tm-selected-badge">✓ Selected</div>');
+  }
+  document.getElementById('tm-selected-label').textContent = name || slug;
+}
+
+function previewTheme(e, slug) {
+  e.stopPropagation();
+  window.open('/template-preview?id=' + slug, '_blank', 'width=1280,height=800,noopener');
+}
+
+// ── Apply theme ───────────────────────────────────────────────────────────────
+async function applyTheme() {
+  if (!selectedSlug) {
+    alert('Please select a theme first.');
+    return;
+  }
+  const btn = document.getElementById('tm-apply-btn');
+  btn.textContent = 'Applying…';
+  btn.disabled = true;
   try {
     const res  = await fetch('/dashboard/site/set-template', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ site_id: siteId, template_id: selectedSlug })
-    })
-    const data = await res.json()
-
+    });
+    const data = await res.json();
     if (data.ok) {
       window.location.href = isBiolink
         ? `/dashboard/site/biolink-builder?id=${siteId}`
-        : `/dashboard/site/builder?id=${siteId}`
+        : `/dashboard/site/builder?id=${siteId}`;
     } else {
-      alert('Error applying theme: ' + (data.error || 'Unknown'))
-      btn.textContent = 'Use this theme →'
-      btn.disabled    = false
+      alert('Error applying theme: ' + (data.error || 'Unknown'));
+      btn.textContent = 'Use this theme →';
+      btn.disabled = false;
     }
-  } catch (err) {
-    alert('Something went wrong. Please try again.')
-    btn.textContent = 'Use this theme →'
-    btn.disabled    = false
+  } catch(err) {
+    alert('Something went wrong. Please try again.');
+    btn.textContent = 'Use this theme →';
+    btn.disabled = false;
   }
 }
 </script>
