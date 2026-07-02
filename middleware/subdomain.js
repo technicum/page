@@ -102,9 +102,13 @@ async function serveSite(req, res, next, lookup) {
       const siteName   = site.title || site.subdomain
       const siteAvatar = (settings.profile && (settings.profile.avatar || settings.profile.logo)) ||
                          settings.logo || null
-      const icons = siteAvatar
-        ? [{ src: siteAvatar, sizes: 'any', type: 'image/png', purpose: 'any maskable' }]
-        : [{ src: `${process.env.APP_URL || 'https://pagezaper.com'}/favicon.ico`, sizes: 'any' }]
+      // Chrome requires explicit 192x192 and 512x512 declarations to fire beforeinstallprompt
+      const iconSrc = siteAvatar || `${process.env.APP_URL || 'https://pagezaper.com'}/favicon.ico`
+      const iconType = siteAvatar ? 'image/png' : 'image/x-icon'
+      const icons = [
+        { src: iconSrc, sizes: '192x192', type: iconType, purpose: 'any maskable' },
+        { src: iconSrc, sizes: '512x512', type: iconType, purpose: 'any maskable' }
+      ]
       const manifest = {
         name:             siteName,
         short_name:       siteName.length > 12 ? siteName.substring(0, 12) : siteName,
