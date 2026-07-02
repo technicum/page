@@ -39,6 +39,7 @@ exports.register = async (req, res) => {
   )
 
   const user = await db.first('SELECT * FROM ms_accounts WHERE id = ?', [id])
+  res.clearCookie('pagezaper_session', { domain: '.pagezaper.com', path: '/' })
   req.session.user = user
   res.redirect('/dashboard/wizard')
 }
@@ -70,6 +71,10 @@ exports.login = async (req, res) => {
     await db.execute('UPDATE ms_accounts SET password = ? WHERE id = ?', [newHash, user.id])
     user.password = newHash
   }
+
+  // Clear stale cross-subdomain cookie left over from a previous deployment
+  // that briefly set domain: '.pagezaper.com'. Harmless if no such cookie exists.
+  res.clearCookie('pagezaper_session', { domain: '.pagezaper.com', path: '/' })
 
   req.session.user = user
 
