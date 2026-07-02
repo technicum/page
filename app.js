@@ -121,13 +121,15 @@ try {
 }
 
 // Session
+// cookie.domain set to root domain so session is shared across subdomains
+const _cookieDomain = process.env.BASE_DOMAIN ? '.' + process.env.BASE_DOMAIN : undefined
 app.use(session({
   key:               'pagezaper_session',
   secret:            process.env.SESSION_SECRET || 'changeme',
   store:             sessionStore,
   resave:            false,
   saveUninitialized: false,
-  cookie:            { maxAge: 86400000, httpOnly: true }
+  cookie:            { maxAge: 86400000, httpOnly: true, domain: _cookieDomain }
 }))
 
 // Middleware

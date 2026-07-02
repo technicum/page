@@ -97,6 +97,38 @@ async function serveSite(req, res, next, lookup) {
       )
     }
 
+    // ── PWA: manifest.json ─────────────────────────────────────────────────────
+    if (rawPath === 'manifest.json') {
+      const siteName   = site.title || site.subdomain
+      const siteAvatar = (settings.profile && (settings.profile.avatar || settings.profile.logo)) ||
+                         settings.logo || null
+      const icons = siteAvatar
+        ? [{ src: siteAvatar, sizes: 'any', type: 'image/png', purpose: 'any maskable' }]
+        : [{ src: `${process.env.APP_URL || 'https://pagezaper.com'}/favicon.ico`, sizes: 'any' }]
+      const manifest = {
+        name:             siteName,
+        short_name:       siteName.length > 12 ? siteName.substring(0, 12) : siteName,
+        start_url:        '/',
+        display:          'standalone',
+        theme_color:      (settings.profile && settings.profile.accent) || '#2563eb',
+        background_color: '#ffffff',
+        icons
+      }
+      res.set('Content-Type', 'application/manifest+json')
+      res.set('Cache-Control', 'public, max-age=3600')
+      return res.json(manifest)
+    }
+
+    // ── PWA: service worker ────────────────────────────────────────────────────
+    if (rawPath === 'sw.js') {
+      res.set('Content-Type', 'application/javascript')
+      res.set('Cache-Control', 'no-cache')
+      return res.send(`// PageZaper PWA service worker
+self.addEventListener('install',function(e){self.skipWaiting();});
+self.addEventListener('activate',function(e){e.waitUntil(clients.claim());});
+self.addEventListener('fetch',function(e){});`)
+    }
+
     // ── Standalone booking pages ──────────────────────────────────────────────
     if (pageId === 'book') {
       // /book → all meetings; /book/123 → direct link to event 123
@@ -160,7 +192,11 @@ async function serveSite(req, res, next, lookup) {
     // If site is unpublished, only block from search but still serve
     let siteForms = {}
     try { siteForms = await loadFormsForAccount(site.account_id) } catch(e) { /* table may not exist yet */ }
-    const html = await themeManager.render(slug, site, settings, pageId, siteForms)
+    // ── Owner check: show "Save to Home Screen" only to the logged-in site owner
+    const sessionUser = req.session && req.session.user
+    const isOwner = !!(sessionUser && sessionUser.id === site.account_id)
+
+    const html = await themeManager.render(slug, site, settings, pageId, siteForms, { is_owner: isOwner })
     res.send(html)
 
   } catch (err) {

@@ -145,7 +145,7 @@ function getSection(slug, sectionId) {
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
-async function render(slug, site, settings, pageId = 'home', siteForms = {}) {
+async function render(slug, site, settings, pageId = 'home', siteForms = {}, extraCtx = {}) {
   const theme = loadTheme(resolveSlug(slug)) || loadTheme('minimal')
   if (!theme) throw new Error('No themes found')
 
@@ -406,7 +406,8 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}) {
     city:              settings.city || '',
     app_name:          process.env.APP_NAME || 'PageZapper',
     app_url:           process.env.APP_URL  || 'https://pagezapper.com',
-    site_forms:        siteForms
+    site_forms:        siteForms,
+    ...extraCtx
   }
 
   let html = await engine.parseAndRender(source, context)
