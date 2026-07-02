@@ -28,7 +28,10 @@ INSERT INTO ms_categories (name, slug, icon, sort_order) VALUES
   ('Non-profit',             'nonprofit',    '❤️', 14),
   ('Other',                  'other',        '📁', 99);
 
--- Add category_id to sites table
+-- Add category_id to sites table (IF NOT EXISTS for safe re-runs)
 ALTER TABLE ms_sites
-  ADD COLUMN category_id INT UNSIGNED DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS category_id INT UNSIGNED DEFAULT NULL;
+
+-- Add FK only if it doesn't already exist
+ALTER TABLE ms_sites
   ADD CONSTRAINT fk_site_category FOREIGN KEY (category_id) REFERENCES ms_categories(id) ON DELETE SET NULL;

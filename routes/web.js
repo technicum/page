@@ -223,6 +223,9 @@ router.post('/admin/categories/create',      requireAuth, requireAdmin, admin.cr
 router.post('/admin/categories/update',      requireAuth, requireAdmin, admin.updateCategory)
 router.post('/admin/categories/delete',      requireAuth, requireAdmin, admin.deleteCategory)
 
+// ── Alias landing pages (must be before /:city) ───────────────────────────────
+router.get('/:city/:alias', home.aliasPage)
+
 // ── City landing pages (catch-all — must be LAST) ─────────────────────────────
 router.get('/:city', home.cityPage)
 

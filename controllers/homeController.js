@@ -201,6 +201,77 @@ exports.cityPage = async (req, res, next) => {
   }
 }
 
+// ── Alias landing pages /:city/:alias ────────────────────────────────────────
+exports.aliasPage = async (req, res, next) => {
+  try {
+    const citySlug   = req.params.city.toLowerCase()
+    const aliasSlug  = req.params.alias.toLowerCase()
+    const citySearch = citySlug.replace(/-/g, ' ')   // "new-delhi" → "new delhi"
+
+    // Look up the alias
+    const alias = await db.first(`
+      SELECT a.id, a.keyword, a.slug, a.page_title, a.meta_desc, a.h1,
+             c.id AS cat_id, c.name AS cat_name, c.icon AS cat_icon
+      FROM ms_category_aliases a
+      JOIN ms_categories c ON c.id = a.category_id
+      WHERE a.slug = ? AND a.status = 1
+    `, [aliasSlug])
+
+    if (!alias) return next()  // not a known alias → fall through to 404
+
+    // Capitalise city for display: "new delhi" → "New Delhi"
+    const cityDisplay = citySearch.replace(/\b\w/g, c => c.toUpperCase())
+
+    // Swap {city} placeholder in SEO fields
+    const pageTitle = alias.page_title.replace(/\{city\}/g, cityDisplay)
+    const metaDesc  = (alias.meta_desc || '').replace(/\{city\}/g, cityDisplay)
+    const h1        = alias.h1.replace(/\{city\}/g, cityDisplay)
+
+    // Fetch businesses in this category + city
+    let rows = await db.query(`
+      SELECT s.id, s.title, s.subdomain, s.settings, s.state,
+             c.name AS cat_name, c.icon AS cat_icon,
+             ROUND(AVG(rv.rating), 1) AS avg_rating,
+             COUNT(rv.id)             AS review_count
+      FROM ms_sites s
+      LEFT JOIN ms_categories c  ON c.id  = s.category_id
+      LEFT JOIN ms_reviews rv    ON rv.site_id = s.id AND rv.is_approved = 1
+      WHERE s.is_published = 1
+        AND s.parent_site_id IS NULL
+        AND s.category_id = ?
+        AND LOWER(JSON_EXTRACT(s.settings, '$.city')) = ?
+      GROUP BY s.id
+      ORDER BY avg_rating DESC, review_count DESC, s.created_at DESC
+      LIMIT 60
+    `, [alias.cat_id, citySearch])
+
+    const results = rows.map(s => {
+      const st = JSON.parse(s.settings || '{}')
+      return { ...s, settings: st, logo: st.logo || (st.profile && st.profile.avatar) || '' }
+    })
+
+    const categories = await db.query(
+      'SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC'
+    )
+
+    res.render('alias.njk', {
+      title:      pageTitle,
+      metaDesc,
+      h1,
+      aliasKeyword: alias.keyword,
+      catName:    alias.cat_name,
+      catIcon:    alias.cat_icon,
+      cityName:   cityDisplay,
+      citySlug,
+      aliasSlug,
+      results,
+      categories: categories || []
+    })
+  } catch (e) {
+    next(e)
+  }
+}
+
 // ── Sitemap ───────────────────────────────────────────────────────────────────
 exports.sitemap = async (req, res) => {
   try {
