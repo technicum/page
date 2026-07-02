@@ -169,13 +169,6 @@
 
       <div class="tm-grid" id="tm-grid">
         {% for slug, theme in allThemes %}
-        {%- set showIt = true -%}
-        {%- if site.category == 'linktree' -%}
-          {%- if 'biolink' not in slug -%}{%- set showIt = false -%}{%- endif -%}
-        {%- else -%}
-          {%- if 'biolink' in slug -%}{%- set showIt = false -%}{%- endif -%}
-        {%- endif -%}
-        {%- if showIt -%}
         <div class="tm-card{% if settings.template_id == slug %} tm-selected{% endif %}"
              data-slug="{{ slug }}"
              data-name="{{ theme.name | lower }}"
@@ -207,7 +200,6 @@
             <button class="tm-card-select" onclick="selectTheme('{{ slug }}','{{ theme.name }}',document.querySelector('[data-slug=\'{{ slug }}\']'))">Select</button>
           </div>
         </div>
-        {%- endif -%}
         {% endfor %}
       </div>
 
