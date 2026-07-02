@@ -44,12 +44,15 @@ exports.wizard = async (req, res) => {
   const allThemes = themeManager.loadAll()
   // Send a simplified list: slug, name, for[], previewUrl, hasPreview
   const themes = Object.values(allThemes).map(t => ({
-    slug:       t.slug,
-    name:       t.name,
-    for:        t.for || ['all'],
-    previewUrl: t.previewUrl,
-    hasPreview: t.hasPreview,
-    description: t.description || ''
+    slug:        t.slug,
+    name:        t.name,
+    for:         t.for || ['all'],
+    previewUrl:  t.previewUrl,
+    hasPreview:  t.hasPreview,
+    description: t.description || '',
+    categories:  t.categories  || ['other'],
+    tags:        t.tags        || [],
+    order:       t.order       || 99
   }))
   const categories = await db.query('SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC')
   res.render('dashboard/wizard.njk', { title: 'Create your site', user: req.session.user, themes, categories: categories || [] })
