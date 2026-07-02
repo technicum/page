@@ -85,6 +85,28 @@ router.get ('/review/:subdomain',       review.showForm)
 router.post('/review/:subdomain',       review.submit)
 router.get ('/api/reviews/:subdomain',  review.apiReviews)
 
+// PWA owner check — called cross-origin from mini-site subdomains
+router.get('/api/check-owner/:subdomain', async (req, res) => {
+  // Allow requests from subdomains of our base domain
+  const origin     = req.headers.origin || ''
+  const baseDomain = process.env.BASE_DOMAIN || 'pagezaper.com'
+  const isSubOrigin = origin === `https://${baseDomain}` ||
+                      origin.endsWith(`.${baseDomain}`)
+  if (isSubOrigin) {
+    res.set('Access-Control-Allow-Origin', origin)
+    res.set('Access-Control-Allow-Credentials', 'true')
+    res.set('Vary', 'Origin')
+  }
+  const user = req.session && req.session.user
+  if (!user) return res.json({ is_owner: false })
+  try {
+    const site = await db.first('SELECT account_id FROM ms_sites WHERE subdomain = ?', [req.params.subdomain])
+    return res.json({ is_owner: !!(site && Number(user.id) === Number(site.account_id)) })
+  } catch(e) {
+    return res.json({ is_owner: false })
+  }
+})
+
 // Reviews — dashboard
 router.get ('/dashboard/site/reviews',        requireAuth, review.siteReviews)
 router.post('/dashboard/site/reviews/delete', requireAuth, review.deleteReview)
