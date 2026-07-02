@@ -216,6 +216,12 @@
       📲 Save to Home Screen
     </button>
   </div>
+  <div id="pzIOSHint" style="display:none;text-align:center;padding:8px 20px 2px;">
+    <div style="display:inline-flex;align-items:flex-start;gap:10px;background:rgba(0,0,0,0.06);border-radius:12px;padding:11px 15px;font-size:12px;color:#6b6b66;max-width:280px;text-align:left;line-height:1.5;">
+      <span style="font-size:18px;flex-shrink:0;margin-top:1px;">📲</span>
+      <span>Tap the <strong style="color:#1a1a18;">Share</strong> button <svg style="display:inline;vertical-align:middle;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a1a18" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> in Safari, then tap <strong style="color:#1a1a18;">"Add to Home Screen"</strong></span>
+    </div>
+  </div>
   {% endif %}
 
 </div>
@@ -225,7 +231,7 @@ function pzToggle(id){var el=document.getElementById(id);el.classList.toggle('op
 function pzSaveContact(){var n='{{ settings.profile.name | escape }}';var t='{{ settings.profile.title | default: "" | escape }}';var p='{{ settings.contact.phone | default: "" | escape }}';if(!p)p='{{ settings.contact.whatsapp | default: "" | escape }}';var e='{{ settings.contact.email | default: "" | escape }}';var w='{{ settings.contact.website | default: "" | escape }}';var vcf='BEGIN:VCARD\nVERSION:3.0\nFN:'+n+'\n'+(t?'TITLE:'+t+'\n':'')+(p?'TEL;TYPE=CELL:'+p+'\n':'')+(e?'EMAIL:'+e+'\n':'')+(w?'URL:'+w+'\n':'')+'URL:'+location.href+'\nEND:VCARD';var b=new Blob([vcf],{type:'text/vcard'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(n||'contact').replace(/\s+/g,'-')+'.vcf';a.click();}
 function pzShare(){var u=location.href,t=document.title;if(navigator.share){navigator.share({title:t,url:u});}else{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
 {% if is_owner %}
-(function(){var _dp=null;if(navigator.serviceWorker){navigator.serviceWorker.register('/sw.js').catch(function(){});}window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_dp=e;var b=document.getElementById('pzInstallBar');if(b)b.style.display='';});window.addEventListener('appinstalled',function(){var b=document.getElementById('pzInstallBar');if(b)b.style.display='none';_dp=null;});window.pzInstall=function(){if(_dp){_dp.prompt();_dp.userChoice.then(function(){_dp=null;});}};})();
+(function(){var _dp=null;var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;if(window.navigator.standalone===true)return;if(navigator.serviceWorker){navigator.serviceWorker.register('/sw.js').catch(function(){});}window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_dp=e;var b=document.getElementById('pzInstallBar');if(b)b.style.display='';});window.addEventListener('appinstalled',function(){var b=document.getElementById('pzInstallBar');if(b)b.style.display='none';_dp=null;});if(isIOS){var h=document.getElementById('pzIOSHint');if(h)h.style.display='';}window.pzInstall=function(){if(_dp){_dp.prompt();_dp.userChoice.then(function(){_dp=null;});}};})();
 {% endif %}
 </script>
 </body>
