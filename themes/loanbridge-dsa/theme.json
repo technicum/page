@@ -39,10 +39,12 @@
             { "emoji": "🏫", "name": "Education Loan",  "sub": "All top colleges covered", "rate": "9.5%" }
           ],
           "item_fields": [
-            { "id": "emoji", "label": "Icon / Emoji", "type": "text", "default": "💰" },
-            { "id": "name",  "label": "Product Name", "type": "text", "default": "Loan" },
-            { "id": "sub",   "label": "Subtitle",     "type": "text", "default": "" },
-            { "id": "rate",  "label": "Interest Rate", "type": "text", "default": "" }
+            { "id": "emoji",    "label": "Icon / Emoji",                          "type": "text", "default": "💰" },
+            { "id": "name",     "label": "Product Name",                          "type": "text", "default": "Loan" },
+            { "id": "sub",      "label": "Subtitle",                              "type": "text", "default": "" },
+            { "id": "rate",     "label": "Interest Rate",                         "type": "text", "default": "" },
+            { "id": "whatsapp", "label": "WhatsApp (overrides global if set)",    "type": "text", "default": "" },
+            { "id": "url",      "label": "Apply Online / Custom URL",             "type": "text", "default": "" }
           ]
         }
       ]

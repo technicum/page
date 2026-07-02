@@ -28,10 +28,11 @@
             { "image": "", "name": "Product Three", "price": "₹1299", "link": "" }
           ],
           "item_fields": [
-            { "id": "image", "label": "Product Image URL", "type": "image", "default": "" },
-            { "id": "name",  "label": "Product Name",      "type": "text",  "default": "New Product" },
-            { "id": "price", "label": "Price",             "type": "text",  "default": "₹499" },
-            { "id": "link",  "label": "Order / Buy Link",  "type": "text",  "default": "" }
+            { "id": "image",     "label": "Product Image URL",          "type": "image", "default": "" },
+            { "id": "name",      "label": "Product Name",               "type": "text",  "default": "New Product" },
+            { "id": "price",     "label": "Price",                      "type": "text",  "default": "₹499" },
+            { "id": "link",      "label": "Buy Link URL (redirect)",    "type": "text",  "default": "" },
+            { "id": "whatsapp",  "label": "WhatsApp (direct enquiry)",  "type": "text",  "default": "" }
           ]
         }
       ]
@@ -74,12 +75,13 @@
       "id": "contact",
       "label": "Contact",
       "fields": [
-        { "id": "whatsapp",  "label": "WhatsApp Number", "type": "text", "default": "" },
-        { "id": "phone",     "label": "Phone Number",    "type": "text", "default": "" },
-        { "id": "email",     "label": "Email",           "type": "text", "default": "" },
-        { "id": "website",   "label": "Website URL",     "type": "text", "default": "" },
-        { "id": "address",   "label": "Address",         "type": "text", "default": "" },
-        { "id": "save_label","label": "Save Contact Button Label", "type": "text", "default": "💾 Save Contact" }
+        { "id": "whatsapp",     "label": "WhatsApp Number (for cart orders)", "type": "text", "default": "" },
+        { "id": "checkout_url", "label": "Checkout / Order URL (for cart)",  "type": "text", "default": "" },
+        { "id": "phone",        "label": "Phone Number",                      "type": "text", "default": "" },
+        { "id": "email",        "label": "Email",                             "type": "text", "default": "" },
+        { "id": "website",      "label": "Website URL",                       "type": "text", "default": "" },
+        { "id": "address",      "label": "Address",                           "type": "text", "default": "" },
+        { "id": "save_label",   "label": "Save Contact Button Label",         "type": "text", "default": "💾 Save Contact" }
       ]
     },
     {

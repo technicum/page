@@ -20,18 +20,22 @@
       "id": "services",
       "label": "Services",
       "fields": [
-        { "id": "heading", "label": "Section Heading", "type": "text", "default": "What I Offer" },
+        { "id": "heading",      "label": "Section Heading",                              "type": "text", "default": "What I Offer" },
+        { "id": "order_mode",   "label": "Order mode (cart / whatsapp / url / all)",     "type": "text", "default": "all" },
+        { "id": "checkout_url", "label": "Checkout URL (for cart buy-now button)",       "type": "text", "default": "" },
         { "id": "items", "label": "Services", "type": "repeater",
           "default": [
-            { "emoji": "✂️", "name": "Hair Cut & Style",   "description": "Wash, cut and blow-dry",         "price": "Starting ₹500" },
-            { "emoji": "💆", "name": "Head Massage",        "description": "Relaxing 30-min session",        "price": "Starting ₹300" },
-            { "emoji": "🎨", "name": "Hair Colouring",      "description": "Global or highlight colouring", "price": "Starting ₹1500" }
+            { "emoji": "✂️", "name": "Hair Cut & Style",   "description": "Wash, cut and blow-dry",        "price": "Starting ₹500", "whatsapp": "", "url": "" },
+            { "emoji": "💆", "name": "Head Massage",        "description": "Relaxing 30-min session",       "price": "Starting ₹300", "whatsapp": "", "url": "" },
+            { "emoji": "🎨", "name": "Hair Colouring",      "description": "Global or highlight colouring", "price": "Starting ₹1500","whatsapp": "", "url": "" }
           ],
           "item_fields": [
-            { "id": "emoji",       "label": "Emoji / Icon",          "type": "text", "default": "✅" },
-            { "id": "name",        "label": "Service Name",           "type": "text", "default": "Service" },
-            { "id": "description", "label": "Description",            "type": "text", "default": "" },
-            { "id": "price",       "label": "Price / Starting From",  "type": "text", "default": "" }
+            { "id": "emoji",       "label": "Emoji / Icon",                   "type": "text", "default": "✅" },
+            { "id": "name",        "label": "Service Name",                   "type": "text", "default": "Service" },
+            { "id": "description", "label": "Description",                    "type": "text", "default": "" },
+            { "id": "price",       "label": "Price / Starting From",          "type": "text", "default": "" },
+            { "id": "whatsapp",    "label": "WhatsApp (direct enquiry)",      "type": "text", "default": "" },
+            { "id": "url",         "label": "Book / Buy Link URL",            "type": "text", "default": "" }
           ]
         }
       ]
@@ -73,8 +77,8 @@
       "id": "contact",
       "label": "Contact",
       "fields": [
-        { "id": "whatsapp",  "label": "WhatsApp Number", "type": "text", "default": "" },
-        { "id": "phone",     "label": "Phone Number",    "type": "text", "default": "" },
+        { "id": "whatsapp",     "label": "WhatsApp Number (for cart orders)", "type": "text", "default": "" },
+        { "id": "phone",        "label": "Phone Number",                      "type": "text", "default": "" },
         { "id": "email",     "label": "Email",           "type": "text", "default": "" },
         { "id": "website",   "label": "Website URL",     "type": "text", "default": "" },
         { "id": "address",   "label": "Address",         "type": "text", "default": "" },
