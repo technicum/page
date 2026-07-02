@@ -74,16 +74,22 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 .subdomain-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
 
 /* ── Marketplace-style theme picker ─────────────────────────────────────── */
-.tm-filter-row{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
-.tm-filter-row input{width:100%;height:38px;padding:0 14px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);outline:none;}
-.tm-filter-row input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.07);}
-.tm-filter-row input::placeholder{color:var(--ink-faint);}
-.tm-wiz-cats{display:flex;gap:6px;flex-wrap:wrap;}
-.tm-wiz-cat{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border-md);background:transparent;color:var(--ink-muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;}
-.tm-wiz-cat:hover{border-color:var(--ink);color:var(--ink);}
-.tm-wiz-cat.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
+.tm-wiz-search-wrap{margin-bottom:10px;}
+.tm-wiz-search-wrap input{width:100%;height:38px;padding:0 14px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);outline:none;}
+.tm-wiz-search-wrap input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.07);}
+.tm-wiz-search-wrap input::placeholder{color:var(--ink-faint);}
 
-.theme-marketplace{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px;}
+.tm-wiz-layout{display:flex;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;min-height:400px;}
+.tm-wiz-sidebar{width:168px;min-width:168px;border-right:1px solid var(--border);background:var(--white);padding:14px 10px;overflow-y:auto;}
+.tm-wiz-sidebar-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px;padding:0 6px;}
+.tm-wiz-sidebar-item{display:flex;align-items:center;justify-content:space-between;padding:7px 8px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--ink-muted);margin-bottom:2px;user-select:none;}
+.tm-wiz-sidebar-item:hover{background:var(--off);color:var(--ink);}
+.tm-wiz-sidebar-item.active{background:var(--blue-light);color:var(--blue);font-weight:500;}
+.tm-wiz-count{font-size:11px;color:var(--ink-faint);background:var(--off);border-radius:10px;padding:1px 6px;min-width:20px;text-align:center;flex-shrink:0;}
+.tm-wiz-sidebar-item.active .tm-wiz-count{background:rgba(37,99,235,0.12);color:var(--blue);}
+.tm-wiz-content{flex:1;padding:12px;min-width:0;overflow-y:auto;max-height:540px;background:var(--off);}
+
+.theme-marketplace{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;margin-bottom:0;}
 .tm-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative;user-select:none;}
 .tm-card:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(37,99,235,0.1);}
 .tm-card.tm-selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
@@ -126,6 +132,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 @media(max-width:640px){
   nav{padding:0 20px;}
   .progress-wrap,.main{padding-left:20px;padding-right:20px;}
+  .tm-wiz-sidebar{display:none;}
   .theme-marketplace{grid-template-columns:repeat(2,1fr);}
   .tm-thumb{height:110px;}
 }
@@ -225,12 +232,19 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 
       <div class="field">
         <label>Choose a theme</label>
-        <div class="tm-filter-row">
+        <div class="tm-wiz-search-wrap">
           <input type="text" id="tm-wiz-search" placeholder="Search themes…" oninput="wizFilterThemes()">
-          <div class="tm-wiz-cats" id="tm-wiz-cats"></div>
         </div>
-        <div class="theme-marketplace" id="template-grid"></div>
-        <p class="no-themes-msg" id="no-themes-msg">No themes found.</p>
+        <div class="tm-wiz-layout">
+          <aside class="tm-wiz-sidebar">
+            <div class="tm-wiz-sidebar-label">Category</div>
+            <div id="tm-wiz-cats"></div>
+          </aside>
+          <div class="tm-wiz-content">
+            <div class="theme-marketplace" id="template-grid"></div>
+            <p class="no-themes-msg" id="no-themes-msg">No themes found.</p>
+          </div>
+        </div>
       </div>
 
       <div class="field">
@@ -297,27 +311,23 @@ function renderTemplatePicker() {
   if (!themes.length) { noMsg.style.display = ''; return; }
   noMsg.style.display = 'none';
 
-  // Build category pills
+  // Build category sidebar items
   var cats = {};
   themes.forEach(function(t) {
     (t.categories || ['other']).forEach(function(c) { cats[c] = (cats[c]||0)+1; });
   });
   catBox.innerHTML = '';
-  var allBtn = document.createElement('button');
-  allBtn.type = 'button';
-  allBtn.className = 'tm-wiz-cat active';
-  allBtn.dataset.cat = 'all';
-  allBtn.textContent = 'All (' + themes.length + ')';
-  allBtn.onclick = function(){ wizFilterCat('all', allBtn); };
-  catBox.appendChild(allBtn);
+  function makeSidebarItem(label, cat, count, active) {
+    var el = document.createElement('div');
+    el.className = 'tm-wiz-sidebar-item' + (active ? ' active' : '');
+    el.dataset.cat = cat;
+    el.innerHTML = '<span>' + label + '</span><span class="tm-wiz-count">' + count + '</span>';
+    el.onclick = function(){ wizFilterCat(cat, el); };
+    return el;
+  }
+  catBox.appendChild(makeSidebarItem('All themes', 'all', themes.length, true));
   Object.keys(cats).sort().forEach(function(cat) {
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'tm-wiz-cat';
-    btn.dataset.cat = cat;
-    btn.textContent = cap(cat) + ' (' + cats[cat] + ')';
-    btn.onclick = function(){ wizFilterCat(cat, btn); };
-    catBox.appendChild(btn);
+    catBox.appendChild(makeSidebarItem(cap(cat), cat, cats[cat], false));
   });
 
   // Build cards
@@ -371,7 +381,7 @@ function renderTemplatePicker() {
 
 function wizFilterCat(cat, el) {
   wizActiveCat = cat;
-  document.querySelectorAll('.tm-wiz-cat').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.tm-wiz-sidebar-item[data-cat]').forEach(function(b){ b.classList.remove('active'); });
   if (el) el.classList.add('active');
   wizApplyFilters();
 }
