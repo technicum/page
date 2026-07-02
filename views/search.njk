@@ -93,7 +93,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
 
 /* ── Cards ── */
 .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
-.provider-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;transition:box-shadow 0.2s;position:relative;}
+.provider-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;transition:box-shadow 0.2s;position:relative;cursor:pointer;}
 .provider-card:hover{box-shadow:0 8px 28px rgba(0,0,0,0.1);border-color:var(--border-md);}
 .card-band{height:72px;flex-shrink:0;position:relative;display:flex;justify-content:center;}
 .card-avatar-wrap{position:absolute;bottom:-24px;display:flex;align-items:center;justify-content:center;}
@@ -280,7 +280,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
     {% set bands    = ['#dbeafe','#d1fae5','#fef3c7','#fce7f3','#ede9fe','#ccfbf1'] %}
     {% set avatarbg = ['#bfdbfe','#a7f3d0','#fde68a','#fbcfe8','#ddd6fe','#99f6e4'] %}
     {% set logo = site.settings.logo or (site.settings.profile and site.settings.profile.avatar) %}
-    <a class="provider-card" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">
+    <div class="provider-card" data-href="https://{{ site.subdomain }}.{{ base_domain }}" onclick="window.open(this.dataset.href,'_blank')">
       <div class="card-band" style="background:{{ bands[ci] }};">
         {% if site.distance_km %}<span class="card-dist">{{ site.distance_km }} km</span>{% endif %}
         <div class="card-avatar-wrap">
@@ -302,7 +302,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
           <span class="rating-count">{{ site.avg_rating }} ({{ site.review_count }})</span>
         </div>
         {% else %}
-        <a class="review-link" href="/review/{{ site.subdomain }}">+ Add review</a>
+        <a class="review-link" href="/review/{{ site.subdomain }}" onclick="event.stopPropagation()">+ Add review</a>
         {% endif %}
         <div class="card-desc">{{ site.settings.description or ('Visit ' + site.subdomain + '.' + base_domain) }}</div>
       </div>
@@ -313,7 +313,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
         </div>
         <span class="card-visit">Visit →</span>
       </div>
-    </a>
+    </div>
     {% endfor %}
   </div>
   {% else %}
