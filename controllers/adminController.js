@@ -205,6 +205,107 @@ exports.deleteCategory = async (req, res) => {
   res.redirect('/admin/categories')
 }
 
+// ── Aliases list ─────────────────────────────────────────────────────────────
+exports.aliases = async (req, res) => {
+  const { cat = '' } = req.query
+  let aliases, categories
+
+  categories = await db.query(
+    'SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC'
+  )
+
+  let sql = `
+    SELECT a.*, c.name AS cat_name, c.icon AS cat_icon
+    FROM ms_category_aliases a
+    JOIN ms_categories c ON c.id = a.category_id
+  `
+  const params = []
+  if (cat) {
+    sql += ' WHERE a.category_id = ?'
+    params.push(parseInt(cat))
+  }
+  sql += ' ORDER BY c.sort_order ASC, a.search_vol DESC'
+
+  aliases = await db.query(sql, params)
+
+  res.render('admin/aliases.njk', {
+    title: 'Aliases',
+    user: req.session.user,
+    aliases,
+    categories,
+    filterCat: cat,
+    flash_success: req.flash('success'),
+    flash_errors:  req.flash('errors')
+  })
+}
+
+// ── Create alias ──────────────────────────────────────────────────────────────
+exports.createAlias = async (req, res) => {
+  let { category_id, keyword, slug, page_title, meta_desc, h1, search_vol } = req.body
+  keyword    = (keyword    || '').trim()
+  slug       = (slug       || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+  page_title = (page_title || '').trim()
+  meta_desc  = (meta_desc  || '').trim()
+  h1         = (h1         || '').trim()
+  search_vol = parseInt(search_vol) || 0
+  category_id = parseInt(category_id) || 0
+
+  if (!keyword || !slug || !page_title || !h1 || !category_id) {
+    req.flash('errors', ['Keyword, slug, page title, h1 and category are required.'])
+    return res.redirect('/admin/aliases')
+  }
+
+  try {
+    await db.execute(
+      'INSERT INTO ms_category_aliases (category_id, keyword, slug, page_title, meta_desc, h1, search_vol) VALUES (?,?,?,?,?,?,?)',
+      [category_id, keyword, slug, page_title, meta_desc || null, h1, search_vol]
+    )
+    req.flash('success', `Alias "${slug}" created.`)
+  } catch (e) {
+    req.flash('errors', ['Slug already exists or invalid data: ' + e.message])
+  }
+  res.redirect('/admin/aliases')
+}
+
+// ── Update alias ──────────────────────────────────────────────────────────────
+exports.updateAlias = async (req, res) => {
+  const id = parseInt(req.body.id) || 0
+  let { category_id, keyword, slug, page_title, meta_desc, h1, search_vol, status } = req.body
+  keyword    = (keyword    || '').trim()
+  slug       = (slug       || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+  page_title = (page_title || '').trim()
+  meta_desc  = (meta_desc  || '').trim()
+  h1         = (h1         || '').trim()
+  search_vol = parseInt(search_vol) || 0
+  category_id = parseInt(category_id) || 0
+  status     = status === '1' ? 1 : 0
+
+  if (!id || !keyword || !slug || !page_title || !h1 || !category_id) {
+    req.flash('errors', ['Invalid request.'])
+    return res.redirect('/admin/aliases')
+  }
+
+  try {
+    await db.execute(
+      'UPDATE ms_category_aliases SET category_id=?, keyword=?, slug=?, page_title=?, meta_desc=?, h1=?, search_vol=?, status=? WHERE id=?',
+      [category_id, keyword, slug, page_title, meta_desc || null, h1, search_vol, status, id]
+    )
+    req.flash('success', `Alias "${slug}" updated.`)
+  } catch (e) {
+    req.flash('errors', ['Update failed: ' + e.message])
+  }
+  res.redirect('/admin/aliases')
+}
+
+// ── Delete alias ──────────────────────────────────────────────────────────────
+exports.deleteAlias = async (req, res) => {
+  const id = parseInt(req.body.id) || 0
+  if (!id) return res.redirect('/admin/aliases')
+  await db.execute('DELETE FROM ms_category_aliases WHERE id = ?', [id])
+  req.flash('success', 'Alias deleted.')
+  res.redirect('/admin/aliases')
+}
+
 // ── Toggle admin ──────────────────────────────────────────────────────────────
 exports.toggleAdmin = async (req, res) => {
   const targetId = parseInt(req.body.user_id) || 0
