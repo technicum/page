@@ -355,33 +355,36 @@ exports.delete = async (req, res) => {
 
 exports.templatePreview = async (req, res) => {
   const slug    = (req.query.id || 'minimal').replace(/[^a-z0-9-]/g, '')
-  const preview = themeManager.loadAll()[slug] ? slug : 'minimal'
-  const data    = themeManager.loadAll()[preview]
+  const all     = themeManager.loadAll()
+  const preview = all[slug] ? slug : 'minimal'
+  const data    = all[preview]
 
-  const isBiolink = (preview === 'biolink')
-  const demoSite  = { id: 0, title: isBiolink ? 'Priya Sharma' : 'Demo Business', subdomain: 'demo', template_id: preview, is_published: 1, owner_name: 'Demo' }
-  const demoSettings = isBiolink ? {
-    site_type: 'linktree', theme: 'violet', template_id: preview,
-    sections: [
-      { id: 'profile', fields: { avatar_emoji: '✨', name: 'Priya Sharma', tagline: '@priyacreates', bio: 'Content Creator · Photographer · Based in Mumbai 🇮🇳' }},
-      { id: 'links',   fields: { items: [
-        { emoji: '🎬', label: 'Watch my videos', url: 'https://youtube.com', style: 'solid' },
-        { emoji: '📸', label: 'Follow on Instagram', url: 'https://instagram.com', style: 'outline' },
-        { emoji: '🛍️', label: 'Shop my presets', url: '#', style: 'ghost' }
-      ]}},
-      { id: 'socials', fields: { instagram: 'https://instagram.com', youtube: 'https://youtube.com', tiktok: 'https://tiktok.com' }}
-    ]
-  } : {
-    site_type: 'business', theme: 'blue', city: 'Ludhiana',
-    phone: '+91 98765 43210', whatsapp: '+91 98765 43210',
-    address: 'Model Town, Ludhiana', template_id: preview,
-    sections: [
-      { id:'hero',     fields:{ headline:'We do amazing work', subheading:'A professional business serving clients across India with passion and expertise', btn_text:'Contact Us', btn2_text:'Learn More' }},
-      { id:'about',    fields:{ title:'About Us', text:'We are dedicated professionals committed to delivering exceptional results. With years of experience, we bring quality and reliability to every project.' }},
-      { id:'services', fields:{ title:'What We Offer', items:[{ emoji:'✂️', name:'Premium Service', desc:'Top quality service delivery' },{ emoji:'💆', name:'Expert Consulting', desc:'Professional guidance and support' },{ emoji:'🎨', name:'Custom Solutions', desc:'Tailored to your needs' }]}},
-      { id:'contact',  fields:{ title:'Get in Touch', phone:'+91 98765 43210', whatsapp:'+91 98765 43210', address:'Model Town, Ludhiana' }}
-    ]
+  // Auto-build demo settings from each section's field defaults in theme.json
+  const demoSettings = { template_id: preview }
+  if (data && data.sections) {
+    data.sections.forEach(section => {
+      const sData = {}
+      ;(section.fields || []).forEach(field => {
+        if (field.default !== undefined) sData[field.id] = field.default
+      })
+      demoSettings[section.id] = sData
+    })
   }
+
+  // Fill empty contact fields so phone/WhatsApp sections render in preview
+  if (demoSettings.contact) {
+    if (!demoSettings.contact.whatsapp) demoSettings.contact.whatsapp = '+91 98765 43210'
+    if (!demoSettings.contact.phone)    demoSettings.contact.phone    = '+91 98765 43210'
+    if (!demoSettings.contact.email)    demoSettings.contact.email    = 'demo@example.com'
+    if (!demoSettings.contact.address)  demoSettings.contact.address  = 'Mumbai, Maharashtra'
+  }
+
+  // Derive the site title from the profile name default (or theme name)
+  const profileSection = data && data.sections && data.sections.find(s => s.id === 'profile')
+  const nameField      = profileSection && profileSection.fields && profileSection.fields.find(f => f.id === 'name')
+  const siteTitle      = (nameField && nameField.default) || (data && data.name) || 'Demo'
+
+  const demoSite = { id: 0, title: siteTitle, subdomain: 'demo', template_id: preview, is_published: 1, owner_name: siteTitle }
 
   try {
     const html = await themeManager.render(preview, demoSite, demoSettings)
