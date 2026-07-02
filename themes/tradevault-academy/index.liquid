@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name | default: site.title }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ac:{{ settings.profile.accent | default:'#00D964' }};
+  --bg:#0D1117;
+  --card:rgba(255,255,255,0.04);
+  --border:rgba(255,255,255,0.08);
+  --border-ac:rgba(0,217,100,0.25);
+  --ink:#fff;
+  --muted:rgba(255,255,255,0.45);
+  --red:#FF3B30;
+}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;min-height:100vh;}
+.page{width:100%;max-width:400px;padding:28px 18px 64px;display:flex;flex-direction:column;align-items:center;}
+
+/* Ticker */
+.ticker-wrap{width:100%;overflow:hidden;margin-bottom:16px;animation:fadeIn .4s both;}
+.ticker-inner{display:flex;gap:7px;animation:tickerScroll 18s linear infinite;}
+.tick-item{display:flex;align-items:center;gap:4px;background:rgba(0,217,100,0.07);border:1px solid rgba(0,217,100,0.18);border-radius:6px;padding:4px 9px;white-space:nowrap;flex-shrink:0;}
+.tick-item.red{background:rgba(255,59,48,0.07);border-color:rgba(255,59,48,0.18);}
+.tick-name{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.05em;}
+.tick-val{font-size:10px;font-weight:700;color:var(--ink);margin-left:3px;}
+.tick-chg{font-size:10px;font-weight:700;color:var(--ac);}
+.tick-item.red .tick-chg{color:var(--red);}
+
+/* Avatar */
+.av-wrap{position:relative;width:84px;height:84px;animation:popIn .6s cubic-bezier(.34,1.56,.64,1) .1s both;}
+.av-ring{position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--border-ac);border-top-color:var(--ac);animation:spin 2.5s linear infinite;}
+.av{position:absolute;inset:0;border-radius:14px;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#0D1117;border-radius:14px;}
+.av img{position:absolute;inset:0;width:100%;height:100%;border-radius:14px;object-fit:cover;}
+.name{margin-top:14px;font-size:21px;font-weight:800;color:var(--ink);text-align:center;letter-spacing:-.3px;animation:fadeUp .4s .35s both;}
+.title-line{font-size:11px;color:var(--muted);text-align:center;margin-top:3px;animation:fadeUp .4s .45s both;}
+.sebi{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:3px 10px;border-radius:8px;background:rgba(0,217,100,0.08);border:1px solid var(--border-ac);font-size:9px;color:var(--ac);animation:fadeUp .4s .5s both;}
+
+/* Stats grid */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%;margin-top:16px;animation:fadeUp .4s .55s both;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:10px 12px;}
+.stat-label{font-size:9px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;}
+.stat-val{font-size:18px;font-weight:800;color:var(--ac);}
+.stat-val.red{color:var(--red);}
+
+/* CTA */
+.cta-btn{display:block;width:100%;margin-top:14px;padding:14px;border-radius:13px;background:var(--ac);color:#0D1117;font-size:14px;font-weight:800;text-align:center;text-decoration:none;letter-spacing:.02em;animation:slideUp .4s .65s both,glowPulse 3s 2s ease-in-out infinite;position:relative;overflow:hidden;}
+.cta-btn .shimmer{position:absolute;top:0;left:-80%;width:45%;height:100%;background:rgba(255,255,255,0.2);transform:skewX(-18deg);animation:shimmer 3.5s 1.5s ease-in-out infinite;}
+
+/* Section title */
+.sec-title{width:100%;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:18px 0 9px;border-bottom:1px solid var(--border);padding-bottom:6px;animation:fadeIn .4s .7s both;}
+
+/* Courses */
+.course{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:7px;text-decoration:none;transition:border-color .2s,transform .15s;}
+.course:hover{border-color:var(--border-ac);transform:translateX(3px);}
+.c-emoji{font-size:20px;flex-shrink:0;width:30px;text-align:center;}
+.c-body{flex:1;}
+.c-name{font-size:13px;font-weight:600;color:var(--ink);}
+.c-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.c-price{font-size:12px;font-weight:800;color:var(--ac);white-space:nowrap;}
+.course:nth-child(1){animation:slideL .35s .72s both;}
+.course:nth-child(2){animation:slideR .35s .80s both;}
+.course:nth-child(3){animation:slideL .35s .88s both;}
+
+/* Community links */
+.com-link{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 13px;margin-bottom:7px;text-decoration:none;transition:border-color .2s;}
+.com-link:hover{border-color:rgba(255,255,255,0.2);}
+.cl-emoji{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+.cl-label{font-size:13px;font-weight:500;color:var(--ink);}
+.cl-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.cl-arr{margin-left:auto;color:var(--muted);}
+
+/* WhatsApp */
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:13px;background:rgba(37,211,102,0.1);border:1.5px solid rgba(37,211,102,0.3);color:#25D366;font-size:13px;font-weight:700;text-decoration:none;margin-top:4px;transition:background .2s;animation:fadeUp .4s 1s both;}
+.wa-btn:hover{background:rgba(37,211,102,0.18);}
+
+/* Disclaimer */
+.disclaimer{margin-top:20px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:9px;color:var(--muted);line-height:1.6;text-align:center;animation:fadeIn .4s 1.1s both;}
+
+/* Share */
+.share-wrap{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeIn .4s 1.2s both;}
+.share-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
+.share-toast{font-size:12px;color:var(--ac);opacity:0;transition:opacity .3s;}
+.share-toast.show{opacity:1;}
+
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideL{from{opacity:0;transform:translateX(-26px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideR{from{opacity:0;transform:translateX(26px);}to{opacity:1;transform:translateX(0);}}
+@keyframes popIn{0%{transform:scale(.2);opacity:0;}65%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes shimmer{0%{left:-80%;}40%,100%{left:130%;}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,217,100,0);}50%{box-shadow:0 0 18px 4px rgba(0,217,100,0.25);}}
+@keyframes tickerScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+</style>
+</head>
+<body>
+<div class="page">
+
+{% assign pr = settings.profile %}
+{% assign tk = settings.ticker %}
+{% assign st = settings.stats %}
+{% assign ct = settings.cta %}
+{% assign cs = settings.courses %}
+{% assign lk = settings.links %}
+{% assign co = settings.contact %}
+
+{% if tk.show == 'yes' and tk.items and tk.items.size > 0 %}
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    {% for t in tk.items %}
+    <div class="tick-item{% if t.up == 'no' %} red{% endif %}">
+      <span class="tick-name">{{ t.label }}</span>
+      <span class="tick-val">{{ t.value }}</span>
+      <span class="tick-chg">{{ t.change }}</span>
+    </div>
+    {% endfor %}
+    {% for t in tk.items %}
+    <div class="tick-item{% if t.up == 'no' %} red{% endif %}">
+      <span class="tick-name">{{ t.label }}</span>
+      <span class="tick-val">{{ t.value }}</span>
+      <span class="tick-chg">{{ t.change }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="av-wrap">
+  <div class="av-ring"></div>
+  <div class="av">
+    {% if pr.avatar != blank %}<img src="{{ pr.avatar }}" alt="{{ pr.name }}">
+    {% else %}{{ pr.name | slice: 0, 2 | upcase }}{% endif %}
+  </div>
+</div>
+
+<h1 class="name">{{ pr.name | default: 'Your Name' }}</h1>
+<p class="title-line">{{ pr.title | default: 'SEBI Reg. Analyst · Options Trader' }}</p>
+{% if pr.sebi_reg != blank %}
+<div class="sebi"><i class="ti ti-certificate"></i> {{ pr.sebi_reg }}</div>
+{% endif %}
+
+{% if st %}
+<div class="stats">
+  {% if st.monthly_pnl != blank %}<div class="stat-card"><div class="stat-label">This month</div><div class="stat-val">{{ st.monthly_pnl }}</div></div>{% endif %}
+  {% if st.win_rate != blank %}<div class="stat-card"><div class="stat-label">Win rate</div><div class="stat-val">{{ st.win_rate }}</div></div>{% endif %}
+  {% if st.students != blank %}<div class="stat-card"><div class="stat-label">Students</div><div class="stat-val">{{ st.students }}</div></div>{% endif %}
+  {% if st.experience != blank %}<div class="stat-card"><div class="stat-label">Experience</div><div class="stat-val" style="font-size:15px;">{{ st.experience }}</div></div>{% endif %}
+</div>
+{% endif %}
+
+{% if ct.label != blank %}
+<a class="cta-btn" href="{{ ct.url }}" target="_blank">
+  <div class="shimmer"></div>
+  {{ ct.label }}
+</a>
+{% endif %}
+
+{% if cs.items and cs.items.size > 0 %}
+<div class="sec-title">Courses</div>
+{% for item in cs.items %}
+<a class="course" href="{{ item.url }}" target="_blank">
+  <span class="c-emoji">{{ item.emoji | default: '📚' }}</span>
+  <div class="c-body">
+    <div class="c-name">{{ item.name }}</div>
+    {% if item.sub != blank %}<div class="c-sub">{{ item.sub }}</div>{% endif %}
+  </div>
+  {% if item.price != blank %}<div class="c-price">{{ item.price }}</div>{% endif %}
+</a>
+{% endfor %}
+{% endif %}
+
+{% if lk.items and lk.items.size > 0 %}
+<div class="sec-title">Community</div>
+{% for item in lk.items %}
+<a class="com-link" href="{{ item.url }}" target="_blank">
+  <span class="cl-emoji">{{ item.emoji }}</span>
+  <div>
+    <div class="cl-label">{{ item.label }}</div>
+    {% if item.sub != blank %}<div class="cl-sub">{{ item.sub }}</div>{% endif %}
+  </div>
+  <i class="ti ti-chevron-right cl-arr"></i>
+</a>
+{% endfor %}
+{% endif %}
+
+{% if co.whatsapp != blank %}
+<a class="wa-btn" href="https://wa.me/{{ co.whatsapp | replace:'+','' | replace:' ','' }}" target="_blank">
+  <i class="ti ti-brand-whatsapp" style="font-size:18px;"></i> WhatsApp me
+</a>
+{% endif %}
+
+{% if co.disclaimer != blank %}
+<div class="disclaimer">{{ co.disclaimer }}</div>
+{% endif %}
+
+<div class="share-wrap">
+  <button class="share-btn" onclick="pzShare()">
+    <i class="ti ti-share" style="font-size:14px;"></i> Share this page
+  </button>
+  <div class="share-toast" id="pzToast">✓ Link copied!</div>
+</div>
+
+</div>
+<script>
+function pzShare(){var u=location.href;if(navigator.share){navigator.share({title:document.title,url:u});}else{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
+</script>
+</body>
+</html>

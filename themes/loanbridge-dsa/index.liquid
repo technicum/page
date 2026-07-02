@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name | default: site.title }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ac:{{ settings.profile.accent | default:'#F5A623' }};
+  --bg:#0A1628;
+  --card:rgba(255,255,255,0.05);
+  --border:rgba(255,255,255,0.1);
+  --ink:#fff;
+  --muted:rgba(255,255,255,0.5);
+  --ac-faint:rgba(245,166,35,0.12);
+  --ac-border:rgba(245,166,35,0.3);
+}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;min-height:100vh;}
+.page{width:100%;max-width:400px;padding:44px 18px 64px;display:flex;flex-direction:column;align-items:center;}
+
+/* Avatar */
+.av-wrap{position:relative;width:88px;height:88px;animation:popIn .65s cubic-bezier(.34,1.56,.64,1) both;}
+.av-ring{position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--ac-border);border-top-color:var(--ac);animation:spin 2.8s linear infinite;}
+.av-ring2{position:absolute;inset:-12px;border-radius:50%;border:1px solid rgba(245,166,35,0.08);border-bottom-color:var(--ac-border);animation:spin 5s linear infinite reverse;}
+.av{position:absolute;inset:0;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#0A1628;}
+.av img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;}
+.name{margin-top:16px;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.3px;text-align:center;animation:fadeUp .4s .3s both;}
+.title{font-size:12px;color:var(--muted);text-align:center;margin-top:4px;animation:fadeUp .4s .4s both;}
+.reg-badge{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:4px 12px;border-radius:20px;background:var(--ac-faint);border:1px solid var(--ac-border);font-size:10px;color:var(--ac);animation:fadeUp .4s .5s both;}
+
+/* CTA */
+.cta-btn{display:block;width:100%;margin-top:18px;padding:14px;border-radius:14px;background:var(--ac);color:#0A1628;font-size:14px;font-weight:800;text-align:center;text-decoration:none;animation:slideUp .45s .55s both,pulse 3s 2s ease-in-out infinite;position:relative;overflow:hidden;}
+.cta-btn .shimmer{position:absolute;top:0;left:-80%;width:50%;height:100%;background:rgba(255,255,255,0.25);transform:skewX(-18deg);animation:shimmer 3.5s 1.5s ease-in-out infinite;}
+
+/* Section heading */
+.sec-title{width:100%;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ac);margin:20px 0 10px;animation:fadeUp .4s .6s both;}
+
+/* Loan products */
+.product{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:7px;text-decoration:none;transition:border-color .2s,transform .15s;}
+.product:hover{border-color:var(--ac);transform:translateX(3px);}
+.p-icon{width:34px;height:34px;border-radius:9px;background:var(--ac-faint);border:1px solid var(--ac-border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.p-body{flex:1;}
+.p-name{font-size:13px;font-weight:600;color:var(--ink);}
+.p-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.p-rate{font-size:13px;font-weight:800;color:var(--ac);white-space:nowrap;}
+.product:nth-child(1){animation:slideL .35s .65s both;}
+.product:nth-child(2){animation:slideR .35s .73s both;}
+.product:nth-child(3){animation:slideL .35s .81s both;}
+.product:nth-child(4){animation:slideR .35s .89s both;}
+.product:nth-child(5){animation:slideL .35s .97s both;}
+
+/* Banks */
+.banks{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:100%;animation:fadeUp .4s .9s both;}
+.bank-pill{padding:4px 10px;border-radius:8px;background:var(--card);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--muted);}
+
+/* Quick links */
+.q-link{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:7px;text-decoration:none;transition:border-color .2s;}
+.q-link:hover{border-color:rgba(255,255,255,0.3);}
+.q-emoji{font-size:18px;width:32px;text-align:center;flex-shrink:0;}
+.q-body{flex:1;}
+.q-label{font-size:13px;font-weight:500;color:var(--ink);}
+.q-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.q-arr{color:var(--muted);font-size:16px;}
+
+/* WhatsApp */
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:14px;background:rgba(37,211,102,0.1);border:1.5px solid rgba(37,211,102,0.3);color:#25D366;font-size:14px;font-weight:700;text-decoration:none;margin-top:8px;transition:background .2s;animation:fadeUp .4s 1.1s both;}
+.wa-btn:hover{background:rgba(37,211,102,0.18);}
+
+/* Socials */
+.socials{display:flex;gap:10px;margin-top:20px;justify-content:center;animation:fadeUp .4s 1.2s both;}
+.soc-ic{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;text-decoration:none;transition:border-color .2s,transform .15s;}
+.soc-ic:hover{border-color:var(--ac);transform:scale(1.1);}
+.soc-ic i{font-size:17px;color:var(--muted);}
+
+/* Share */
+.share-wrap{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeUp .4s 1.3s both;}
+.share-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
+.share-toast{font-size:12px;color:var(--ac);opacity:0;transition:opacity .3s;}
+.share-toast.show{opacity:1;}
+
+@keyframes popIn{0%{transform:scale(.2);opacity:0;}65%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideL{from{opacity:0;transform:translateX(-28px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideR{from{opacity:0;transform:translateX(28px);}to{opacity:1;transform:translateX(0);}}
+@keyframes shimmer{0%{left:-80%;}40%,100%{left:130%;}}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.015);}}
+</style>
+</head>
+<body>
+<div class="page">
+
+{% assign pr = settings.profile %}
+{% assign ct = settings.cta %}
+{% assign pd = settings.products %}
+{% assign bk = settings.banks %}
+{% assign lk = settings.links %}
+{% assign co = settings.contact %}
+{% assign sc = settings.socials %}
+
+<div class="av-wrap">
+  <div class="av-ring2"></div>
+  <div class="av-ring"></div>
+  <div class="av">
+    {% if pr.avatar != blank %}<img src="{{ pr.avatar }}" alt="{{ pr.name }}">
+    {% else %}{{ pr.name | slice: 0, 2 | upcase }}{% endif %}
+  </div>
+</div>
+
+<h1 class="name">{{ pr.name | default: 'Your Name' }}</h1>
+<p class="title">{{ pr.title | default: 'Certified Bank DSA Partner' }}</p>
+{% if pr.reg_ids != blank %}
+<div class="reg-badge"><i class="ti ti-shield-check"></i> {{ pr.reg_ids }}</div>
+{% endif %}
+
+{% if ct.label != blank %}
+<a class="cta-btn" href="{{ ct.url }}" target="_blank">
+  <div class="shimmer"></div>
+  {{ ct.label }}
+</a>
+{% endif %}
+
+{% if pd.items and pd.items.size > 0 %}
+<div class="sec-title">{{ pd.heading | default: 'Loan Products' }}</div>
+{% for item in pd.items %}
+<a class="product" href="#" target="_blank">
+  <div class="p-icon">{{ item.emoji | default: '💰' }}</div>
+  <div class="p-body">
+    <div class="p-name">{{ item.name }}</div>
+    {% if item.sub != blank %}<div class="p-sub">{{ item.sub }}</div>{% endif %}
+  </div>
+  {% if item.rate != blank %}<div class="p-rate">{{ item.rate }} p.a.</div>{% endif %}
+</a>
+{% endfor %}
+{% endif %}
+
+{% if bk.items and bk.items.size > 0 %}
+<div class="sec-title">{{ bk.heading | default: 'Bank Partners' }}</div>
+<div class="banks">
+  {% for b in bk.items %}<div class="bank-pill">{{ b.name }}</div>{% endfor %}
+</div>
+{% endif %}
+
+{% if lk.items and lk.items.size > 0 %}
+<div class="sec-title">Quick Links</div>
+{% for item in lk.items %}
+<a class="q-link" href="{{ item.url }}" target="_blank">
+  <span class="q-emoji">{{ item.emoji }}</span>
+  <div class="q-body">
+    <div class="q-label">{{ item.label }}</div>
+    {% if item.sub != blank %}<div class="q-sub">{{ item.sub }}</div>{% endif %}
+  </div>
+  <i class="ti ti-chevron-right q-arr"></i>
+</a>
+{% endfor %}
+{% endif %}
+
+{% if co.whatsapp != blank %}
+<a class="wa-btn" href="https://wa.me/{{ co.whatsapp | replace:'+','' | replace:' ','' }}" target="_blank">
+  <i class="ti ti-brand-whatsapp" style="font-size:20px;"></i>
+  WhatsApp for quick approval
+</a>
+{% endif %}
+
+{% if sc %}
+<div class="socials">
+  {% if sc.youtube != blank %}<a href="{{ sc.youtube }}" class="soc-ic" target="_blank"><i class="ti ti-brand-youtube"></i></a>{% endif %}
+  {% if sc.instagram != blank %}<a href="{{ sc.instagram }}" class="soc-ic" target="_blank"><i class="ti ti-brand-instagram"></i></a>{% endif %}
+  {% if sc.facebook != blank %}<a href="{{ sc.facebook }}" class="soc-ic" target="_blank"><i class="ti ti-brand-facebook"></i></a>{% endif %}
+  {% if sc.linkedin != blank %}<a href="{{ sc.linkedin }}" class="soc-ic" target="_blank"><i class="ti ti-brand-linkedin"></i></a>{% endif %}
+</div>
+{% endif %}
+
+<div class="share-wrap">
+  <button class="share-btn" onclick="pzShare()">
+    <i class="ti ti-share" style="font-size:14px;"></i> Share this page
+  </button>
+  <div class="share-toast" id="pzToast">✓ Link copied!</div>
+</div>
+
+</div>
+<script>
+function pzShare(){var u=location.href;if(navigator.share){navigator.share({title:document.title,url:u});}else{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
+</script>
+</body>
+</html>

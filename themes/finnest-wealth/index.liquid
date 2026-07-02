@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name | default: site.title }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ac:{{ settings.profile.accent | default:'#1B3A6B' }};
+  --bg:#F8F6F1;
+  --ink:#1B3A6B;
+  --ink-muted:#5a6a80;
+  --ink-faint:#a0adb8;
+  --card:#fff;
+  --border:rgba(27,58,107,0.1);
+  --ac-faint:#EEF2F9;
+}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;min-height:100vh;}
+.page{width:100%;max-width:400px;padding:32px 18px 64px;}
+
+/* Header card */
+.header-card{background:var(--ac);border-radius:20px;padding:24px 20px 20px;text-align:center;margin-bottom:14px;animation:cardDrop .55s cubic-bezier(.34,1.4,.64,1) both;}
+.av-wrap{position:relative;width:80px;height:80px;margin:0 auto 12px;animation:popIn .6s .1s cubic-bezier(.34,1.56,.64,1) both;}
+.av-ring{position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);border-top-color:rgba(255,255,255,0.7);animation:spin 3s linear infinite;}
+.av{position:absolute;inset:0;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--ac);}
+.av img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;}
+.h-name{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.2px;}
+.h-title{font-size:11px;color:rgba(255,255,255,0.65);margin-top:3px;letter-spacing:.03em;}
+.h-reg{font-size:10px;color:rgba(255,255,255,0.5);margin-top:5px;}
+.cert-row{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+.cert-pill{padding:3px 9px;border-radius:7px;background:rgba(255,255,255,0.12);font-size:9px;font-weight:600;color:rgba(255,255,255,0.85);}
+
+/* CTA */
+.cta-btn{display:block;width:100%;padding:14px;border-radius:14px;background:var(--ac);color:#fff;font-size:14px;font-weight:700;text-align:center;text-decoration:none;margin-bottom:14px;animation:slideUp .45s .3s both;position:relative;overflow:hidden;transition:opacity .2s;}
+.cta-btn:hover{opacity:.88;}
+.cta-btn .shimmer{position:absolute;top:0;left:-80%;width:45%;height:100%;background:rgba(255,255,255,0.12);transform:skewX(-18deg);animation:shimmer 4s 1s ease-in-out infinite;}
+
+/* Services */
+.svc{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px 14px;margin-bottom:8px;text-decoration:none;transition:border-color .2s,transform .15s;}
+.svc:hover{border-color:var(--ac);transform:translateX(3px);}
+.svc-icon{width:36px;height:36px;border-radius:10px;background:var(--ac-faint);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.svc-body{flex:1;}
+.svc-name{font-size:13px;font-weight:600;color:var(--ink);}
+.svc-sub{font-size:11px;color:var(--ink-faint);margin-top:2px;}
+.svc-arr{color:var(--ink-faint);font-size:16px;}
+.svc:nth-child(1){animation:slideL .35s .38s both;}
+.svc:nth-child(2){animation:slideR .35s .45s both;}
+.svc:nth-child(3){animation:slideL .35s .52s both;}
+.svc:nth-child(4){animation:slideR .35s .59s both;}
+.svc:nth-child(5){animation:slideL .35s .66s both;}
+
+/* Trust numbers */
+.trust-row{display:flex;gap:7px;margin-bottom:14px;animation:fadeUp .4s .7s both;}
+.trust-card{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;}
+.trust-val{font-size:15px;font-weight:800;color:var(--ink);}
+.trust-lbl{font-size:9px;color:var(--ink-faint);margin-top:3px;letter-spacing:.03em;}
+
+/* Resource links */
+.res-link{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:11px 13px;margin-bottom:7px;text-decoration:none;transition:border-color .2s;}
+.res-link:hover{border-color:var(--ac);}
+.rl-emoji{font-size:17px;width:28px;text-align:center;flex-shrink:0;}
+.rl-body{flex:1;}
+.rl-label{font-size:13px;font-weight:500;color:var(--ink);}
+.rl-sub{font-size:10px;color:var(--ink-faint);margin-top:1px;}
+.rl-arr{color:var(--ink-faint);}
+
+/* WhatsApp */
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:13px;background:rgba(37,211,102,0.08);border:1.5px solid rgba(37,211,102,0.3);color:#1a9e50;font-size:14px;font-weight:700;text-decoration:none;margin-top:6px;transition:background .2s;animation:fadeUp .4s .85s both;}
+.wa-btn:hover{background:rgba(37,211,102,0.14);}
+
+/* Socials */
+.socials{display:flex;gap:9px;margin-top:20px;justify-content:center;animation:fadeUp .4s .9s both;}
+.soc-ic{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;text-decoration:none;transition:border-color .2s,transform .15s;}
+.soc-ic:hover{border-color:var(--ac);transform:scale(1.1);}
+.soc-ic i{font-size:17px;color:var(--ink-muted);}
+
+/* Share */
+.share-wrap{margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeUp .4s 1s both;}
+.share-btn{background:transparent;border:1px solid var(--border);color:var(--ink-faint);padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
+.share-toast{font-size:12px;color:var(--ac);opacity:0;transition:opacity .3s;}
+.share-toast.show{opacity:1;}
+
+/* Section label */
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);margin:16px 0 9px;width:100%;animation:fadeUp .4s .75s both;}
+
+@keyframes cardDrop{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes popIn{0%{transform:scale(.2);opacity:0;}65%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideL{from{opacity:0;transform:translateX(-26px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideR{from{opacity:0;transform:translateX(26px);}to{opacity:1;transform:translateX(0);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes shimmer{0%{left:-80%;}40%,100%{left:130%;}}
+</style>
+</head>
+<body>
+<div class="page">
+
+{% assign pr = settings.profile %}
+{% assign ct = settings.cta %}
+{% assign sv = settings.services %}
+{% assign tr = settings.trust %}
+{% assign lk = settings.links %}
+{% assign co = settings.contact %}
+{% assign sc = settings.socials %}
+
+<div class="header-card">
+  <div class="av-wrap">
+    <div class="av-ring"></div>
+    <div class="av">
+      {% if pr.avatar != blank %}<img src="{{ pr.avatar }}" alt="{{ pr.name }}">
+      {% else %}{{ pr.name | slice: 0, 2 | upcase }}{% endif %}
+    </div>
+  </div>
+  <h1 class="h-name">{{ pr.name | default: 'Your Name' }}</h1>
+  <p class="h-title">{{ pr.title | default: 'SEBI RIA · CFP · AMFI ARN Holder' }}</p>
+  {% if pr.reg_ids != blank %}<p class="h-reg">{{ pr.reg_ids }}</p>{% endif %}
+  {% if pr.certifications != blank %}
+  <div class="cert-row">
+    {% assign certs = pr.certifications | split: ',' %}
+    {% for c in certs %}<span class="cert-pill">{{ c | strip }}</span>{% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+{% if ct.label != blank %}
+<a class="cta-btn" href="{{ ct.url }}" target="_blank">
+  <div class="shimmer"></div>
+  {{ ct.label }}
+</a>
+{% endif %}
+
+{% if sv.items and sv.items.size > 0 %}
+<div class="sec-lbl">Services</div>
+{% for item in sv.items %}
+<a class="svc" href="{{ item.url }}" target="_blank">
+  <div class="svc-icon">{{ item.emoji | default: '💼' }}</div>
+  <div class="svc-body">
+    <div class="svc-name">{{ item.name }}</div>
+    {% if item.sub != blank %}<div class="svc-sub">{{ item.sub }}</div>{% endif %}
+  </div>
+  <i class="ti ti-chevron-right svc-arr"></i>
+</a>
+{% endfor %}
+{% endif %}
+
+{% if tr %}
+<div class="trust-row">
+  {% if tr.aum != blank %}<div class="trust-card"><div class="trust-val">{{ tr.aum }}</div><div class="trust-lbl">AUM managed</div></div>{% endif %}
+  {% if tr.clients != blank %}<div class="trust-card"><div class="trust-val">{{ tr.clients }}</div><div class="trust-lbl">Happy clients</div></div>{% endif %}
+  {% if tr.rating != blank %}<div class="trust-card"><div class="trust-val">{{ tr.rating }}</div><div class="trust-lbl">Google rating</div></div>{% endif %}
+</div>
+{% endif %}
+
+{% if lk.items and lk.items.size > 0 %}
+<div class="sec-lbl">Resources</div>
+{% for item in lk.items %}
+<a class="res-link" href="{{ item.url }}" target="_blank">
+  <span class="rl-emoji">{{ item.emoji }}</span>
+  <div class="rl-body">
+    <div class="rl-label">{{ item.label }}</div>
+    {% if item.sub != blank %}<div class="rl-sub">{{ item.sub }}</div>{% endif %}
+  </div>
+  <i class="ti ti-chevron-right rl-arr"></i>
+</a>
+{% endfor %}
+{% endif %}
+
+{% if co.whatsapp != blank %}
+<a class="wa-btn" href="https://wa.me/{{ co.whatsapp | replace:'+','' | replace:' ','' }}" target="_blank">
+  <i class="ti ti-brand-whatsapp" style="font-size:18px;"></i>
+  Chat on WhatsApp
+</a>
+{% endif %}
+
+{% if sc %}
+<div class="socials">
+  {% if sc.youtube != blank %}<a href="{{ sc.youtube }}" class="soc-ic" target="_blank"><i class="ti ti-brand-youtube"></i></a>{% endif %}
+  {% if sc.linkedin != blank %}<a href="{{ sc.linkedin }}" class="soc-ic" target="_blank"><i class="ti ti-brand-linkedin"></i></a>{% endif %}
+  {% if sc.instagram != blank %}<a href="{{ sc.instagram }}" class="soc-ic" target="_blank"><i class="ti ti-brand-instagram"></i></a>{% endif %}
+  {% if sc.twitter != blank %}<a href="{{ sc.twitter }}" class="soc-ic" target="_blank"><i class="ti ti-brand-x"></i></a>{% endif %}
+</div>
+{% endif %}
+
+<div class="share-wrap">
+  <button class="share-btn" onclick="pzShare()">
+    <i class="ti ti-share" style="font-size:14px;"></i> Share this page
+  </button>
+  <div class="share-toast" id="pzToast">✓ Link copied!</div>
+</div>
+
+</div>
+<script>
+function pzShare(){var u=location.href;if(navigator.share){navigator.share({title:document.title,url:u});}else{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
+</script>
+</body>
+</html>
