@@ -186,6 +186,15 @@ app.use((req, res, next) => {
 const subdomainMw = require('./middleware/subdomain')
 app.use(subdomainMw)
 
+// Strip trailing slashes — redirect /delhi/ → /delhi
+app.use((req, res, next) => {
+  if (req.path.length > 1 && req.path.slice(-1) === '/') {
+    const query = req.url.slice(req.path.length)
+    return res.redirect(301, req.path.slice(0, -1) + query)
+  }
+  next()
+})
+
 // Routes
 const routes = require('./routes/web')
 app.use('/', routes)

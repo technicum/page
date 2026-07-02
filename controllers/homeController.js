@@ -173,12 +173,10 @@ exports.cityPage = async (req, res, next) => {
       `, [citySearch])
     }
 
-    if (!rows.length) return next()   // no businesses → fall through to 404
-
-    // Recover display name from first row's settings
-    const firstSt  = JSON.parse(rows[0].settings || '{}')
-    const cityName = firstSt.city || firstSt.state ||
-                     citySearch.replace(/\b\w/g, c => c.toUpperCase())
+    // Derive display name — either from first result or from the slug itself
+    const cityName = rows.length
+      ? (JSON.parse(rows[0].settings || '{}').city || citySearch.replace(/\b\w/g, c => c.toUpperCase()))
+      : citySearch.replace(/\b\w/g, c => c.toUpperCase())
 
     const results = rows.map(s => {
       const st = JSON.parse(s.settings || '{}')
@@ -190,9 +188,9 @@ exports.cityPage = async (req, res, next) => {
     )
 
     res.render('city.njk', {
-      title:      `Businesses in ${cityName} | PageZaper`,
+      title:    `Businesses in ${cityName} | PageZaper`,
       cityName,
-      citySlug:   rawSlug,
+      citySlug: rawSlug,
       results,
       categories: categories || []
     })
