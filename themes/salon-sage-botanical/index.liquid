@@ -254,7 +254,7 @@ body{min-height:100vh;background:var(--bg);font-family:-apple-system,BlinkMacSys
 
 <!-- Reviews -->
 <div data-sec="reviews" style="width:100%;margin-top:10px;">
-  <div class="salon-acc open" id="salon-reviews">
+  <div class="salon-acc" id="salon-reviews">
     <div class="salon-acc-head" onclick="salonToggle('salon-reviews')">
       <span class="salon-acc-icon">⭐</span>
       <div class="salon-acc-meta">
@@ -265,8 +265,7 @@ body{min-height:100vh;background:var(--bg);font-family:-apple-system,BlinkMacSys
     </div>
     <div class="salon-acc-body">
       <div class="salon-acc-inner">
-        <div id="pz-rev-list" style="margin-bottom:12px;"></div>
-        <a href="/review/{{ site.subdomain }}" style="display:block;text-align:center;background:var(--accent);color:#fff;padding:11px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;">✍️ Write a Review</a>
+        <a href="/review/{{ site.subdomain }}" style="display:block;text-align:center;background:var(--accent);color:#fff;padding:11px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;">📝 View / Write a Review</a>
       </div>
     </div>
   </div>
@@ -283,7 +282,7 @@ body{min-height:100vh;background:var(--bg);font-family:-apple-system,BlinkMacSys
 </div>
 <script>
 function salonToggle(id){document.getElementById(id).classList.toggle('open');}
-(function(){fetch('/api/reviews/{{ site.subdomain }}').then(function(r){return r.json()}).then(function(d){var sub=document.getElementById('pz-rev-sub');var list=document.getElementById('pz-rev-list');sub.textContent=d.avg_rating?('⭐ '+d.avg_rating+' · '+d.total+' review'+(d.total!==1?'s':'')):('No reviews yet');if(!d.reviews||!d.reviews.length){list.innerHTML='<div style="text-align:center;padding:12px 0;font-size:13px;color:#b0afa8;">No reviews yet — be the first!</div>';return;}list.innerHTML=d.reviews.map(function(r){var stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);var dt=new Date(r.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});return'<div style="border-bottom:1px solid #f0ede6;padding:12px 0;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;"><span style="font-weight:600;font-size:14px;color:#1a1a18">'+r.reviewer_name+'</span><span style="color:#f59e0b;font-size:13px;">'+stars+'</span></div><div style="font-size:11px;color:#b0afa8;margin-bottom:6px;">'+dt+'</div>'+(r.comment?'<div style="font-size:13px;color:#6b6b66;line-height:1.6;">'+r.comment+'</div>':'')+'</div>';}).join('');}).catch(function(){document.getElementById('pz-rev-sub').textContent='Reviews';});})();
+(function(){fetch('/api/reviews/{{ site.subdomain }}').then(function(r){return r.json()}).then(function(d){document.getElementById('pz-rev-sub').textContent=d.avg_rating?('⭐ '+d.avg_rating+' · '+d.total+' review'+(d.total!==1?'s':'')):('No reviews yet');}).catch(function(){document.getElementById('pz-rev-sub').textContent='Reviews';});})();
 function pzShare(){var u=location.href,t=document.title;if(navigator.share){navigator.share({title:t,url:u});}else{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
 </script>
 </body>
