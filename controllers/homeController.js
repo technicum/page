@@ -35,8 +35,16 @@ exports.search = async (req, res) => {
     params = [userLat, userLng, userLat]
 
     if (q) {
-      sql += ' AND (s.title LIKE ? OR JSON_EXTRACT(s.settings, "$.description") LIKE ? OR c.name LIKE ?)'
-      params.push(`%${q}%`, `%${q}%`, `%${q}%`)
+      sql += ` AND (
+        s.title LIKE ?
+        OR JSON_EXTRACT(s.settings, "$.description") LIKE ?
+        OR c.name LIKE ?
+        OR EXISTS (
+          SELECT 1 FROM ms_category_aliases a
+          WHERE a.category_id = s.category_id AND a.keyword LIKE ? AND a.status = 1
+        )
+      )`
+      params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`)
     }
     if (category_id) {
       sql += ' AND s.category_id = ?'
@@ -59,8 +67,16 @@ exports.search = async (req, res) => {
     params = []
 
     if (q) {
-      sql += ' AND (s.title LIKE ? OR JSON_EXTRACT(s.settings, "$.description") LIKE ? OR c.name LIKE ?)'
-      params.push(`%${q}%`, `%${q}%`, `%${q}%`)
+      sql += ` AND (
+        s.title LIKE ?
+        OR JSON_EXTRACT(s.settings, "$.description") LIKE ?
+        OR c.name LIKE ?
+        OR EXISTS (
+          SELECT 1 FROM ms_category_aliases a
+          WHERE a.category_id = s.category_id AND a.keyword LIKE ? AND a.status = 1
+        )
+      )`
+      params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`)
     }
     if (city) {
       sql += ' AND JSON_EXTRACT(s.settings, "$.city") LIKE ?'
