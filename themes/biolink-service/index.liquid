@@ -37,11 +37,36 @@
 }
 .pz-company{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted);background:rgba(0,0,0,0.05);padding:3px 10px;border-radius:20px;margin-top:6px;text-decoration:none;cursor:pointer;}
 .pz-company:hover{background:rgba(0,0,0,0.1);color:var(--ink);}
-.pz-svc-actions{display:flex;gap:6px;margin-top:9px;align-items:center;}
-.pz-svc-cart{flex:1;padding:8px 0;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
-.pz-svc-wa,.pz-svc-url{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--white);text-decoration:none;font-size:16px;flex-shrink:0;cursor:pointer;}
-.pz-svc-wa:hover{border-color:#25D366;}
-.pz-svc-url:hover{border-color:var(--accent);}
+.pz-svc-actions{margin-top:9px;}
+.pz-svc-cart{display:block;width:100%;padding:8px 0;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;text-decoration:none;}
+.pz-svc-cart:hover{opacity:.88;}
+.pz-svc-cart.added{background:#16a34a;}
+/* Cart */
+.pz-cart-fab{position:fixed;bottom:24px;right:20px;background:var(--accent);color:#fff;border:none;border-radius:50px;padding:13px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.2);display:flex;align-items:center;gap:8px;z-index:100;font-family:inherit;transition:transform .2s,opacity .2s;}
+.pz-cart-fab:hover{transform:translateY(-2px);}
+.pz-cart-fab.hidden{opacity:0;pointer-events:none;}
+.pz-cart-badge{background:#fff;color:var(--accent);border-radius:50%;width:22px;height:22px;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.pz-cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:199;opacity:0;transition:opacity .3s;pointer-events:none;}
+.pz-cart-overlay.show{opacity:1;pointer-events:auto;}
+.pz-cart-drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.15);z-index:200;padding:0 0 env(safe-area-inset-bottom);transition:transform .3s ease;}
+.pz-cart-drawer.closed{transform:translateX(-50%) translateY(110%);}
+.pz-cart-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid #f3f4f6;}
+.pz-cart-title{font-size:17px;font-weight:700;color:#111;}
+.pz-cart-close{background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280;padding:0;line-height:1;}
+.pz-cart-items{max-height:50vh;overflow-y:auto;padding:12px 20px;}
+.pz-cart-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f3f4f6;}
+.pz-cart-item:last-child{border-bottom:none;}
+.pz-cart-item-info{flex:1;min-width:0;}
+.pz-cart-item-name{font-size:14px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pz-cart-item-price{font-size:13px;color:var(--accent);font-weight:700;margin-top:2px;}
+.pz-cart-item-qty{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.pz-cart-qty-btn{width:28px;height:28px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;color:#374151;}
+.pz-cart-qty-num{font-size:14px;font-weight:600;min-width:20px;text-align:center;}
+.pz-cart-footer{padding:14px 20px;border-top:1px solid #f3f4f6;}
+.pz-cart-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-bottom:14px;}
+.pz-cart-wa-btn{display:block;width:100%;padding:14px;background:#25D366;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;text-align:center;cursor:pointer;font-family:inherit;text-decoration:none;}
+.pz-cart-wa-btn:hover{background:#22c55e;}
+.pz-cart-empty{text-align:center;padding:32px 0;color:#9ca3af;font-size:14px;}
 </style>
 </head>
 <body>
@@ -93,7 +118,6 @@
       <div class="pz-sec-body">
         <div class="pz-sec-inner">
           <div class="services">
-            {% assign sv_mode = sv.order_mode | default: 'all' %}
             {% for item in sv.items %}
             <div class="service-card">
               <div class="svc-emoji">{{ item.emoji | default: '✅' }}</div>
@@ -101,18 +125,13 @@
                 <div class="svc-name">{{ item.name }}</div>
                 {% if item.description %}<div class="svc-desc">{{ item.description }}</div>{% endif %}
                 {% if item.price %}<div class="svc-price">{{ item.price }}</div>{% endif %}
-                {% assign show_cart = false %}{% assign show_wa = false %}{% assign show_url = false %}
-                {% if sv_mode == 'all' or sv_mode == 'cart' %}{% assign show_cart = true %}{% endif %}
-                {% if sv_mode == 'all' or sv_mode == 'whatsapp' %}{% assign show_wa = true %}{% endif %}
-                {% if sv_mode == 'all' or sv_mode == 'url' %}{% assign show_url = true %}{% endif %}
-                {% if show_cart or show_wa or show_url %}
                 <div class="pz-svc-actions">
-                  {% if show_cart %}<button class="pz-svc-cart" onclick="pzSvcAddToCart(this,'{{ item.name | escape }}','{{ item.price | escape }}')">🛒 Add to cart</button>{% endif %}
-                  {% if show_wa and item.whatsapp != blank %}<a class="pz-svc-wa" href="https://wa.me/{{ item.whatsapp | remove: '+' | remove: ' ' }}?text={{ 'Hi! I want to enquire about ' | append: item.name | url_encode }}" target="_blank" title="WhatsApp">💬</a>
-                  {% elsif show_wa and settings.contact.whatsapp != blank %}<a class="pz-svc-wa" href="https://wa.me/{{ settings.contact.whatsapp | remove: '+' | remove: ' ' }}?text={{ 'Hi! I want to enquire about ' | append: item.name | url_encode }}" target="_blank" title="WhatsApp">💬</a>{% endif %}
-                  {% if show_url and item.url != blank %}<a class="pz-svc-url" href="{{ item.url }}" target="_blank" title="Book / Buy">🔗</a>{% endif %}
+                  {% if item.url != blank %}
+                    <a class="pz-svc-cart" href="{{ item.url }}" target="_blank">Book Now →</a>
+                  {% else %}
+                    <button class="pz-svc-cart" onclick="pzSvcAddToCart(this,'{{ item.name | escape }}','{{ item.price | escape }}')">🛒 Add to cart</button>
+                  {% endif %}
                 </div>
-                {% endif %}
               </div>
             </div>
             {% endfor %}
@@ -238,16 +257,11 @@
     </div>
     <div class="pz-cart-footer">
       <div class="pz-cart-total"><span>Total</span><span id="pzCartTotal"></span></div>
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="pz-cart-wa-btn" onclick="pzSvcWhatsAppOrder()" style="flex:1;">
-          💬 Order via WhatsApp
-        </button>
-        {% if sv.checkout_url != blank %}
-        <button class="pz-cart-wa-btn" onclick="window.open('{{ sv.checkout_url | escape }}','_blank')" style="flex:1;background:var(--accent);">
-          🔗 Checkout
-        </button>
-        {% endif %}
-      </div>
+      {% if sv.order_on_whatsapp == 'yes' %}
+      <button class="pz-cart-wa-btn" onclick="pzSvcWhatsAppOrder()">
+        💬 Order via WhatsApp
+      </button>
+      {% endif %}
     </div>
   </div>
 
@@ -272,8 +286,8 @@ var pzCart=[];
 function pzSvcAddToCart(btn,name,price){
   var ex=pzCart.find(function(i){return i.name===name;});
   if(ex){ex.qty++;}else{pzCart.push({name:name,price:price,qty:1});}
-  btn.textContent='✓ Added';
-  setTimeout(function(){btn.textContent='🛒 Add to cart';},1200);
+  btn.textContent='✓ Added';btn.classList.add('added');
+  setTimeout(function(){btn.textContent='🛒 Add to cart';btn.classList.remove('added');},1200);
   pzUpdateSvcCartUI();
 }
 function pzUpdateSvcCartUI(){

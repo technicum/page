@@ -19,8 +19,9 @@
       "id": "products",
       "label": "Products",
       "fields": [
-        { "id": "heading",      "label": "Section Heading",             "type": "text", "default": "Our Products" },
-        { "id": "display_mode", "label": "Display (grid / slider)",     "type": "text", "default": "grid" },
+        { "id": "heading",           "label": "Section Heading",                       "type": "text", "default": "Our Products" },
+        { "id": "display_mode",      "label": "Display (grid / slider)",               "type": "text", "default": "grid" },
+        { "id": "order_on_whatsapp", "label": "Order on WhatsApp (yes / no)",          "type": "text", "default": "no" },
         { "id": "items", "label": "Products", "type": "repeater",
           "default": [
             { "image": "", "name": "Product One",   "price": "₹499",  "link": "" },
@@ -28,11 +29,10 @@
             { "image": "", "name": "Product Three", "price": "₹1299", "link": "" }
           ],
           "item_fields": [
-            { "id": "image",     "label": "Product Image URL",          "type": "image", "default": "" },
-            { "id": "name",      "label": "Product Name",               "type": "text",  "default": "New Product" },
-            { "id": "price",     "label": "Price",                      "type": "text",  "default": "₹499" },
-            { "id": "link",      "label": "Buy Link URL (redirect)",    "type": "text",  "default": "" },
-            { "id": "whatsapp",  "label": "WhatsApp (direct enquiry)",  "type": "text",  "default": "" }
+            { "id": "image", "label": "Product Image URL",                          "type": "image", "default": "" },
+            { "id": "name",  "label": "Product Name",                               "type": "text",  "default": "New Product" },
+            { "id": "price", "label": "Price",                                      "type": "text",  "default": "₹499" },
+            { "id": "link",  "label": "Buy Link URL (if set, redirects instead of cart)", "type": "text", "default": "" }
           ]
         }
       ]
