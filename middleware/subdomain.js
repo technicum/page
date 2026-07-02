@@ -194,7 +194,16 @@ self.addEventListener('fetch',function(e){});`)
     try { siteForms = await loadFormsForAccount(site.account_id) } catch(e) { /* table may not exist yet */ }
     // ── Owner check: show "Save to Home Screen" only to the logged-in site owner
     const sessionUser = req.session && req.session.user
-    const isOwner = !!(sessionUser && sessionUser.id === site.account_id)
+    const isOwner = !!(sessionUser && Number(sessionUser.id) === Number(site.account_id))
+
+    // Debug: log owner check so we can verify session is working (remove after testing)
+    if (process.env.NODE_ENV !== 'production' || req.query.pz_debug) {
+      console.log('[pwa-owner]', {
+        sessionUserId: sessionUser ? sessionUser.id : null,
+        siteAccountId: site.account_id,
+        isOwner
+      })
+    }
 
     const html = await themeManager.render(slug, site, settings, pageId, siteForms, { is_owner: isOwner })
     res.send(html)
