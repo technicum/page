@@ -58,11 +58,7 @@ exports.store = async (req, res) => {
     }).catch(() => {})
   }
 
-  if (site_type === 'linktree') {
-    res.redirect(`/dashboard/site/biolink-builder?id=${id}`)
-  } else {
-    res.redirect(`/dashboard/site/builder?id=${id}`)
-  }
+  res.redirect(`/dashboard/site/biolink-builder?id=${id}`)
 }
 
 exports.setTemplate = async (req, res) => {

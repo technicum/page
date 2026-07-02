@@ -6,6 +6,7 @@
 <title>Create your site — {{ app_name }}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -24,7 +25,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 .nav-user{font-size:13px;color:var(--ink-muted);}
 .nav-user a{color:var(--ink-faint);text-decoration:none;}
 
-.progress-wrap{padding:32px 40px 0;max-width:680px;margin:0 auto;}
+.progress-wrap{padding:32px 40px 0;max-width:720px;margin:0 auto;}
 .steps-bar{display:flex;align-items:center;gap:0;margin-bottom:8px;}
 .step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;transition:all 0.3s;}
 .step-dot.done{background:var(--ink);color:var(--white);}
@@ -37,7 +38,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 .steps-labels span.active{color:var(--blue);font-weight:500;}
 .steps-labels span.done{color:var(--ink-muted);}
 
-.main{max-width:680px;margin:32px auto;padding:0 40px 80px;}
+.main{max-width:720px;margin:32px auto;padding:0 40px 80px;}
 
 .step-panel{display:none;}
 .step-panel.active{display:block;animation:fadeUp 0.35s ease both;}
@@ -46,43 +47,51 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 .step-heading{font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;letter-spacing:-0.5px;margin-bottom:6px;}
 .step-sub{font-size:15px;color:var(--ink-muted);margin-bottom:32px;}
 
-.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
-.type-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px 16px;cursor:pointer;transition:all 0.2s;text-align:center;user-select:none;}
-.type-card:hover{border-color:var(--border-md);transform:translateY(-2px);}
-.type-card.selected{border-color:var(--blue);background:var(--blue-light);}
-.type-card input{display:none;}
-.type-emoji{font-size:28px;margin-bottom:10px;display:block;}
-.type-name{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:3px;}
-.type-desc{font-size:12px;color:var(--ink-faint);}
+/* Single type card */
+.single-type{background:var(--blue-light);border:2px solid var(--blue);border-radius:var(--radius-lg);padding:24px 22px;display:flex;align-items:center;gap:18px;margin-bottom:24px;}
+.st-icon{width:52px;height:52px;border-radius:12px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.st-icon i{font-size:24px;color:#fff;}
+.st-text{}
+.st-name{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.st-desc{font-size:13px;color:var(--ink-muted);}
+.st-check{margin-left:auto;width:24px;height:24px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.st-check i{font-size:13px;color:#fff;}
 
+.info-strip{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--white);border:1px solid var(--border-md);border-radius:var(--radius);font-size:13px;color:var(--ink-muted);margin-bottom:28px;}
+.info-strip i{color:var(--blue);font-size:16px;flex-shrink:0;}
+
+/* Fields */
 .field{margin-bottom:20px;}
 .field label{display:block;font-size:13px;font-weight:500;color:var(--ink-muted);margin-bottom:7px;}
 .field input,.field textarea,.field select{width:100%;padding:11px 14px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
-.field textarea{resize:vertical;min-height:90px;}
+.field textarea{resize:vertical;min-height:80px;}
 .field-hint{font-size:12px;color:var(--ink-faint);margin-top:5px;}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 
 .subdomain-wrap{display:flex;align-items:center;border:1px solid var(--border-md);border-radius:var(--radius);overflow:hidden;background:var(--white);}
 .subdomain-suffix{padding:11px 14px;background:var(--paper);font-size:14px;color:var(--ink-muted);border-left:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
 .subdomain-wrap input{border:none;outline:none;padding:11px 14px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);flex:1;background:transparent;}
 .subdomain-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
 
-.theme-grid{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap;}
-.theme-swatch{width:48px;height:48px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.2s;position:relative;}
-.theme-swatch.selected{border-color:var(--ink);transform:scale(1.1);}
-.theme-swatch input{display:none;}
+/* ── Marketplace-style theme cards ─────────────────────────────────────── */
+.theme-marketplace{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:8px;}
+.tm-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;user-select:none;}
+.tm-card:hover{border-color:var(--border-md);transform:translateY(-2px);box-shadow:0 4px 16px rgba(26,26,24,0.07);}
+.tm-card.tm-selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+.tm-thumb{width:100%;aspect-ratio:9/6;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;position:relative;}
+.tm-thumb img{width:100%;height:100%;object-fit:cover;}
+.tm-thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.tm-body{padding:10px 12px 12px;}
+.tm-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tm-desc{font-size:11px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tm-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.tm-tag{font-size:10px;padding:2px 6px;border-radius:5px;background:var(--paper);color:var(--ink-muted);}
+.tm-selected-badge{position:absolute;top:8px;right:8px;background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:none;align-items:center;justify-content:center;font-size:12px;}
+.tm-card.tm-selected .tm-selected-badge{display:flex;}
 
-/* Template card */
-.tpl-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all 0.2s;user-select:none;}
-.tpl-card:hover{border-color:var(--border-md);transform:translateY(-2px);}
-.tpl-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
-.tpl-thumb{width:100%;aspect-ratio:16/9;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;}
-.tpl-thumb img{width:100%;height:100%;object-fit:cover;}
-.tpl-info{padding:10px 12px;}
-.tpl-name{font-size:13px;font-weight:600;color:var(--ink);}
-.tpl-desc{font-size:11px;color:var(--ink-faint);margin-top:2px;}
+.no-themes-msg{font-size:13px;color:var(--ink-muted);padding:8px 0;display:none;}
 
+/* Buttons */
 .btn-row{display:flex;gap:12px;margin-top:32px;}
 .btn{padding:13px 28px;border-radius:var(--radius);font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;border:none;}
 .btn-primary{background:var(--ink);color:var(--white);}
@@ -96,24 +105,13 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 .errors-box{background:var(--red-light);border:1px solid rgba(220,38,38,0.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:24px;}
 .errors-box p{font-size:14px;color:var(--red);line-height:1.6;}
 
-/* Searchable category dropdown */
-.cat-wrap{position:relative;}
-.cat-search{width:100%;padding:11px 36px 11px 14px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);outline:none;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;}
-.cat-search:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
-.cat-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--ink-faint);font-size:12px;transition:transform 0.2s;}
-.cat-wrap.open .cat-arrow{transform:translateY(-50%) rotate(180deg);}
-.cat-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--white);border:1px solid var(--border-md);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.08);z-index:100;max-height:240px;overflow-y:auto;}
-.cat-wrap.open .cat-dropdown{display:block;}
-.cat-option{padding:10px 14px;font-size:14px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:8px;}
-.cat-option:hover,.cat-option.focused{background:var(--blue-light);}
-.cat-option-icon{font-size:16px;flex-shrink:0;}
-.cat-none{padding:10px 14px;font-size:13px;color:var(--ink-faint);}
-
-@media(max-width:600px){
+@media(max-width:640px){
   nav{padding:0 20px;}
   .progress-wrap,.main{padding-left:20px;padding-right:20px;}
-  .type-grid{grid-template-columns:repeat(2,1fr);}
-  .field-row{grid-template-columns:1fr;}
+  .theme-marketplace{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:420px){
+  .theme-marketplace{grid-template-columns:1fr 1fr;}
 }
 </style>
 </head>
@@ -150,50 +148,28 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
   {% endif %}
 
   <form method="POST" action="/dashboard/site/create" id="wizard-form">
+    <input type="hidden" name="site_type" value="linktree">
     <input type="hidden" name="template_id" id="template_id" value="minimal">
 
-    <!-- STEP 1: What are you building? -->
+    <!-- STEP 1: Type -->
     <div class="step-panel active" id="step1">
       <div class="step-heading">What are you building?</div>
-      <div class="step-sub">Pick a type — we'll set things up for you.</div>
-      <div class="type-grid">
-        <label class="type-card" onclick="selectType(this,'business')">
-          <input type="radio" name="site_type" value="business">
-          <span class="type-emoji">🏪</span>
-          <div class="type-name">Business</div>
-          <div class="type-desc">Shop, salon, clinic, restaurant</div>
-        </label>
-        <label class="type-card" onclick="selectType(this,'freelancer')">
-          <input type="radio" name="site_type" value="freelancer">
-          <span class="type-emoji">💼</span>
-          <div class="type-name">Freelancer</div>
-          <div class="type-desc">Portfolio &amp; services</div>
-        </label>
-        <label class="type-card" onclick="selectType(this,'linktree')">
-          <input type="radio" name="site_type" value="linktree">
-          <span class="type-emoji">🔗</span>
-          <div class="type-name">Link in Bio</div>
-          <div class="type-desc">All your links in one place</div>
-        </label>
-        <label class="type-card" onclick="selectType(this,'blog')">
-          <input type="radio" name="site_type" value="blog">
-          <span class="type-emoji">✍️</span>
-          <div class="type-name">Blog</div>
-          <div class="type-desc">Articles &amp; content</div>
-        </label>
-        <label class="type-card" onclick="selectType(this,'product')">
-          <input type="radio" name="site_type" value="product">
-          <span class="type-emoji">📦</span>
-          <div class="type-name">Product</div>
-          <div class="type-desc">Showcase what you sell</div>
-        </label>
-        <label class="type-card" onclick="selectType(this,'other')">
-          <input type="radio" name="site_type" value="other">
-          <span class="type-emoji">✨</span>
-          <div class="type-name">Other</div>
-          <div class="type-desc">Something else entirely</div>
-        </label>
+      <div class="step-sub">Your personal page with all your links and info.</div>
+
+      <div class="single-type">
+        <div class="st-icon"><i class="ti ti-link"></i></div>
+        <div class="st-text">
+          <div class="st-name">Biolink / Mini site</div>
+          <div class="st-desc">Your links, services, social, and more — all in one page</div>
+        </div>
+        <div class="st-check"><i class="ti ti-check"></i></div>
       </div>
+
+      <div class="info-strip">
+        <i class="ti ti-arrow-right"></i>
+        After setup you'll land in the <strong style="color:var(--ink);margin-left:4px;">Biolink builder</strong> to customise your page
+      </div>
+
       <div class="btn-row">
         <button type="button" class="btn btn-primary" onclick="goStep(2)">Continue →</button>
       </div>
@@ -201,104 +177,20 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 
     <!-- STEP 2: Details -->
     <div class="step-panel" id="step2">
-      <div class="step-heading">Tell us about it</div>
-      <div class="step-sub" id="step2-sub">A few details to get started.</div>
+      <div class="step-heading">Tell us about yourself</div>
+      <div class="step-sub">A few details to get your page started.</div>
 
       <div class="field">
-        <label id="title-label">Business name</label>
-        <input type="text" name="title" id="title-input" placeholder="e.g. Glamour Studio" autocomplete="off">
+        <label>Your name</label>
+        <input type="text" name="title" id="title-input" placeholder="e.g. Abhi Singh" autocomplete="off">
       </div>
-
-      <!-- Business fields -->
-      <div id="fields-business">
-        <div class="field-row">
-          <div class="field">
-            <label>Category</label>
-            <input type="hidden" name="category_id" id="cat-id-input">
-            <input type="hidden" name="category"    id="cat-name-input">
-            <div class="cat-wrap" id="cat-wrap">
-              <input type="text" class="cat-search" id="cat-search" placeholder="Search category…" autocomplete="off" readonly>
-              <span class="cat-arrow">▾</span>
-              <div class="cat-dropdown" id="cat-dropdown">
-                {% if categories and categories.length %}
-                  {% for cat in categories %}
-                  <div class="cat-option" data-id="{{ cat.id }}" data-name="{{ cat.name }}">
-                    <span class="cat-option-icon">{{ cat.icon }}</span>{{ cat.name }}
-                  </div>
-                  {% endfor %}
-                {% endif %}
-                <div class="cat-none" id="cat-none" style="display:none">No results found.</div>
-              </div>
-            </div>
-          </div>
-          <div class="field">
-            <label>City</label>
-            <input type="text" name="city" placeholder="e.g. Ludhiana">
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Phone number</label>
-            <input type="text" name="phone" placeholder="+91 98765 43210">
-          </div>
-          <div class="field">
-            <label>WhatsApp number</label>
-            <input type="text" name="whatsapp" placeholder="+91 98765 43210">
-          </div>
-        </div>
-        <div class="field">
-          <label>Address</label>
-          <input type="text" name="address" placeholder="Model Town, Ludhiana">
-        </div>
-      </div>
-
-      <!-- Freelancer fields -->
-      <div id="fields-freelancer" style="display:none">
-        <div class="field">
-          <label>Your skills</label>
-          <input type="text" name="skills" placeholder="Web design, Photography, Writing...">
-        </div>
-        <div class="field">
-          <label>City</label>
-          <input type="text" name="city_freelancer" placeholder="e.g. Ludhiana">
-        </div>
-      </div>
-
-      <!-- Link-in-bio fields -->
-      <div id="fields-linktree" style="display:none">
-        <div class="field">
-          <label>Your bio</label>
-          <textarea name="bio" placeholder="Creator · Photographer · Based in India"></textarea>
-        </div>
-      </div>
-
-      <!-- Blog fields -->
-      <div id="fields-blog" style="display:none">
-        <div class="field">
-          <label>Blog topic</label>
-          <input type="text" name="blog_topic" placeholder="Travel, Tech, Finance...">
-        </div>
-        <div class="field">
-          <label>Author name</label>
-          <input type="text" name="author" placeholder="Your name">
-        </div>
-      </div>
-
-      <!-- Product fields -->
-      <div id="fields-product" style="display:none">
-        <div class="field">
-          <label>What do you sell?</label>
-          <textarea name="product_desc" placeholder="Describe your product or service in a few lines..."></textarea>
-        </div>
-        <div class="field">
-          <label>City</label>
-          <input type="text" name="city_product" placeholder="e.g. Ludhiana">
-        </div>
-      </div>
-
       <div class="field">
-        <label>Short description</label>
-        <textarea name="description" placeholder="Tell visitors what you do in 1–2 sentences..."></textarea>
+        <label>Bio</label>
+        <textarea name="bio" placeholder="Creator · Photographer · Based in India"></textarea>
+      </div>
+      <div class="field">
+        <label>Short description <span style="font-weight:400;color:var(--ink-faint)">(optional)</span></label>
+        <textarea name="description" placeholder="Tell visitors what you do in 1–2 sentences..." style="min-height:70px;"></textarea>
       </div>
 
       <div class="btn-row">
@@ -307,16 +199,15 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
       </div>
     </div>
 
-    <!-- STEP 3: Go live -->
+    <!-- STEP 3: Theme + subdomain -->
     <div class="step-panel" id="step3">
       <div class="step-heading">Almost there!</div>
-      <div class="step-sub">Pick your design and web address.</div>
+      <div class="step-sub">Pick your theme and web address.</div>
 
-      <!-- Template picker -->
       <div class="field">
-        <label>Choose a design</label>
-        <div id="template-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:4px;"></div>
-        <p id="no-themes-msg" style="display:none;font-size:13px;color:var(--ink-muted);padding:8px 0;">No themes available for this type yet.</p>
+        <label>Choose a theme</label>
+        <div class="theme-marketplace" id="template-grid"></div>
+        <p class="no-themes-msg" id="no-themes-msg">No themes available yet.</p>
       </div>
 
       <div class="field">
@@ -325,31 +216,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
           <input type="text" name="subdomain" id="subdomain-input" placeholder="yourname" autocomplete="off">
           <span class="subdomain-suffix">.{{ base_domain }}</span>
         </div>
-        <div class="field-hint">Lowercase letters, numbers, hyphens only. Your URL: yourname.{{ base_domain }}</div>
-      </div>
-
-      <div class="field">
-        <label>Color theme</label>
-        <div class="theme-grid">
-          <label class="theme-swatch selected" style="background:#1a1a18;" title="Ink" onclick="selectTheme(this,'ink')">
-            <input type="radio" name="theme" value="ink" checked>
-          </label>
-          <label class="theme-swatch" style="background:#2563eb;" title="Blue" onclick="selectTheme(this,'blue')">
-            <input type="radio" name="theme" value="blue">
-          </label>
-          <label class="theme-swatch" style="background:#16a34a;" title="Green" onclick="selectTheme(this,'green')">
-            <input type="radio" name="theme" value="green">
-          </label>
-          <label class="theme-swatch" style="background:#dc2626;" title="Red" onclick="selectTheme(this,'red')">
-            <input type="radio" name="theme" value="red">
-          </label>
-          <label class="theme-swatch" style="background:#7c3aed;" title="Purple" onclick="selectTheme(this,'purple')">
-            <input type="radio" name="theme" value="purple">
-          </label>
-          <label class="theme-swatch" style="background:#d97706;" title="Amber" onclick="selectTheme(this,'amber')">
-            <input type="radio" name="theme" value="amber">
-          </label>
-        </div>
+        <div class="field-hint">Lowercase letters, numbers, hyphens only.</div>
       </div>
 
       <div class="btn-row">
@@ -362,194 +229,110 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px
 </div>
 
 <script>
-var currentType = '';
 var currentStep = 1;
-
-// ── Searchable category dropdown ──────────────────────────────────────────────
-(function() {
-  var wrap   = document.getElementById('cat-wrap');
-  var search = document.getElementById('cat-search');
-  var drop   = document.getElementById('cat-dropdown');
-  var idInp  = document.getElementById('cat-id-input');
-  var nmInp  = document.getElementById('cat-name-input');
-
-  if (!wrap) return;
-
-  // Toggle open
-  search.addEventListener('click', function() {
-    var isOpen = wrap.classList.toggle('open');
-    if (isOpen) {
-      search.removeAttribute('readonly');
-      search.value = '';
-      idInp.value  = idInp.value; // keep selection
-      search.placeholder = 'Type to search…';
-      filterOptions('');
-    } else {
-      search.setAttribute('readonly', '');
-      search.placeholder = 'Search category…';
-      // restore selected name if set
-      if (nmInp.value) search.value = nmInp.value;
-    }
-  });
-
-  // Filter as user types
-  search.addEventListener('input', function() {
-    filterOptions(this.value.toLowerCase());
-  });
-
-  // Prevent closing when clicking inside dropdown
-  drop.addEventListener('mousedown', function(e) { e.preventDefault(); });
-
-  // Option click
-  drop.addEventListener('click', function(e) {
-    var opt = e.target.closest('.cat-option');
-    if (!opt) return;
-    idInp.value  = opt.dataset.id;
-    nmInp.value  = opt.dataset.name;
-    search.value = opt.dataset.name;
-    search.setAttribute('readonly', '');
-    wrap.classList.remove('open');
-  });
-
-  // Close on outside click
-  document.addEventListener('click', function(e) {
-    if (!wrap.contains(e.target)) {
-      wrap.classList.remove('open');
-      search.setAttribute('readonly', '');
-      search.placeholder = 'Search category…';
-      search.value = nmInp.value || '';
-    }
-  });
-
-  function filterOptions(q) {
-    var opts = drop.querySelectorAll('.cat-option');
-    var any  = false;
-    opts.forEach(function(o) {
-      var match = o.dataset.name.toLowerCase().includes(q);
-      o.style.display = match ? '' : 'none';
-      if (match) any = true;
-    });
-    document.getElementById('cat-none').style.display = any ? 'none' : '';
-  }
-})();
-
-// ── All themes from server (injected by dashController) ──────────────────────
 var ALL_THEMES = {{ themes | dump | safe }};
 
-// ── Theme picker ──────────────────────────────────────────────────────────────
-function renderTemplatePicker(siteType) {
+// ── Theme palette used for placeholder bg when no preview ─────────────────
+var THUMB_PALETTES = {
+  dark:    { bg:'#1a1a18', fg:'rgba(255,255,255,0.15)' },
+  light:   { bg:'#f2f0eb', fg:'rgba(26,26,24,0.15)' },
+  navy:    { bg:'#0A1628', fg:'rgba(245,166,35,0.25)' },
+  green:   { bg:'#0D1117', fg:'rgba(0,217,100,0.25)' },
+  cream:   { bg:'#F8F6F1', fg:'rgba(27,58,107,0.2)' },
+  blue:    { bg:'#EEF2F9', fg:'rgba(27,58,107,0.2)' },
+  purple:  { bg:'#1a1030', fg:'rgba(167,139,250,0.25)' },
+  default: { bg:'#f2f0eb', fg:'rgba(26,26,24,0.12)' }
+};
+
+function guessThumbStyle(theme) {
+  var tags = (theme.tags || []).join(' ').toLowerCase();
+  var name = (theme.name || '').toLowerCase();
+  if (tags.includes('navy') || name.includes('loan') || name.includes('bridge')) return THUMB_PALETTES.navy;
+  if (tags.includes('dark') && tags.includes('green')) return THUMB_PALETTES.green;
+  if (tags.includes('cream') || name.includes('finnest') || name.includes('wealth')) return THUMB_PALETTES.cream;
+  if (tags.includes('dark')) return THUMB_PALETTES.dark;
+  if (tags.includes('blue')) return THUMB_PALETTES.blue;
+  if (tags.includes('purple')) return THUMB_PALETTES.purple;
+  if (tags.includes('light') || tags.includes('minimal')) return THUMB_PALETTES.light;
+  return THUMB_PALETTES.default;
+}
+
+function renderTemplatePicker() {
   var grid  = document.getElementById('template-grid');
   var noMsg = document.getElementById('no-themes-msg');
   grid.innerHTML = '';
 
-  var filtered = ALL_THEMES.filter(function(t) {
-    return t.for.includes('all') || t.for.includes(siteType);
-  });
+  var themes = ALL_THEMES.slice().sort(function(a,b){ return (a.order||99)-(b.order||99); });
 
-  if (!filtered.length) {
+  if (!themes.length) {
     noMsg.style.display = '';
     return;
   }
   noMsg.style.display = 'none';
 
-  filtered.forEach(function(t, idx) {
+  themes.forEach(function(t, idx) {
     var card = document.createElement('div');
-    card.className = 'tpl-card' + (idx === 0 ? ' selected' : '');
+    card.className = 'tm-card' + (idx === 0 ? ' tm-selected' : '');
     card.dataset.slug = t.slug;
     card.onclick = function() { selectTemplate(t.slug); };
 
-    var thumb = '<div class="tpl-thumb">';
+    var pal = guessThumbStyle(t);
+    var thumbInner = '';
     if (t.hasPreview) {
-      thumb += '<img src="' + t.previewUrl + '" alt="' + t.name + '" loading="lazy">';
+      thumbInner = '<img src="' + t.previewUrl + '" alt="' + t.name + '" loading="lazy">';
     } else {
-      thumb += '🎨';
+      thumbInner = '<div class="tm-thumb-placeholder" style="background:' + pal.bg + ';">'
+        + '<i class="ti ti-palette" style="font-size:26px;color:' + pal.fg + ';"></i>'
+        + '</div>';
     }
-    thumb += '</div>';
 
-    card.innerHTML = thumb +
-      '<div class="tpl-info">' +
-        '<div class="tpl-name">' + t.name + '</div>' +
-        (t.description ? '<div class="tpl-desc">' + t.description + '</div>' : '') +
+    var tags = (t.tags || []).slice(0,3).map(function(tag){
+      return '<span class="tm-tag">' + tag + '</span>';
+    }).join('');
+
+    card.innerHTML =
+      '<div class="tm-thumb" style="background:' + pal.bg + ';">' +
+        thumbInner +
+        '<div class="tm-selected-badge"><i class="ti ti-check"></i></div>' +
+      '</div>' +
+      '<div class="tm-body">' +
+        '<div class="tm-name">' + (t.name || t.slug) + '</div>' +
+        (t.description ? '<div class="tm-desc">' + t.description + '</div>' : '') +
+        (tags ? '<div class="tm-tags">' + tags + '</div>' : '') +
       '</div>';
 
     grid.appendChild(card);
   });
 
-  // Auto-select first
-  if (filtered.length) {
-    document.getElementById('template_id').value = filtered[0].slug;
+  if (themes.length) {
+    document.getElementById('template_id').value = themes[0].slug;
   }
 }
 
 function selectTemplate(slug) {
-  document.querySelectorAll('.tpl-card').forEach(function(c){ c.classList.remove('selected'); });
-  var card = document.querySelector('.tpl-card[data-slug="' + slug + '"]');
-  if (card) card.classList.add('selected');
+  document.querySelectorAll('.tm-card').forEach(function(c){ c.classList.remove('tm-selected'); });
+  var card = document.querySelector('.tm-card[data-slug="' + slug + '"]');
+  if (card) card.classList.add('tm-selected');
   document.getElementById('template_id').value = slug;
 }
 
-// ── Site type selection ───────────────────────────────────────────────────────
-function selectType(el, type) {
-  document.querySelectorAll('.type-card').forEach(function(c){ c.classList.remove('selected'); });
-  el.classList.add('selected');
-  currentType = type;
-
-  var labels = {
-    business: 'Business name', freelancer: 'Your name', linktree: 'Your name',
-    blog: 'Blog name', product: 'Brand / business name', other: 'Site name'
-  };
-  var subs = {
-    business: 'Tell us about your business.', freelancer: 'Tell us about your work.',
-    linktree: 'Set up your link in bio page.', blog: 'Set up your blog.',
-    product: 'Tell us about your product.', other: 'Tell us about your site.'
-  };
-  var placeholders = {
-    business: 'e.g. Glamour Studio', freelancer: 'e.g. Abhi Singh', linktree: 'e.g. Abhi Singh',
-    blog: 'e.g. The Daily Grind', product: 'e.g. FreshBox', other: 'e.g. My Site'
-  };
-
-  document.getElementById('title-label').textContent = labels[type] || 'Name';
-  document.getElementById('step2-sub').textContent = subs[type] || 'A few details.';
-  document.getElementById('title-input').placeholder = placeholders[type] || '';
-
-  ['fields-business','fields-freelancer','fields-linktree','fields-blog','fields-product']
-    .forEach(function(id){ document.getElementById(id).style.display = 'none'; });
-
-  var map = {
-    business:'fields-business', freelancer:'fields-freelancer', linktree:'fields-linktree',
-    blog:'fields-blog', product:'fields-product'
-  };
-  if (map[type]) document.getElementById(map[type]).style.display = 'block';
-
-  // Update template picker for the new type
-  renderTemplatePicker(type);
-}
-
-function selectTheme(el, theme) {
-  document.querySelectorAll('.theme-swatch').forEach(function(s){ s.classList.remove('selected'); });
-  el.classList.add('selected');
-}
-
+// ── Step navigation ───────────────────────────────────────────────────────
 function goStep(n) {
-  if (n === 2 && !currentType) {
-    alert('Please select a site type first.');
-    return;
-  }
   if (n === 3) {
     var title = document.getElementById('title-input').value.trim();
     if (!title) {
       document.getElementById('title-input').focus();
-      document.getElementById('title-input').style.borderColor = 'var(--red)';
+      document.getElementById('title-input').style.borderColor = '#dc2626';
       return;
     }
-    // Auto-fill subdomain suggestion from title
+    // Auto-suggest subdomain from name
     var suggestion = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     var subInput = document.getElementById('subdomain-input');
     if (!subInput.value && suggestion) subInput.value = suggestion;
 
-    // Render template picker if not already done
-    if (!document.querySelector('.tpl-card')) {
-      renderTemplatePicker(currentType || 'business');
+    // Render themes once
+    if (!document.querySelector('.tm-card')) {
+      renderTemplatePicker();
     }
   }
 
@@ -560,7 +343,7 @@ function goStep(n) {
   for (var i = 1; i <= 3; i++) {
     var dot   = document.getElementById('dot' + i);
     var label = document.getElementById('label' + i);
-    dot.className = 'step-dot ' + (i < n ? 'done' : i === n ? 'active' : 'pending');
+    dot.className   = 'step-dot ' + (i < n ? 'done' : i === n ? 'active' : 'pending');
     label.className = i < n ? 'done' : i === n ? 'active' : '';
     if (i < 3) {
       document.getElementById('line' + i).className = 'step-line' + (i < n ? ' done' : '');
@@ -570,9 +353,14 @@ function goStep(n) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Sanitize subdomain input in real-time
+// Sanitize subdomain
 document.getElementById('subdomain-input').addEventListener('input', function() {
   this.value = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+});
+
+// Clear red border on title focus
+document.getElementById('title-input').addEventListener('input', function() {
+  this.style.borderColor = '';
 });
 
 // Prevent double-submit
@@ -584,7 +372,8 @@ document.getElementById('wizard-form').addEventListener('submit', function() {
 
 {% if flash_errors and flash_errors.length %}
 window.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('flash-errors').scrollIntoView({ behavior: 'smooth' });
+  var el = document.getElementById('flash-errors');
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
 });
 {% endif %}
 </script>
