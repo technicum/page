@@ -233,16 +233,15 @@
     var msg = inp ? inp.value.trim() : '';
     if (!msg) return;
     inp.value = '';
-
-    // Optimistic UI
-    appendMsg({ id: 'tmp-' + Date.now(), sender: 'visitor', message: msg, created_at: new Date().toISOString() });
-    scrollMsgs();
+    inp.style.height = 'auto';
 
     fetch(APP_URL + '/api/chat/message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: sessionId, token: token, message: msg })
     }).catch(function(){});
+    // No optimistic append — polling will pick it up within 3s,
+    // avoiding duplicates from mismatched tmp/real IDs
   }
 
   function startPolling() {
