@@ -577,11 +577,18 @@ function openMergeModal() {
   document.getElementById('mergeModal').classList.add('open');
 
   fetch('/dashboard/leads/duplicates')
-    .then(function(r){ return r.json(); })
+    .then(function(r) {
+      if (!r.ok) throw new Error('Server error ' + r.status);
+      return r.json();
+    })
     .then(function(d) {
-      if (!d.ok) { document.getElementById('mergeGroups').innerHTML = '<div style="padding:20px;color:var(--red);">Error loading duplicates.</div>'; return; }
+      if (!d.ok) throw new Error(d.error || 'Unknown error');
       _mergeGroups = d.groups;
       renderMergeGroups();
+    })
+    .catch(function(err) {
+      document.getElementById('mergeGroups').innerHTML =
+        '<div style="padding:20px;color:var(--red);">❌ Error: ' + err.message + '</div>';
     });
 }
 function closeMergeModal() {
