@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name | default: site.title }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ac:{{ settings.profile.accent | default:'#3B82F6' }};
+  --bg:#0D1320;
+  --card:#141C2E;
+  --border:rgba(255,255,255,0.07);
+  --border-ac:rgba(59,130,246,0.22);
+  --ink:#F1F5F9;
+  --muted:#64748B;
+  --faint:#1E293B;
+  --ac-faint:rgba(59,130,246,0.1);
+}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;min-height:100vh;}
+.page{width:100%;max-width:420px;padding:40px 16px 64px;display:flex;flex-direction:column;align-items:center;}
+
+/* Avatar */
+.av-wrap{width:76px;height:76px;border-radius:50%;background:var(--faint);border:2px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden;flex-shrink:0;animation:popIn .6s cubic-bezier(.34,1.56,.64,1) both;}
+.av-wrap img{width:100%;height:100%;object-fit:cover;}
+
+/* Profile */
+.name{margin-top:14px;font-size:20px;font-weight:600;color:var(--ink);text-align:center;animation:fadeUp .4s .25s both;}
+.tagline{font-size:12px;color:var(--muted);text-align:center;margin-top:4px;animation:fadeUp .4s .35s both;}
+.badges{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:10px;animation:fadeUp .4s .45s both;}
+.badge-hiring{background:rgba(34,197,94,0.12);color:#22C55E;font-size:10px;padding:3px 10px;border-radius:10px;border:1px solid rgba(34,197,94,0.22);}
+.badge-exp{background:var(--ac-faint);color:var(--ac);font-size:10px;padding:3px 10px;border-radius:10px;border:1px solid var(--border-ac);}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;width:100%;margin-top:18px;border:1px solid var(--border);border-radius:12px;overflow:hidden;animation:fadeUp .4s .5s both;}
+.stat{padding:12px 8px;text-align:center;background:var(--bg);}
+.stat+.stat{border-left:1px solid var(--border);}
+.stat-val{color:var(--ac);font-size:18px;font-weight:600;}
+.stat-label{color:var(--muted);font-size:9px;margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+
+/* CTA */
+.cta{display:block;width:100%;margin-top:16px;padding:13px;border-radius:12px;background:var(--ac);color:#fff;font-size:14px;font-weight:600;text-align:center;text-decoration:none;animation:slideUp .4s .55s both;transition:opacity .2s;}
+.cta:hover{opacity:.88;}
+
+/* Section heading */
+.sec-title{width:100%;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:20px 0 10px;}
+
+/* Job cards */
+.job{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin-bottom:8px;text-decoration:none;display:block;transition:border-color .2s,transform .15s;}
+.job:hover{border-color:var(--ac);transform:translateY(-1px);}
+.job.accent-border{border-color:var(--border-ac);}
+.job-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.job-role{font-size:13px;font-weight:500;color:var(--ink);}
+.job-company{font-size:11px;color:var(--muted);margin-top:2px;}
+.job-badge{font-size:9px;padding:2px 7px;border-radius:5px;flex-shrink:0;font-weight:500;}
+.badge-new{background:rgba(34,197,94,0.12);color:#22C55E;border:1px solid rgba(34,197,94,0.2);}
+.badge-hot{background:rgba(239,68,68,0.12);color:#F87171;border:1px solid rgba(239,68,68,0.2);}
+.badge-urgent{background:rgba(234,179,8,0.12);color:#FBBF24;border:1px solid rgba(234,179,8,0.2);}
+.job-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.job-tag{background:rgba(255,255,255,0.05);color:var(--muted);font-size:10px;padding:2px 8px;border-radius:5px;}
+.job:nth-child(1){animation:slideL .35s .6s both;}
+.job:nth-child(2){animation:slideR .35s .68s both;}
+.job:nth-child(3){animation:slideL .35s .76s both;}
+.job:nth-child(4){animation:slideR .35s .84s both;}
+.job:nth-child(5){animation:slideL .35s .92s both;}
+
+/* Partners */
+.partners{display:flex;flex-wrap:wrap;gap:6px;width:100%;animation:fadeUp .4s .85s both;}
+.partner-pill{background:var(--faint);color:#CBD5E1;font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);}
+
+/* Quick links */
+.q-link{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:7px;text-decoration:none;transition:border-color .2s;}
+.q-link:hover{border-color:rgba(255,255,255,0.18);}
+.q-emoji{font-size:17px;width:28px;text-align:center;flex-shrink:0;}
+.q-body{flex:1;}
+.q-label{font-size:13px;font-weight:500;color:var(--ink);}
+.q-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.q-arr{color:var(--muted);}
+
+/* WhatsApp */
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:12px;background:rgba(37,211,102,0.09);border:1.5px solid rgba(37,211,102,0.25);color:#22C55E;font-size:14px;font-weight:600;text-decoration:none;margin-top:8px;transition:background .2s;animation:fadeUp .4s 1s both;}
+.wa-btn:hover{background:rgba(37,211,102,0.16);}
+
+/* Contact */
+.contact-row{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin-top:8px;}
+.contact-row i{font-size:15px;color:var(--ac);flex-shrink:0;}
+
+/* Socials */
+.socials{display:flex;gap:10px;margin-top:20px;justify-content:center;animation:fadeUp .4s 1.1s both;}
+.soc-ic{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;text-decoration:none;transition:border-color .2s,transform .15s;}
+.soc-ic:hover{border-color:var(--ac);transform:scale(1.08);}
+.soc-ic i{font-size:17px;color:var(--muted);}
+
+/* Share */
+.share-wrap{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeUp .4s 1.2s both;}
+.share-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:border-color .2s;}
+.share-btn:hover{border-color:rgba(255,255,255,0.2);}
+.share-toast{font-size:12px;color:var(--ac);opacity:0;transition:opacity .3s;}
+.share-toast.show{opacity:1;}
+
+@keyframes popIn{0%{transform:scale(.2);opacity:0;}65%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideL{from{opacity:0;transform:translateX(-24px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideR{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:translateX(0);}}
+</style>
+</head>
+<body>
+<div class="page">
+
+{% assign pr = settings.profile %}
+{% assign st = settings.stats %}
+{% assign ct = settings.cta %}
+{% assign jb = settings.jobs %}
+{% assign pt = settings.partners %}
+{% assign lk = settings.links %}
+{% assign co = settings.contact %}
+{% assign sc = settings.socials %}
+
+<!-- Avatar / Logo -->
+<div class="av-wrap">
+  {% if pr.avatar != blank %}
+    <img src="{{ pr.avatar }}" alt="{{ pr.name }}">
+  {% else %}
+    {{ pr.emoji | default: '🏢' }}
+  {% endif %}
+</div>
+
+<h1 class="name">{{ pr.name | default: 'HireEdge Placements' }}</h1>
+<p class="tagline">{{ pr.tagline | default: 'Connecting talent with opportunity' }}{% if pr.city != blank %} · {{ pr.city }}{% endif %}</p>
+
+<div class="badges">
+  {% if pr.hiring != 'no' %}<span class="badge-hiring">● Actively hiring</span>{% endif %}
+  {% if pr.exp_tag != blank %}<span class="badge-exp">{{ pr.exp_tag }}</span>{% endif %}
+</div>
+
+<!-- Stats -->
+{% if st %}
+<div class="stats">
+  <div class="stat">
+    <div class="stat-val">{{ st.stat1_val | default: '2,400+' }}</div>
+    <div class="stat-label">{{ st.stat1_label | default: 'Placed' }}</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">{{ st.stat2_val | default: '180+' }}</div>
+    <div class="stat-label">{{ st.stat2_label | default: 'Companies' }}</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">{{ st.stat3_val | default: '94%' }}</div>
+    <div class="stat-label">{{ st.stat3_label | default: 'Success rate' }}</div>
+  </div>
+</div>
+{% endif %}
+
+<!-- CTA -->
+{% if ct.label != blank %}
+<a class="cta" href="{{ ct.url }}" target="_blank">{{ ct.label }}</a>
+{% endif %}
+
+<!-- Job Listings -->
+{% if jb.items and jb.items.size > 0 %}
+<div class="sec-title">{{ jb.heading | default: 'Active openings' }}</div>
+{% for job in jb.items %}
+{% assign is_first = false %}{% if forloop.first %}{% assign is_first = true %}{% endif %}
+<a class="job{% if is_first %} accent-border{% endif %}" href="{{ job.url | default: '#' }}" target="_blank">
+  <div class="job-top">
+    <div>
+      <div class="job-role">{{ job.role }}</div>
+      <div class="job-company">{{ job.company }}{% if job.location != blank %} · {{ job.location }}{% endif %}</div>
+    </div>
+    {% assign badge_lc = job.badge | downcase %}
+    {% if job.badge != blank %}
+      {% if badge_lc == 'hot' %}<span class="job-badge badge-hot">Hot</span>
+      {% elsif badge_lc == 'urgent' %}<span class="job-badge badge-urgent">Urgent</span>
+      {% else %}<span class="job-badge badge-new">{{ job.badge }}</span>{% endif %}
+    {% endif %}
+  </div>
+  <div class="job-tags">
+    {% if job.salary != blank %}<span class="job-tag">{{ job.salary }}</span>{% endif %}
+    {% if job.type != blank %}<span class="job-tag">{{ job.type }}</span>{% endif %}
+  </div>
+</a>
+{% endfor %}
+{% endif %}
+
+<!-- Hiring Partners -->
+{% if pt.items and pt.items.size > 0 %}
+<div class="sec-title">{{ pt.heading | default: 'Hiring partners' }}</div>
+<div class="partners">
+  {% for p in pt.items %}<span class="partner-pill">{{ p.name }}</span>{% endfor %}
+</div>
+{% endif %}
+
+<!-- Quick Links -->
+{% if lk.items and lk.items.size > 0 %}
+<div class="sec-title">Quick links</div>
+{% for item in lk.items %}
+<a class="q-link" href="{{ item.url }}" target="_blank">
+  <span class="q-emoji">{{ item.emoji | default: '🔗' }}</span>
+  <div class="q-body">
+    <div class="q-label">{{ item.label }}</div>
+    {% if item.sub != blank %}<div class="q-sub">{{ item.sub }}</div>{% endif %}
+  </div>
+  <i class="ti ti-chevron-right q-arr"></i>
+</a>
+{% endfor %}
+{% endif %}
+
+<!-- WhatsApp -->
+{% if co.whatsapp != blank %}
+<a class="wa-btn" href="https://wa.me/{{ co.whatsapp | remove:'+' | remove:' ' }}" target="_blank">
+  <i class="ti ti-brand-whatsapp" style="font-size:20px;"></i>
+  WhatsApp us now
+</a>
+{% endif %}
+
+<!-- Contact info -->
+{% if co.email != blank or co.phone != blank or co.address != blank %}
+<div style="width:100%;margin-top:16px;animation:fadeUp .4s 1.05s both;">
+  {% if co.email != blank %}<div class="contact-row"><i class="ti ti-mail"></i> {{ co.email }}</div>{% endif %}
+  {% if co.phone != blank %}<div class="contact-row"><i class="ti ti-phone"></i> {{ co.phone }}</div>{% endif %}
+  {% if co.address != blank %}<div class="contact-row"><i class="ti ti-map-pin"></i> {{ co.address }}</div>{% endif %}
+</div>
+{% endif %}
+
+<!-- Socials -->
+{% if sc %}
+<div class="socials">
+  {% if sc.linkedin != blank %}<a href="{{ sc.linkedin }}" class="soc-ic" target="_blank"><i class="ti ti-brand-linkedin"></i></a>{% endif %}
+  {% if sc.instagram != blank %}<a href="{{ sc.instagram }}" class="soc-ic" target="_blank"><i class="ti ti-brand-instagram"></i></a>{% endif %}
+  {% if sc.facebook != blank %}<a href="{{ sc.facebook }}" class="soc-ic" target="_blank"><i class="ti ti-brand-facebook"></i></a>{% endif %}
+  {% if sc.youtube != blank %}<a href="{{ sc.youtube }}" class="soc-ic" target="_blank"><i class="ti ti-brand-youtube"></i></a>{% endif %}
+</div>
+{% endif %}
+
+<div class="share-wrap">
+  <button class="share-btn" onclick="pzShare()">
+    <i class="ti ti-share" style="font-size:14px;"></i> Share this page
+  </button>
+  <div class="share-toast" id="pzToast">✓ Link copied!</div>
+</div>
+
+</div>
+<script>
+function pzShare(){var u=location.href;if(navigator.share){navigator.share({title:document.title,url:u});}else{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+{
+  "name": "Jobs Dark Pro",
+  "description": "Dark navy biolink for placement agencies & recruiters — job listings, hiring partners, CV submission CTA.",
+  "for": ["linktree"],
+  "categories": ["job-placement", "recruitment"],
+  "tags": ["dark", "professional", "corporate", "navy", "india"],
+  "order": 20,
+  "sections": [
+    {
+      "id": "profile",
+      "label": "Profile",
+      "fields": [
+        { "id": "avatar",   "label": "Logo / Photo URL",          "type": "image",  "default": "" },
+        { "id": "emoji",    "label": "Logo Emoji (if no image)",  "type": "text",   "default": "🏢" },
+        { "id": "name",     "label": "Agency / Recruiter Name",   "type": "text",   "default": "HireEdge Placements" },
+        { "id": "tagline",  "label": "Tagline",                   "type": "text",   "default": "Connecting talent with opportunity" },
+        { "id": "city",     "label": "City / Region",             "type": "text",   "default": "Mumbai · Pan India" },
+        { "id": "hiring",   "label": "Show 'Actively Hiring' badge (yes/no)", "type": "text", "default": "yes" },
+        { "id": "exp_tag",  "label": "Experience Tag (e.g. 12 yrs exp)", "type": "text", "default": "12 yrs experience" },
+        { "id": "accent",   "label": "Accent Color",              "type": "color",  "default": "#3B82F6" }
+      ]
+    },
+    {
+      "id": "stats",
+      "label": "Stats",
+      "fields": [
+        { "id": "stat1_val",   "label": "Stat 1 Value",   "type": "text", "default": "2,400+" },
+        { "id": "stat1_label", "label": "Stat 1 Label",   "type": "text", "default": "Placed" },
+        { "id": "stat2_val",   "label": "Stat 2 Value",   "type": "text", "default": "180+" },
+        { "id": "stat2_label", "label": "Stat 2 Label",   "type": "text", "default": "Companies" },
+        { "id": "stat3_val",   "label": "Stat 3 Value",   "type": "text", "default": "94%" },
+        { "id": "stat3_label", "label": "Stat 3 Label",   "type": "text", "default": "Success rate" }
+      ]
+    },
+    {
+      "id": "cta",
+      "label": "Primary CTA",
+      "fields": [
+        { "id": "label", "label": "Button Text", "type": "text", "default": "Submit your CV →" },
+        { "id": "url",   "label": "Button URL",  "type": "text", "default": "" }
+      ]
+    },
+    {
+      "id": "jobs",
+      "label": "Job Listings",
+      "fields": [
+        { "id": "heading", "label": "Section Heading", "type": "text", "default": "Active openings" },
+        { "id": "items", "label": "Jobs", "type": "repeater",
+          "default": [
+            { "role": "Senior Relationship Manager", "company": "HDFC Bank", "location": "Mumbai", "salary": "₹8–12 LPA", "type": "Full-time", "badge": "New", "url": "" },
+            { "role": "BPO Team Leader",             "company": "Infosys BPM", "location": "Pune", "salary": "₹4–6 LPA", "type": "Full-time", "badge": "", "url": "" },
+            { "role": "React Developer",             "company": "TCS",         "location": "Bengaluru", "salary": "₹10–16 LPA", "type": "Remote", "badge": "", "url": "" }
+          ],
+          "item_fields": [
+            { "id": "role",     "label": "Job Role / Title",        "type": "text", "default": "Job Title" },
+            { "id": "company",  "label": "Company Name",            "type": "text", "default": "Company" },
+            { "id": "location", "label": "Location",                "type": "text", "default": "City" },
+            { "id": "salary",   "label": "Salary Range",            "type": "text", "default": "" },
+            { "id": "type",     "label": "Job Type (Full-time etc)","type": "text", "default": "Full-time" },
+            { "id": "badge",    "label": "Badge (New / Hot / Urgent)", "type": "text", "default": "" },
+            { "id": "url",      "label": "Apply URL",               "type": "text", "default": "" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "partners",
+      "label": "Hiring Partners",
+      "fields": [
+        { "id": "heading", "label": "Section Heading", "type": "text", "default": "Hiring partners" },
+        { "id": "items", "label": "Companies", "type": "repeater",
+          "default": [
+            { "name": "HDFC Bank" }, { "name": "TCS" }, { "name": "Infosys" },
+            { "name": "Wipro" },     { "name": "ICICI" }, { "name": "+175 more" }
+          ],
+          "item_fields": [
+            { "id": "name", "label": "Company Name", "type": "text", "default": "Company" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Quick Links",
+      "fields": [
+        { "id": "items", "label": "Links", "type": "repeater",
+          "default": [
+            { "emoji": "💬", "label": "WhatsApp us", "sub": "Quick reply", "url": "" },
+            { "emoji": "📋", "label": "View all jobs", "sub": "", "url": "" }
+          ],
+          "item_fields": [
+            { "id": "emoji", "label": "Emoji",    "type": "text", "default": "🔗" },
+            { "id": "label", "label": "Label",    "type": "text", "default": "Link" },
+            { "id": "sub",   "label": "Subtitle", "type": "text", "default": "" },
+            { "id": "url",   "label": "URL",      "type": "text", "default": "" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "fields": [
+        { "id": "whatsapp", "label": "WhatsApp Number", "type": "text", "default": "" },
+        { "id": "phone",    "label": "Phone Number",    "type": "text", "default": "" },
+        { "id": "email",    "label": "Email",           "type": "text", "default": "" },
+        { "id": "address",  "label": "Address / City",  "type": "text", "default": "" }
+      ]
+    },
+    {
+      "id": "socials",
+      "label": "Social Media",
+      "fields": [
+        { "id": "linkedin",  "label": "LinkedIn URL",   "type": "text", "default": "" },
+        { "id": "instagram", "label": "Instagram URL",  "type": "text", "default": "" },
+        { "id": "facebook",  "label": "Facebook URL",   "type": "text", "default": "" },
+        { "id": "youtube",   "label": "YouTube URL",    "type": "text", "default": "" }
+      ]
+    }
+  ]
+}

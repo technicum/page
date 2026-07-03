@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ settings.profile.name | default: site.title }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ac:{{ settings.profile.accent | default:'#FF6B00' }};
+  --bg:#0C0C0E;
+  --card:#18181B;
+  --border:#27272A;
+  --ink:#F4F4F5;
+  --muted:#71717A;
+  --sub:#A1A1AA;
+  --ac-faint:rgba(255,107,0,0.12);
+  --ac-border:rgba(255,107,0,0.25);
+}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;min-height:100vh;}
+.page{width:100%;max-width:420px;padding:0 0 64px;display:flex;flex-direction:column;align-items:center;}
+
+/* Hero */
+.hero{width:100%;padding:40px 20px 20px;text-align:center;background:var(--bg);}
+.av-wrap{width:72px;height:72px;border-radius:20px;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;overflow:hidden;animation:popIn .6s cubic-bezier(.34,1.56,.64,1) both;}
+.av-wrap img{width:100%;height:100%;object-fit:cover;}
+.name{font-size:20px;font-weight:700;color:var(--ink);animation:fadeUp .4s .25s both;}
+.tagline{font-size:12px;color:var(--sub);margin-top:4px;animation:fadeUp .4s .35s both;}
+.hero-btns{display:flex;gap:8px;justify-content:center;margin-top:16px;animation:fadeUp .4s .45s both;}
+.hero-primary{padding:9px 20px;border-radius:10px;background:var(--ac);color:#fff;font-size:13px;font-weight:600;text-decoration:none;transition:opacity .2s;}
+.hero-primary:hover{opacity:.88;}
+.hero-secondary{padding:9px 16px;border-radius:10px;background:var(--card);color:var(--sub);font-size:13px;font-weight:500;text-decoration:none;border:1px solid var(--border);transition:border-color .2s;}
+.hero-secondary:hover{border-color:rgba(255,255,255,0.2);}
+
+/* Stats strip */
+.stats-strip{width:100%;background:var(--ac);display:grid;grid-template-columns:1fr 1fr 1fr;animation:fadeUp .4s .5s both;}
+.stat-item{padding:12px 8px;text-align:center;}
+.stat-item+.stat-item{border-left:1px solid rgba(255,255,255,0.18);}
+.stat-val{color:#fff;font-size:16px;font-weight:700;}
+.stat-label{color:rgba(255,255,255,0.68);font-size:9px;margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+
+/* Section */
+.sec-wrap{width:100%;padding:0 16px;}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);margin:18px 0 10px;}
+
+/* Category grid */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cat-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:8px;text-decoration:none;transition:border-color .2s,transform .15s;}
+.cat-item:hover{border-color:rgba(255,255,255,0.2);transform:translateY(-1px);}
+.cat-item.highlight{background:var(--ac);border-color:var(--ac);}
+.cat-emoji{font-size:18px;flex-shrink:0;}
+.cat-name{font-size:11px;font-weight:500;color:var(--ink);}
+.cat-count{font-size:9px;color:var(--muted);margin-top:1px;}
+.cat-item.highlight .cat-name{color:#fff;}
+.cat-item.highlight .cat-count{color:rgba(255,255,255,0.65);}
+.cat-item:nth-child(1){animation:slideL .3s .55s both;}
+.cat-item:nth-child(2){animation:slideR .3s .6s both;}
+.cat-item:nth-child(3){animation:slideL .3s .65s both;}
+.cat-item:nth-child(4){animation:slideR .3s .7s both;}
+
+/* Featured job card */
+.job{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;text-decoration:none;display:block;transition:border-color .2s,transform .15s;}
+.job:hover{border-color:rgba(255,255,255,0.18);transform:translateY(-1px);}
+.job-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.job-role{font-size:13px;font-weight:500;color:var(--ink);}
+.job-company{font-size:11px;color:var(--muted);margin-top:2px;}
+.job-badge{font-size:9px;padding:2px 7px;border-radius:5px;flex-shrink:0;font-weight:600;}
+.badge-hot{background:var(--ac-faint);color:var(--ac);border:1px solid var(--ac-border);}
+.badge-new{background:rgba(34,197,94,0.12);color:#22C55E;border:1px solid rgba(34,197,94,0.2);}
+.badge-urgent{background:rgba(234,179,8,0.12);color:#FBBF24;border:1px solid rgba(234,179,8,0.2);}
+.job-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.job-tag{background:#27272A;color:var(--sub);font-size:10px;padding:2px 8px;border-radius:5px;}
+.apply-btn{display:block;background:var(--ac);color:#fff;font-size:11px;font-weight:600;padding:7px;border-radius:7px;text-align:center;margin-top:10px;}
+.job:nth-child(1){animation:slideL .35s .72s both;}
+.job:nth-child(2){animation:slideR .35s .8s both;}
+
+/* Quick links */
+.q-link{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:7px;text-decoration:none;transition:border-color .2s;}
+.q-link:hover{border-color:rgba(255,255,255,0.18);}
+.q-emoji{font-size:17px;width:28px;text-align:center;flex-shrink:0;}
+.q-body{flex:1;}
+.q-label{font-size:13px;font-weight:500;color:var(--ink);}
+.q-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.q-arr{color:var(--muted);}
+
+/* WhatsApp */
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:12px;background:rgba(37,211,102,0.08);border:1.5px solid rgba(37,211,102,0.22);color:#22C55E;font-size:14px;font-weight:600;text-decoration:none;transition:background .2s;animation:fadeUp .4s 1s both;}
+.wa-btn:hover{background:rgba(37,211,102,0.15);}
+
+/* Contact */
+.contact-row{display:flex;align-items:center;gap:10px;color:var(--sub);font-size:12px;margin-top:8px;}
+.contact-row i{font-size:15px;color:var(--ac);flex-shrink:0;}
+
+/* Socials */
+.socials{display:flex;gap:10px;margin-top:20px;justify-content:center;animation:fadeUp .4s 1.1s both;}
+.soc-ic{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;text-decoration:none;transition:border-color .2s,transform .15s;}
+.soc-ic:hover{border-color:var(--ac);transform:scale(1.08);}
+.soc-ic i{font-size:17px;color:var(--muted);}
+
+/* Share */
+.share-wrap{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeUp .4s 1.2s both;}
+.share-btn{background:transparent;border:1px solid var(--border);color:var(--sub);padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:border-color .2s;}
+.share-btn:hover{border-color:rgba(255,255,255,0.2);}
+.share-toast{font-size:12px;color:var(--ac);opacity:0;transition:opacity .3s;}
+.share-toast.show{opacity:1;}
+
+@keyframes popIn{0%{transform:scale(.2);opacity:0;}65%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideL{from{opacity:0;transform:translateX(-24px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideR{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:translateX(0);}}
+</style>
+</head>
+<body>
+<div class="page">
+
+{% assign pr = settings.profile %}
+{% assign ct = settings.cta %}
+{% assign st = settings.stats %}
+{% assign cats = settings.categories %}
+{% assign jb = settings.jobs %}
+{% assign lk = settings.links %}
+{% assign co = settings.contact %}
+{% assign sc = settings.socials %}
+
+<!-- Hero -->
+<div class="hero">
+  <div class="av-wrap">
+    {% if pr.avatar != blank %}<img src="{{ pr.avatar }}" alt="{{ pr.name }}">
+    {% else %}{{ pr.emoji | default: '🚀' }}{% endif %}
+  </div>
+  <h1 class="name">{{ pr.name | default: 'PlacePro Network' }}</h1>
+  <p class="tagline">{{ pr.tagline | default: 'Jobs · Internships · Placements' }}</p>
+  <div class="hero-btns">
+    {% if ct.label != blank %}<a class="hero-primary" href="{{ ct.url }}" target="_blank">{{ ct.label }}</a>{% endif %}
+    {% if ct.label2 != blank %}
+      {% assign wa_num = co.whatsapp | remove:'+' | remove:' ' %}
+      {% assign url2 = ct.url2 %}{% if url2 == blank and wa_num != blank %}{% assign url2 = 'https://wa.me/' | append: wa_num %}{% endif %}
+      <a class="hero-secondary" href="{{ url2 }}" target="_blank">{{ ct.label2 }}</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Stats strip -->
+{% if st %}
+<div class="stats-strip">
+  <div class="stat-item"><div class="stat-val">{{ st.stat1_val | default: '3,200+' }}</div><div class="stat-label">{{ st.stat1_label | default: 'Jobs posted' }}</div></div>
+  <div class="stat-item"><div class="stat-val">{{ st.stat2_val | default: '500+' }}</div><div class="stat-label">{{ st.stat2_label | default: 'Recruiters' }}</div></div>
+  <div class="stat-item"><div class="stat-val">{{ st.stat3_val | default: '48hr' }}</div><div class="stat-label">{{ st.stat3_label | default: 'Avg response' }}</div></div>
+</div>
+{% endif %}
+
+<!-- Job Categories -->
+{% if cats.items and cats.items.size > 0 %}
+<div class="sec-wrap">
+  <div class="sec-title">{{ cats.heading | default: 'Job categories' }}</div>
+  <div class="cat-grid">
+    {% for cat in cats.items %}
+    <a class="cat-item{% if forloop.last %} highlight{% endif %}" href="{{ cat.url | default: '#' }}" target="_blank">
+      <span class="cat-emoji">{{ cat.emoji | default: '💼' }}</span>
+      <div>
+        <div class="cat-name">{{ cat.name }}</div>
+        {% if cat.count != blank %}<div class="cat-count">{{ cat.count }}</div>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Featured Jobs -->
+{% if jb.items and jb.items.size > 0 %}
+<div class="sec-wrap">
+  <div class="sec-title">{{ jb.heading | default: 'Featured openings' }}</div>
+  {% for job in jb.items %}
+  <a class="job" href="{{ job.url | default: '#' }}" target="_blank">
+    <div class="job-top">
+      <div>
+        <div class="job-role">{{ job.role }}</div>
+        <div class="job-company">{{ job.company }}{% if job.location != blank %} · {{ job.location }}{% endif %}</div>
+      </div>
+      {% assign badge_lc = job.badge | downcase %}
+      {% if job.badge != blank %}
+        {% if badge_lc == 'hot' %}<span class="job-badge badge-hot">Hot</span>
+        {% elsif badge_lc == 'urgent' %}<span class="job-badge badge-urgent">Urgent</span>
+        {% else %}<span class="job-badge badge-new">{{ job.badge }}</span>{% endif %}
+      {% endif %}
+    </div>
+    <div class="job-tags">
+      {% if job.salary != blank %}<span class="job-tag">{{ job.salary }}</span>{% endif %}
+      {% if job.type != blank %}<span class="job-tag">{{ job.type }}</span>{% endif %}
+      {% if job.exp != blank %}<span class="job-tag">{{ job.exp }}</span>{% endif %}
+    </div>
+    <div class="apply-btn">Apply now</div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Quick Links -->
+{% if lk.items and lk.items.size > 0 %}
+<div class="sec-wrap">
+  <div class="sec-title">Quick links</div>
+  {% for item in lk.items %}
+  <a class="q-link" href="{{ item.url }}" target="_blank">
+    <span class="q-emoji">{{ item.emoji | default: '🔗' }}</span>
+    <div class="q-body">
+      <div class="q-label">{{ item.label }}</div>
+      {% if item.sub != blank %}<div class="q-sub">{{ item.sub }}</div>{% endif %}
+    </div>
+    <i class="ti ti-chevron-right q-arr"></i>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- WhatsApp -->
+{% if co.whatsapp != blank %}
+<div class="sec-wrap" style="margin-top:8px;">
+  <a class="wa-btn" href="https://wa.me/{{ co.whatsapp | remove:'+' | remove:' ' }}" target="_blank">
+    <i class="ti ti-brand-whatsapp" style="font-size:20px;"></i>
+    WhatsApp us
+  </a>
+</div>
+{% endif %}
+
+<!-- Contact -->
+{% if co.email != blank or co.phone != blank or co.address != blank %}
+<div class="sec-wrap" style="margin-top:4px;">
+  {% if co.email != blank %}<div class="contact-row"><i class="ti ti-mail"></i> {{ co.email }}</div>{% endif %}
+  {% if co.phone != blank %}<div class="contact-row"><i class="ti ti-phone"></i> {{ co.phone }}</div>{% endif %}
+  {% if co.address != blank %}<div class="contact-row"><i class="ti ti-map-pin"></i> {{ co.address }}</div>{% endif %}
+</div>
+{% endif %}
+
+<!-- Socials -->
+{% if sc %}
+<div class="socials">
+  {% if sc.linkedin != blank %}<a href="{{ sc.linkedin }}" class="soc-ic" target="_blank"><i class="ti ti-brand-linkedin"></i></a>{% endif %}
+  {% if sc.instagram != blank %}<a href="{{ sc.instagram }}" class="soc-ic" target="_blank"><i class="ti ti-brand-instagram"></i></a>{% endif %}
+  {% if sc.facebook != blank %}<a href="{{ sc.facebook }}" class="soc-ic" target="_blank"><i class="ti ti-brand-facebook"></i></a>{% endif %}
+  {% if sc.youtube != blank %}<a href="{{ sc.youtube }}" class="soc-ic" target="_blank"><i class="ti ti-brand-youtube"></i></a>{% endif %}
+</div>
+{% endif %}
+
+<div class="share-wrap">
+  <button class="share-btn" onclick="pzShare()">
+    <i class="ti ti-share" style="font-size:14px;"></i> Share this page
+  </button>
+  <div class="share-toast" id="pzToast">✓ Link copied!</div>
+</div>
+
+</div>
+<script>
+function pzShare(){var u=location.href;if(navigator.share){navigator.share({title:document.title,url:u});}else{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
+</script>
+</body>
+</html>
