@@ -478,7 +478,6 @@ function updateField(key, val) {
   if (activeIdx < 0) return;
   fields[activeIdx][key] = val;
   renderCanvas();
-  renderFieldSettings(activeIdx); // keep focus
   markDirty();
 }
 
