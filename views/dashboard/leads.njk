@@ -94,6 +94,25 @@ tr:hover td{background:var(--off);}
 .import-src-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1.5px solid var(--border-md);border-radius:10px;background:var(--white);cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:all .15s;}
 .import-src-btn:hover{border-color:var(--blue);background:var(--blue-light);}
 .import-src-btn:disabled{opacity:.5;cursor:not-allowed;}
+/* Merge */
+.dup-group{border:1.5px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+.dup-group-head{padding:10px 16px;background:var(--off);font-size:12px;font-weight:700;color:var(--ink-muted);display:flex;align-items:center;justify-content:space-between;}
+.dup-match-badge{padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;}
+.dup-leads{display:flex;gap:0;overflow-x:auto;}
+.dup-lead{flex:1;min-width:160px;padding:14px 16px;border-right:1px solid var(--border);cursor:pointer;transition:background .15s;position:relative;}
+.dup-lead:last-child{border-right:none;}
+.dup-lead:hover{background:var(--blue-light);}
+.dup-lead.selected{background:var(--blue-light);border-top:3px solid var(--blue);}
+.dup-lead-name{font-size:14px;font-weight:700;margin-bottom:4px;}
+.dup-lead-meta{font-size:12px;color:var(--ink-muted);line-height:1.6;}
+.dup-lead-source{font-size:11px;color:var(--ink-faint);margin-top:6px;font-weight:600;}
+.dup-primary-badge{position:absolute;top:8px;right:8px;background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.dup-group-footer{padding:10px 16px;background:var(--off);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.btn-merge{padding:8px 18px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-merge:hover{opacity:.85;}
+.btn-merge:disabled{opacity:.5;cursor:not-allowed;}
+.dup-hint{font-size:12px;color:var(--ink-muted);}
+.dup-merged-notice{padding:12px 16px;background:#d1fae5;color:#065f46;font-size:13px;font-weight:600;text-align:center;}
 </style>
 {% endblock %}
 {% block body %}
@@ -105,6 +124,7 @@ tr:hover td{background:var(--off);}
       <h1>🎯 Leads CRM</h1>
       <div style="display:flex;gap:10px;">
         <button class="btn-primary" style="background:var(--white);color:var(--ink);border:1.5px solid var(--border-md);" onclick="openImportModal()">⬇ Import</button>
+        <button class="btn-primary" style="background:var(--white);color:var(--ink);border:1.5px solid var(--border-md);" onclick="openMergeModal()">🔀 Duplicates</button>
         <button class="btn-primary" onclick="openAddModal()">+ Add Lead</button>
       </div>
     </div>
@@ -260,6 +280,19 @@ tr:hover td{background:var(--off);}
       {% endif %}
     </div>
   </main>
+</div>
+
+{# ── Merge Duplicates Modal ── #}
+<div class="modal-overlay" id="mergeModal" style="align-items:flex-start;padding:32px 16px;overflow-y:auto;">
+  <div class="modal" style="max-width:640px;width:100%;">
+    <h2>🔀 Merge Duplicate Leads</h2>
+    <p style="font-size:13px;color:var(--ink-muted);margin-bottom:20px;">Leads with the same email or phone are shown below. Select which one to keep as the primary — notes and tags from others will be merged into it.</p>
+    <div id="mergeGroups"><div style="text-align:center;padding:30px;color:var(--ink-muted);">Scanning for duplicates…</div></div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeMergeModal()">Close</button>
+      <button class="btn-primary" id="mergeAllBtn" style="display:none;" onclick="mergeAll()">Merge All Groups</button>
+    </div>
+  </div>
 </div>
 
 {# ── Import Modal ── #}
@@ -533,6 +566,126 @@ function updateColCount() {
     var badge = col.querySelector('.k-count');
     if (badge) badge.textContent = count;
   });
+}
+
+// ── Merge Duplicates modal ────────────────────────────────────────────────────
+var _mergeGroups = [];
+
+function openMergeModal() {
+  document.getElementById('mergeGroups').innerHTML = '<div style="text-align:center;padding:30px;color:var(--ink-muted);">Scanning for duplicates…</div>';
+  document.getElementById('mergeAllBtn').style.display = 'none';
+  document.getElementById('mergeModal').classList.add('open');
+
+  fetch('/dashboard/leads/duplicates')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d.ok) { document.getElementById('mergeGroups').innerHTML = '<div style="padding:20px;color:var(--red);">Error loading duplicates.</div>'; return; }
+      _mergeGroups = d.groups;
+      renderMergeGroups();
+    });
+}
+function closeMergeModal() {
+  document.getElementById('mergeModal').classList.remove('open');
+}
+document.getElementById('mergeModal').addEventListener('click', function(e) {
+  if (e.target === this) closeMergeModal();
+});
+
+function renderMergeGroups() {
+  var wrap = document.getElementById('mergeGroups');
+  if (!_mergeGroups.length) {
+    wrap.innerHTML = '<div style="text-align:center;padding:40px;color:var(--ink-muted);">✅ No duplicate leads found!</div>';
+    return;
+  }
+  document.getElementById('mergeAllBtn').style.display = '';
+  var html = '';
+  _mergeGroups.forEach(function(group, gi) {
+    if (group.merged) return;
+    html += '<div class="dup-group" id="dup-group-' + gi + '">';
+    html += '<div class="dup-group-head">';
+    html += '<span>Matched by ' + esc(group.matchType) + ': <strong>' + esc(group.key) + '</strong></span>';
+    html += '<span class="dup-match-badge">' + group.leads.length + ' duplicates</span>';
+    html += '</div>';
+    html += '<div class="dup-leads">';
+    group.leads.forEach(function(lead, li) {
+      var isPrimary = li === 0;
+      html += '<div class="dup-lead' + (isPrimary ? ' selected' : '') + '" id="dup-lead-' + gi + '-' + li + '" onclick="selectPrimary(' + gi + ',' + li + ')">';
+      if (isPrimary) html += '<span class="dup-primary-badge">Keep</span>';
+      html += '<div class="dup-lead-name">' + esc(lead.name || '(No name)') + '</div>';
+      html += '<div class="dup-lead-meta">';
+      if (lead.email) html += esc(lead.email) + '<br>';
+      if (lead.phone) html += esc(lead.phone) + '<br>';
+      html += '</div>';
+      html += '<div class="dup-lead-source">via ' + esc(lead.source) + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '<div class="dup-group-footer">';
+    html += '<span class="dup-hint">Click a lead to set it as primary</span>';
+    html += '<button class="btn-merge" onclick="mergeGroup(' + gi + ')">Merge →</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+  wrap.innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--ink-muted);">✅ All duplicates merged!</div>';
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function selectPrimary(gi, li) {
+  var group = _mergeGroups[gi];
+  // Swap selected lead to position 0 (primary)
+  var tmp = group.leads[0];
+  group.leads[0] = group.leads[li];
+  group.leads[li] = tmp;
+  renderMergeGroups();
+}
+
+function mergeGroup(gi) {
+  var group = _mergeGroups[gi];
+  var primaryId = group.leads[0].id;
+  var mergeIds  = group.leads.slice(1).map(function(l){ return l.id; });
+
+  var btn = document.querySelector('#dup-group-' + gi + ' .btn-merge');
+  if (btn) btn.disabled = true;
+
+  fetch('/dashboard/leads/merge', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ primary_id: primaryId, merge_ids: mergeIds })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.ok) {
+      group.merged = true;
+      var groupEl = document.getElementById('dup-group-' + gi);
+      if (groupEl) {
+        groupEl.innerHTML = '<div class="dup-merged-notice">✅ Merged into "' + esc(group.leads[0].name || 'lead') + '"</div>';
+      }
+      showToast('Merged ' + (mergeIds.length + 1) + ' leads into one');
+      // Remove from kanban/table too
+      mergeIds.forEach(function(id) {
+        var card = document.getElementById('card-' + id); if (card) card.remove();
+        var row  = document.getElementById('row-'  + id); if (row)  row.remove();
+      });
+    }
+  });
+}
+
+function mergeAll() {
+  var pending = _mergeGroups.filter(function(g){ return !g.merged; });
+  if (!pending.length) { closeMergeModal(); return; }
+  var idx = 0;
+  function next() {
+    if (idx >= pending.length) {
+      showToast('All duplicates merged!');
+      setTimeout(function(){ window.location.reload(); }, 1200);
+      return;
+    }
+    var gi = _mergeGroups.indexOf(pending[idx++]);
+    mergeGroup(gi);
+    setTimeout(next, 300);
+  }
+  next();
 }
 
 // ── Import modal ──────────────────────────────────────────────────────────────

@@ -194,6 +194,105 @@ exports.destroy = async (req, res) => {
   res.json({ ok: true })
 }
 
+// ── GET /dashboard/leads/duplicates ──────────────────────────────────────────
+exports.findDuplicates = async (req, res) => {
+  const user    = req.session.user
+  const sites   = await db.query('SELECT id FROM ms_sites WHERE account_id = ?', [user.id])
+  const siteIds = sites.map(s => s.id)
+  if (!siteIds.length) return res.json({ ok: true, groups: [] })
+
+  const ph = siteIds.map(() => '?').join(',')
+
+  // Groups sharing the same email
+  const byEmail = await db.query(
+    `SELECT email AS key, 'email' AS match_type, GROUP_CONCAT(id ORDER BY id) AS ids
+     FROM ms_leads WHERE site_id IN (${ph}) AND email IS NOT NULL AND email != ''
+     GROUP BY email HAVING COUNT(*) > 1`,
+    siteIds
+  )
+  // Groups sharing the same phone (may overlap with email groups)
+  const byPhone = await db.query(
+    `SELECT phone AS key, 'phone' AS match_type, GROUP_CONCAT(id ORDER BY id) AS ids
+     FROM ms_leads WHERE site_id IN (${ph}) AND phone IS NOT NULL AND phone != ''
+     GROUP BY phone HAVING COUNT(*) > 1`,
+    siteIds
+  )
+
+  // De-duplicate groups (same set of IDs = same group)
+  const seen = new Set()
+  const groupDefs = []
+  for (const row of [...byEmail, ...byPhone]) {
+    if (!seen.has(row.ids)) {
+      seen.add(row.ids)
+      groupDefs.push({ matchType: row.match_type, key: row.key, ids: row.ids.split(',').map(Number) })
+    }
+  }
+  if (!groupDefs.length) return res.json({ ok: true, groups: [] })
+
+  const allIds = [...new Set(groupDefs.flatMap(g => g.ids))]
+  const leads  = await db.query(
+    `SELECT l.*, s.title AS site_title FROM ms_leads l
+     JOIN ms_sites s ON s.id = l.site_id
+     WHERE l.id IN (${allIds.map(() => '?').join(',')})`,
+    allIds
+  )
+  const byId = {}
+  leads.forEach(l => { byId[l.id] = l })
+
+  const groups = groupDefs.map(g => ({
+    matchType: g.matchType,
+    key:       g.key,
+    leads:     g.ids.map(id => byId[id]).filter(Boolean)
+  }))
+
+  res.json({ ok: true, groups })
+}
+
+// ── POST /dashboard/leads/merge ───────────────────────────────────────────────
+exports.mergeLeads = async (req, res) => {
+  const user      = req.session.user
+  const primaryId = parseInt(req.body.primary_id) || 0
+  const mergeIds  = (req.body.merge_ids || []).map(id => parseInt(id)).filter(Boolean)
+
+  if (!primaryId || !mergeIds.length) return res.json({ ok: false, error: 'Invalid IDs' })
+
+  const allIds = [primaryId, ...mergeIds]
+  const ph     = allIds.map(() => '?').join(',')
+  const leads  = await db.query(
+    `SELECT l.* FROM ms_leads l JOIN ms_sites s ON s.id = l.site_id
+     WHERE l.id IN (${ph}) AND s.account_id = ?`,
+    [...allIds, user.id]
+  )
+  if (leads.length !== allIds.length) return res.status(403).json({ ok: false })
+
+  const primary = leads.find(l => l.id === primaryId)
+  const others  = leads.filter(l => l.id !== primaryId)
+
+  // Fill missing fields from others
+  const name  = primary.name  || others.find(l => l.name)?.name  || null
+  const email = primary.email || others.find(l => l.email)?.email || null
+  const phone = primary.phone || others.find(l => l.phone)?.phone || null
+
+  // Union tags
+  const tagSet = new Set()
+  leads.forEach(l => { if (l.tags) l.tags.split(',').forEach(t => { if (t.trim()) tagSet.add(t.trim()) }) })
+  const mergedTags = [...tagSet].join(',')
+
+  // Concatenate notes
+  const noteParts = leads.map(l => l.notes).filter(Boolean)
+  const mergedNotes = noteParts.join('\n\n---\n\n').slice(0, 5000)
+
+  await db.execute(
+    'UPDATE ms_leads SET name=?, email=?, phone=?, notes=?, tags=?, updated_at=NOW() WHERE id=?',
+    [name, email, phone, mergedNotes, mergedTags, primaryId]
+  )
+
+  const delPh = mergeIds.map(() => '?').join(',')
+  await db.execute(`DELETE FROM ms_leads WHERE id IN (${delPh})`, mergeIds)
+
+  res.json({ ok: true })
+}
+
 // ── POST /dashboard/leads/import ──────────────────────────────────────────────
 exports.importLeads = async (req, res) => {
   const user   = req.session.user
