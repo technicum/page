@@ -257,22 +257,26 @@ function serveBookingPage(req, res, site, settings, type, eventId) {
   type = type || 'meeting'
   eventId = eventId ? parseInt(eventId, 10) || null : null
   const sub      = site.subdomain
-  const accent   = (settings.profile && settings.profile.accent) || '#7c3aed'
+  const accent   = (settings.profile && settings.profile.accent) || '#2563eb'
   const siteName = (settings.profile && (settings.profile.name || settings.profile.title)) || site.title || sub
   const tagline  = (settings.profile && settings.profile.tagline) || ''
   const logo     = (settings.profile && settings.profile.avatar) || (settings.profile && settings.profile.logo) || ''
 
-  // Type-specific labels
-  const isAppt   = type === 'appointment'
-  const pageTitle    = isAppt ? 'Book an Appointment'    : 'Schedule a Meeting'
-  const pageSub      = isAppt ? 'Select the type of appointment you\'d like to schedule.' : 'Select the type of meeting you\'d like to schedule.'
-  const confirmBtn   = isAppt ? 'Confirm Appointment'    : 'Confirm Meeting'
-  const successTitle = isAppt ? 'Appointment Confirmed!' : 'Meeting Confirmed!'
-  const successSub   = isAppt ? 'You\'re all set. See you soon.' : 'You\'re all set. A calendar invite will be sent to your email.'
-  const newBookingLbl= isAppt ? 'Book another appointment' : 'Schedule another meeting'
-  const notesLabel   = isAppt ? 'Reason for visit / Notes' : 'Agenda / Notes'
-  const notesPh      = isAppt ? 'Briefly describe the reason for your visit...' : 'What would you like to discuss?'
-  const typeParam    = type  // passed to API
+  const isAppt        = type === 'appointment'
+  const pageTitle     = isAppt ? 'Book an Appointment'    : 'Schedule a Meeting'
+  const pageSub       = isAppt ? 'Select the type of appointment you\'d like to schedule.' : 'Select the type of meeting you\'d like to schedule.'
+  const step1Label    = isAppt ? 'Appointment type'       : 'Meeting type'
+  const confirmBtn    = isAppt ? 'Confirm Appointment'    : 'Confirm Meeting'
+  const successTitle  = isAppt ? 'Appointment Confirmed!' : 'Meeting Confirmed!'
+  const successSub    = isAppt ? 'You\'re all set. See you soon.' : 'You\'re all set. A calendar invite will be sent to your email.'
+  const newBookingLbl = isAppt ? 'Book another appointment' : 'Schedule another meeting'
+  const notesLabel    = isAppt ? 'Reason for visit / Notes' : 'Agenda / Notes'
+  const notesPh       = isAppt ? 'Briefly describe the reason for your visit...' : 'What would you like to discuss?'
+  const typeParam     = type
+
+  const logoHtml = logo
+    ? `<img class="biz-logo-img" src="${logo}" alt="${siteName}">`
+    : `<div class="biz-logo-init">${siteName.charAt(0).toUpperCase()}</div>`
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -282,164 +286,245 @@ function serveBookingPage(req, res, site, settings, type, eventId) {
 <title>${pageTitle} — ${siteName}</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--accent:${accent};--ink:#1a1a18;--ink-m:#6b6b66;--ink-f:#b0afa8;--white:#fff;--off:#f8f7f4;--border:rgba(26,26,24,0.1);--r:12px;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--off);color:var(--ink);min-height:100vh;}
+:root{--accent:${accent};--ink:#1a1a18;--ink-m:#6b6b66;--ink-f:#b0afa8;--white:#fff;--off:#f8f7f4;--border:rgba(26,26,24,0.09);--border-md:rgba(26,26,24,0.18);--r:10px;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--off);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;}
 a{color:inherit;text-decoration:none;}
-.page{display:flex;flex-direction:column;min-height:100vh;}
-.header{background:var(--white);border-bottom:1px solid var(--border);padding:18px 24px;display:flex;align-items:center;gap:14px;}
-.header-logo{width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;}
-.header-logo-init{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0;}
-.header-name{font-size:17px;font-weight:700;}
-.header-tag{font-size:13px;color:var(--ink-m);margin-top:2px;}
-.wrap{max-width:680px;margin:0 auto;padding:32px 16px;width:100%;}
-/* Steps */
+
+/* ── Two-column layout ─────────────────── */
+.page{display:flex;flex:1;min-height:100vh;}
+
+/* Left panel */
+.left-panel{width:280px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.biz-logo-img{width:52px;height:52px;border-radius:50%;object-fit:cover;margin-bottom:14px;}
+.biz-logo-init{width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin-bottom:14px;flex-shrink:0;}
+.biz-name{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.biz-tag{font-size:13px;color:var(--ink-m);}
+.panel-divider{height:1px;background:var(--border);margin:22px 0;}
+.panel-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-f);margin-bottom:12px;}
+.panel-ev{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.panel-ev-dot{width:10px;height:10px;border-radius:50%;background:var(--border-md);margin-top:3px;flex-shrink:0;transition:background .2s;}
+.panel-ev-name{font-size:13px;font-weight:600;color:var(--ink-m);transition:color .2s;}
+.panel-ev-meta{font-size:12px;color:var(--ink-f);margin-top:2px;}
+.panel-datetime{margin-top:10px;}
+.panel-date{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:7px;}
+.panel-time{font-size:13px;color:var(--ink-m);display:flex;align-items:center;gap:7px;}
+.panel-icon{font-size:13px;}
+.panel-spacer{flex:1;}
+.panel-back-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-f);text-decoration:none;margin-bottom:12px;transition:color .15s;}
+.panel-back-link:hover{color:var(--ink-m);}
+.panel-footer{font-size:11px;color:var(--ink-f);}
+
+/* Right panel */
+.right-panel{flex:1;display:flex;flex-direction:column;min-width:0;}
+
+/* Step bar */
+.step-bar{display:flex;align-items:center;padding:20px 32px;background:var(--white);border-bottom:1px solid var(--border);gap:0;}
+.step-item{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--ink-f);}
+.step-item.active{color:var(--accent);}
+.step-item.done{color:var(--ink-m);}
+.step-num{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border-md);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;transition:all .2s;}
+.step-item.active .step-num{background:var(--accent);border-color:var(--accent);color:#fff;}
+.step-item.done .step-num{background:#dcfce7;border-color:#86efac;color:#16a34a;font-size:13px;}
+.step-conn{flex:1;height:1px;background:var(--border);margin:0 10px;min-width:20px;transition:background .2s;}
+.step-conn.done{background:#86efac;}
+
+/* Step content */
+.step-content{flex:1;padding:32px;max-width:600px;}
 .step{display:none;}.step.active{display:block;}
+.step-title{font-size:20px;font-weight:700;margin-bottom:4px;}
+.step-sub{font-size:14px;color:var(--ink-m);margin-bottom:24px;}
+
+/* Back link */
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-m);margin-bottom:22px;cursor:pointer;}
+.back-link:hover{color:var(--ink);}
+
 /* Event cards */
-.ev-list{display:flex;flex-direction:column;gap:12px;}
-.ev-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:18px 20px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:16px;}
-.ev-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(0,0,0,0.08);}
-.ev-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.ev-list{display:flex;flex-direction:column;gap:10px;}
+.ev-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 18px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:14px;}
+.ev-card:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.ev-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
 .ev-info{flex:1;}
-.ev-name{font-size:16px;font-weight:600;}
-.ev-meta{font-size:13px;color:var(--ink-m);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap;}
-.ev-arr{font-size:20px;color:var(--ink-f);}
+.ev-name{font-size:15px;font-weight:600;margin-bottom:5px;}
+.ev-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ev-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;background:var(--off);border:1px solid var(--border);font-size:11px;font-weight:500;color:var(--ink-m);}
+.ev-loc{font-size:12px;color:var(--ink-m);}
+.ev-arr{font-size:18px;color:var(--ink-f);}
+
 /* Calendar */
-.cal-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
-.cal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
-.cal-month{font-size:15px;font-weight:600;}
-.cal-nav{background:none;border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--ink-m);}
+.cal-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:22px;}
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+.cal-month{font-size:14px;font-weight:600;}
+.cal-nav{background:none;border:1px solid var(--border);border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--ink-m);}
 .cal-nav:hover{background:var(--off);}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);}
 #calDays{display:contents;}
-.cal-dh{font-size:11px;font-weight:600;color:var(--ink-f);text-align:center;padding:10px 0;text-transform:uppercase;}
-.cal-day{text-align:center;padding:10px 0;font-size:14px;color:var(--ink-f);cursor:default;}
+.cal-dh{font-size:10px;font-weight:700;color:var(--ink-f);text-align:center;padding:10px 0 6px;text-transform:uppercase;letter-spacing:.05em;}
+.cal-day{text-align:center;padding:9px 4px;font-size:13px;color:var(--ink-f);cursor:default;}
 .cal-day.avail{color:var(--ink);cursor:pointer;font-weight:500;}
-.cal-day.avail:hover{background:color-mix(in srgb,var(--accent) 10%,#fff);border-radius:8px;}
-.cal-day.selected{background:var(--accent);color:#fff;border-radius:8px;font-weight:700;}
-.cal-day.today-mark{font-weight:700;}
+.cal-day.avail:hover{background:color-mix(in srgb,var(--accent) 10%,#fff);border-radius:7px;}
+.cal-day.selected{background:var(--accent);color:#fff;border-radius:7px;font-weight:700;}
+.cal-day.today-mark{position:relative;}
+.cal-day.today-mark::after{content:'';display:block;width:4px;height:4px;border-radius:50%;background:var(--accent);margin:2px auto 0;}
+
 /* Slots */
-.slots-wrap{margin-top:20px;}
-.slots-label{font-size:13px;font-weight:600;color:var(--ink-m);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.04em;}
-.slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
-.slot-btn{border:1.5px solid var(--border);background:var(--white);border-radius:8px;padding:10px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:center;}
+.slots-section{margin-bottom:18px;}
+.slots-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-f);margin-bottom:9px;}
+.slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;}
+.slot-btn{border:1.5px solid var(--border);background:var(--white);border-radius:8px;padding:9px 8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center;color:var(--ink);}
 .slot-btn:hover{border-color:var(--accent);color:var(--accent);}
 .slot-btn.selected{background:var(--accent);border-color:var(--accent);color:#fff;}
+
 /* Form */
-.form-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:24px;}
-.form-group{margin-bottom:16px;}
-.form-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
-.form-input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;transition:border-color 0.15s;}
+.form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:22px;}
+.form-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-f);margin-bottom:14px;}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--ink-m);margin-bottom:5px;}
+.form-input{width:100%;padding:10px 13px;border:1.5px solid var(--border-md);border-radius:8px;font-size:14px;font-family:inherit;color:var(--ink);background:var(--white);transition:border-color .15s;}
 .form-input:focus{outline:none;border-color:var(--accent);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.submit-btn{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;transition:opacity 0.15s;}
-.submit-btn:hover{opacity:0.9;}
-.submit-btn:disabled{opacity:0.6;cursor:not-allowed;}
-/* Summary bar */
-.summary{background:color-mix(in srgb,var(--accent) 8%,#fff);border:1px solid color-mix(in srgb,var(--accent) 20%,#fff);border-radius:var(--r);padding:14px 18px;margin-bottom:20px;font-size:14px;}
-.summary strong{color:var(--accent);}
-/* Back btn */
-.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-m);margin-bottom:20px;cursor:pointer;padding:7px 0;}
-.back-link:hover{color:var(--ink);}
-/* States */
-.loading{text-align:center;padding:48px;color:var(--ink-m);font-size:15px;}
-.empty{text-align:center;padding:48px;color:var(--ink-m);}
-.err-msg{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;color:#dc2626;font-size:14px;margin-bottom:16px;}
+.submit-btn{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;transition:opacity .15s;}
+.submit-btn:hover{opacity:.9;}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;}
+.err-msg{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:11px 15px;color:#dc2626;font-size:13px;margin-bottom:14px;}
+
 /* Success */
-.success{text-align:center;padding:48px 24px;}
-.success-icon{font-size:56px;margin-bottom:16px;}
-.success-title{font-size:22px;font-weight:700;margin-bottom:8px;}
-.success-sub{font-size:15px;color:var(--ink-m);margin-bottom:24px;}
-.success-detail{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:18px;text-align:left;max-width:380px;margin:0 auto;font-size:14px;}
-.success-detail div{padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;}
-.success-detail div:last-child{border-bottom:none;}
-.success-detail span:first-child{color:var(--ink-m);min-width:80px;}
-.new-booking-btn{margin-top:20px;display:inline-block;padding:11px 24px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;background:var(--white);}
-.new-booking-btn:hover{background:var(--off);}
-.page-title{font-size:22px;font-weight:700;margin-bottom:6px;}
-.page-sub{font-size:14px;color:var(--ink-m);margin-bottom:24px;}
-@media(max-width:520px){.form-row{grid-template-columns:1fr;}}
+.success-wrap{padding:48px 24px;text-align:center;}
+.success-ring{width:68px;height:68px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:30px;}
+.success-title{font-size:22px;font-weight:700;margin-bottom:6px;}
+.success-sub{font-size:14px;color:var(--ink-m);margin-bottom:28px;}
+.confirm-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);text-align:left;max-width:360px;margin:0 auto 22px;overflow:hidden;}
+.confirm-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px;}
+.confirm-row:last-child{border-bottom:none;}
+.confirm-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.confirm-label{color:var(--ink-m);width:68px;flex-shrink:0;}
+.confirm-val{color:var(--ink);font-weight:500;}
+.new-booking-btn{display:inline-block;padding:10px 22px;border:1.5px solid var(--border-md);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:var(--white);color:var(--ink-m);}
+.new-booking-btn:hover{background:var(--off);color:var(--ink);}
+
+/* Empty / loading */
+.loading{padding:48px;text-align:center;color:var(--ink-m);font-size:14px;}
+.empty{padding:48px;text-align:center;color:var(--ink-m);}
+
+@media(max-width:720px){
+  .page{flex-direction:column;}
+  .left-panel{width:100%;height:auto;position:relative;padding:20px 20px 16px;flex-direction:row;align-items:center;flex-wrap:wrap;gap:12px;border-right:none;border-bottom:1px solid var(--border);}
+  .biz-logo-img,.biz-logo-init{width:40px;height:40px;margin-bottom:0;font-size:16px;}
+  .biz-name{font-size:14px;}
+  .biz-tag{font-size:12px;}
+  .panel-divider,.panel-section-label,.panel-spacer,.panel-footer,.panel-back-link{display:none;}
+  .panel-ev,.panel-datetime{margin:0;}
+  .panel-ev-name{font-size:12px;}
+  .step-bar{padding:14px 20px;}
+  .step-content{padding:20px;}
+  .step-item span{display:none;}
+  .form-row{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
 <div class="page">
-  <header class="header">
-    ${logo
-      ? `<img class="header-logo" src="${logo}" alt="${siteName}">`
-      : `<div class="header-logo-init">${siteName.charAt(0).toUpperCase()}</div>`
-    }
-    <div>
-      <div class="header-name">${siteName}</div>
-      ${tagline ? `<div class="header-tag">${tagline}</div>` : ''}
-    </div>
-  </header>
 
-  <div class="wrap">
-    <!-- Step 1: Choose event type -->
-    <div class="step active" id="s1">
-      <div class="page-title">${pageTitle}</div>
-      <div class="page-sub">${pageSub}</div>
-      <div id="evList" class="ev-list"><div class="loading">Loading...</div></div>
-    </div>
-
-    <!-- Step 2: Pick date & time -->
-    <div class="step" id="s2">
-      <div class="back-link" onclick="goStep(1)">← Back</div>
-      <div id="evSummary" class="summary"></div>
-      <div class="cal-wrap">
-        <div class="cal-head">
-          <button class="cal-nav" onclick="calMo(-1)">‹</button>
-          <div class="cal-month" id="calMonth"></div>
-          <button class="cal-nav" onclick="calMo(1)">›</button>
-        </div>
-        <div class="cal-grid">
-          <div class="cal-dh">Sun</div><div class="cal-dh">Mon</div><div class="cal-dh">Tue</div>
-          <div class="cal-dh">Wed</div><div class="cal-dh">Thu</div><div class="cal-dh">Fri</div><div class="cal-dh">Sat</div>
-          <div id="calDays"></div>
-        </div>
-      </div>
-      <div class="slots-wrap" id="slotsWrap" style="display:none;">
-        <div class="slots-label" id="slotsLabel"></div>
-        <div class="slots-grid" id="slotsGrid"></div>
+  <!-- ── Left sidebar ── -->
+  <div class="left-panel">
+    ${logoHtml}
+    <div class="biz-name">${siteName}</div>
+    ${tagline ? `<div class="biz-tag">${tagline}</div>` : ''}
+    <div class="panel-divider"></div>
+    <div class="panel-section-label" id="panelLabel">Choose an appointment</div>
+    <div class="panel-ev" id="panelEvWrap">
+      <div class="panel-ev-dot" id="panelDot"></div>
+      <div>
+        <div class="panel-ev-name" id="panelEvName">—</div>
+        <div class="panel-ev-meta" id="panelEvMeta"></div>
       </div>
     </div>
+    <div class="panel-datetime" id="panelDatetime" style="display:none">
+      <div class="panel-date"><span class="panel-icon">📅</span><span id="panelDate"></span></div>
+      <div class="panel-time" style="margin-top:6px"><span class="panel-icon">⏰</span><span id="panelTime"></span></div>
+    </div>
+    <div class="panel-spacer"></div>
+    <a class="panel-back-link" href="/">← Back to website</a>
+    <div class="panel-footer">Powered by PageZaper</div>
+  </div>
 
-    <!-- Step 3: Fill details -->
-    <div class="step" id="s3">
-      <div class="back-link" onclick="goStep(2)">← Back</div>
-      <div id="formSummary" class="summary"></div>
-      <div id="formErr" class="err-msg" style="display:none;"></div>
-      <div class="form-wrap">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Your Name *</label>
-            <input class="form-input" id="fName" placeholder="Full name" required>
+  <!-- ── Right panel ── -->
+  <div class="right-panel">
+
+    <!-- Step progress bar -->
+    <div class="step-bar" id="stepBar">
+      <div class="step-item active" id="si1"><div class="step-num" id="sn1">1</div><span>${step1Label}</span></div>
+      <div class="step-conn" id="sc1"></div>
+      <div class="step-item" id="si2"><div class="step-num" id="sn2">2</div><span>Date &amp; time</span></div>
+      <div class="step-conn" id="sc2"></div>
+      <div class="step-item" id="si3"><div class="step-num" id="sn3">3</div><span>Your details</span></div>
+    </div>
+
+    <div class="step-content">
+
+      <!-- Step 1: Event type -->
+      <div class="step active" id="s1">
+        <div class="step-title">${pageTitle}</div>
+        <div class="step-sub">${pageSub}</div>
+        <div id="evList" class="ev-list"><div class="loading">Loading...</div></div>
+      </div>
+
+      <!-- Step 2: Calendar + slots -->
+      <div class="step" id="s2">
+        <div class="back-link" id="s2back" onclick="goStep(1)">← Back</div>
+        <div class="cal-wrap">
+          <div class="cal-head">
+            <button class="cal-nav" onclick="calMo(-1)">‹</button>
+            <div class="cal-month" id="calMonth"></div>
+            <button class="cal-nav" onclick="calMo(1)">›</button>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-dh">Sun</div><div class="cal-dh">Mon</div><div class="cal-dh">Tue</div>
+            <div class="cal-dh">Wed</div><div class="cal-dh">Thu</div><div class="cal-dh">Fri</div><div class="cal-dh">Sat</div>
+            <div id="calDays"></div>
+          </div>
+        </div>
+        <div id="slotsWrap" style="display:none;"></div>
+      </div>
+
+      <!-- Step 3: Details form -->
+      <div class="step" id="s3">
+        <div class="back-link" onclick="goStep(2)">← Back</div>
+        <div id="formErr" class="err-msg" style="display:none;"></div>
+        <div class="form-card">
+          <div class="form-section-label">Contact details</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Full name *</label>
+              <input class="form-input" id="fName" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email *</label>
+              <input class="form-input" id="fEmail" type="email" placeholder="you@example.com" required>
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Email *</label>
-            <input class="form-input" id="fEmail" type="email" placeholder="you@example.com" required>
+            <label class="form-label">Phone number</label>
+            <input class="form-input" id="fPhone" placeholder="+91 9999999999">
           </div>
+          <div class="form-group">
+            <label class="form-label">${notesLabel}</label>
+            <textarea class="form-input" id="fNotes" rows="3" placeholder="${notesPh}" style="resize:vertical;"></textarea>
+          </div>
+          <button class="submit-btn" id="submitBtn" onclick="submitBooking()">${confirmBtn}</button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Phone Number</label>
-          <input class="form-input" id="fPhone" placeholder="+91 9999999999">
-        </div>
-        <div class="form-group">
-          <label class="form-label">${notesLabel}</label>
-          <textarea class="form-input" id="fNotes" rows="3" placeholder="${notesPh}"></textarea>
-        </div>
-        <button class="submit-btn" id="submitBtn" onclick="submitBooking()">${confirmBtn}</button>
       </div>
-    </div>
 
-    <!-- Step 4: Confirmation -->
-    <div class="step" id="s4">
-      <div class="success">
-        <div class="success-icon">✅</div>
-        <div class="success-title">${successTitle}</div>
-        <div class="success-sub">${successSub}</div>
-        <div class="success-detail" id="confirmDetail"></div>
-        <div class="new-booking-btn" onclick="goStep(1)">${newBookingLbl}</div>
+      <!-- Step 4: Confirmation -->
+      <div class="step" id="s4">
+        <div class="success-wrap">
+          <div class="success-ring">✅</div>
+          <div class="success-title">${successTitle}</div>
+          <div class="success-sub">${successSub}</div>
+          <div class="confirm-card" id="confirmDetail"></div>
+          <div class="new-booking-btn" onclick="goStep(1)">${newBookingLbl}</div>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -452,158 +537,227 @@ window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn,eventId:event
   var SUB=_PZ.sub, TYPE=_PZ.type, CONFIRM_BTN=_PZ.btn;
   var ev=null, selDate=null, selTime=null;
   var calYear=0, calMonth=0, evList=[];
+  var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var WD_SHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var WD_LONG=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-  // ── Load events ──────────────────────────────────────────────────────────────
-  var EV_ID=_PZ.eventId||null
-  var evFetchUrl=EV_ID?'/api/booking/'+SUB+'/events':'/api/booking/'+SUB+'/events?type='+TYPE
-  fetch(evFetchUrl).then(r=>r.json()).then(function(evs){
-    var el=document.getElementById('evList')
-    if(!evs||!evs.length){
-      el.innerHTML='<div class="empty">No appointment types available yet.</div>';return
+  // ── Sidebar panel ─────────────────────────────────────────────────────────────
+  function updatePanel(step){
+    var label=document.getElementById('panelLabel');
+    var dotEl=document.getElementById('panelDot');
+    var nameEl=document.getElementById('panelEvName');
+    var metaEl=document.getElementById('panelEvMeta');
+    var dtWrap=document.getElementById('panelDatetime');
+    var dateEl=document.getElementById('panelDate');
+    var timeEl=document.getElementById('panelTime');
+    if(step>=2 && ev){
+      label.textContent='Your appointment';
+      dotEl.style.background=ev.color||'var(--accent)';
+      nameEl.style.color='var(--ink)';
+      nameEl.textContent=ev.name;
+      metaEl.textContent='⏱ '+ev.duration+' min'+(ev.location?' · 📍 '+ev.location:'');
+    } else {
+      label.textContent='Choose an appointment';
+      dotEl.style.background='var(--border-md)';
+      nameEl.style.color='var(--ink-f)';
+      nameEl.textContent='—';
+      metaEl.textContent='';
     }
-    evList=evs
-    // Direct event link — auto-select and skip to calendar
-    if(EV_ID){
-      var idx=evs.findIndex(function(e){return e.id===EV_ID})
-      if(idx>=0){pickEv(idx);return}
+    if(step>=3 && selDate && selTime){
+      var d=new Date(selDate+'T00:00:00');
+      dateEl.textContent=WD_LONG[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate();
+      timeEl.textContent=fmtTime(selTime);
+      dtWrap.style.display='';
+    } else {
+      dtWrap.style.display='none';
     }
-    el.innerHTML=evs.map(function(e,i){
-      var loc=e.location?'<span>📍 '+e.location+'</span>':''
-      return '<div class="ev-card" onclick="pickEv('+i+')">'+
-        '<div class="ev-dot" style="background:'+e.color+'"></div>'+
-        '<div class="ev-info">'+
-          '<div class="ev-name">'+e.name+'</div>'+
-          '<div class="ev-meta"><span>⏱ '+e.duration+' min</span>'+loc+'</div>'+
-        '</div>'+
-        '<div class="ev-arr">›</div>'+
-      '</div>'
-    }).join('')
-  }).catch(function(){
-    document.getElementById('evList').innerHTML='<div class="empty">Could not load appointment types.</div>'
-  })
+  }
+
+  function fmtTime(t){
+    var parts=t.split(':'); var h=parseInt(parts[0]); var m=parts[1]||'00';
+    return (h===0?12:h>12?h-12:h)+':'+m+' '+(h<12?'AM':'PM');
+  }
+
+  // ── Step progress bar ─────────────────────────────────────────────────────────
+  function updateStepBar(n){
+    for(var i=1;i<=3;i++){
+      var si=document.getElementById('si'+i);
+      var sn=document.getElementById('sn'+i);
+      var sc=document.getElementById('sc'+i);
+      if(!si) continue;
+      if(i<n){
+        si.className='step-item done';
+        sn.innerHTML='✓';
+        if(sc) sc.className='step-conn done';
+      } else if(i===n){
+        si.className='step-item active';
+        sn.textContent=i;
+        if(sc) sc.className='step-conn';
+      } else {
+        si.className='step-item';
+        sn.textContent=i;
+        if(sc) sc.className='step-conn';
+      }
+    }
+    // Hide step bar on success screen
+    document.getElementById('stepBar').style.display=n===4?'none':'';
+  }
 
   // ── Step navigation ───────────────────────────────────────────────────────────
   window.goStep=function(n){
-    document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active')})
-    document.getElementById('s'+n).classList.add('active')
-    window.scrollTo(0,0)
+    document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active')});
+    document.getElementById('s'+n).classList.add('active');
+    updateStepBar(n);
+    updatePanel(n);
+    window.scrollTo(0,0);
   }
+
+  // ── Load events ──────────────────────────────────────────────────────────────
+  var EV_ID=_PZ.eventId||null;
+  var evFetchUrl=EV_ID?'/api/booking/'+SUB+'/events':'/api/booking/'+SUB+'/events?type='+TYPE;
+  fetch(evFetchUrl).then(function(r){return r.json();}).then(function(evs){
+    var el=document.getElementById('evList');
+    if(!evs||!evs.length){
+      el.innerHTML='<div class="empty">No appointment types available yet.</div>';return;
+    }
+    evList=evs;
+    if(EV_ID){
+      var idx=evs.findIndex(function(e){return e.id===EV_ID;});
+      if(idx>=0){pickEv(idx);return;}
+    }
+    el.innerHTML=evs.map(function(e,i){
+      var loc=e.location?'<span class="ev-loc">📍 '+e.location+'</span>':'';
+      return '<div class="ev-card" onclick="pickEv('+i+')">'
+        +'<div class="ev-dot" style="background:'+e.color+'"></div>'
+        +'<div class="ev-info">'
+          +'<div class="ev-name">'+e.name+'</div>'
+          +'<div class="ev-meta">'
+            +'<span class="ev-pill">⏱ '+e.duration+' min</span>'+loc
+          +'</div>'
+        +'</div>'
+        +'<div class="ev-arr">›</div>'
+      +'</div>';
+    }).join('');
+  }).catch(function(){
+    document.getElementById('evList').innerHTML='<div class="empty">Could not load appointment types.</div>';
+  });
 
   // ── Pick event type ───────────────────────────────────────────────────────────
   window.pickEv=function(i){
-    ev=evList[i]; selDate=null; selTime=null
-    document.getElementById('evSummary').innerHTML=
-      '<strong>'+ev.name+'</strong> &nbsp;·&nbsp; ⏱ '+ev.duration+' min'+(ev.location?' &nbsp;·&nbsp; 📍 '+ev.location:'')
-    var now=new Date(); calYear=now.getFullYear(); calMonth=now.getMonth()
-    renderCal()
-    document.getElementById('slotsWrap').style.display='none'
-    // Hide back button if arrived via direct event link
-    var s2back=document.querySelector('#s2 .back-link')
-    if(s2back) s2back.style.display=EV_ID?'none':''
-    goStep(2)
+    ev=evList[i]; selDate=null; selTime=null;
+    var now=new Date(); calYear=now.getFullYear(); calMonth=now.getMonth();
+    renderCal();
+    document.getElementById('slotsWrap').style.display='none';
+    var s2back=document.getElementById('s2back');
+    if(s2back) s2back.style.display=EV_ID?'none':'';
+    goStep(2);
   }
 
   // ── Calendar ──────────────────────────────────────────────────────────────────
-  var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December']
   function renderCal(){
-    document.getElementById('calMonth').textContent=MONTHS[calMonth]+' '+calYear
-    var first=new Date(calYear,calMonth,1).getDay()
-    var days=new Date(calYear,calMonth+1,0).getDate()
-    var today=new Date(); var todayStr=today.toISOString().slice(0,10)
-    var html=''
-    for(var i=0;i<first;i++) html+='<div class="cal-day"></div>'
+    document.getElementById('calMonth').textContent=MONTHS[calMonth]+' '+calYear;
+    var first=new Date(calYear,calMonth,1).getDay();
+    var days=new Date(calYear,calMonth+1,0).getDate();
+    var todayStr=new Date().toISOString().slice(0,10);
+    var html='';
+    for(var i=0;i<first;i++) html+='<div class="cal-day"></div>';
     for(var d=1;d<=days;d++){
-      var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0')
-      var dt=new Date(calYear,calMonth,d)
-      var isPast=ds<todayStr
-      var cls='cal-day'+(isPast?'':' avail')+(ds===todayStr?' today-mark':'')+(ds===selDate?' selected':'')
-      var click=isPast?'':'onclick="pickDay(&#39;'+ds+'&#39;)"'
-      html+='<div class="'+cls+'" '+click+'>'+d+'</div>'
+      var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      var isPast=ds<todayStr;
+      var cls='cal-day'+(isPast?'':' avail')+(ds===todayStr?' today-mark':'')+(ds===selDate?' selected':'');
+      var click=isPast?'':'onclick="pickDay(\''+ds+'\')"';
+      html+='<div class="'+cls+'" '+click+'>'+d+'</div>';
     }
-    document.getElementById('calDays').innerHTML=html
+    document.getElementById('calDays').innerHTML=html;
   }
 
   window.calMo=function(dir){
-    calMonth+=dir
-    if(calMonth>11){calMonth=0;calYear++}
-    if(calMonth<0){calMonth=11;calYear--}
-    renderCal()
+    calMonth+=dir;
+    if(calMonth>11){calMonth=0;calYear++;}
+    if(calMonth<0){calMonth=11;calYear--;}
+    renderCal();
   }
 
   window.pickDay=function(ds){
-    selDate=ds; selTime=null; renderCal()
-    var wrap=document.getElementById('slotsWrap')
-    var grid=document.getElementById('slotsGrid')
-    var label=document.getElementById('slotsLabel')
-    wrap.style.display='block'
-    grid.innerHTML='<div style="color:var(--ink-m);font-size:13px;">Loading slots...</div>'
-    var d=new Date(ds+'T00:00:00'); var wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
-    label.textContent=wd[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()
-    fetch('/api/booking/'+SUB+'/slots/'+ev.id+'/'+ds).then(r=>r.json()).then(function(slots){
-      if(!slots||!slots.length){
-        grid.innerHTML='<div style="color:var(--ink-m);font-size:13px;grid-column:1/-1;">No available slots on this day.</div>';return
-      }
-      grid.innerHTML=slots.map(function(s){
-        return '<div class="slot-btn'+(s.time===selTime?' selected':'')+'" onclick="pickSlot(&#39;'+s.time+'&#39;,&#39;'+s.label+'&#39;)">'+s.label+'</div>'
-      }).join('')
-    }).catch(function(){
-      grid.innerHTML='<div style="color:var(--ink-m);font-size:13px;grid-column:1/-1;">Could not load slots.</div>'
-    })
+    selDate=ds; selTime=null; renderCal();
+    var wrap=document.getElementById('slotsWrap');
+    wrap.style.display='block';
+    wrap.innerHTML='<div class="loading">Loading available times...</div>';
+    fetch('/api/booking/'+SUB+'/slots/'+ev.id+'/'+ds)
+      .then(function(r){return r.json();})
+      .then(function(slots){
+        if(!slots||!slots.length){
+          wrap.innerHTML='<div style="color:var(--ink-m);font-size:13px;padding:8px 0;">No available slots on this day.</div>';return;
+        }
+        // Group AM / PM
+        var am=slots.filter(function(s){return parseInt(s.time)<12;});
+        var pm=slots.filter(function(s){return parseInt(s.time)>=12;});
+        var html='';
+        if(am.length){
+          html+='<div class="slots-section"><div class="slots-section-label">Morning</div>'
+            +'<div class="slots-grid">'+am.map(function(s){
+              return '<div class="slot-btn'+(s.time===selTime?' selected':'')+'" onclick="pickSlot(\''+s.time+'\',\''+s.label+'\')">'+s.label+'</div>';
+            }).join('')+'</div></div>';
+        }
+        if(pm.length){
+          html+='<div class="slots-section"><div class="slots-section-label">Afternoon</div>'
+            +'<div class="slots-grid">'+pm.map(function(s){
+              return '<div class="slot-btn'+(s.time===selTime?' selected':'')+'" onclick="pickSlot(\''+s.time+'\',\''+s.label+'\')">'+s.label+'</div>';
+            }).join('')+'</div></div>';
+        }
+        wrap.innerHTML=html;
+      }).catch(function(){
+        wrap.innerHTML='<div style="color:var(--ink-m);font-size:13px;">Could not load available slots.</div>';
+      });
   }
 
   window.pickSlot=function(time,label){
-    selTime=time
-    document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('selected')})
-    event.target.classList.add('selected')
-    var d=new Date(selDate+'T00:00:00')
-    var wd=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-    var dateLabel=wd[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+', '+calYear
-    document.getElementById('formSummary').innerHTML=
-      '<strong>'+ev.name+'</strong> &nbsp;·&nbsp; '+dateLabel+' at <strong>'+label+'</strong>'+(ev.location?' &nbsp;·&nbsp; 📍 '+ev.location:'')
-    goStep(3)
+    selTime=time;
+    document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('selected');});
+    event.target.classList.add('selected');
+    goStep(3);
   }
 
   // ── Submit booking ─────────────────────────────────────────────────────────────
   window.submitBooking=function(){
-    var name=document.getElementById('fName').value.trim()
-    var email=document.getElementById('fEmail').value.trim()
-    var phone=document.getElementById('fPhone').value.trim()
-    var notes=document.getElementById('fNotes').value.trim()
-    var errEl=document.getElementById('formErr')
-    errEl.style.display='none'
-    if(!name||!email){errEl.textContent='Please fill in your name and email.';errEl.style.display='block';return}
-    if(!/^[^@]+@[^@]+[.][^@]+$/.test(email)){errEl.textContent='Please enter a valid email address.';errEl.style.display='block';return}
-    var btn=document.getElementById('submitBtn')
-    btn.disabled=true; btn.textContent='Confirming...'
+    var name=document.getElementById('fName').value.trim();
+    var email=document.getElementById('fEmail').value.trim();
+    var phone=document.getElementById('fPhone').value.trim();
+    var notes=document.getElementById('fNotes').value.trim();
+    var errEl=document.getElementById('formErr');
+    errEl.style.display='none';
+    if(!name||!email){errEl.textContent='Please fill in your name and email.';errEl.style.display='block';return;}
+    if(!/^[^@]+@[^@]+[.][^@]+$/.test(email)){errEl.textContent='Please enter a valid email.';errEl.style.display='block';return;}
+    var btn=document.getElementById('submitBtn');
+    btn.disabled=true; btn.textContent='Confirming...';
     fetch('/api/booking/'+SUB+'/create',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({event_id:ev.id,booking_date:selDate,start_time:selTime,booker_name:name,booker_email:email,booker_phone:phone,notes:notes})
-    }).then(r=>r.json()).then(function(res){
+    }).then(function(r){return r.json();}).then(function(res){
       btn.disabled=false; btn.textContent=CONFIRM_BTN;
       if(!res.ok){errEl.textContent=res.error||'Something went wrong. Please try again.';errEl.style.display='block';return;}
-      var d=new Date(selDate+'T00:00:00')
-      var wd=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-      var MONTHS2=['January','February','March','April','May','June','July','August','September','October','November','December']
-      var dateLabel=wd[d.getDay()]+', '+MONTHS2[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear()
+      var d=new Date(selDate+'T00:00:00');
+      var dateLabel=WD_LONG[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+', '+calYear;
+      var timeLabel=fmtTime(selTime);
       document.getElementById('confirmDetail').innerHTML=
-        '<div><span>Type</span><span>'+ev.name+'</span></div>'+
-        '<div><span>Date</span><span>'+dateLabel+'</span></div>'+
-        '<div><span>Time</span><span>'+selTime.slice(0,5)+'</span></div>'+
-        (ev.location?'<div><span>Location</span><span>'+ev.location+'</span></div>':'')+
-        '<div><span>Name</span><span>'+name+'</span></div>'+
-        '<div><span>Email</span><span>'+email+'</span></div>'
-      goStep(4)
+        '<div class="confirm-row"><span class="confirm-icon">🗓</span><span class="confirm-label">Date</span><span class="confirm-val">'+dateLabel+'</span></div>'
+        +'<div class="confirm-row"><span class="confirm-icon">⏰</span><span class="confirm-label">Time</span><span class="confirm-val">'+timeLabel+' ('+ev.duration+' min)</span></div>'
+        +'<div class="confirm-row"><span class="confirm-icon">📋</span><span class="confirm-label">Type</span><span class="confirm-val">'+ev.name+'</span></div>'
+        +(ev.location?'<div class="confirm-row"><span class="confirm-icon">📍</span><span class="confirm-label">Where</span><span class="confirm-val">'+ev.location+'</span></div>':'')
+        +'<div class="confirm-row"><span class="confirm-icon">👤</span><span class="confirm-label">Name</span><span class="confirm-val">'+name+'</span></div>'
+        +'<div class="confirm-row"><span class="confirm-icon">✉️</span><span class="confirm-label">Email</span><span class="confirm-val">'+email+'</span></div>';
+      goStep(4);
     }).catch(function(){
       btn.disabled=false; btn.textContent=CONFIRM_BTN;
       errEl.textContent='Network error. Please try again.'; errEl.style.display='block';
-    })
+    });
   }
-})()
+})();
 </script>
 </body>
-</html>`
-  res.send(html)
+</html>`;
+  res.send(html);
 }
 
 // ── Draft page ────────────────────────────────────────────────────────────────
