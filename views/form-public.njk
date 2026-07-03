@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ title }}</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f9fa;
+    color: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px 60px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 560px;
+  }
+  .form-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #111;
+  }
+  .form-desc {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+  .field-group {
+    margin-bottom: 18px;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+  }
+  label .req { color: #e53e3e; margin-left: 2px; }
+  input[type=text],
+  input[type=email],
+  input[type=date],
+  textarea,
+  select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #111;
+    background: #fff;
+    transition: border-color .15s;
+    outline: none;
+    font-family: inherit;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  }
+  textarea { resize: vertical; min-height: 90px; }
+  .radio-group, .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .radio-group label, .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+    cursor: pointer;
+  }
+  .radio-group input[type=radio],
+  .checkbox-group input[type=checkbox] {
+    width: 16px;
+    height: 16px;
+    accent-color: #6366f1;
+    flex-shrink: 0;
+  }
+  .rating-group {
+    display: flex;
+    gap: 6px;
+  }
+  .rating-group label {
+    font-size: 24px;
+    cursor: pointer;
+    color: #ddd;
+    margin: 0;
+    transition: color .1s;
+  }
+  .rating-group input[type=radio] { display: none; }
+  .rating-group label:hover,
+  .rating-group label.active { color: #f59e0b; }
+  .field-heading {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111;
+    padding-top: 8px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 6px;
+    margin-bottom: 4px;
+  }
+  .field-divider hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 4px 0;
+  }
+  .btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: #6366f1;
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: background .15s, opacity .15s;
+  }
+  .btn-submit:hover { background: #4f46e5; }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .msg {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+    line-height: 1.5;
+  }
+  .msg-success { background: #f0fdf4; color: #16a34a; border: 1.5px solid #bbf7d0; }
+  .msg-error   { background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; }
+  @media (max-width: 480px) {
+    .card { padding: 24px 18px; }
+    .form-title { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1 class="form-title">{{ form.name }}</h1>
+  {% if settings.description %}
+  <p class="form-desc">{{ settings.description }}</p>
+  {% endif %}
+
+  <form id="pzForm" novalidate>
+    {% for field in fields %}
+
+    {% if field.type === 'heading' %}
+    <div class="field-group">
+      <div class="field-heading">{{ field.label }}</div>
+    </div>
+
+    {% elif field.type === 'divider' %}
+    <div class="field-group field-divider"><hr></div>
+
+    {% elif field.type === 'textarea' %}
+    <div class="field-group">
+      <label for="f_{{ field.id }}">{{ field.label }}{% if field.required %}<span class="req">*</span>{% endif %}</label>
+      <textarea id="f_{{ field.id }}" name="{{ field.id }}"
+        placeholder="{{ field.placeholder or '' }}"
+        {% if field.required %}required{% endif %}></textarea>
+    </div>
+
+    {% elif field.type === 'select' %}
+    <div class="field-group">
+      <label for="f_{{ field.id }}">{{ field.label }}{% if field.required %}<span class="req">*</span>{% endif %}</label>
+      <select id="f_{{ field.id }}" name="{{ field.id }}" {% if field.required %}required{% endif %}>
+        <option value="">— Select —</option>
+        {% for opt in field.options %}
+        <option value="{{ opt }}">{{ opt }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {% elif field.type === 'radio' %}
+    <div class="field-group">
+      <label>{{ field.label }}{% if field.required %}<span class="req">*</span>{% endif %}</label>
+      <div class="radio-group">
+        {% for opt in field.options %}
+        <label>
+          <input type="radio" name="{{ field.id }}" value="{{ opt }}" {% if field.required %}required{% endif %}>
+          {{ opt }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% elif field.type === 'checkbox' %}
+    <div class="field-group">
+      <label>{{ field.label }}{% if field.required %}<span class="req">*</span>{% endif %}</label>
+      <div class="checkbox-group">
+        {% for opt in field.options %}
+        <label>
+          <input type="checkbox" name="{{ field.id }}" value="{{ opt }}">
+          {{ opt }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% elif field.type === 'rating' %}
+    <div class="field-group">
+      <label>{{ field.label }}{% if field.required %}<span class="req">*</span>{% endif %}</label>
+      <div class="rating-group" id="rating_{{ field.id }}">
+        {% for i in [1,2,3,4,5] %}
+        <label id="star_{{ field.id }}_{{ i }}" title="{{ i }} star{% if i > 1 %}s{% endif %}">
+          <input type="radio" name="{{ field.id }}" value="{{ i }}" {% if field.required %}required{% endif %}>
+          ★
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% elif field.type === 'date' %}
+    <div class="field-group">
+      <label for="f_{{ field.id }}">{{ field.label }}{% if field.required %}<span class="req">*</span>{% endif %}</label>
+      <input type="date" id="f_{{ field.id }}" name="{{ field.id }}" {% if field.required %}required{% endif %}>
+    </div>
+
+    {% else %}
+    {# text, email, phone, number, url, etc. #}
+    <div class="field-group">
+      <label for="f_{{ field.id }}">{{ field.label }}{% if field.required %}<span class="req">*</span>{% endif %}</label>
+      <input type="{{ field.type if field.type in ['email','number','tel','url'] else 'text' }}"
+        id="f_{{ field.id }}" name="{{ field.id }}"
+        placeholder="{{ field.placeholder or '' }}"
+        {% if field.required %}required{% endif %}>
+    </div>
+    {% endif %}
+
+    {% endfor %}
+
+    <button type="submit" class="btn-submit" id="pzSubmitBtn">
+      {{ settings.submit_label or 'Submit' }}
+    </button>
+  </form>
+
+  <div class="msg msg-success" id="pzSuccess"></div>
+  <div class="msg msg-error"   id="pzError"></div>
+</div>
+
+<script>
+// Star rating interactive highlight
+document.querySelectorAll('.rating-group').forEach(function(group) {
+  var stars = group.querySelectorAll('label');
+  group.querySelectorAll('input[type=radio]').forEach(function(radio, idx) {
+    radio.addEventListener('change', function() {
+      stars.forEach(function(s, i) {
+        s.classList.toggle('active', i <= idx);
+      });
+    });
+  });
+});
+
+// Checkbox: collect multiple values as comma-separated string
+document.getElementById('pzForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var btn = document.getElementById('pzSubmitBtn');
+  var ok  = document.getElementById('pzSuccess');
+  var err = document.getElementById('pzError');
+  ok.style.display = err.style.display = 'none';
+
+  // Basic HTML5 validation
+  if (!this.checkValidity()) { this.reportValidity(); return; }
+
+  var data = {};
+  var fd = new FormData(this);
+
+  // Collect checkboxes (multiple values → comma-separated)
+  var seen = {};
+  fd.forEach(function(val, key) {
+    if (seen[key]) {
+      data[key] = data[key] + ', ' + val;
+    } else {
+      data[key] = val;
+      seen[key] = true;
+    }
+  });
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  fetch('/f/{{ form.id }}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    if (res.ok) {
+      ok.textContent = res.message || 'Thank you for your submission!';
+      ok.style.display = 'block';
+      document.getElementById('pzForm').reset();
+      document.querySelectorAll('.rating-group label').forEach(function(s) { s.classList.remove('active'); });
+    } else {
+      err.textContent = res.error || 'Something went wrong. Please try again.';
+      err.style.display = 'block';
+    }
+  })
+  .catch(function() {
+    err.textContent = 'Network error. Please check your connection and try again.';
+    err.style.display = 'block';
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.textContent = '{{ settings.submit_label or "Submit" }}';
+  });
+});
+</script>
+</body>
+</html>

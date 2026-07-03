@@ -168,6 +168,19 @@ exports.exportCsv = async (req, res) => {
   res.send(csv)
 }
 
+// ── PUBLIC: View a form (no auth) ────────────────────────────────────────────
+exports.publicView = async (req, res) => {
+  const formId = parseInt(req.params.formId) || 0
+
+  const form = await db.first('SELECT * FROM ms_forms WHERE id = ?', [formId])
+  if (!form) return res.status(404).render('404.njk', { title: 'Form not found' })
+
+  const fields   = JSON.parse(form.fields   || '[]')
+  const settings = JSON.parse(form.settings || '{}')
+
+  res.render('form-public.njk', { title: form.name, form, fields, settings })
+}
+
 // ── PUBLIC: Submit a form (no auth) ──────────────────────────────────────────
 exports.submit = async (req, res) => {
   const formId = parseInt(req.params.formId) || 0

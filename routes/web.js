@@ -184,7 +184,8 @@ router.get ('/dashboard/forms/:siteId/entries/:formId/export',      requireAuth,
 router.get('/dashboard/api/forms',         requireAuth, form.apiList)
 router.get('/dashboard/api/forms/:siteId', requireAuth, form.apiList)
 
-// Public form submission (no auth)
+// Public form view & submission (no auth)
+router.get ('/f/:formId', form.publicView)
 router.post('/f/:formId', form.submit)
 
 // ── Booking ───────────────────────────────────────────────────────────────────

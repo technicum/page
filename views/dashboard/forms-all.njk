@@ -47,6 +47,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
 .form-name-link:hover{color:var(--blue);}
 .form-id-chip{display:inline-flex;align-items:center;gap:4px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:5px;padding:2px 7px;font-size:11px;font-family:monospace;color:#6d28d9;cursor:pointer;margin-top:4px;}
 .form-id-chip:hover{background:#ede9fe;}
+.form-link-chip{display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:5px;padding:2px 7px;font-size:11px;font-family:monospace;color:#16a34a;cursor:pointer;margin-top:4px;margin-left:4px;}
+.form-link-chip:hover{background:#dcfce7;}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500;}
 .badge-blue{background:var(--blue-light);color:var(--blue);}
 .badge-green{background:#f0fdf4;color:#16a34a;}
@@ -132,6 +134,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
               <br>
               <span class="form-id-chip" onclick="copyId({{ form.id }}, this)" title="Click to copy Form ID">
                 ID: {{ form.id }} 📋
+              </span><span class="form-link-chip" onclick="copyLink({{ form.id }}, this)" title="Click to copy public form URL">
+                🔗 Copy Link
               </span>
             </td>
             <td class="td-muted">
@@ -180,6 +184,14 @@ function filterForms(q) {
 }
 function copyId(id, el) {
   navigator.clipboard.writeText(String(id)).then(() => {
+    const orig = el.innerHTML;
+    el.innerHTML = '✓ Copied!';
+    setTimeout(() => { el.innerHTML = orig; }, 1500);
+  });
+}
+function copyLink(id, el) {
+  const url = window.location.origin + '/f/' + id;
+  navigator.clipboard.writeText(url).then(() => {
     const orig = el.innerHTML;
     el.innerHTML = '✓ Copied!';
     setTimeout(() => { el.innerHTML = orig; }, 1500);
