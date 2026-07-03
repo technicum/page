@@ -222,7 +222,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
             <div style="font-size:12px;color:var(--ink-muted);margin-top:2px;">{{ site.template_id or "Default" }}</div>
           </td>
           <td><a class="table-site-url" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a></td>
-          <td><span class="table-badge">{{ site.category or "Site" }}</span></td>
+          <td><span class="table-badge">{% if site.category == 'linktree' %}Business{% elif site.category %}{{ site.category | capitalize }}{% else %}Site{% endif %}</span></td>
           <td>
             <button class="status-btn {% if site.is_published %}live{% else %}draft{% endif %}"
                     id="status-{{ site.id }}"

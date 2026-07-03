@@ -119,7 +119,8 @@ router.post('/login',    redirectIfAuth, auth.login)
 router.get ('/logout',   auth.logout)
 
 // Template preview (public)
-router.get('/template-preview', site.templatePreview)
+router.get('/template-preview',       site.templatePreview)
+router.get('/template-preview-frame', site.templatePreviewFrame)
 
 // Dashboard
 router.get ('/dashboard',          requireAuth, dash.index)

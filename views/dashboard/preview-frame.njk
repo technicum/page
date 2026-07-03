@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview — {{ themeName }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#0f0f11;color:#fff;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── Top bar ── */
+.pv-bar{height:52px;background:#18181b;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;}
+.pv-title{font-size:13px;color:rgba(255,255,255,0.5);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pv-title strong{color:#fff;font-weight:500;}
+
+/* ── Mode toggle ── */
+.pv-toggle{display:flex;background:rgba(255,255,255,0.06);border-radius:8px;padding:3px;gap:2px;flex-shrink:0;}
+.pv-btn{padding:5px 14px;border:none;background:transparent;color:rgba(255,255,255,0.45);font-size:12px;font-weight:500;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.pv-btn.active{background:#fff;color:#18181b;}
+.pv-btn svg{display:inline-block;vertical-align:middle;margin-right:4px;}
+
+/* ── Close ── */
+.pv-close{width:28px;height:28px;border:none;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:14px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;}
+.pv-close:hover{background:rgba(255,255,255,0.12);color:#fff;}
+
+/* ── Stage ── */
+.pv-stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:24px;background:#0f0f11;transition:padding 0.3s;}
+.pv-stage.mode-desktop{padding:0;}
+
+/* Desktop iframe */
+.pv-desktop-frame{width:100%;height:100%;background:#fff;}
+.pv-desktop-frame iframe{width:100%;height:100%;border:none;display:block;}
+
+/* ── Phone frame ── */
+.pv-phone{
+  width:375px;
+  height:780px;
+  max-height:calc(100vh - 100px);
+  background:#1a1a1a;
+  border-radius:46px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 0 0 10px #1a1a1a,
+    0 0 0 12px rgba(255,255,255,0.06),
+    0 40px 80px rgba(0,0,0,0.7);
+  position:relative;
+  overflow:hidden;
+  flex-shrink:0;
+}
+/* Dynamic island */
+.pv-island{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:116px;height:34px;
+  background:#000;border-radius:20px;
+  z-index:10;pointer-events:none;
+}
+/* Side buttons */
+.pv-phone::before{
+  content:'';position:absolute;left:-3px;top:130px;
+  width:3px;height:34px;background:#2a2a2a;border-radius:2px 0 0 2px;
+  box-shadow:0 50px 0 #2a2a2a,0 100px 0 #2a2a2a;
+}
+.pv-phone::after{
+  content:'';position:absolute;right:-3px;top:160px;
+  width:3px;height:64px;background:#2a2a2a;border-radius:0 2px 2px 0;
+}
+.pv-phone-screen{
+  position:absolute;inset:0;
+  border-radius:44px;
+  overflow:hidden;
+  background:#fff;
+}
+.pv-phone-screen iframe{
+  width:100%;height:100%;border:none;display:block;
+}
+
+/* ── Responsive ── */
+@media(max-height:700px){
+  .pv-phone{width:320px;height:640px;border-radius:38px;}
+  .pv-phone-screen{border-radius:36px;}
+}
+</style>
+</head>
+<body>
+
+<div class="pv-bar">
+  <span class="pv-title">Preview: <strong>{{ themeName }}</strong></span>
+  <div class="pv-toggle">
+    <button class="pv-btn" id="btn-desktop" onclick="setMode('desktop')">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 14h6M8 12v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Desktop
+    </button>
+    <button class="pv-btn active" id="btn-mobile" onclick="setMode('mobile')">
+      <svg width="10" height="13" viewBox="0 0 10 16" fill="currentColor"><rect x="0.75" y="0.75" width="8.5" height="14.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5" cy="13" r="0.8" fill="currentColor"/></svg>
+      Mobile
+    </button>
+  </div>
+  <button class="pv-close" onclick="window.close()">✕</button>
+</div>
+
+<div class="pv-stage" id="pv-stage">
+
+  <!-- Mobile phone (default view) -->
+  <div class="pv-phone" id="phone-wrap">
+    <div class="pv-island"></div>
+    <div class="pv-phone-screen">
+      <iframe id="preview-iframe"
+              src="/template-preview?id={{ themeSlug }}"
+              loading="lazy"
+              scrolling="yes"
+              title="{{ themeName }} preview">
+      </iframe>
+    </div>
+  </div>
+
+  <!-- Desktop frame (hidden by default) -->
+  <div class="pv-desktop-frame" id="desktop-wrap" style="display:none;">
+    <iframe id="preview-iframe-desktop"
+            src=""
+            loading="lazy"
+            title="{{ themeName }} preview desktop">
+    </iframe>
+  </div>
+
+</div>
+
+<script>
+var currentMode = 'mobile'
+var desktopLoaded = false
+
+function setMode(mode) {
+  if (currentMode === mode) return
+  currentMode = mode
+
+  document.getElementById('btn-desktop').classList.toggle('active', mode === 'desktop')
+  document.getElementById('btn-mobile').classList.toggle('active', mode === 'mobile')
+
+  var stage   = document.getElementById('pv-stage')
+  var phone   = document.getElementById('phone-wrap')
+  var desktop = document.getElementById('desktop-wrap')
+
+  if (mode === 'desktop') {
+    stage.classList.add('mode-desktop')
+    phone.style.display   = 'none'
+    desktop.style.display = ''
+    // Load desktop iframe once
+    if (!desktopLoaded) {
+      document.getElementById('preview-iframe-desktop').src = '/template-preview?id={{ themeSlug }}'
+      desktopLoaded = true
+    }
+  } else {
+    stage.classList.remove('mode-desktop')
+    phone.style.display   = ''
+    desktop.style.display = 'none'
+  }
+}
+</script>
+</body>
+</html>

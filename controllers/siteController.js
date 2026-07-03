@@ -394,6 +394,14 @@ exports.templatePreview = async (req, res) => {
   }
 }
 
+exports.templatePreviewFrame = (req, res) => {
+  const slug      = (req.query.id || '').replace(/[^a-z0-9-]/g, '')
+  const all       = themeManager.loadAll()
+  const themeData = all[slug]
+  const themeName = themeData ? themeData.name : slug
+  res.render('dashboard/preview-frame.njk', { themeSlug: slug, themeName })
+}
+
 exports.aiSuggest = async (req, res) => {
   const { site_type, title, section, field, current } = req.body
   const apiKey = process.env.ANTHROPIC_API_KEY
