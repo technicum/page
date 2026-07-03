@@ -138,7 +138,11 @@ td.td-actions{width:60px;}
               <td class="td-date">{{ entry.created_at | string | truncate(19, true, '') }}</td>
               {% for field in fields %}
                 {% if field.type !== 'heading' and field.type !== 'divider' %}
+                  {% if field.type === 'file' and entry.data[field.id] %}
+                <td><a href="{{ entry.data[field.id] }}" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none;font-size:12px;">📎 View file</a></td>
+                  {% else %}
                 <td title="{{ entry.data[field.id] }}">{{ entry.data[field.id] or '—' }}</td>
+                  {% endif %}
                 {% endif %}
               {% endfor %}
               <td class="td-ip">{{ entry.ip or '—' }}</td>

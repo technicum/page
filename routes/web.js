@@ -186,7 +186,7 @@ router.get('/dashboard/api/forms/:siteId', requireAuth, form.apiList)
 
 // Public form view & submission (no auth)
 router.get ('/f/:formId', form.publicView)
-router.post('/f/:formId', form.submit)
+router.post('/f/:formId', form.formUpload, form.submit)
 
 // ── Booking ───────────────────────────────────────────────────────────────────
 router.get ('/dashboard/booking', requireAuth, async (req, res) => {

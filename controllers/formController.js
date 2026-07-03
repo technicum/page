@@ -1,4 +1,41 @@
+const multer = require('multer')
+const path   = require('path')
+const fs     = require('fs')
 const { db } = require('../config/db')
+
+// ── File upload helpers ───────────────────────────────────────────────────────
+function formUploadDir(formId) {
+  return path.join(__dirname, '../public/uploads/forms', String(formId))
+}
+function ensureDir(dir) {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+}
+
+const _formUploader = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const formId = parseInt(req.params.formId) || 0
+      const dir = formUploadDir(formId)
+      ensureDir(dir)
+      cb(null, dir)
+    },
+    filename: (req, file, cb) => {
+      const ext  = path.extname(file.originalname).toLowerCase()
+      const base = path.basename(file.originalname, ext)
+        .replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 40)
+      cb(null, `${base}-${Date.now()}${ext}`)
+    }
+  }),
+  limits: { fileSize: 20 * 1024 * 1024, files: 10 }
+}).any()
+
+// Middleware: parse multipart/form-data for public form submissions
+exports.formUpload = (req, res, next) => {
+  _formUploader(req, res, err => {
+    if (err) return res.status(400).json({ ok: false, error: err.message })
+    next()
+  })
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 async function getFormForUser(formId, userId) {
@@ -202,6 +239,16 @@ exports.submit = async (req, res) => {
   // Only save allowed field IDs
   const data = {}
   fields.forEach(f => { if (body[f.id] !== undefined) data[f.id] = String(body[f.id]).slice(0, 4000) })
+
+  // Handle uploaded files — store public URL per field
+  if (req.files && req.files.length > 0) {
+    const fieldIds = new Set(fields.map(f => f.id))
+    req.files.forEach(file => {
+      if (fieldIds.has(file.fieldname)) {
+        data[file.fieldname] = `/uploads/forms/${formId}/${file.filename}`
+      }
+    })
+  }
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || null
 

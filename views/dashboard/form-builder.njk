@@ -171,6 +171,7 @@ body{overflow:hidden;background:#f4f4f5;margin:0;font-family:"DM Sans",sans-seri
       {% set other = [
         {type:'date',    icon:'📅', name:'Date'},
         {type:'rating',  icon:'⭐', name:'Rating'},
+        {type:'file',    icon:'📎', name:'File Upload'},
         {type:'heading', icon:'📌', name:'Heading'},
         {type:'divider', icon:'➖', name:'Divider'}
       ] %}
@@ -255,7 +256,8 @@ const FIELD_META = {
   date:     { icon:'📅', label:'Date',         inputType:'date',     hasOptions:false },
   rating:   { icon:'⭐', label:'Rating',       inputType:'rating',   hasOptions:false },
   heading:  { icon:'📌', label:'Heading',      inputType:'heading',  hasOptions:false },
-  divider:  { icon:'➖', label:'Divider',      inputType:'divider',  hasOptions:false }
+  divider:  { icon:'➖', label:'Divider',      inputType:'divider',  hasOptions:false },
+  file:     { icon:'📎', label:'File Upload',  inputType:'file',     hasOptions:false }
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -431,6 +433,24 @@ function renderFieldSettings(i) {
       <label class="sg-label">Max Stars</label>
       <input class="sg-input" type="number" min="3" max="10" value="${f.max_rating || 5}"
              oninput="updateField('max_rating',parseInt(this.value)||5)">
+    </div>
+    ` : ''}
+    ${f.type === 'file' ? `
+    <hr class="section-divider">
+    <div class="sg">
+      <label class="sg-label">Accepted Files</label>
+      <select class="sg-input" onchange="updateField('accept',this.value)">
+        <option value="" ${!f.accept?'selected':''}>Any file</option>
+        <option value="image/*" ${f.accept==='image/*'?'selected':''}>Images only</option>
+        <option value=".pdf" ${f.accept==='.pdf'?'selected':''}>PDF only</option>
+        <option value=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" ${f.accept==='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'?'selected':''}>Documents</option>
+        <option value=".zip,.rar,.7z" ${f.accept==='.zip,.rar,.7z'?'selected':''}>Archives</option>
+      </select>
+    </div>
+    <div class="sg">
+      <label class="sg-label">Max File Size (MB)</label>
+      <input class="sg-input" type="number" min="1" max="20" value="${f.max_size_mb || 10}"
+             oninput="updateField('max_size_mb',parseInt(this.value)||10)">
     </div>
     ` : ''}
   `;

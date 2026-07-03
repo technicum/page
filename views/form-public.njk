@@ -115,6 +115,23 @@
     border-top: 1px solid #e5e7eb;
     margin: 4px 0;
   }
+  .file-drop {
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    position: relative;
+  }
+  .file-drop:hover, .file-drop.over { border-color: #6366f1; background: #f5f3ff; }
+  .file-drop input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .file-drop-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+  .file-drop-text { font-size: 13px; color: #6b7280; }
+  .file-drop-text strong { color: #6366f1; }
+  .file-name { margin-top: 8px; font-size: 12px; color: #374151; font-weight: 500; }
   .btn-submit {
     width: 100%;
     padding: 12px;
@@ -229,6 +246,26 @@
       <input type="date" id="f_{{ field.id }}" name="{{ field.id }}" {% if field.required %}required{% endif %}>
     </div>
 
+    {% elif field.type === 'file' %}
+    <div class="field-group">
+      <label>{{ field.label }}{% if field.required %}<span class="req">*</span>{% endif %}</label>
+      <div class="file-drop" id="drop_{{ field.id }}"
+           ondragover="event.preventDefault();this.classList.add('over')"
+           ondragleave="this.classList.remove('over')"
+           ondrop="event.preventDefault();this.classList.remove('over');handleFileDrop('{{ field.id }}',event.dataTransfer.files)">
+        <input type="file" id="f_{{ field.id }}" name="{{ field.id }}"
+               {% if field.accept %}accept="{{ field.accept }}"{% endif %}
+               data-max-mb="{{ field.max_size_mb or 10 }}"
+               {% if field.required %}required{% endif %}
+               onchange="showFileName('{{ field.id }}',this.files)">
+        <span class="file-drop-icon">📎</span>
+        <div class="file-drop-text"><strong>Choose file</strong> or drag &amp; drop here</div>
+        {% if field.accept %}<div class="file-drop-text" style="margin-top:4px;font-size:11px;">{{ field.accept }}</div>{% endif %}
+        {% if field.max_size_mb %}<div class="file-drop-text" style="font-size:11px;">Max {{ field.max_size_mb }} MB</div>{% endif %}
+      </div>
+      <div class="file-name" id="fname_{{ field.id }}" style="display:none;"></div>
+    </div>
+
     {% else %}
     {# text, email, phone, number, url, etc. #}
     <div class="field-group">
@@ -264,7 +301,28 @@ document.querySelectorAll('.rating-group').forEach(function(group) {
   });
 });
 
-// Checkbox: collect multiple values as comma-separated string
+// File field helpers
+function showFileName(fieldId, files) {
+  var el = document.getElementById('fname_' + fieldId);
+  if (!el) return;
+  if (files && files.length > 0) {
+    el.textContent = '📎 ' + files[0].name + ' (' + (files[0].size / 1024).toFixed(0) + ' KB)';
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+function handleFileDrop(fieldId, files) {
+  var input = document.getElementById('f_' + fieldId);
+  if (input && files.length > 0) {
+    var dt = new DataTransfer();
+    dt.items.add(files[0]);
+    input.files = dt.files;
+    showFileName(fieldId, files);
+  }
+}
+
+// Form submit — uses FormData to support file uploads
 document.getElementById('pzForm').addEventListener('submit', function(e) {
   e.preventDefault();
   var btn = document.getElementById('pzSubmitBtn');
@@ -272,30 +330,30 @@ document.getElementById('pzForm').addEventListener('submit', function(e) {
   var err = document.getElementById('pzError');
   ok.style.display = err.style.display = 'none';
 
-  // Basic HTML5 validation
   if (!this.checkValidity()) { this.reportValidity(); return; }
 
-  var data = {};
-  var fd = new FormData(this);
-
-  // Collect checkboxes (multiple values → comma-separated)
-  var seen = {};
-  fd.forEach(function(val, key) {
-    if (seen[key]) {
-      data[key] = data[key] + ', ' + val;
-    } else {
-      data[key] = val;
-      seen[key] = true;
+  // Check per-field max file size
+  var valid = true;
+  this.querySelectorAll('input[type=file]').forEach(function(inp) {
+    if (inp.files.length > 0) {
+      var maxMb = parseFloat(inp.dataset.maxMb || '10');
+      if (inp.files[0].size > maxMb * 1024 * 1024) {
+        err.textContent = 'File "' + inp.files[0].name + '" exceeds the ' + maxMb + ' MB limit.';
+        err.style.display = 'block';
+        valid = false;
+      }
     }
   });
+  if (!valid) return;
+
+  var fd = new FormData(this);
 
   btn.disabled = true;
   btn.textContent = 'Sending…';
 
   fetch('/f/{{ form.id }}', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
+    body: fd
   })
   .then(function(r) { return r.json(); })
   .then(function(res) {
@@ -304,6 +362,7 @@ document.getElementById('pzForm').addEventListener('submit', function(e) {
       ok.style.display = 'block';
       document.getElementById('pzForm').reset();
       document.querySelectorAll('.rating-group label').forEach(function(s) { s.classList.remove('active'); });
+      document.querySelectorAll('.file-name').forEach(function(el) { el.style.display = 'none'; });
     } else {
       err.textContent = res.error || 'Something went wrong. Please try again.';
       err.style.display = 'block';
