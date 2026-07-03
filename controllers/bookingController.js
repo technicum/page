@@ -1,4 +1,5 @@
 const { db } = require('../config/db')
+const { captureLead } = require('./leadsController')
 
 // ── Slot generation helpers ────────────────────────────────────────────────────
 function toMin (t) {
@@ -429,11 +430,21 @@ exports.apiCreate = async (req, res) => {
     )
     if (conflict) return res.json({ ok: false, error: 'That slot is no longer available.' })
 
-    await db.execute(
+    const bookingId = await db.lastId(
       `INSERT INTO ms_bookings (site_id, event_id, booker_name, booker_email, booker_phone, booking_date, start_time, end_time, notes)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [site.id, event_id, booker_name, booker_email, booker_phone || '', booking_date, start_time, end_time, notes || '']
     )
+
+    // Auto-capture lead from booking
+    captureLead({
+      siteId:   site.id,
+      name:     booker_name  || null,
+      email:    booker_email || null,
+      phone:    booker_phone || null,
+      source:   'booking',
+      sourceId: bookingId
+    })
 
     res.json({ ok: true })
   } catch (err) {

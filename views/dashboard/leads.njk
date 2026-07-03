@@ -1,0 +1,506 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{background:var(--off);}
+.layout{display:flex;min-height:100vh;}
+.main{flex:1;padding:28px 32px;min-width:0;overflow:hidden;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.page-header h1{font-size:22px;font-weight:700;margin:0;}
+.btn-primary{padding:10px 18px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary:hover{opacity:.88;}
+/* Filters */
+.filters{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
+.filter-select{padding:8px 12px;border:1.5px solid var(--border-md);border-radius:var(--radius);font-size:13px;font-family:inherit;color:var(--ink);background:var(--white);cursor:pointer;}
+.filter-select:focus{outline:none;border-color:var(--blue);}
+.tag-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--blue-light);color:var(--blue);border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;}
+.tag-chip.active{background:var(--blue);color:#fff;}
+.tag-chip:hover{opacity:.85;}
+/* Tabs */
+.tab-bar{display:flex;gap:2px;margin-bottom:20px;border-bottom:2px solid var(--border);}
+.tab{padding:10px 18px;font-size:14px;font-weight:500;color:var(--ink-muted);cursor:pointer;border:none;background:none;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-2px;}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600;}
+/* Kanban */
+.kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:16px;min-height:500px;}
+.k-col{flex:0 0 220px;display:flex;flex-direction:column;gap:8px;}
+.k-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:var(--radius);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.k-head-new{background:#e0f2fe;color:#0369a1;}
+.k-head-contacted{background:#ede9fe;color:#6d28d9;}
+.k-head-qualified{background:#fef3c7;color:#92400e;}
+.k-head-won{background:#d1fae5;color:#065f46;}
+.k-head-lost{background:#fee2e2;color:#991b1b;}
+.k-count{background:rgba(0,0,0,0.12);padding:2px 7px;border-radius:20px;font-size:11px;}
+.k-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;cursor:grab;transition:box-shadow .15s;position:relative;}
+.k-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.k-card.dragging{opacity:.5;}
+.k-card-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.k-card-meta{font-size:11px;color:var(--ink-muted);margin-bottom:6px;}
+.k-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.k-tag{font-size:10px;padding:2px 7px;background:var(--off);border-radius:20px;color:var(--ink-muted);font-weight:500;}
+.k-source{font-size:10px;color:var(--ink-faint);font-weight:500;}
+.k-card-actions{display:flex;gap:6px;margin-top:8px;}
+.k-btn{font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:inherit;color:var(--ink-muted);}
+.k-btn:hover{background:var(--off);color:var(--ink);}
+.k-btn.del{border-color:var(--red-light);color:var(--red);}
+.k-btn.del:hover{background:var(--red-light);}
+.k-drop-zone{min-height:60px;border:2px dashed transparent;border-radius:10px;transition:all .2s;}
+.k-drop-zone.drag-over{border-color:var(--blue);background:var(--blue-light);}
+/* Table */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);}
+th{padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:var(--off);}
+td{padding:12px 14px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--off);}
+.stage-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.stage-new{background:#e0f2fe;color:#0369a1;}
+.stage-contacted{background:#ede9fe;color:#6d28d9;}
+.stage-qualified{background:#fef3c7;color:#92400e;}
+.stage-won{background:#d1fae5;color:#065f46;}
+.stage-lost{background:#fee2e2;color:#991b1b;}
+.tbl-actions{display:flex;gap:6px;}
+.icon-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:var(--radius);color:var(--ink-muted);}
+.icon-btn:hover{background:var(--off);color:var(--ink);}
+/* Empty */
+.empty{text-align:center;padding:60px 24px;color:var(--ink-muted);}
+.empty p{font-size:15px;margin-bottom:20px;}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:16px;padding:28px 32px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:20px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--ink-muted);margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border-md);border-radius:var(--radius);font-size:14px;font-family:inherit;color:var(--ink);outline:none;box-sizing:border-box;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);}
+.field textarea{min-height:80px;resize:vertical;}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.btn-ghost{padding:10px 18px;background:none;border:1.5px solid var(--border-md);border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;}
+.btn-ghost:hover{background:var(--off);}
+/* Notes panel (slide-in) */
+.notes-panel{position:fixed;right:-400px;top:0;width:380px;height:100vh;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,0.12);z-index:900;transition:right .3s;display:flex;flex-direction:column;}
+.notes-panel.open{right:0;}
+.notes-panel-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.notes-panel-head h3{font-size:16px;font-weight:700;margin:0;}
+.notes-panel-body{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px;}
+.notes-section label{display:block;font-size:12px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;margin-bottom:8px;}
+.notes-section textarea{width:100%;min-height:120px;padding:10px 13px;border:1.5px solid var(--border-md);border-radius:var(--radius);font-size:13px;font-family:inherit;color:var(--ink);resize:vertical;box-sizing:border-box;}
+.notes-section textarea:focus{outline:none;border-color:var(--blue);}
+.notes-tags-input{width:100%;padding:9px 13px;border:1.5px solid var(--border-md);border-radius:var(--radius);font-size:13px;font-family:inherit;box-sizing:border-box;}
+.notes-tags-input:focus{outline:none;border-color:var(--blue);}
+.notes-save-btn{padding:10px 20px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;}
+.notes-close-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink-muted);padding:4px;}
+.lead-info-row{font-size:13px;color:var(--ink-muted);margin-bottom:4px;}
+.lead-info-row strong{color:var(--ink);}
+</style>
+{% endblock %}
+{% block body %}
+{% set activePage = 'leads' %}
+<div class="layout">
+  {% include "dashboard/_sidebar.njk" %}
+  <main class="main">
+    <div class="page-header">
+      <h1>🎯 Leads CRM</h1>
+      <button class="btn-primary" onclick="openAddModal()">+ Add Lead</button>
+    </div>
+
+    {# ── Filters ── #}
+    <form class="filters" method="GET" action="/dashboard/leads" id="filterForm">
+      <select class="filter-select" name="stage" onchange="document.getElementById('filterForm').submit()">
+        <option value="">All Stages</option>
+        {% for s in ['new','contacted','qualified','won','lost'] %}
+        <option value="{{ s }}" {% if filterStage == s %}selected{% endif %}>{{ s | capitalize }}</option>
+        {% endfor %}
+      </select>
+      {% if sites.length > 1 %}
+      <select class="filter-select" name="site_id" onchange="document.getElementById('filterForm').submit()">
+        <option value="">All Sites</option>
+        {% for site in sites %}
+        <option value="{{ site.id }}" {% if filterSite == site.id %}selected{% endif %}>{{ site.title }}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
+      {% if filterStage or filterSite or filterTag %}
+      <a href="/dashboard/leads" style="font-size:13px;color:var(--ink-muted);">✕ Clear</a>
+      {% endif %}
+      {# Pass tag through hidden field when using dropdowns #}
+      {% if filterTag %}<input type="hidden" name="tag" value="{{ filterTag }}">{% endif %}
+    </form>
+
+    {# Tag chips #}
+    {% if allTags.length %}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;">
+      <span style="font-size:12px;color:var(--ink-muted);font-weight:600;align-self:center;">Tags:</span>
+      {% for tag in allTags %}
+      <a href="/dashboard/leads?tag={{ tag }}{% if filterStage %}&stage={{ filterStage }}{% endif %}{% if filterSite %}&site_id={{ filterSite }}{% endif %}"
+         class="tag-chip {% if filterTag == tag %}active{% endif %}">{{ tag }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {# ── View tabs ── #}
+    <div class="tab-bar">
+      <button class="tab active" id="tabKanban" onclick="switchTab('kanban')">📌 Kanban</button>
+      <button class="tab" id="tabTable" onclick="switchTab('table')">📋 Table</button>
+    </div>
+
+    {# ── Kanban view ── #}
+    <div id="viewKanban">
+      {% if leads.length == 0 %}
+      <div class="empty">
+        <p>No leads yet. Add one manually or they'll auto-appear from forms, bookings, and chats.</p>
+        <button class="btn-primary" onclick="openAddModal()">+ Add Lead</button>
+      </div>
+      {% else %}
+      <div class="kanban" id="kanbanBoard">
+        {% for stage in ['new','contacted','qualified','won','lost'] %}
+        {% set stageLeads = [] %}
+        {% for l in leads %}{% if l.stage == stage %}{% set stageLeads = stageLeads.concat([l]) %}{% endif %}{% endfor %}
+        <div class="k-col" data-stage="{{ stage }}" id="col-{{ stage }}">
+          <div class="k-head k-head-{{ stage }}">
+            <span>{{ stage | capitalize }}</span>
+            <span class="k-count">{{ stageLeads | length }}</span>
+          </div>
+          <div class="k-drop-zone" data-stage="{{ stage }}" id="drop-{{ stage }}">
+            {% for l in leads %}
+            {% if l.stage == stage %}
+            <div class="k-card" draggable="true" id="card-{{ l.id }}" data-id="{{ l.id }}" data-stage="{{ l.stage }}">
+              <div class="k-card-name">{{ l.name or '(No name)' }}</div>
+              <div class="k-card-meta">
+                {% if l.email %}<div>{{ l.email }}</div>{% endif %}
+                {% if l.phone %}<div>{{ l.phone }}</div>{% endif %}
+              </div>
+              <div class="k-source">via {{ l.source }}{% if l.site_title %} · {{ l.site_title }}{% endif %}</div>
+              {% if l.tags %}
+              <div class="k-card-tags">
+                {% for tag in l.tags.split(',') %}
+                {% if tag.trim() %}
+                <span class="k-tag">{{ tag.trim() }}</span>
+                {% endif %}
+                {% endfor %}
+              </div>
+              {% endif %}
+              <div class="k-card-actions">
+                <button class="k-btn" onclick="openNotes({{ l.id }}, {{ l.name | dump }}, {{ l.email | dump }}, {{ l.phone | dump }}, {{ l.source | dump }}, {{ l.notes | dump }}, {{ l.tags | dump }})">✏️ Notes</button>
+                <button class="k-btn del" onclick="deleteLead({{ l.id }}, this)">🗑</button>
+              </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    {# ── Table view ── #}
+    <div id="viewTable" style="display:none;">
+      {% if leads.length == 0 %}
+      <div class="empty"><p>No leads match your filters.</p></div>
+      {% else %}
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email / Phone</th>
+              <th>Stage</th>
+              <th>Source</th>
+              <th>Tags</th>
+              <th>Site</th>
+              <th>Added</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for l in leads %}
+            <tr id="row-{{ l.id }}">
+              <td style="font-weight:600;">{{ l.name or '—' }}</td>
+              <td>
+                {% if l.email %}<div>{{ l.email }}</div>{% endif %}
+                {% if l.phone %}<div style="color:var(--ink-muted);">{{ l.phone }}</div>{% endif %}
+                {% if not l.email and not l.phone %}—{% endif %}
+              </td>
+              <td>
+                <select class="filter-select" style="padding:5px 10px;font-size:12px;" onchange="updateStage({{ l.id }}, this.value)">
+                  {% for s in ['new','contacted','qualified','won','lost'] %}
+                  <option value="{{ s }}" {% if l.stage == s %}selected{% endif %}>{{ s | capitalize }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td style="color:var(--ink-muted);">{{ l.source }}</td>
+              <td>
+                {% if l.tags %}
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                  {% for tag in l.tags.split(',') %}
+                  {% if tag.trim() %}<span class="k-tag">{{ tag.trim() }}</span>{% endif %}
+                  {% endfor %}
+                </div>
+                {% else %}—{% endif %}
+              </td>
+              <td style="color:var(--ink-muted);">{{ l.site_title or '—' }}</td>
+              <td style="color:var(--ink-muted);">{{ l.created_at | string | truncate(10, true, '') }}</td>
+              <td>
+                <div class="tbl-actions">
+                  <button class="icon-btn" title="Notes & Tags" onclick="openNotes({{ l.id }}, {{ l.name | dump }}, {{ l.email | dump }}, {{ l.phone | dump }}, {{ l.source | dump }}, {{ l.notes | dump }}, {{ l.tags | dump }})">✏️</button>
+                  <button class="icon-btn" title="Delete" onclick="deleteLead({{ l.id }}, this)">🗑</button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+
+{# ── Add Lead Modal ── #}
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h2>Add Lead</h2>
+    <form method="POST" action="/dashboard/leads">
+      <div class="field">
+        <label>Site</label>
+        <select name="site_id" required class="field">
+          {% for site in sites %}
+          <option value="{{ site.id }}">{{ site.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="field">
+          <label>Name</label>
+          <input type="text" name="name" placeholder="Full name">
+        </div>
+        <div class="field">
+          <label>Stage</label>
+          <select name="stage">
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="qualified">Qualified</option>
+            <option value="won">Won</option>
+            <option value="lost">Lost</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="email@example.com">
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" name="phone" placeholder="+91 98765 43210">
+        </div>
+      </div>
+      <div class="field">
+        <label>Tags <span style="color:var(--ink-faint);font-weight:400;">(comma-separated)</span></label>
+        <input type="text" name="tags" placeholder="hot lead, demo done, follow up">
+      </div>
+      <div class="field">
+        <label>Notes</label>
+        <textarea name="notes" placeholder="Any notes about this lead…"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" onclick="closeAddModal()">Cancel</button>
+        <button type="submit" class="btn-primary">Add Lead</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ── Notes / Tags Slide Panel ── #}
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-panel-head">
+    <h3 id="notesPanelTitle">Lead Details</h3>
+    <button class="notes-close-btn" onclick="closeNotes()">✕</button>
+  </div>
+  <div class="notes-panel-body">
+    <div class="notes-section">
+      <label>Contact</label>
+      <div class="lead-info-row" id="npEmail"></div>
+      <div class="lead-info-row" id="npPhone"></div>
+      <div class="lead-info-row" id="npSource"></div>
+    </div>
+    <div class="notes-section">
+      <label>Tags <span style="font-weight:400;text-transform:none;font-size:11px;">(comma-separated)</span></label>
+      <input class="notes-tags-input" id="npTags" type="text" placeholder="hot lead, follow up, demo done">
+      <button class="notes-save-btn" style="margin-top:8px;" onclick="saveTags()">Save Tags</button>
+    </div>
+    <div class="notes-section">
+      <label>Notes</label>
+      <textarea id="npNotes" placeholder="Add notes about this lead…"></textarea>
+      <button class="notes-save-btn" style="margin-top:8px;" onclick="saveNotes()">Save Notes</button>
+    </div>
+  </div>
+</div>
+<div id="panelBackdrop" style="display:none;position:fixed;inset:0;z-index:899;" onclick="closeNotes()"></div>
+
+<script>
+var _activeLead = null;
+
+// ── Tab switching ──────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('viewKanban').style.display = tab === 'kanban' ? '' : 'none';
+  document.getElementById('viewTable').style.display  = tab === 'table'  ? '' : 'none';
+  document.getElementById('tabKanban').classList.toggle('active', tab === 'kanban');
+  document.getElementById('tabTable').classList.toggle('active', tab === 'table');
+  localStorage.setItem('pz_leads_tab', tab);
+}
+(function() {
+  var saved = localStorage.getItem('pz_leads_tab');
+  if (saved === 'table') switchTab('table');
+})();
+
+// ── Add modal ─────────────────────────────────────────────────────────────────
+function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+document.getElementById('addModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAddModal();
+});
+
+// ── Notes panel ───────────────────────────────────────────────────────────────
+function openNotes(id, name, email, phone, source, notes, tags) {
+  _activeLead = id;
+  document.getElementById('notesPanelTitle').textContent = name || 'Lead Details';
+  document.getElementById('npEmail').innerHTML  = email  ? '<strong>📧</strong> ' + email  : '';
+  document.getElementById('npPhone').innerHTML  = phone  ? '<strong>📞</strong> ' + phone  : '';
+  document.getElementById('npSource').innerHTML = source ? '<strong>Source:</strong> ' + source : '';
+  document.getElementById('npNotes').value = notes || '';
+  document.getElementById('npTags').value  = tags  || '';
+  document.getElementById('notesPanel').classList.add('open');
+  document.getElementById('panelBackdrop').style.display = '';
+}
+function closeNotes() {
+  document.getElementById('notesPanel').classList.remove('open');
+  document.getElementById('panelBackdrop').style.display = 'none';
+  _activeLead = null;
+}
+function saveTags() {
+  if (!_activeLead) return;
+  var tags = document.getElementById('npTags').value;
+  fetch('/dashboard/leads/' + _activeLead + '/tags', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tags: tags })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.ok) {
+      // Refresh tag chips in kanban card
+      var card = document.getElementById('card-' + _activeLead);
+      if (card) {
+        var tagWrap = card.querySelector('.k-card-tags');
+        if (!tagWrap) { tagWrap = document.createElement('div'); tagWrap.className = 'k-card-tags'; card.insertBefore(tagWrap, card.querySelector('.k-card-actions')); }
+        tagWrap.innerHTML = tags.split(',').filter(function(t){return t.trim();}).map(function(t){return '<span class="k-tag">'+t.trim()+'</span>';}).join('');
+      }
+      showToast('Tags saved');
+    }
+  });
+}
+function saveNotes() {
+  if (!_activeLead) return;
+  var notes = document.getElementById('npNotes').value;
+  fetch('/dashboard/leads/' + _activeLead + '/notes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ notes: notes })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.ok) showToast('Notes saved');
+  });
+}
+
+// ── Stage update (table dropdown) ────────────────────────────────────────────
+function updateStage(id, stage) {
+  fetch('/dashboard/leads/' + id + '/stage', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ stage: stage })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.ok) showToast('Stage updated');
+  });
+}
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+function deleteLead(id, btn) {
+  if (!confirm('Delete this lead?')) return;
+  fetch('/dashboard/leads/' + id, { method: 'DELETE' })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.ok) {
+        var card = document.getElementById('card-' + id);
+        if (card) card.remove();
+        var row = document.getElementById('row-' + id);
+        if (row) row.remove();
+        showToast('Lead deleted');
+      }
+    });
+}
+
+// ── Kanban drag & drop ────────────────────────────────────────────────────────
+var _dragId = null;
+
+document.querySelectorAll('.k-card').forEach(function(card) {
+  card.addEventListener('dragstart', function(e) {
+    _dragId = this.dataset.id;
+    setTimeout(function() { card.classList.add('dragging'); }, 0);
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  card.addEventListener('dragend', function() {
+    card.classList.remove('dragging');
+  });
+});
+
+document.querySelectorAll('.k-drop-zone').forEach(function(zone) {
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    zone.classList.add('drag-over');
+  });
+  zone.addEventListener('dragleave', function() {
+    zone.classList.remove('drag-over');
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    var newStage = zone.dataset.stage;
+    var card = document.getElementById('card-' + _dragId);
+    if (!card || card.dataset.stage === newStage) return;
+
+    // Move card in DOM
+    zone.insertBefore(card, zone.firstChild);
+    card.dataset.stage = newStage;
+
+    // Update count badges
+    updateColCount();
+
+    // Persist to server
+    fetch('/dashboard/leads/' + _dragId + '/stage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage: newStage })
+    }).then(function(r){ return r.json(); }).then(function(d) {
+      if (d.ok) showToast('Moved to ' + newStage);
+    });
+  });
+});
+
+function updateColCount() {
+  document.querySelectorAll('.k-col').forEach(function(col) {
+    var stage = col.dataset.stage;
+    var count = col.querySelectorAll('.k-card').length;
+    var badge = col.querySelector('.k-count');
+    if (badge) badge.textContent = count;
+  });
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:9999;transition:opacity .3s;';
+  document.body.appendChild(t);
+  setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 300); }, 2000);
+}
+</script>
+{% endblock %}

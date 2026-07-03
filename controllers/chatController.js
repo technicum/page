@@ -1,5 +1,6 @@
 const crypto = require('crypto')
 const { db } = require('../config/db')
+const { captureLead } = require('./leadsController')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function makeToken() {
@@ -47,6 +48,16 @@ exports.startSession = async (req, res) => {
     'INSERT INTO ms_chat_messages (session_id, sender, message) VALUES (?,?,?)',
     [sessionId, 'vendor', welcome]
   )
+
+  // Auto-capture lead from chat session
+  captureLead({
+    siteId:   siteId,
+    name:     visitor_name  || null,
+    email:    visitor_email || null,
+    phone:    visitor_phone || null,
+    source:   'chat',
+    sourceId: sessionId
+  })
 
   res.json({ ok: true, session_id: sessionId, token })
 }

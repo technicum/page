@@ -2,6 +2,7 @@ const multer = require('multer')
 const path   = require('path')
 const fs     = require('fs')
 const { db } = require('../config/db')
+const { captureLead } = require('./leadsController')
 
 // ── File upload helpers ───────────────────────────────────────────────────────
 function formUploadDir(formId) {
@@ -252,10 +253,25 @@ exports.submit = async (req, res) => {
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || null
 
-  await db.execute(
+  const entryId = await db.lastId(
     'INSERT INTO ms_form_entries (form_id, data, ip) VALUES (?,?,?)',
     [formId, JSON.stringify(data), ip]
   )
+
+  // Auto-capture lead: look for name/email/phone in submitted fields
+  if (form.site_id) {
+    const nameField  = fields.find(f => /name/i.test(f.label))
+    const emailField = fields.find(f => /email/i.test(f.label))
+    const phoneField = fields.find(f => /phone|mobile/i.test(f.label))
+    captureLead({
+      siteId:   form.site_id,
+      name:     nameField  ? data[nameField.id]  : null,
+      email:    emailField ? data[emailField.id] : null,
+      phone:    phoneField ? data[phoneField.id] : null,
+      source:   'form',
+      sourceId: entryId
+    })
+  }
 
   return res.json({ ok: true, message: setting.success_message || 'Thank you for your submission!' })
 }

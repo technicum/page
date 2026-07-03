@@ -8,6 +8,7 @@ const blog        = require('../controllers/blogController')
 const media       = require('../controllers/mediaController')
 const form        = require('../controllers/formController')
 const chat        = require('../controllers/chatController')
+const leads       = require('../controllers/leadsController')
 const { requireAuth, redirectIfAuth, requireAdmin } = require('../middleware/auth')
 const admin   = require('../controllers/adminController')
 const review  = require('../controllers/reviewController')
@@ -244,6 +245,14 @@ router.get ('/api/chat/settings/:siteId', chat.widgetSettings)
 router.post('/api/chat/session',          chat.startSession)
 router.post('/api/chat/message',          chat.visitorSend)
 router.get ('/api/chat/poll',             chat.visitorPoll)
+
+// ── Leads CRM ─────────────────────────────────────────────────────────────────
+router.get   ('/dashboard/leads',              requireAuth, leads.index)
+router.post  ('/dashboard/leads',              requireAuth, leads.create)
+router.post  ('/dashboard/leads/:id/stage',    requireAuth, leads.updateStage)
+router.post  ('/dashboard/leads/:id/tags',     requireAuth, leads.updateTags)
+router.post  ('/dashboard/leads/:id/notes',    requireAuth, leads.updateNotes)
+router.delete('/dashboard/leads/:id',          requireAuth, leads.destroy)
 
 // ── Chat — dashboard (auth required) ─────────────────────────────────────────
 router.get ('/dashboard/chat',                        requireAuth, chat.inbox)
