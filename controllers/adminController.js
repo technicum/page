@@ -357,3 +357,24 @@ exports.stopImpersonation = (req, res) => {
   }
   res.redirect('/admin/users')
 }
+
+// ── Change user password ──────────────────────────────────────────────────────
+exports.changePassword = async (req, res) => {
+  const targetId   = parseInt(req.body.user_id) || 0
+  const { password } = req.body
+
+  if (!password || password.length < 6) {
+    req.flash('errors', ['Password must be at least 6 characters.'])
+    return res.redirect('/admin/users')
+  }
+
+  const target = await db.first('SELECT id FROM ms_accounts WHERE id = ?', [targetId])
+  if (!target) return res.redirect('/admin/users')
+
+  const bcrypt = require('bcrypt')
+  const hash   = await bcrypt.hash(password, 10)
+  await db.execute('UPDATE ms_accounts SET password = ? WHERE id = ?', [hash, targetId])
+
+  req.flash('success', 'Password updated.')
+  res.redirect('/admin/users')
+}

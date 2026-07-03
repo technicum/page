@@ -32,6 +32,12 @@ body{background:var(--off);}
 .you-tag{font-size:11px;color:var(--ink-faint);margin-left:6px;}
 .badge-suspended{display:inline-block;background:#fef2f2;color:#dc2626;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;}
 .actions-wrap{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.btn-chpw{background:#f5f3ff;color:#7c3aed;}
+.chpw-box{display:none;margin-top:8px;padding:10px;background:var(--off);border:1px solid var(--border);border-radius:8px;}
+.chpw-box.open{display:block;}
+.chpw-box input{padding:7px 10px;border:1px solid var(--border-md);border-radius:6px;font-size:13px;font-family:inherit;width:160px;outline:none;}
+.chpw-box input:focus{border-color:var(--blue);}
+.chpw-box button{padding:7px 12px;background:var(--ink);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;margin-left:6px;}
 </style>
 {% endblock %}
 {% block body %}
@@ -125,6 +131,14 @@ body{background:var(--off);}
                 <input type="hidden" name="user_id" value="{{ u.id }}">
                 <button type="submit" class="btn-sm btn-login-as">👤 Login As</button>
               </form>
+              <button class="btn-sm btn-chpw" type="button" onclick="toggleChpw({{ u.id }})">🔑 Change PW</button>
+            </div>
+            <div class="chpw-box" id="chpw_{{ u.id }}">
+              <form method="POST" action="/admin/users/change-password" style="display:flex;align-items:center;gap:0;">
+                <input type="hidden" name="user_id" value="{{ u.id }}">
+                <input type="password" name="password" placeholder="New password" required minlength="6">
+                <button type="submit">Set</button>
+              </form>
             </div>
             {% endif %}
           </td>
@@ -134,4 +148,11 @@ body{background:var(--off);}
     </table>
   </main>
 </div>
+<script>
+function toggleChpw(id) {
+  const box = document.getElementById('chpw_' + id);
+  box.classList.toggle('open');
+  if (box.classList.contains('open')) box.querySelector('input[type=password]').focus();
+}
+</script>
 {% endblock %}

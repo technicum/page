@@ -226,6 +226,7 @@ router.get ('/admin/users',                  requireAuth, requireAdmin, admin.us
 router.post('/admin/users/toggle-admin',     requireAuth, requireAdmin, admin.toggleAdmin)
 router.post('/admin/users/toggle-suspend',   requireAuth, requireAdmin, admin.toggleSuspend)
 router.post('/admin/users/login-as',         requireAuth, requireAdmin, admin.loginAsUser)
+router.post('/admin/users/change-password',  requireAuth, requireAdmin, admin.changePassword)
 router.get ('/admin/stop-impersonation',     requireAuth, admin.stopImpersonation)
 router.get ('/admin/categories',             requireAuth, requireAdmin, admin.categories)
 router.post('/admin/categories/create',      requireAuth, requireAdmin, admin.createCategory)
