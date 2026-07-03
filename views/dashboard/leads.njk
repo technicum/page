@@ -91,6 +91,9 @@ tr:hover td{background:var(--off);}
 .notes-close-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink-muted);padding:4px;}
 .lead-info-row{font-size:13px;color:var(--ink-muted);margin-bottom:4px;}
 .lead-info-row strong{color:var(--ink);}
+.import-src-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1.5px solid var(--border-md);border-radius:10px;background:var(--white);cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:all .15s;}
+.import-src-btn:hover{border-color:var(--blue);background:var(--blue-light);}
+.import-src-btn:disabled{opacity:.5;cursor:not-allowed;}
 </style>
 {% endblock %}
 {% block body %}
@@ -100,7 +103,10 @@ tr:hover td{background:var(--off);}
   <main class="main">
     <div class="page-header">
       <h1>🎯 Leads CRM</h1>
-      <button class="btn-primary" onclick="openAddModal()">+ Add Lead</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-primary" style="background:var(--white);color:var(--ink);border:1.5px solid var(--border-md);" onclick="openImportModal()">⬇ Import</button>
+        <button class="btn-primary" onclick="openAddModal()">+ Add Lead</button>
+      </div>
     </div>
 
     {# ── Filters ── #}
@@ -254,6 +260,41 @@ tr:hover td{background:var(--off);}
       {% endif %}
     </div>
   </main>
+</div>
+
+{# ── Import Modal ── #}
+<div class="modal-overlay" id="importModal">
+  <div class="modal" style="max-width:400px;">
+    <h2>⬇ Import Leads</h2>
+    <p style="font-size:13px;color:var(--ink-muted);margin-bottom:20px;">Import existing records into your Leads CRM. Duplicates are automatically skipped.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;" id="importOptions">
+      <button class="import-src-btn" onclick="runImport('form')">
+        <span style="font-size:20px;">📋</span>
+        <div>
+          <div style="font-weight:600;font-size:14px;">Form Submissions</div>
+          <div style="font-size:12px;color:var(--ink-muted);">Import leads from all form entries</div>
+        </div>
+      </button>
+      <button class="import-src-btn" onclick="runImport('booking')">
+        <span style="font-size:20px;">📅</span>
+        <div>
+          <div style="font-weight:600;font-size:14px;">Bookings</div>
+          <div style="font-size:12px;color:var(--ink-muted);">Import leads from booking requests</div>
+        </div>
+      </button>
+      <button class="import-src-btn" onclick="runImport('chat')">
+        <span style="font-size:20px;">💬</span>
+        <div>
+          <div style="font-weight:600;font-size:14px;">Chat Sessions</div>
+          <div style="font-size:12px;color:var(--ink-muted);">Import leads from chat conversations</div>
+        </div>
+      </button>
+    </div>
+    <div id="importResult" style="display:none;padding:14px;border-radius:10px;background:var(--off);font-size:14px;text-align:center;margin-top:16px;"></div>
+    <div class="modal-footer" style="margin-top:16px;">
+      <button class="btn-ghost" onclick="closeImportModal()">Close</button>
+    </div>
+  </div>
 </div>
 
 {# ── Add Lead Modal ── #}
@@ -491,6 +532,42 @@ function updateColCount() {
     var count = col.querySelectorAll('.k-card').length;
     var badge = col.querySelector('.k-count');
     if (badge) badge.textContent = count;
+  });
+}
+
+// ── Import modal ──────────────────────────────────────────────────────────────
+function openImportModal() {
+  document.getElementById('importResult').style.display = 'none';
+  document.querySelectorAll('.import-src-btn').forEach(function(b){ b.disabled = false; });
+  document.getElementById('importModal').classList.add('open');
+}
+function closeImportModal() { document.getElementById('importModal').classList.remove('open'); }
+document.getElementById('importModal').addEventListener('click', function(e) {
+  if (e.target === this) closeImportModal();
+});
+function runImport(source) {
+  document.querySelectorAll('.import-src-btn').forEach(function(b){ b.disabled = true; });
+  var result = document.getElementById('importResult');
+  result.style.display = '';
+  result.textContent = 'Importing…';
+  fetch('/dashboard/leads/import', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source: source })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.ok) {
+      result.textContent = d.imported > 0
+        ? '✅ Imported ' + d.imported + ' new lead' + (d.imported === 1 ? '' : 's') + ' from ' + source + '!'
+        : '✓ No new leads found — all already imported.';
+      if (d.imported > 0) setTimeout(function(){ window.location.reload(); }, 1500);
+      else document.querySelectorAll('.import-src-btn').forEach(function(b){ b.disabled = false; });
+    } else {
+      result.textContent = '❌ Error: ' + (d.error || 'Something went wrong.');
+      document.querySelectorAll('.import-src-btn').forEach(function(b){ b.disabled = false; });
+    }
+  }).catch(function() {
+    result.textContent = '❌ Request failed.';
+    document.querySelectorAll('.import-src-btn').forEach(function(b){ b.disabled = false; });
   });
 }
 
