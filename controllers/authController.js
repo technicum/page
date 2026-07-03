@@ -121,7 +121,8 @@ exports.sendResetLink = async (req, res) => {
   const appUrl  = process.env.APP_URL || 'https://pagezaper.com'
   const link    = `${appUrl}/reset-password/${token}`
 
-  await sendMail({
+  // Fire and forget — don't await so SMTP timeout never hangs the response
+  sendMail({
     to:      email,
     subject: 'Reset your PageZaper password',
     html: `
@@ -132,7 +133,7 @@ exports.sendResetLink = async (req, res) => {
         <p style="color:#999;font-size:12px;margin-top:24px;">If you didn't request this, you can safely ignore this email.</p>
       </div>
     `
-  }).catch(() => {}) // silent fail — don't reveal SMTP errors to user
+  })
 
   ok()
 }
