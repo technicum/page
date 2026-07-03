@@ -196,7 +196,13 @@ self.addEventListener('fetch',function(e){});`)
     // If site is unpublished, only block from search but still serve
     let siteForms = {}
     try { siteForms = await loadFormsForAccount(site.account_id) } catch(e) { /* table may not exist yet */ }
-    const html = await themeManager.render(slug, site, settings, pageId, siteForms)
+    let html = await themeManager.render(slug, site, settings, pageId, siteForms)
+
+    // ── Inject chat widget ────────────────────────────────────────────────────
+    const appUrl = process.env.APP_URL || 'https://pagezaper.com'
+    const chatSnippet = `<script>window.PZ_CHAT_SITE_ID=${site.id};window.PZ_APP_URL="${appUrl}";<\/script><script src="${appUrl}/js/pz-chat.js" defer><\/script>`
+    html = html.replace('</body>', chatSnippet + '</body>')
+
     res.send(html)
 
   } catch (err) {

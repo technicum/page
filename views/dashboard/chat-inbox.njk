@@ -1,0 +1,118 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{background:var(--off);}
+.layout{display:flex;min-height:100vh;}
+.main{flex:1;padding:32px 40px;overflow-y:auto;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:12px;}
+.page-header h1{font-size:22px;font-weight:700;}
+.tabs{display:flex;gap:4px;background:var(--border);border-radius:8px;padding:3px;}
+.tab{padding:6px 16px;border-radius:6px;font-size:13px;font-weight:500;color:var(--ink-muted);cursor:pointer;text-decoration:none;transition:all .15s;}
+.tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+.sessions{display:flex;flex-direction:column;gap:10px;}
+.session-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none;color:inherit;transition:box-shadow .15s;}
+.session-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.08);}
+.session-card.unread{border-color:#dbeafe;background:#eff6ff;}
+.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#60a5fa);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;}
+.session-info{flex:1;min-width:0;}
+.session-name{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;}
+.session-meta{font-size:12px;color:var(--ink-muted);margin-top:2px;}
+.session-preview{font-size:13px;color:var(--ink-muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.unread-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;}
+.badge-count{background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:4px;}
+.session-time{font-size:12px;color:var(--ink-faint);flex-shrink:0;}
+.empty{text-align:center;padding:60px 20px;color:var(--ink-muted);}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.btn-settings{padding:8px 16px;background:var(--ink);color:#fff;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none;}
+.site-badge{font-size:11px;background:var(--off);border:1px solid var(--border);border-radius:5px;padding:2px 7px;color:var(--ink-muted);}
+</style>
+{% endblock %}
+{% block body %}
+{% include "dashboard/_sidebar.njk" %}
+<div class="layout">
+  {% include "dashboard/_chat_sidebar.njk" ignore missing %}
+  <main class="main">
+    <div class="page-header">
+      <h1>💬 Chat Inbox
+        {% if unreadTotal > 0 %}<span class="badge-count">{{ unreadTotal }}</span>{% endif %}
+      </h1>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="tabs">
+          <a class="tab {% if filter == 'open' %}active{% endif %}" href="/dashboard/chat?status=open">Open</a>
+          <a class="tab {% if filter == 'closed' %}active{% endif %}" href="/dashboard/chat?status=closed">Closed</a>
+        </div>
+        <a class="btn-settings" href="/dashboard/chat/settings">⚙️ Settings</a>
+      </div>
+    </div>
+
+    {% if sessions and sessions.length %}
+    <div class="sessions" id="sessionList">
+      {% for s in sessions %}
+      <a class="session-card {% if s.unread_count > 0 %}unread{% endif %}" href="/dashboard/chat/{{ s.id }}">
+        <div class="avatar">{{ (s.visitor_name or 'V')[0] | upper }}</div>
+        <div class="session-info">
+          <div class="session-name">
+            {{ s.visitor_name or 'Visitor' }}
+            {% if s.unread_count > 0 %}<span class="badge-count">{{ s.unread_count }} new</span>{% endif %}
+            <span class="site-badge">{{ s.site_title }}</span>
+          </div>
+          <div class="session-meta">
+            {% if s.visitor_email %}{{ s.visitor_email }}{% endif %}
+            {% if s.visitor_phone %} · {{ s.visitor_phone }}{% endif %}
+          </div>
+          <div class="session-preview">{{ s.last_message or '—' }}</div>
+        </div>
+        <div class="session-time">{{ s.last_message_at or s.created_at | string | truncate(16, true, '') }}</div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+      <div class="empty-icon">💬</div>
+      <p>No {{ filter }} conversations yet.</p>
+      {% if filter == 'open' %}
+      <p style="margin-top:8px;font-size:13px;">Enable chat on your site from <a href="/dashboard/chat/settings" style="color:var(--blue);">Chat Settings</a>.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </main>
+</div>
+
+<script>
+var lastId = {{ (sessions[0].id if sessions and sessions.length else 0) }};
+var lastUnread = {{ unreadTotal }};
+
+function playNotif() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var o = ctx.createOscillator();
+    var g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.3, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+setInterval(function() {
+  fetch('/dashboard/chat/poll?after=' + lastId)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (!data.ok) return;
+      if (data.total_unread > lastUnread) {
+        playNotif();
+        lastUnread = data.total_unread;
+      }
+      if (data.sessions && data.sessions.length) {
+        data.sessions.forEach(function(s) {
+          if (s.id > lastId) lastId = s.id;
+        });
+        // Reload to show new sessions
+        window.location.reload();
+      }
+    }).catch(function(){});
+}, 8000);
+</script>
+{% endblock %}

@@ -7,6 +7,7 @@ const site        = require('../controllers/siteController')
 const blog        = require('../controllers/blogController')
 const media       = require('../controllers/mediaController')
 const form        = require('../controllers/formController')
+const chat        = require('../controllers/chatController')
 const { requireAuth, redirectIfAuth, requireAdmin } = require('../middleware/auth')
 const admin   = require('../controllers/adminController')
 const review  = require('../controllers/reviewController')
@@ -237,6 +238,22 @@ router.get ('/admin/aliases',                requireAuth, requireAdmin, admin.al
 router.post('/admin/aliases/create',         requireAuth, requireAdmin, admin.createAlias)
 router.post('/admin/aliases/update',         requireAuth, requireAdmin, admin.updateAlias)
 router.post('/admin/aliases/delete',         requireAuth, requireAdmin, admin.deleteAlias)
+
+// ── Chat — public API (no auth) ───────────────────────────────────────────────
+router.get ('/api/chat/settings/:siteId', chat.widgetSettings)
+router.post('/api/chat/session',          chat.startSession)
+router.post('/api/chat/message',          chat.visitorSend)
+router.get ('/api/chat/poll',             chat.visitorPoll)
+
+// ── Chat — dashboard (auth required) ─────────────────────────────────────────
+router.get ('/dashboard/chat',                        requireAuth, chat.inbox)
+router.get ('/dashboard/chat/poll',                   requireAuth, chat.inboxPoll)
+router.get ('/dashboard/chat/settings',               requireAuth, chat.settings)
+router.post('/dashboard/chat/settings',               requireAuth, chat.saveSettings)
+router.get ('/dashboard/chat/:sessionId',             requireAuth, chat.conversation)
+router.get ('/dashboard/chat/:sessionId/poll',        requireAuth, chat.conversationPoll)
+router.post('/dashboard/chat/:sessionId/send',        requireAuth, chat.vendorSend)
+router.post('/dashboard/chat/:sessionId/status',      requireAuth, chat.setStatus)
 
 // ── Alias landing pages (must be before /:city) ───────────────────────────────
 router.get('/:city/:alias', home.aliasPage)

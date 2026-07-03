@@ -1,0 +1,224 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{background:var(--off);}
+.layout{display:flex;min-height:100vh;}
+.chat-layout{display:flex;flex:1;height:100vh;overflow:hidden;}
+.chat-main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.chat-header{padding:16px 24px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.chat-header-back{font-size:13px;color:var(--ink-muted);text-decoration:none;margin-right:4px;}
+.chat-header-back:hover{color:var(--ink);}
+.chat-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#60a5fa);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;}
+.chat-header-info{flex:1;}
+.chat-header-name{font-weight:700;font-size:15px;}
+.chat-header-meta{font-size:12px;color:var(--ink-muted);margin-top:1px;}
+.chat-header-actions{display:flex;gap:8px;}
+.btn-close-chat{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;}
+.btn-close-chat.close{background:var(--red-light);color:var(--red);}
+.btn-close-chat.open{background:var(--green-light);color:var(--green);}
+.messages-wrap{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:10px;}
+.msg{display:flex;flex-direction:column;max-width:70%;}
+.msg.vendor{align-self:flex-end;align-items:flex-end;}
+.msg.visitor{align-self:flex-start;align-items:flex-start;}
+.msg-bubble{padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;word-break:break-word;}
+.msg.vendor .msg-bubble{background:var(--blue);color:#fff;border-bottom-right-radius:4px;}
+.msg.visitor .msg-bubble{background:#fff;border:1px solid var(--border);color:var(--ink);border-bottom-left-radius:4px;}
+.msg-time{font-size:11px;color:var(--ink-faint);margin-top:3px;padding:0 4px;}
+.chat-input-wrap{padding:16px 24px;background:#fff;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
+.chat-input{flex:1;padding:11px 14px;border:1.5px solid var(--border-md);border-radius:12px;font-size:14px;font-family:inherit;color:var(--ink);resize:none;outline:none;max-height:120px;min-height:44px;line-height:1.5;}
+.chat-input:focus{border-color:var(--blue);}
+.chat-send{padding:11px 20px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;flex-shrink:0;transition:opacity .15s;}
+.chat-send:hover{opacity:0.85;}
+.chat-send:disabled{opacity:0.5;cursor:not-allowed;}
+.visitor-info-panel{width:260px;background:#fff;border-left:1px solid var(--border);padding:20px;overflow-y:auto;flex-shrink:0;}
+.info-section{margin-bottom:20px;}
+.info-label{font-size:11px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.info-row{font-size:13px;color:var(--ink);margin-bottom:6px;word-break:break-all;}
+.info-muted{color:var(--ink-muted);}
+.status-badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.status-open{background:var(--green-light);color:var(--green);}
+.status-closed{background:var(--red-light);color:var(--red);}
+.closed-notice{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--ink-muted);text-align:center;}
+</style>
+{% endblock %}
+{% block body %}
+<div class="chat-layout">
+  <div class="chat-main">
+    <div class="chat-header">
+      <a class="chat-header-back" href="/dashboard/chat">← Inbox</a>
+      <div class="chat-avatar">{{ (session.visitor_name or 'V')[0] | upper }}</div>
+      <div class="chat-header-info">
+        <div class="chat-header-name">{{ session.visitor_name or 'Visitor' }}</div>
+        <div class="chat-header-meta">
+          {{ session.site_title }} ·
+          <span class="status-badge status-{{ session.status }}" id="statusBadge">{{ session.status }}</span>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        {% if session.status == 'open' %}
+        <button class="btn-close-chat close" onclick="setStatus('closed')">✕ Close Chat</button>
+        {% else %}
+        <button class="btn-close-chat open" onclick="setStatus('open')">↩ Reopen</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="messages-wrap" id="messagesWrap">
+      {% for m in messages %}
+      <div class="msg {{ m.sender }}" id="msg-{{ m.id }}">
+        <div class="msg-bubble">{{ m.message }}</div>
+        <div class="msg-time">{{ m.created_at | string | truncate(16, true, '') }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if session.status == 'closed' %}
+    <div style="padding:12px 24px;">
+      <div class="closed-notice">🔒 This conversation is closed. Reopen it to send messages.</div>
+    </div>
+    {% else %}
+    <div class="chat-input-wrap">
+      <textarea class="chat-input" id="chatInput" placeholder="Type a message… (Enter to send, Shift+Enter for new line)" rows="1"></textarea>
+      <button class="chat-send" id="sendBtn" onclick="sendMessage()">Send</button>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="visitor-info-panel">
+    <div class="info-section">
+      <div class="info-label">Visitor</div>
+      <div class="info-row">{{ session.visitor_name or '—' }}</div>
+      {% if session.visitor_email %}
+      <div class="info-row"><span class="info-muted">📧</span> {{ session.visitor_email }}</div>
+      {% endif %}
+      {% if session.visitor_phone %}
+      <div class="info-row"><span class="info-muted">📞</span> {{ session.visitor_phone }}</div>
+      {% endif %}
+    </div>
+    <div class="info-section">
+      <div class="info-label">Site</div>
+      <div class="info-row">{{ session.site_title }}</div>
+      <div class="info-row info-muted">{{ session.subdomain }}.pagezaper.com</div>
+    </div>
+    <div class="info-section">
+      <div class="info-label">Started</div>
+      <div class="info-row info-muted">{{ session.created_at | string | truncate(19, true, '') }}</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var SESSION_ID = {{ session.id }};
+var lastMsgId  = {{ (messages[-1].id if messages and messages.length else 0) }};
+var isClosed   = {{ 'true' if session.status == 'closed' else 'false' }};
+
+function scrollBottom() {
+  var w = document.getElementById('messagesWrap');
+  if (w) w.scrollTop = w.scrollHeight;
+}
+scrollBottom();
+
+function playNotif() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var o = ctx.createOscillator();
+    var g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.3, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+function formatTime(dt) {
+  return dt ? dt.slice(0, 16).replace('T', ' ') : '';
+}
+
+function appendMessage(m) {
+  var wrap = document.getElementById('messagesWrap');
+  var div  = document.createElement('div');
+  div.className = 'msg ' + m.sender;
+  div.id = 'msg-' + m.id;
+  div.innerHTML = '<div class="msg-bubble">' + escHtml(m.message) + '</div>'
+                + '<div class="msg-time">' + formatTime(m.created_at) + '</div>';
+  wrap.appendChild(div);
+  scrollBottom();
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Poll for new messages
+setInterval(function() {
+  if (isClosed) return;
+  fetch('/dashboard/chat/' + SESSION_ID + '/poll?after=' + lastMsgId)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (!data.ok) return;
+      if (data.messages && data.messages.length) {
+        data.messages.forEach(function(m) {
+          if (!document.getElementById('msg-' + m.id)) {
+            appendMessage(m);
+            if (m.sender === 'visitor') playNotif();
+          }
+          if (m.id > lastMsgId) lastMsgId = m.id;
+        });
+      }
+      if (data.status === 'closed' && !isClosed) {
+        isClosed = true;
+        window.location.reload();
+      }
+    }).catch(function(){});
+}, 3000);
+
+// Send message
+function sendMessage() {
+  var input = document.getElementById('chatInput');
+  var msg   = (input ? input.value : '').trim();
+  if (!msg) return;
+  var btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  fetch('/dashboard/chat/' + SESSION_ID + '/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: msg })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (data.ok) {
+      appendMessage({ id: data.id, sender: 'vendor', message: msg, created_at: new Date().toISOString() });
+      if (lastMsgId < data.id) lastMsgId = data.id;
+      input.value = '';
+      input.style.height = 'auto';
+    }
+  })
+  .finally(function(){ btn.disabled = false; if(input) input.focus(); });
+}
+
+// Close / reopen
+function setStatus(status) {
+  fetch('/dashboard/chat/' + SESSION_ID + '/status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: status })
+  }).then(function(){ window.location.reload(); });
+}
+
+// Enter to send
+var input = document.getElementById('chatInput');
+if (input) {
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  input.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+}
+</script>
+{% endblock %}

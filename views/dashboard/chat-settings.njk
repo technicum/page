@@ -1,0 +1,126 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{background:var(--off);}
+.layout{display:flex;min-height:100vh;}
+.main{flex:1;padding:32px 40px;max-width:780px;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.page-header h1{font-size:22px;font-weight:700;}
+.back-link{font-size:13px;color:var(--ink-muted);text-decoration:none;}
+.back-link:hover{color:var(--ink);}
+.flash-ok{background:var(--green-light);border:1px solid #bbf7d0;color:var(--green);padding:12px 16px;border-radius:var(--radius);margin-bottom:20px;font-size:14px;}
+.site-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:20px;}
+.site-card h2{font-size:16px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.site-badge{font-size:12px;font-weight:500;background:var(--off);border:1px solid var(--border);padding:3px 10px;border-radius:20px;color:var(--ink-muted);}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--ink-muted);margin-bottom:6px;}
+.field input[type=text],.field textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border-md);border-radius:var(--radius);font-size:14px;font-family:inherit;color:var(--ink);outline:none;}
+.field input:focus,.field textarea:focus{border-color:var(--blue);}
+.field textarea{min-height:70px;resize:vertical;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.toggle-row:last-of-type{border-bottom:none;}
+.toggle-label{font-size:14px;font-weight:500;}
+.toggle-desc{font-size:12px;color:var(--ink-muted);margin-top:2px;}
+.toggle-sw{position:relative;width:42px;height:24px;flex-shrink:0;}
+.toggle-sw input{opacity:0;width:0;height:0;}
+.toggle-track{position:absolute;inset:0;background:#d1d5db;border-radius:24px;cursor:pointer;transition:background .2s;}
+.toggle-sw input:checked + .toggle-track{background:var(--blue);}
+.toggle-track:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;}
+.toggle-sw input:checked + .toggle-track:before{transform:translateX(18px);}
+.btn-save{padding:11px 24px;background:var(--ink);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;}
+.btn-save:hover{opacity:0.85;}
+.enabled-section{padding-top:20px;border-top:1px solid var(--border);margin-top:8px;}
+</style>
+{% endblock %}
+{% block body %}
+<div class="layout">
+  <main class="main">
+    <div class="page-header">
+      <h1>💬 Chat Settings</h1>
+      <a class="back-link" href="/dashboard/chat">← Back to Inbox</a>
+    </div>
+
+    {% if saved %}
+    <div class="flash-ok">✅ Settings saved.</div>
+    {% endif %}
+
+    {% if sites and sites.length %}
+      {% for site in sites %}
+      {% set cfg = cfgMap[site.id] %}
+      <div class="site-card">
+        <h2>{{ site.title }} <span class="site-badge">{{ site.subdomain }}.pagezaper.com</span></h2>
+        <form method="POST" action="/dashboard/chat/settings">
+          <input type="hidden" name="site_id" value="{{ site.id }}">
+
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Enable Chat Widget</div>
+              <div class="toggle-desc">Show a chat button on your site</div>
+            </div>
+            <label class="toggle-sw">
+              <input type="checkbox" name="enabled" value="1" {% if cfg and cfg.enabled %}checked{% endif %}
+                     onchange="toggleSection(this, 'enabled_{{ site.id }}')">
+              <div class="toggle-track"></div>
+            </label>
+          </div>
+
+          <div class="enabled-section" id="enabled_{{ site.id }}" style="{{ 'display:none' if not (cfg and cfg.enabled) else '' }}">
+            <div style="margin-bottom:16px;">
+              <div style="font-size:13px;font-weight:600;color:var(--ink-muted);margin-bottom:10px;">Pre-chat form fields</div>
+              <div class="toggle-row">
+                <div><div class="toggle-label">Name</div></div>
+                <label class="toggle-sw">
+                  <input type="checkbox" name="require_name" value="1" {% if not cfg or cfg.require_name %}checked{% endif %}>
+                  <div class="toggle-track"></div>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div><div class="toggle-label">Email</div></div>
+                <label class="toggle-sw">
+                  <input type="checkbox" name="require_email" value="1" {% if cfg and cfg.require_email %}checked{% endif %}>
+                  <div class="toggle-track"></div>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div><div class="toggle-label">Phone</div></div>
+                <label class="toggle-sw">
+                  <input type="checkbox" name="require_phone" value="1" {% if cfg and cfg.require_phone %}checked{% endif %}>
+                  <div class="toggle-track"></div>
+                </label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Welcome message</label>
+              <input type="text" name="welcome_message" value="{{ cfg.welcome_message if cfg else 'Hi! How can we help you today?' }}" placeholder="Hi! How can we help you today?">
+            </div>
+            <div class="field">
+              <label>Offline message</label>
+              <textarea name="offline_message" placeholder="We are currently offline...">{{ cfg.offline_message if cfg else "We are currently offline. Leave a message and we'll get back to you soon." }}</textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-save">Save Settings</button>
+        </form>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div style="text-align:center;padding:40px;color:var(--ink-muted);">
+      <p>You need to create a site first before configuring chat.</p>
+      <a href="/dashboard/wizard" style="color:var(--blue);font-weight:500;">Create your first site →</a>
+    </div>
+    {% endif %}
+  </main>
+</div>
+
+<script>
+function toggleSection(cb, sectionId) {
+  document.getElementById(sectionId).style.display = cb.checked ? '' : 'none';
+}
+
+// Check URL param for saved
+if (window.location.search.includes('saved=1')) {
+  history.replaceState(null, '', window.location.pathname);
+}
+</script>
+{% endblock %}
