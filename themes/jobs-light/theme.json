@@ -48,18 +48,20 @@
         { "id": "heading", "label": "Section Heading", "type": "text", "default": "Active openings" },
         { "id": "items", "label": "Jobs", "type": "repeater",
           "default": [
-            { "role": "BPO Executive", "company": "Cognizant", "location": "Hyderabad", "salary": "₹3–5 LPA", "type": "Fresher ok", "badge": "New", "url": "" },
-            { "role": "Sales Executive", "company": "ICICI Bank", "location": "Pune", "salary": "₹4–7 LPA", "type": "1–3 yrs", "badge": "", "url": "" },
-            { "role": "HR Recruiter", "company": "Wipro", "location": "Bengaluru", "salary": "₹5–8 LPA", "type": "Full-time", "badge": "", "url": "" }
+            { "role": "BPO Executive",  "company": "Cognizant", "location": "Hyderabad", "description": "Handle inbound/outbound calls for a US insurance client. Excellent communication skills required.", "salary": "₹3–5 LPA", "type": "Full-time", "exp": "Fresher ok", "badge": "New", "url": "" },
+            { "role": "Sales Executive","company": "ICICI Bank","location": "Pune",      "description": "Acquire new CASA customers and cross-sell liability products across assigned territory.", "salary": "₹4–7 LPA", "type": "Full-time", "exp": "1–3 yrs",    "badge": "", "url": "" },
+            { "role": "HR Recruiter",   "company": "Wipro",     "location": "Bengaluru", "description": "End-to-end recruitment for lateral and campus hiring across IT services business units.", "salary": "₹5–8 LPA", "type": "Full-time", "exp": "1–3 yrs",    "badge": "", "url": "" }
           ],
           "item_fields": [
-            { "id": "role",     "label": "Job Role / Title",            "type": "text", "default": "Job Title" },
-            { "id": "company",  "label": "Company Name",                "type": "text", "default": "Company" },
-            { "id": "location", "label": "Location",                    "type": "text", "default": "City" },
-            { "id": "salary",   "label": "Salary Range",                "type": "text", "default": "" },
-            { "id": "type",     "label": "Job Type / Experience",       "type": "text", "default": "Full-time" },
-            { "id": "badge",    "label": "Badge (New / Hot / Urgent)",  "type": "text", "default": "" },
-            { "id": "url",      "label": "Apply URL",                   "type": "text", "default": "" }
+            { "id": "role",        "label": "Job Role / Title",             "type": "text",     "default": "Job Title" },
+            { "id": "company",     "label": "Company Name",                 "type": "text",     "default": "Company" },
+            { "id": "location",    "label": "Location",                     "type": "text",     "default": "City" },
+            { "id": "description", "label": "Job Description (1-2 lines)",  "type": "textarea", "default": "" },
+            { "id": "salary",      "label": "Salary Range",                 "type": "text",     "default": "" },
+            { "id": "type",        "label": "Job Type (Full-time etc)",     "type": "text",     "default": "Full-time" },
+            { "id": "exp",         "label": "Experience Required",          "type": "text",     "default": "" },
+            { "id": "badge",       "label": "Badge (New / Hot / Urgent)",   "type": "text",     "default": "" },
+            { "id": "url",         "label": "Apply URL",                    "type": "text",     "default": "" }
           ]
         }
       ]

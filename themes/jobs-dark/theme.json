@@ -47,18 +47,20 @@
         { "id": "heading", "label": "Section Heading", "type": "text", "default": "Active openings" },
         { "id": "items", "label": "Jobs", "type": "repeater",
           "default": [
-            { "role": "Senior Relationship Manager", "company": "HDFC Bank", "location": "Mumbai", "salary": "₹8–12 LPA", "type": "Full-time", "badge": "New", "url": "" },
-            { "role": "BPO Team Leader",             "company": "Infosys BPM", "location": "Pune", "salary": "₹4–6 LPA", "type": "Full-time", "badge": "", "url": "" },
-            { "role": "React Developer",             "company": "TCS",         "location": "Bengaluru", "salary": "₹10–16 LPA", "type": "Remote", "badge": "", "url": "" }
+            { "role": "Senior Relationship Manager", "company": "HDFC Bank",   "location": "Mumbai",    "description": "Manage HNI client portfolios and drive liability business growth across the branch.", "salary": "₹8–12 LPA",  "type": "Full-time", "exp": "2–5 yrs", "badge": "New", "url": "" },
+            { "role": "BPO Team Leader",             "company": "Infosys BPM", "location": "Pune",      "description": "Lead a team of 15 agents, manage KPIs, and ensure SLA adherence for a UK banking client.", "salary": "₹4–6 LPA",  "type": "Full-time", "exp": "1–3 yrs", "badge": "", "url": "" },
+            { "role": "React Developer",             "company": "TCS",         "location": "Bengaluru", "description": "Build and maintain React-based dashboards for a global financial services platform.", "salary": "₹10–16 LPA", "type": "Remote",    "exp": "2–4 yrs", "badge": "", "url": "" }
           ],
           "item_fields": [
-            { "id": "role",     "label": "Job Role / Title",        "type": "text", "default": "Job Title" },
-            { "id": "company",  "label": "Company Name",            "type": "text", "default": "Company" },
-            { "id": "location", "label": "Location",                "type": "text", "default": "City" },
-            { "id": "salary",   "label": "Salary Range",            "type": "text", "default": "" },
-            { "id": "type",     "label": "Job Type (Full-time etc)","type": "text", "default": "Full-time" },
-            { "id": "badge",    "label": "Badge (New / Hot / Urgent)", "type": "text", "default": "" },
-            { "id": "url",      "label": "Apply URL",               "type": "text", "default": "" }
+            { "id": "role",        "label": "Job Role / Title",              "type": "text",     "default": "Job Title" },
+            { "id": "company",     "label": "Company Name",                  "type": "text",     "default": "Company" },
+            { "id": "location",    "label": "Location",                      "type": "text",     "default": "City" },
+            { "id": "description", "label": "Job Description (1-2 lines)",   "type": "textarea", "default": "" },
+            { "id": "salary",      "label": "Salary Range",                  "type": "text",     "default": "" },
+            { "id": "type",        "label": "Job Type (Full-time etc)",      "type": "text",     "default": "Full-time" },
+            { "id": "exp",         "label": "Experience Required",           "type": "text",     "default": "" },
+            { "id": "badge",       "label": "Badge (New / Hot / Urgent)",    "type": "text",     "default": "" },
+            { "id": "url",         "label": "Apply URL",                     "type": "text",     "default": "" }
           ]
         }
       ]

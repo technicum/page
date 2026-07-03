@@ -67,18 +67,19 @@
         { "id": "heading", "label": "Section Heading", "type": "text", "default": "Featured openings" },
         { "id": "items", "label": "Jobs", "type": "repeater",
           "default": [
-            { "role": "Customer Success Lead", "company": "Zepto", "location": "Bangalore", "salary": "₹7–11 LPA", "type": "Hybrid", "exp": "2+ yrs", "badge": "Hot", "url": "" },
-            { "role": "Operations Manager", "company": "Delhivery", "location": "Delhi", "salary": "₹9–14 LPA", "type": "Full-time", "exp": "3–6 yrs", "badge": "", "url": "" }
+            { "role": "Customer Success Lead", "company": "Zepto",     "location": "Bangalore", "description": "Own post-onboarding experience for dark store partners. Drive retention and upsell across the network.", "salary": "₹7–11 LPA",  "type": "Hybrid",    "exp": "2+ yrs", "badge": "Hot", "url": "" },
+            { "role": "Operations Manager",    "company": "Delhivery", "location": "Delhi",     "description": "Manage last-mile delivery operations for a high-volume hub. Team of 40+, P&L ownership.", "salary": "₹9–14 LPA",  "type": "Full-time", "exp": "3–6 yrs", "badge": "",    "url": "" }
           ],
           "item_fields": [
-            { "id": "role",     "label": "Job Role / Title",             "type": "text", "default": "Job Title" },
-            { "id": "company",  "label": "Company Name",                 "type": "text", "default": "Company" },
-            { "id": "location", "label": "Location",                     "type": "text", "default": "City" },
-            { "id": "salary",   "label": "Salary Range",                 "type": "text", "default": "" },
-            { "id": "type",     "label": "Work Type (Full-time etc)",    "type": "text", "default": "Full-time" },
-            { "id": "exp",      "label": "Experience Required",          "type": "text", "default": "" },
-            { "id": "badge",    "label": "Badge (Hot / New / Urgent)",   "type": "text", "default": "" },
-            { "id": "url",      "label": "Apply URL",                    "type": "text", "default": "" }
+            { "id": "role",        "label": "Job Role / Title",             "type": "text",     "default": "Job Title" },
+            { "id": "company",     "label": "Company Name",                 "type": "text",     "default": "Company" },
+            { "id": "location",    "label": "Location",                     "type": "text",     "default": "City" },
+            { "id": "description", "label": "Job Description (1-2 lines)",  "type": "textarea", "default": "" },
+            { "id": "salary",      "label": "Salary Range",                 "type": "text",     "default": "" },
+            { "id": "type",        "label": "Work Type (Full-time etc)",    "type": "text",     "default": "Full-time" },
+            { "id": "exp",         "label": "Experience Required",          "type": "text",     "default": "" },
+            { "id": "badge",       "label": "Badge (Hot / New / Urgent)",   "type": "text",     "default": "" },
+            { "id": "url",         "label": "Apply URL",                    "type": "text",     "default": "" }
           ]
         }
       ]

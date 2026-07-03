@@ -202,12 +202,20 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <button class="share-btn" onclick="pzShare()">
     <i class="ti ti-share" style="font-size:14px;"></i> Share this page
   </button>
+  <button class="share-btn" onclick="pzSaveToPhone()"><i class="ti ti-device-mobile-down" style="font-size:14px;"></i> Save to phone</button>
   <div class="share-toast" id="pzToast">✓ Link copied!</div>
+</div>
+<div id="pzIOSHint" style="display:none;text-align:center;padding:8px 16px 2px;">
+  <div style="display:inline-flex;align-items:flex-start;gap:10px;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:11px 15px;font-size:12px;color:#6b6b66;max-width:280px;text-align:left;line-height:1.5;">
+    <span style="font-size:18px;flex-shrink:0;margin-top:1px;">📲</span>
+    <span>Tap <strong style="color:#1a1a18;">Share</strong> <svg style="display:inline;vertical-align:middle;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a1a18" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> in Safari, then tap <strong style="color:#1a1a18;">"Add to Home Screen"</strong></span>
+  </div>
 </div>
 
 </div>
 <script>
 function pzShare(){var u=location.href;if(navigator.share){navigator.share({title:document.title,url:u});}else{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
+(function(){var _dp=null;var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;if(window.navigator.standalone===true)return;if(navigator.serviceWorker){navigator.serviceWorker.register('/sw.js').catch(function(){});}window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_dp=e;});window.addEventListener('appinstalled',function(){_dp=null;});window.pzSaveToPhone=function(){if(_dp){_dp.prompt();_dp.userChoice.then(function(){_dp=null;});}else if(isIOS){var h=document.getElementById('pzIOSHint');if(h)h.style.display=h.style.display==='none'?'':'none';}else{var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:flex-end;justify-content:center;';o.innerHTML='<div style="background:#fff;border-radius:16px 16px 0 0;padding:24px;max-width:480px;width:100%;text-align:center;"><div style="font-size:15px;font-weight:600;margin-bottom:12px;">Save to your phone</div><div style="font-size:14px;color:#6b6b66;line-height:1.6;">Tap the <strong>⋮ menu</strong> at the top right, then tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></div><button onclick="this.parentElement.parentElement.remove()" style="margin-top:16px;padding:10px 24px;background:var(--ac,#2563eb);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Got it</button></div>';document.body.appendChild(o);o.addEventListener('click',function(e){if(e.target===o)o.remove();});}};})();
 </script>
 </body>
 </html>

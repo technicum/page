@@ -54,26 +54,40 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .cat-count{font-size:9px;color:var(--muted);margin-top:1px;}
 .cat-item.highlight .cat-name{color:#fff;}
 .cat-item.highlight .cat-count{color:rgba(255,255,255,0.65);}
-.cat-item:nth-child(1){animation:slideL .3s .55s both;}
-.cat-item:nth-child(2){animation:slideR .3s .6s both;}
-.cat-item:nth-child(3){animation:slideL .3s .65s both;}
-.cat-item:nth-child(4){animation:slideR .3s .7s both;}
 
-/* Featured job card */
-.job{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;text-decoration:none;display:block;transition:border-color .2s,transform .15s;}
-.job:hover{border-color:rgba(255,255,255,0.18);transform:translateY(-1px);}
-.job-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
-.job-role{font-size:13px;font-weight:500;color:var(--ink);}
-.job-company{font-size:11px;color:var(--muted);margin-top:2px;}
-.job-badge{font-size:9px;padding:2px 7px;border-radius:5px;flex-shrink:0;font-weight:600;}
-.badge-hot{background:var(--ac-faint);color:var(--ac);border:1px solid var(--ac-border);}
-.badge-new{background:rgba(34,197,94,0.12);color:#22C55E;border:1px solid rgba(34,197,94,0.2);}
-.badge-urgent{background:rgba(234,179,8,0.12);color:#FBBF24;border:1px solid rgba(234,179,8,0.2);}
-.job-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
-.job-tag{background:#27272A;color:var(--sub);font-size:10px;padding:2px 8px;border-radius:5px;}
-.apply-btn{display:block;background:var(--ac);color:#fff;font-size:11px;font-weight:600;padding:7px;border-radius:7px;text-align:center;margin-top:10px;}
-.job:nth-child(1){animation:slideL .35s .72s both;}
-.job:nth-child(2){animation:slideR .35s .8s both;}
+/* ── Accordion (shop style adapted dark) ── */
+.pz-sections{width:100%;padding:0 16px;margin:12px 0 4px;}
+.pz-sec{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s;}
+.pz-sec.open{border-color:var(--ac);}
+.pz-sec-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none;}
+.pz-sec-icon{width:40px;height:40px;border-radius:12px;background:var(--ac-faint);border:1px solid var(--ac-border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.pz-sec-meta{flex:1;min-width:0;}
+.pz-sec-title{font-size:14px;font-weight:600;color:var(--ink);line-height:1.2;}
+.pz-sec-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.pz-sec-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.pz-count{font-size:11px;font-weight:700;background:#27272A;border:1px solid var(--border);color:var(--muted);padding:3px 9px;border-radius:20px;}
+.pz-sec.open .pz-count{background:var(--ac);border-color:var(--ac);color:#fff;}
+.pz-chevron{color:var(--muted);transition:transform .3s;}
+.pz-sec.open .pz-chevron{transform:rotate(180deg);color:var(--ac);}
+.pz-sec-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.pz-sec.open .pz-sec-body{max-height:4000px;}
+.pz-sec-inner{padding:4px 14px 14px;}
+
+/* ── Job grid (2-col like product grid) ── */
+.jobs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.job-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s,transform .15s;}
+.job-card:hover{border-color:var(--ac);transform:translateY(-2px);}
+.job-icon{width:100%;aspect-ratio:1;background:var(--ac-faint);display:flex;align-items:center;justify-content:center;font-size:32px;border-bottom:1px solid var(--border);}
+.job-info{padding:10px 10px 12px;}
+.job-role{font-size:12px;font-weight:600;color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.job-company{font-size:10px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.job-salary{font-size:13px;font-weight:700;color:var(--ac);margin:6px 0 8px;}
+.job-btn{display:block;width:100%;text-align:center;background:var(--ac);color:#fff;font-size:11px;font-weight:600;padding:7px 8px;border-radius:8px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+.job-btn:hover{opacity:.88;}
+.job-btn.wa{background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.22);color:#22C55E;margin-top:5px;}
+.job-btn.wa:hover{background:rgba(37,211,102,0.15);}
+.job-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;}
+.job-tag{background:#27272A;color:var(--sub);font-size:9px;padding:1px 6px;border-radius:4px;}
 
 /* Quick links */
 .q-link{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:7px;text-decoration:none;transition:border-color .2s;}
@@ -85,7 +99,7 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .q-arr{color:var(--muted);}
 
 /* WhatsApp */
-.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:12px;background:rgba(37,211,102,0.08);border:1.5px solid rgba(37,211,102,0.22);color:#22C55E;font-size:14px;font-weight:600;text-decoration:none;transition:background .2s;animation:fadeUp .4s 1s both;}
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:12px;background:rgba(37,211,102,0.08);border:1.5px solid rgba(37,211,102,0.22);color:#22C55E;font-size:14px;font-weight:600;text-decoration:none;transition:background .2s;}
 .wa-btn:hover{background:rgba(37,211,102,0.15);}
 
 /* Contact */
@@ -93,13 +107,13 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .contact-row i{font-size:15px;color:var(--ac);flex-shrink:0;}
 
 /* Socials */
-.socials{display:flex;gap:10px;margin-top:20px;justify-content:center;animation:fadeUp .4s 1.1s both;}
+.socials{display:flex;gap:10px;margin-top:20px;justify-content:center;}
 .soc-ic{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;text-decoration:none;transition:border-color .2s,transform .15s;}
 .soc-ic:hover{border-color:var(--ac);transform:scale(1.08);}
 .soc-ic i{font-size:17px;color:var(--muted);}
 
 /* Share */
-.share-wrap{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeUp .4s 1.2s both;}
+.share-wrap{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:6px;}
 .share-btn{background:transparent;border:1px solid var(--border);color:var(--sub);padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:border-color .2s;}
 .share-btn:hover{border-color:rgba(255,255,255,0.2);}
 .share-toast{font-size:12px;color:var(--ac);opacity:0;transition:opacity .3s;}
@@ -107,8 +121,6 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 @keyframes popIn{0%{transform:scale(.2);opacity:0;}65%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-@keyframes slideL{from{opacity:0;transform:translateX(-24px);}to{opacity:1;transform:translateX(0);}}
-@keyframes slideR{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:translateX(0);}}
 </style>
 </head>
 <body>
@@ -168,32 +180,52 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 </div>
 {% endif %}
 
-<!-- Featured Jobs -->
+<!-- ── Job Listings — accordion + 2-col grid ── -->
 {% if jb.items and jb.items.size > 0 %}
-<div class="sec-wrap">
-  <div class="sec-title">{{ jb.heading | default: 'Featured openings' }}</div>
-  {% for job in jb.items %}
-  <a class="job" href="{{ job.url | default: '#' }}" target="_blank">
-    <div class="job-top">
-      <div>
-        <div class="job-role">{{ job.role }}</div>
-        <div class="job-company">{{ job.company }}{% if job.location != blank %} · {{ job.location }}{% endif %}</div>
+{% assign wa_num = co.whatsapp | remove:'+' | remove:' ' %}
+<div class="pz-sections">
+  <div class="pz-sec open" id="sec-jobs">
+    <div class="pz-sec-head" onclick="pzToggle('sec-jobs')">
+      <div class="pz-sec-icon">💼</div>
+      <div class="pz-sec-meta">
+        <div class="pz-sec-title">{{ jb.heading | default: 'Featured openings' }}</div>
+        <div class="pz-sec-sub">{{ jb.items.size }} position{% if jb.items.size != 1 %}s{% endif %}</div>
       </div>
-      {% assign badge_lc = job.badge | downcase %}
-      {% if job.badge != blank %}
-        {% if badge_lc == 'hot' %}<span class="job-badge badge-hot">Hot</span>
-        {% elsif badge_lc == 'urgent' %}<span class="job-badge badge-urgent">Urgent</span>
-        {% else %}<span class="job-badge badge-new">{{ job.badge }}</span>{% endif %}
-      {% endif %}
+      <div class="pz-sec-right">
+        <span class="pz-count">{{ jb.items.size }}</span>
+        <svg class="pz-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
     </div>
-    <div class="job-tags">
-      {% if job.salary != blank %}<span class="job-tag">{{ job.salary }}</span>{% endif %}
-      {% if job.type != blank %}<span class="job-tag">{{ job.type }}</span>{% endif %}
-      {% if job.exp != blank %}<span class="job-tag">{{ job.exp }}</span>{% endif %}
+    <div class="pz-sec-body">
+      <div class="pz-sec-inner">
+        <div class="jobs-grid">
+          {% for job in jb.items %}
+          <div class="job-card">
+            <div class="job-icon">💼</div>
+            <div class="job-info">
+              <div class="job-role">{{ job.role }}</div>
+              <div class="job-company">{{ job.company }}{% if job.location != blank %} · {{ job.location }}{% endif %}</div>
+              {% if job.salary != blank %}<div class="job-salary">{{ job.salary }}</div>{% endif %}
+              <div class="job-tags">
+                {% if job.type != blank %}<span class="job-tag">{{ job.type }}</span>{% endif %}
+                {% if job.exp != blank %}<span class="job-tag">{{ job.exp }}</span>{% endif %}
+              </div>
+              {% if job.url != blank %}
+                <a class="job-btn" href="{{ job.url }}" target="_blank">Apply now →</a>
+              {% endif %}
+              {% if wa_num != blank %}
+                {% assign wa_msg = 'Hi! I am interested in the ' | append: job.role | append: ' role' %}
+                {% if job.company != blank %}{% assign wa_msg = wa_msg | append: ' at ' | append: job.company %}{% endif %}
+                {% assign wa_msg = wa_msg | append: '. Please share details.' %}
+                <a class="job-btn wa" href="https://wa.me/{{ wa_num }}?text={{ wa_msg | url_encode }}" target="_blank">💬 Send CV</a>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
-    <div class="apply-btn">Apply now</div>
-  </a>
-  {% endfor %}
+  </div>
 </div>
 {% endif %}
 
@@ -218,8 +250,7 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 {% if co.whatsapp != blank %}
 <div class="sec-wrap" style="margin-top:8px;">
   <a class="wa-btn" href="https://wa.me/{{ co.whatsapp | remove:'+' | remove:' ' }}" target="_blank">
-    <i class="ti ti-brand-whatsapp" style="font-size:20px;"></i>
-    WhatsApp us
+    <i class="ti ti-brand-whatsapp" style="font-size:20px;"></i> WhatsApp us
   </a>
 </div>
 {% endif %}
@@ -244,15 +275,22 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 {% endif %}
 
 <div class="share-wrap">
-  <button class="share-btn" onclick="pzShare()">
-    <i class="ti ti-share" style="font-size:14px;"></i> Share this page
-  </button>
+  <button class="share-btn" onclick="pzShare()"><i class="ti ti-share" style="font-size:14px;"></i> Share this page</button>
+  <button class="share-btn" onclick="pzSaveToPhone()"><i class="ti ti-device-mobile-down" style="font-size:14px;"></i> Save to phone</button>
   <div class="share-toast" id="pzToast">✓ Link copied!</div>
+</div>
+<div id="pzIOSHint" style="display:none;text-align:center;padding:8px 16px 2px;">
+  <div style="display:inline-flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--sub);max-width:280px;text-align:left;line-height:1.5;">
+    <span style="font-size:18px;flex-shrink:0;margin-top:1px;">📲</span>
+    <span>Tap <strong style="color:#fff;">Share</strong> <svg style="display:inline;vertical-align:middle;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> in Safari, then tap <strong style="color:#fff;">"Add to Home Screen"</strong></span>
+  </div>
 </div>
 
 </div>
 <script>
+function pzToggle(id){var s=document.getElementById(id);s.classList.toggle('open');}
 function pzShare(){var u=location.href;if(navigator.share){navigator.share({title:document.title,url:u});}else{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
+(function(){var _dp=null;var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;if(window.navigator.standalone===true)return;if(navigator.serviceWorker){navigator.serviceWorker.register('/sw.js').catch(function(){});}window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_dp=e;});window.addEventListener('appinstalled',function(){_dp=null;});window.pzSaveToPhone=function(){if(_dp){_dp.prompt();_dp.userChoice.then(function(){_dp=null;});}else if(isIOS){var h=document.getElementById('pzIOSHint');if(h)h.style.display=h.style.display==='none'?'':'none';}else{var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:flex-end;justify-content:center;';o.innerHTML='<div style="background:#1a1008;border-radius:16px 16px 0 0;padding:24px;max-width:480px;width:100%;text-align:center;"><div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:12px;">Save to your phone</div><div style="font-size:14px;color:#9CA3AF;line-height:1.6;">Tap the <strong style="color:#fff;">⋮ menu</strong> at the top right, then tap <strong style="color:#fff;">"Install app"</strong> or <strong style="color:#fff;">"Add to Home screen"</strong></div><button onclick="this.parentElement.parentElement.remove()" style="margin-top:16px;padding:10px 24px;background:var(--ac);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Got it</button></div>';document.body.appendChild(o);o.addEventListener('click',function(e){if(e.target===o)o.remove();});}};})();
 </script>
 </body>
 </html>
