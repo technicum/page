@@ -196,56 +196,52 @@ exports.destroy = async (req, res) => {
 
 // ── GET /dashboard/leads/duplicates ──────────────────────────────────────────
 exports.findDuplicates = async (req, res) => {
-  const user    = req.session.user
-  const sites   = await db.query('SELECT id FROM ms_sites WHERE account_id = ?', [user.id])
-  const siteIds = sites.map(s => s.id)
-  if (!siteIds.length) return res.json({ ok: true, groups: [] })
+  try {
+    const user    = req.session.user
+    const sites   = await db.query('SELECT id FROM ms_sites WHERE account_id = ?', [user.id])
+    const siteIds = sites.map(s => s.id)
+    if (!siteIds.length) return res.json({ ok: true, groups: [] })
 
-  const ph = siteIds.map(() => '?').join(',')
+    const ph = siteIds.map(() => '?').join(',')
 
-  // Groups sharing the same email
-  const byEmail = await db.query(
-    `SELECT email AS key, 'email' AS match_type, GROUP_CONCAT(id ORDER BY id) AS ids
-     FROM ms_leads WHERE site_id IN (${ph}) AND email IS NOT NULL AND email != ''
-     GROUP BY email HAVING COUNT(*) > 1`,
-    siteIds
-  )
-  // Groups sharing the same phone (may overlap with email groups)
-  const byPhone = await db.query(
-    `SELECT phone AS key, 'phone' AS match_type, GROUP_CONCAT(id ORDER BY id) AS ids
-     FROM ms_leads WHERE site_id IN (${ph}) AND phone IS NOT NULL AND phone != ''
-     GROUP BY phone HAVING COUNT(*) > 1`,
-    siteIds
-  )
+    // Fetch all leads for this vendor, then group in JS (avoids GROUP_CONCAT dialect issues)
+    const allLeads = await db.query(
+      `SELECT l.*, s.title AS site_title FROM ms_leads l
+       JOIN ms_sites s ON s.id = l.site_id
+       WHERE l.site_id IN (${ph})
+       ORDER BY l.id ASC`,
+      siteIds
+    )
 
-  // De-duplicate groups (same set of IDs = same group)
-  const seen = new Set()
-  const groupDefs = []
-  for (const row of [...byEmail, ...byPhone]) {
-    if (!seen.has(row.ids)) {
-      seen.add(row.ids)
-      groupDefs.push({ matchType: row.match_type, key: row.key, ids: row.ids.split(',').map(Number) })
+    // Group by email then by phone
+    const emailMap = {}
+    const phoneMap = {}
+    allLeads.forEach(l => {
+      const e = (l.email || '').trim().toLowerCase()
+      const p = (l.phone || '').trim().replace(/\s/g, '')
+      if (e) { if (!emailMap[e]) emailMap[e] = []; emailMap[e].push(l) }
+      if (p) { if (!phoneMap[p]) phoneMap[p] = []; phoneMap[p].push(l) }
+    })
+
+    const seen   = new Set()
+    const groups = []
+
+    const addGroup = (leads, matchType, key) => {
+      if (leads.length < 2) return
+      const sigKey = leads.map(l => l.id).sort().join(',')
+      if (seen.has(sigKey)) return
+      seen.add(sigKey)
+      groups.push({ matchType, key, leads })
     }
+
+    Object.entries(emailMap).forEach(([k, ls]) => addGroup(ls, 'email', k))
+    Object.entries(phoneMap).forEach(([k, ls]) => addGroup(ls, 'phone', k))
+
+    res.json({ ok: true, groups })
+  } catch (err) {
+    console.error('leads.findDuplicates', err)
+    res.status(500).json({ ok: false, error: err.message })
   }
-  if (!groupDefs.length) return res.json({ ok: true, groups: [] })
-
-  const allIds = [...new Set(groupDefs.flatMap(g => g.ids))]
-  const leads  = await db.query(
-    `SELECT l.*, s.title AS site_title FROM ms_leads l
-     JOIN ms_sites s ON s.id = l.site_id
-     WHERE l.id IN (${allIds.map(() => '?').join(',')})`,
-    allIds
-  )
-  const byId = {}
-  leads.forEach(l => { byId[l.id] = l })
-
-  const groups = groupDefs.map(g => ({
-    matchType: g.matchType,
-    key:       g.key,
-    leads:     g.ids.map(id => byId[id]).filter(Boolean)
-  }))
-
-  res.json({ ok: true, groups })
 }
 
 // ── POST /dashboard/leads/merge ───────────────────────────────────────────────
