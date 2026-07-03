@@ -287,14 +287,15 @@ function serveBookingPage(req, res, site, settings, type, eventId) {
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--accent:${accent};--ink:#1a1a18;--ink-m:#6b6b66;--ink-f:#b0afa8;--white:#fff;--off:#f8f7f4;--border:rgba(26,26,24,0.09);--border-md:rgba(26,26,24,0.18);--r:10px;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--off);color:var(--ink);min-height:100vh;}
+html,body{height:100%;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--off);color:var(--ink);}
 a{color:inherit;text-decoration:none;}
 
 /* ── Two-column layout ─────────────────── */
-.page{display:flex;min-height:100vh;}
+.page{display:flex;height:100vh;overflow:hidden;}
 
-/* Left panel — fixed sidebar */
-.left-panel{width:260px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:28px 20px;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:10;}
+/* Left panel — scrolls independently */
+.left-panel{width:260px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:28px 20px;overflow-y:auto;}
 .biz-logo-img{width:52px;height:52px;border-radius:50%;object-fit:cover;margin-bottom:14px;}
 .biz-logo-init{width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin-bottom:14px;flex-shrink:0;}
 .biz-name{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:3px;}
@@ -314,8 +315,8 @@ a{color:inherit;text-decoration:none;}
 .panel-back-link:hover{color:var(--ink-m);}
 .panel-footer{font-size:11px;color:var(--ink-f);}
 
-/* Right panel — offset by sidebar width */
-.right-panel{margin-left:260px;flex:1;display:flex;flex-direction:column;min-width:0;}
+/* Right panel — scrolls independently */
+.right-panel{flex:1;display:flex;flex-direction:column;min-width:0;overflow-y:auto;}
 
 /* Step bar */
 .step-bar{display:flex;align-items:center;padding:20px 32px;background:var(--white);border-bottom:1px solid var(--border);gap:0;}
@@ -406,9 +407,10 @@ a{color:inherit;text-decoration:none;}
 .empty{padding:48px;text-align:center;color:var(--ink-m);}
 
 @media(max-width:720px){
-  .left-panel{position:relative;width:100%;height:auto;flex-direction:row;align-items:center;flex-wrap:wrap;gap:12px;padding:16px 20px;border-right:none;border-bottom:1px solid var(--border);}
-  .right-panel{margin-left:0;}
-  .biz-logo-img,.biz-logo-init{width:38px;height:38px;margin-bottom:0;font-size:15px;}
+  .page{flex-direction:column;height:auto;overflow:visible;}
+  .left-panel{width:100%;flex-direction:row;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 16px;border-right:none;border-bottom:1px solid var(--border);overflow:visible;}
+  .right-panel{overflow-y:visible;}
+  .biz-logo-img,.biz-logo-init{width:36px;height:36px;margin-bottom:0;font-size:14px;}
   .biz-name{font-size:13px;}
   .biz-tag{font-size:11px;}
   .panel-divider,.panel-section-label,.panel-spacer,.panel-footer,.panel-back-link{display:none;}
