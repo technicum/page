@@ -124,16 +124,33 @@ function scrollBottom() {
 }
 scrollBottom();
 
+var _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) {
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return _audioCtx;
+}
+// Unlock AudioContext on first user gesture (browsers block audio until interaction)
+document.addEventListener('click', function resumeOnce() {
+  var ctx = getAudioCtx();
+  if (ctx && ctx.state === 'suspended') ctx.resume();
+  document.removeEventListener('click', resumeOnce);
+});
+
 function playNotif() {
   try {
-    var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    var o = ctx.createOscillator();
-    var g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.frequency.value = 880;
-    g.gain.setValueAtTime(0.3, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.4);
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    ctx.resume().then(function() {
+      var o = ctx.createOscillator();
+      var g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = 880;
+      g.gain.setValueAtTime(0.3, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.4);
+    });
   } catch(e) {}
 }
 
