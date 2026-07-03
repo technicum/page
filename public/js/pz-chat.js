@@ -97,11 +97,15 @@
           <div id="pz-chat-head-title">Chat with us</div>
           <div id="pz-chat-head-sub">We usually reply in minutes</div>
         </div>
-        <button id="pz-chat-close" onclick="document.getElementById('pz-chat-win').style.display='none';window.pzChatOpen=false;">✕</button>
+        <button id="pz-chat-close">✕</button>
       </div>
       <div id="pz-chat-body"></div>
     `;
     document.body.appendChild(win);
+    document.getElementById('pz-chat-close').addEventListener('click', function() {
+      document.getElementById('pz-chat-win').style.display = 'none';
+      isOpen = false;
+    });
   }
 
   function showPreChat() {
@@ -115,9 +119,10 @@
       <div id="pz-prechat">
         <p>${esc(cfg.welcome_message || 'Hi! How can we help you today?')}</p>
         ${fields}
-        <button id="pz-start-btn" onclick="startChat()">Start Chat →</button>
+        <button id="pz-start-btn">Start Chat →</button>
       </div>
     `;
+    document.getElementById('pz-start-btn').addEventListener('click', startChat);
   }
 
   function showChat(messages) {
@@ -126,13 +131,14 @@
       <div id="pz-messages"></div>
       <div id="pz-input-wrap">
         <textarea id="pz-input" placeholder="Type a message…" rows="1"></textarea>
-        <button id="pz-send" onclick="visitorSend()">Send</button>
+        <button id="pz-send">Send</button>
       </div>
     `;
     var inp = document.getElementById('pz-input');
     inp.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); visitorSend(); }
     });
+    document.getElementById('pz-send').addEventListener('click', visitorSend);
     (messages || []).forEach(appendMsg);
     scrollMsgs();
     startPolling();
