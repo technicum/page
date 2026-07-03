@@ -199,8 +199,11 @@ self.addEventListener('fetch',function(e){});`)
     let html = await themeManager.render(slug, site, settings, pageId, siteForms)
 
     // ── Inject chat widget ────────────────────────────────────────────────────
+    // PZ_APP_URL is intentionally empty so API calls go to the same subdomain
+    // origin (avoiding cross-origin issues). The JS file itself is served from
+    // the main domain but fetch() calls must be same-origin to avoid CORS blocks.
     const appUrl = process.env.APP_URL || 'https://pagezaper.com'
-    const chatSnippet = `<script>window.PZ_CHAT_SITE_ID=${site.id};window.PZ_APP_URL="${appUrl}";<\/script><script src="${appUrl}/js/pz-chat.js" defer><\/script>`
+    const chatSnippet = `<script>window.PZ_CHAT_SITE_ID=${site.id};window.PZ_APP_URL="";<\/script><script src="${appUrl}/js/pz-chat.js" defer><\/script>`
     html = html.replace('</body>', chatSnippet + '</body>')
 
     res.send(html)
