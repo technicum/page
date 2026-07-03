@@ -1,8 +1,22 @@
 {% extends "layouts/base.njk" %}
 {% block head %}
 <style>
-body{background:var(--off);}
+body{font-family:"DM Sans",sans-serif;background:var(--off);}
 .layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;box-shadow:2px 0 8px rgba(0,0,0,0.03);}
+.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:28px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;font-weight:600;}
+.sidebar-logo em{font-style:italic;color:var(--blue);}
+.sidebar-nav{padding:20px 12px;flex:1;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:4px;font-weight:500;}
+.nav-item:hover{background:var(--off);color:var(--ink);}
+.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:600;}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);background:var(--off);}
+.user-chip{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius);background:var(--white);}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-light));color:var(--white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;}
+.user-name{font-size:13px;font-weight:600;color:var(--ink);}
+.user-plan{font-size:11px;color:var(--ink-muted);}
+.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:8px 12px;margin-top:8px;border-radius:var(--radius);transition:all 0.15s;}
+.logout-link:hover{color:var(--red);background:rgba(255,0,0,0.05);}
 .main{flex:1;padding:32px 40px;overflow-y:auto;}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:12px;}
 .page-header h1{font-size:22px;font-weight:700;}
@@ -15,11 +29,10 @@ body{background:var(--off);}
 .session-card.unread{border-color:#dbeafe;background:#eff6ff;}
 .avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#60a5fa);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;}
 .session-info{flex:1;min-width:0;}
-.session-name{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;}
+.session-name{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .session-meta{font-size:12px;color:var(--ink-muted);margin-top:2px;}
 .session-preview{font-size:13px;color:var(--ink-muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.unread-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;}
-.badge-count{background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:4px;}
+.badge-count{background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;}
 .session-time{font-size:12px;color:var(--ink-faint);flex-shrink:0;}
 .empty{text-align:center;padding:60px 20px;color:var(--ink-muted);}
 .empty-icon{font-size:40px;margin-bottom:12px;}
@@ -28,14 +41,32 @@ body{background:var(--off);}
 </style>
 {% endblock %}
 {% block body %}
-{% include "dashboard/_sidebar.njk" %}
 <div class="layout">
-  {% include "dashboard/_chat_sidebar.njk" ignore missing %}
+  <aside class="sidebar">
+    <a class="sidebar-logo" href="/">page<em>zaper</em></a>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
+      <a class="nav-item" href="/dashboard/wizard">✨ New Site</a>
+      <a class="nav-item" href="/dashboard/forms">📋 Forms</a>
+      <a class="nav-item" href="/dashboard/booking">📅 Booking</a>
+      <a class="nav-item active" href="/dashboard/chat">💬 Chat
+        {% if unreadTotal > 0 %}<span class="badge-count" style="margin-left:auto;">{{ unreadTotal }}</span>{% endif %}
+      </a>
+      <a class="nav-item" href="/dashboard/settings">⚙️ Settings</a>
+      {% if user.is_admin %}<a class="nav-item" href="/admin" style="margin-top:12px;border-top:1px solid var(--border);padding-top:16px;">🔧 Admin Panel</a>{% endif %}
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-avatar">{{ user.name[0] | upper }}</div>
+        <div><div class="user-name">{{ user.name }}</div><div class="user-plan">{{ user.plan | capitalize }} plan</div></div>
+      </div>
+      <a class="logout-link" href="/logout">← Logout</a>
+    </div>
+  </aside>
+
   <main class="main">
     <div class="page-header">
-      <h1>💬 Chat Inbox
-        {% if unreadTotal > 0 %}<span class="badge-count">{{ unreadTotal }}</span>{% endif %}
-      </h1>
+      <h1>💬 Chat Inbox</h1>
       <div style="display:flex;gap:8px;align-items:center;">
         <div class="tabs">
           <a class="tab {% if filter == 'open' %}active{% endif %}" href="/dashboard/chat?status=open">Open</a>
@@ -79,39 +110,24 @@ body{background:var(--off);}
 </div>
 
 <script>
-var lastId = {{ (sessions[0].id if sessions and sessions.length else 0) }};
 var lastUnread = {{ unreadTotal }};
-
 function playNotif() {
   try {
     var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    var o = ctx.createOscillator();
-    var g = ctx.createGain();
+    var o = ctx.createOscillator(); var g = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
     o.frequency.value = 880;
     g.gain.setValueAtTime(0.3, ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-    o.start(ctx.currentTime);
-    o.stop(ctx.currentTime + 0.4);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.4);
   } catch(e) {}
 }
-
 setInterval(function() {
-  fetch('/dashboard/chat/poll?after=' + lastId)
+  fetch('/dashboard/chat/poll?after=0')
     .then(function(r){ return r.json(); })
     .then(function(data) {
       if (!data.ok) return;
-      if (data.total_unread > lastUnread) {
-        playNotif();
-        lastUnread = data.total_unread;
-      }
-      if (data.sessions && data.sessions.length) {
-        data.sessions.forEach(function(s) {
-          if (s.id > lastId) lastId = s.id;
-        });
-        // Reload to show new sessions
-        window.location.reload();
-      }
+      if (data.total_unread > lastUnread) { playNotif(); lastUnread = data.total_unread; window.location.reload(); }
     }).catch(function(){});
 }, 8000);
 </script>
