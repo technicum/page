@@ -665,8 +665,7 @@ window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn,eventId:event
       var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
       var isPast=ds<todayStr;
       var cls='cal-day'+(isPast?'':' avail')+(ds===todayStr?' today-mark':'')+(ds===selDate?' selected':'');
-      var click=isPast?'':'onclick="pickDay(\''+ds+'\')"';
-      html+='<div class="'+cls+'" '+click+'>'+d+'</div>';
+      html+='<div class="'+cls+'"'+(isPast?'':' data-ds="'+ds+'"')+'>'+d+'</div>';
     }
     document.getElementById('calDays').innerHTML=html;
   }
@@ -696,13 +695,13 @@ window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn,eventId:event
         if(am.length){
           html+='<div class="slots-section"><div class="slots-section-label">Morning</div>'
             +'<div class="slots-grid">'+am.map(function(s){
-              return '<div class="slot-btn'+(s.time===selTime?' selected':'')+'" onclick="pickSlot(\''+s.time+'\',\''+s.label+'\')">'+s.label+'</div>';
+              return '<div class="slot-btn'+(s.time===selTime?' selected':'')+'" data-time="'+s.time+'" data-label="'+s.label+'">'+s.label+'</div>';
             }).join('')+'</div></div>';
         }
         if(pm.length){
           html+='<div class="slots-section"><div class="slots-section-label">Afternoon</div>'
             +'<div class="slots-grid">'+pm.map(function(s){
-              return '<div class="slot-btn'+(s.time===selTime?' selected':'')+'" onclick="pickSlot(\''+s.time+'\',\''+s.label+'\')">'+s.label+'</div>';
+              return '<div class="slot-btn'+(s.time===selTime?' selected':'')+'" data-time="'+s.time+'" data-label="'+s.label+'">'+s.label+'</div>';
             }).join('')+'</div></div>';
         }
         wrap.innerHTML=html;
@@ -711,12 +710,26 @@ window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn,eventId:event
       });
   }
 
-  window.pickSlot=function(time,label){
-    selTime=time;
-    document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('selected');});
-    event.target.classList.add('selected');
-    goStep(3);
-  }
+  // ── Event delegation (avoids quote-escaping in inline onclick) ───────────────
+  document.addEventListener('click', function(e){
+    // Calendar day
+    if(e.target.classList && e.target.classList.contains('avail')){
+      var ds=e.target.getAttribute('data-ds');
+      if(ds) pickDay(ds);
+      return;
+    }
+    // Slot button
+    var btn=e.target;
+    if(btn.classList && btn.classList.contains('slot-btn')){
+      var time=btn.getAttribute('data-time');
+      var label=btn.getAttribute('data-label');
+      if(!time) return;
+      selTime=time;
+      document.querySelectorAll('.slot-btn').forEach(function(b){b.classList.remove('selected');});
+      btn.classList.add('selected');
+      goStep(3);
+    }
+  });
 
   // ── Submit booking ─────────────────────────────────────────────────────────────
   window.submitBooking=function(){
