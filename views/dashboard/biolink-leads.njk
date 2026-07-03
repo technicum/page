@@ -27,21 +27,9 @@ body{font-family:"DM Sans",sans-serif;}
 </style>
 {% endblock %}
 {% block body %}
+{% set activePage = 'dashboard' %}
 <div class="layout">
-  <aside class="sidebar">
-    <a class="sidebar-logo" href="/">page<em>zapper</em></a>
-    <nav class="sidebar-nav">
-      <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
-      <a class="nav-item" href="/dashboard/wizard">✨ New Site</a>
-    </nav>
-    <div class="sidebar-bottom">
-      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;">
-        <div class="user-avatar">{{ user.name[0] | upper }}</div>
-        <div style="font-size:13px;font-weight:500;">{{ user.name }}</div>
-      </div>
-      <a class="logout-link" href="/logout">← Logout</a>
-    </div>
-  </aside>
+  {% include "dashboard/_sidebar.njk" %}
   <main class="content">
     <a class="back-btn" href="/dashboard/site/biolink-builder?id={{ site.id }}">← Back to Editor</a>
     <div class="page-title">

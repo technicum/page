@@ -59,20 +59,9 @@ td.td-actions{width:60px;}
 {% endblock %}
 
 {% block body %}
+{% set activePage = 'forms' %}
 <div class="layout">
-  <aside class="sidebar">
-    <a class="sidebar-logo" href="/dashboard">page<em>zaper</em></a>
-    <nav class="sidebar-nav">
-      <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
-      <a class="nav-item active" href="/dashboard/forms">📋 Forms</a>
-      <a class="nav-item" href="/dashboard/settings">⚙️ Settings</a>
-      {% if user.is_admin %}<a class="nav-item" href="/admin" style="margin-top:12px;border-top:1px solid var(--border);padding-top:16px;">🔧 Admin Panel</a>{% endif %}
-    </nav>
-    <div class="sidebar-bottom">
-      <div style="font-size:12px;color:var(--ink-faint);padding:6px 12px;margin-bottom:4px;">{{ site.title }}</div>
-      <a class="nav-item" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank" style="font-size:13px;">↗ View Site</a>
-    </div>
-  </aside>
+  {% include "dashboard/_sidebar.njk" %}
 
   <div class="content">
     <div class="page-header">

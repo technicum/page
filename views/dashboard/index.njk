@@ -145,28 +145,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
 </style>
 {% endblock %}
 {% block body %}
+{% set activePage = 'dashboard' %}
 <div class="layout">
-  <aside class="sidebar">
-    <a class="sidebar-logo" href="/">page<em>zaper</em></a>
-    <nav class="sidebar-nav">
-      <a class="nav-item active" href="/dashboard">🏠 Dashboard</a>
-      <a class="nav-item" href="/dashboard/wizard">✨ New Site</a>
-      <a class="nav-item" href="/dashboard/forms">📋 Forms</a>
-      <a class="nav-item" href="/dashboard/booking">📅 Booking</a>
-      <a class="nav-item" href="/dashboard/chat">💬 Chat</a>
-      <a class="nav-item" href="/dashboard/settings">⚙️ Settings</a>
-      {% if user.is_admin %}
-      <a class="nav-item" href="/admin" style="margin-top:12px;border-top:1px solid var(--border);padding-top:16px;">🔧 Admin Panel</a>
-      {% endif %}
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="user-chip">
-        <div class="user-avatar">{{ user.name[0] | upper }}</div>
-        <div><div class="user-name">{{ user.name }}</div><div class="user-plan">{{ user.plan | capitalize }} plan</div></div>
-      </div>
-      <a class="logout-link" href="/logout">← Logout</a>
-    </div>
-  </aside>
+  {% include "dashboard/_sidebar.njk" %}
   <main class="content">
     <div class="page-header">
       <div>

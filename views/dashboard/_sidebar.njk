@@ -1,0 +1,55 @@
+<style>
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;box-shadow:2px 0 8px rgba(0,0,0,0.03);}
+.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:26px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;font-weight:600;}
+.sidebar-logo em{font-style:italic;color:var(--blue);}
+.sidebar-nav{padding:18px 12px;flex:1;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:2px;font-weight:500;}
+.nav-item:hover{background:var(--off);color:var(--ink);}
+.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:600;}
+.nav-sub{margin:0 0 4px 26px;border-left:2px solid var(--border);padding-left:6px;}
+.nav-sub .nav-item{font-size:13px;padding:7px 10px;}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);background:var(--off);}
+.user-chip{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius);background:var(--white);}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-light));color:var(--white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;}
+.user-name{font-size:13px;font-weight:600;color:var(--ink);}
+.user-plan{font-size:11px;color:var(--ink-muted);}
+.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:8px 12px;margin-top:8px;border-radius:var(--radius);transition:all 0.15s;}
+.logout-link:hover{color:var(--red);background:rgba(255,0,0,0.05);}
+.nav-badge{background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;margin-left:auto;}
+@media(max-width:1024px){
+  .layout{flex-direction:column;}
+  .sidebar{width:100%;height:auto;position:relative;box-shadow:none;}
+  .sidebar-nav{display:flex;gap:4px;overflow-x:auto;padding:10px 12px;flex-wrap:nowrap;}
+  .nav-item{margin-bottom:0;white-space:nowrap;}
+  .nav-sub{display:none;}
+  .sidebar-bottom{display:none;}
+}
+</style>
+<aside class="sidebar">
+  <a class="sidebar-logo" href="/">page<em>zaper</em></a>
+  <nav class="sidebar-nav">
+    <a class="nav-item {% if activePage == 'dashboard' %}active{% endif %}" href="/dashboard">🏠 Dashboard</a>
+    <a class="nav-item {% if activePage == 'wizard' %}active{% endif %}" href="/dashboard/wizard">✨ New Site</a>
+    <a class="nav-item {% if activePage == 'forms' %}active{% endif %}" href="/dashboard/forms">📋 Forms</a>
+    <a class="nav-item {% if activePage == 'booking' %}active{% endif %}" href="/dashboard/booking">📅 Booking</a>
+    {% if bookingSiteId %}
+    <div class="nav-sub">
+      <a class="nav-item {% if bookingPage == 'overview' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}">📊 Overview</a>
+      <a class="nav-item {% if bookingPage == 'events' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}/events">🎯 Event Types</a>
+      <a class="nav-item {% if bookingPage == 'availability' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}/availability">📅 Availability</a>
+      <a class="nav-item {% if bookingPage == 'list' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}/list">📋 All Bookings</a>
+    </div>
+    {% endif %}
+    <a class="nav-item {% if activePage == 'chat' %}active{% endif %}" href="/dashboard/chat">💬 Chat{% if unreadTotal and unreadTotal > 0 %}<span class="nav-badge">{{ unreadTotal }}</span>{% endif %}</a>
+    <a class="nav-item {% if activePage == 'settings' %}active{% endif %}" href="/dashboard/settings">⚙️ Settings</a>
+    {% if user.is_admin %}<a class="nav-item" href="/admin" style="margin-top:12px;border-top:1px solid var(--border);padding-top:14px;">🔧 Admin</a>{% endif %}
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-chip">
+      <div class="user-avatar">{{ user.name[0] | upper }}</div>
+      <div><div class="user-name">{{ user.name }}</div><div class="user-plan">{{ user.plan | capitalize }} plan</div></div>
+    </div>
+    <a class="logout-link" href="/logout">← Logout</a>
+  </div>
+</aside>

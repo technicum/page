@@ -2,21 +2,6 @@
 {% block head %}
 <style>
 body{font-family:"DM Sans",sans-serif;background:var(--off);}
-.layout{display:flex;min-height:100vh;}
-.sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;box-shadow:2px 0 8px rgba(0,0,0,0.03);}
-.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:28px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;font-weight:600;}
-.sidebar-logo em{font-style:italic;color:var(--blue);}
-.sidebar-nav{padding:20px 12px;flex:1;}
-.nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:4px;font-weight:500;}
-.nav-item:hover{background:var(--off);color:var(--ink);}
-.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:600;}
-.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);background:var(--off);}
-.user-chip{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius);background:var(--white);}
-.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-light));color:var(--white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;}
-.user-name{font-size:13px;font-weight:600;color:var(--ink);}
-.user-plan{font-size:11px;color:var(--ink-muted);}
-.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:8px 12px;margin-top:8px;border-radius:var(--radius);transition:all 0.15s;}
-.logout-link:hover{color:var(--red);background:rgba(255,0,0,0.05);}
 .content{flex:1;padding:40px;min-width:0;overflow-y:auto;}
 
 /* Header */
@@ -70,10 +55,6 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
 .empty-state p{font-size:14px;color:var(--ink-muted);margin-bottom:24px;}
 
 @media(max-width:1024px){
-  .layout{flex-direction:column;}
-  .sidebar{width:100%;height:auto;position:relative;}
-  .sidebar-nav{display:flex;gap:8px;overflow-x:auto;padding:10px 12px;}
-  .nav-item{margin-bottom:0;white-space:nowrap;}
   .content{padding:20px 16px;}
   .row-actions{opacity:1;}
 }
@@ -81,24 +62,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
 {% endblock %}
 
 {% block body %}
+{% set activePage = 'forms' %}
 <div class="layout">
-  <aside class="sidebar">
-    <a class="sidebar-logo" href="/">page<em>zaper</em></a>
-    <nav class="sidebar-nav">
-      <a class="nav-item" href="/dashboard">🏠 Dashboard</a>
-      <a class="nav-item" href="/dashboard/wizard">✨ New Site</a>
-      <a class="nav-item active" href="/dashboard/forms">📋 Forms</a>
-      <a class="nav-item" href="/dashboard/settings">⚙️ Settings</a>
-      {% if user.is_admin %}<a class="nav-item" href="/admin" style="margin-top:12px;border-top:1px solid var(--border);padding-top:16px;">🔧 Admin Panel</a>{% endif %}
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="user-chip">
-        <div class="user-avatar">{{ user.name[0] | upper }}</div>
-        <div><div class="user-name">{{ user.name }}</div><div class="user-plan">{{ user.plan | capitalize }} plan</div></div>
-      </div>
-      <a class="logout-link" href="/logout">← Logout</a>
-    </div>
-  </aside>
+  {% include "dashboard/_sidebar.njk" %}
 
   <main class="content">
     <div class="page-header">
