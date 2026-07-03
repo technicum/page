@@ -174,6 +174,7 @@ env.addFilter('date', function(dateVal, format) {
 // Global template vars
 app.use((req, res, next) => {
   res.locals.user          = req.session.user || null
+  res.locals.adminUser     = req.session.adminUser || null
   res.locals.flash_success = req.flash('success')
   res.locals.flash_errors  = req.flash('errors')
   res.locals.app_name      = process.env.APP_NAME    || 'PageZaper'

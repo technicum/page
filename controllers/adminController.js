@@ -320,3 +320,40 @@ exports.toggleAdmin = async (req, res) => {
   req.flash('success', 'Admin status updated.')
   res.redirect('/admin/users')
 }
+
+// ── Suspend / unsuspend user ──────────────────────────────────────────────────
+exports.toggleSuspend = async (req, res) => {
+  const targetId = parseInt(req.body.user_id) || 0
+  const me       = req.session.user
+  if (targetId === me.id) {
+    req.flash('errors', ['You cannot suspend yourself.'])
+    return res.redirect('/admin/users')
+  }
+  const target = await db.first('SELECT id, is_suspended FROM ms_accounts WHERE id = ?', [targetId])
+  if (!target) return res.redirect('/admin/users')
+  await db.execute('UPDATE ms_accounts SET is_suspended = ? WHERE id = ?', [target.is_suspended ? 0 : 1, targetId])
+  req.flash('success', target.is_suspended ? 'User unsuspended.' : 'User suspended.')
+  res.redirect('/admin/users')
+}
+
+// ── Login as user (impersonation) ─────────────────────────────────────────────
+exports.loginAsUser = async (req, res) => {
+  const targetId = parseInt(req.body.user_id) || 0
+  const me       = req.session.user
+  const target   = await db.first('SELECT * FROM ms_accounts WHERE id = ?', [targetId])
+  if (!target || targetId === me.id) return res.redirect('/admin/users')
+
+  // Store real admin so we can return
+  req.session.adminUser = me
+  req.session.user      = target
+  res.redirect('/dashboard')
+}
+
+// ── Stop impersonation ────────────────────────────────────────────────────────
+exports.stopImpersonation = (req, res) => {
+  if (req.session.adminUser) {
+    req.session.user      = req.session.adminUser
+    req.session.adminUser = null
+  }
+  res.redirect('/admin/users')
+}
