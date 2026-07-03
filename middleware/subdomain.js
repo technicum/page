@@ -330,7 +330,7 @@ a{color:inherit;text-decoration:none;}
 .step-conn.done{background:#86efac;}
 
 /* Step content */
-.step-content{flex:1;padding:32px;max-width:780px;}
+.step-content{flex:1;padding:32px;}
 .step{display:none;}.step.active{display:block;}
 .step-title{font-size:20px;font-weight:700;margin-bottom:4px;}
 .step-sub{font-size:14px;color:var(--ink-m);margin-bottom:24px;}
