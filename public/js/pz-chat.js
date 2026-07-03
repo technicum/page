@@ -46,12 +46,13 @@
     #pz-chat-btn{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#2563eb;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,99,235,0.4);z-index:99998;transition:transform .2s,box-shadow .2s;font-size:24px;}
     #pz-chat-btn:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(37,99,235,0.5);}
     #pz-chat-badge{position:absolute;top:-3px;right:-3px;width:18px;height:18px;background:#ef4444;color:#fff;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}
-    #pz-chat-win{position:fixed;bottom:92px;right:24px;width:360px;max-height:520px;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.18);z-index:99999;display:flex;flex-direction:column;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;}
+    #pz-chat-win{position:fixed;bottom:92px;right:24px;width:360px;height:520px;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.18);z-index:99999;display:flex;flex-direction:column;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;}
     #pz-chat-head{background:#2563eb;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
     #pz-chat-head-title{font-weight:700;font-size:15px;}
     #pz-chat-head-sub{font-size:12px;opacity:0.8;margin-top:2px;}
     #pz-chat-close{background:rgba(255,255,255,0.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
-    #pz-prechat{padding:20px;flex:1;}
+    #pz-chat-body{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+    #pz-prechat{padding:20px;flex:1;overflow-y:auto;}
     #pz-prechat p{font-size:13px;color:#555;margin-bottom:16px;line-height:1.5;}
     .pz-field{margin-bottom:12px;}
     .pz-field label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;}
@@ -59,7 +60,7 @@
     .pz-field input:focus{border-color:#2563eb;}
     #pz-start-btn{width:100%;padding:11px;background:#2563eb;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;transition:opacity .15s;}
     #pz-start-btn:hover{opacity:0.85;}
-    #pz-messages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-height:200px;}
+    #pz-messages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-height:0;}
     .pz-msg{display:flex;flex-direction:column;max-width:80%;}
     .pz-msg.vendor{align-self:flex-start;}
     .pz-msg.visitor{align-self:flex-end;align-items:flex-end;}
@@ -67,12 +68,12 @@
     .pz-msg.vendor .pz-bubble{background:#f3f4f6;color:#111;}
     .pz-msg.visitor .pz-bubble{background:#2563eb;color:#fff;}
     .pz-time{font-size:10px;color:#9ca3af;margin-top:2px;padding:0 2px;}
-    #pz-input-wrap{padding:10px 12px;border-top:1px solid #e5e7eb;display:flex;gap:8px;flex-shrink:0;}
+    #pz-input-wrap{padding:10px 12px;border-top:1px solid #e5e7eb;display:flex;gap:8px;flex-shrink:0;background:#fff;}
     #pz-input{flex:1;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;font-family:inherit;outline:none;resize:none;max-height:80px;}
     #pz-input:focus{border-color:#2563eb;}
     #pz-send{padding:9px 14px;background:#2563eb;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;}
     #pz-send:hover{opacity:0.85;}
-    #pz-closed-notice{padding:10px 16px;background:#fef2f2;color:#dc2626;font-size:12px;text-align:center;border-top:1px solid #fecaca;}
+    #pz-closed-notice{padding:10px 16px;background:#fef2f2;color:#dc2626;font-size:12px;text-align:center;border-top:1px solid #fecaca;flex-shrink:0;}
     @media(max-width:400px){#pz-chat-win{width:calc(100vw - 16px);right:8px;bottom:84px;}}
   `;
   document.head.appendChild(style);
@@ -146,14 +147,20 @@
 
   function appendMsg(m) {
     var wrap = document.getElementById('pz-messages');
-    if (!wrap || document.getElementById('pzm-' + m.id)) return;
+    if (!wrap) return;
+    // If this is a real server message (numeric id), remove any pending temp bubble
+    if (typeof m.id === 'number') {
+      var tmp = wrap.querySelector('.pz-msg-tmp');
+      if (tmp) tmp.remove();
+      if (document.getElementById('pzm-' + m.id)) return; // already rendered
+    }
     var div = document.createElement('div');
-    div.className = 'pz-msg ' + m.sender;
-    div.id = 'pzm-' + m.id;
+    div.className = 'pz-msg ' + m.sender + (m.tmp ? ' pz-msg-tmp' : '');
+    if (!m.tmp) div.id = 'pzm-' + m.id;
     div.innerHTML = '<div class="pz-bubble">' + esc(m.message) + '</div>'
                   + '<div class="pz-time">' + fmtTime(m.created_at) + '</div>';
     wrap.appendChild(div);
-    if (m.id > lastMsgId) { lastMsgId = m.id; saveSession(); }
+    if (typeof m.id === 'number' && m.id > lastMsgId) { lastMsgId = m.id; saveSession(); }
   }
 
   function scrollMsgs() {
