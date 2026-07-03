@@ -242,13 +242,15 @@
     inp.value = '';
     inp.style.height = 'auto';
 
+    // Optimistic UI — show immediately; appendMsg deduplicates when poll returns real message
+    appendMsg({ id: 'tmp-' + Date.now(), sender: 'visitor', message: msg, created_at: new Date().toISOString(), tmp: true });
+    scrollMsgs();
+
     fetch(APP_URL + '/api/chat/message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: sessionId, token: token, message: msg })
     }).catch(function(){});
-    // No optimistic append — polling will pick it up within 3s,
-    // avoiding duplicates from mismatched tmp/real IDs
   }
 
   function startPolling() {
