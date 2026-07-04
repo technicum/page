@@ -127,7 +127,7 @@ app.use(session({
   store:             sessionStore,
   resave:            false,
   saveUninitialized: false,
-  cookie:            { maxAge: 86400000, httpOnly: true }
+  cookie:            { maxAge: 86400000, httpOnly: true, domain: process.env.NODE_ENV === 'production' ? `.${process.env.BASE_DOMAIN || 'pagezapper.com'}` : undefined }
 }))
 
 // Middleware
