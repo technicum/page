@@ -199,12 +199,26 @@ self.addEventListener('fetch',function(e){});`)
     let html = await themeManager.render(slug, site, settings, pageId, siteForms)
 
     // ── Inject chat widget ────────────────────────────────────────────────────
-    // PZ_APP_URL is intentionally empty so API calls go to the same subdomain
-    // origin (avoiding cross-origin issues). The JS file itself is served from
-    // the main domain but fetch() calls must be same-origin to avoid CORS blocks.
     const appUrl = process.env.APP_URL || 'https://pagezaper.com'
     const chatSnippet = `<script>window.PZ_CHAT_SITE_ID=${site.id};window.PZ_APP_URL="";<\/script><script src="${appUrl}/js/pz-chat.js" defer><\/script>`
     html = html.replace('</body>', chatSnippet + '</body>')
+
+    // ── Inject owner edit bar ─────────────────────────────────────────────────
+    const sessionUser = req.session && req.session.user
+    const isOwner = sessionUser && Number(sessionUser.id) === Number(site.account_id)
+    if (isOwner) {
+      const isBiolink = slug.startsWith('biolink-')
+      const editUrl   = isBiolink
+        ? `${appUrl}/dashboard/site/biolink-builder?site=${site.id}`
+        : `${appUrl}/dashboard/site/builder?site=${site.id}`
+      const editBar = `<div id="pz-owner-bar" style="position:fixed;bottom:20px;right:20px;z-index:99999;display:flex;align-items:center;gap:8px;background:#1a1a18;border-radius:50px;padding:8px 16px 8px 12px;box-shadow:0 4px 20px rgba(0,0,0,0.25);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <span style="font-size:13px;color:rgba(255,255,255,0.5);white-space:nowrap;">✏️</span>
+  <a href="${editUrl}" style="font-size:13px;font-weight:600;color:#fff;text-decoration:none;white-space:nowrap;">Edit site</a>
+  <span style="width:1px;height:14px;background:rgba(255,255,255,0.15);display:inline-block;margin:0 2px;"></span>
+  <a href="${appUrl}/dashboard" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;white-space:nowrap;">Dashboard</a>
+</div>`
+      html = html.replace('</body>', editBar + '</body>')
+    }
 
     res.send(html)
 
