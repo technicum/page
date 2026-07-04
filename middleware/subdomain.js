@@ -786,6 +786,22 @@ window._PZ=${JSON.stringify({sub:sub,type:typeParam,btn:confirmBtn,eventId:event
 </script>
 </body>
 </html>`;
+
+  // ── Inject owner edit bar ────────────────────────────────────────────────
+  const bookingSessionUser = req.session && req.session.user
+  const bookingIsOwner = bookingSessionUser && Number(bookingSessionUser.id) === Number(site.account_id)
+  if (bookingIsOwner) {
+    const appUrl2 = process.env.APP_URL || 'https://pagezaper.com'
+    const editUrl2 = `${appUrl2}/dashboard/site/builder?site=${site.id}`
+    const editBar2 = `<div id="pz-owner-bar" style="position:fixed;bottom:20px;right:20px;z-index:99999;display:flex;align-items:center;gap:8px;background:#1a1a18;border-radius:50px;padding:8px 16px 8px 12px;box-shadow:0 4px 20px rgba(0,0,0,0.25);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <span style="font-size:13px;color:rgba(255,255,255,0.5);white-space:nowrap;">✏️</span>
+  <a href="${editUrl2}" style="font-size:13px;font-weight:600;color:#fff;text-decoration:none;white-space:nowrap;">Edit site</a>
+  <span style="width:1px;height:14px;background:rgba(255,255,255,0.15);display:inline-block;margin:0 2px;"></span>
+  <a href="${appUrl2}/dashboard" style="font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;white-space:nowrap;">Dashboard</a>
+</div>`
+    html = html.replace('</body>', editBar2 + '</body>')
+  }
+
   res.send(html);
 }
 
