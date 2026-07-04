@@ -114,6 +114,29 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .preview-loading{position:absolute;inset:0;background:rgba(232,232,237,0.7);display:flex;align-items:center;justify-content:center;font-size:12px;color:#9ca3af;pointer-events:none;opacity:0;transition:opacity 0.2s;}
 .preview-loading.show{opacity:1;}
 .preview-hint{position:absolute;bottom:14px;font-size:10px;color:#9ca3af;letter-spacing:0.3px;}
+
+/* ── Mobile ──────────────────────────────────────────────────────────── */
+.mob-tabs{display:none;}
+@media(max-width:768px){
+  body{overflow:auto;}
+  .topbar{padding:0 12px;gap:8px;}
+  .tb-back span{display:none;}
+  .tb-url{display:none;}
+  .tb-theme-sel{display:none;}
+  .save-status{display:none;}
+  .main{flex-direction:column;height:auto;margin-top:48px;}
+  .sidenav{width:100%;height:auto;flex-direction:row;overflow-x:auto;overflow-y:hidden;padding:6px 8px;gap:2px;border-right:none;border-bottom:1px solid #e5e7eb;flex-shrink:0;}
+  .snav-item{flex-direction:row;width:auto;padding:6px 10px;font-size:10px;gap:5px;white-space:nowrap;}
+  .snav-drag-handle{display:none;}
+  .editor{width:100%;border-right:none;border-bottom:1px solid #e5e7eb;max-height:none;}
+  .editor-scroll{max-height:none;padding-bottom:20px;}
+  .preview-area{display:none;min-height:500px;}
+  .preview-area.mob-visible{display:flex;}
+  .mob-tabs{display:flex;border-bottom:1px solid #e5e7eb;background:#fff;flex-shrink:0;}
+  .mob-tab{flex:1;padding:11px;font-size:13px;font-weight:600;color:#9ca3af;border:none;background:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;transition:all .15s;}
+  .mob-tab.active{color:#6366f1;border-bottom-color:#6366f1;}
+  .phone-frame{width:100%;max-width:340px;height:min(580px,80vw);border-radius:32px;}
+}
 </style>
 </head>
 <body>
@@ -140,6 +163,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 </div>
 
 <div class="main">
+
+  <!-- Mobile editor/preview tabs -->
+  <div class="mob-tabs">
+    <button class="mob-tab active" id="mobTabEditor" onclick="mobSwitch('editor')">✏️ Editor</button>
+    <button class="mob-tab" id="mobTabPreview" onclick="mobSwitch('preview')">📱 Preview</button>
+  </div>
 
   <!-- Icon sidebar -->
   <div class="sidenav" id="sideNav"></div>
@@ -173,6 +202,27 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 
 <script>
 // ── Data from server ──────────────────────────────────────────────────────────
+// ── Mobile tab switch ─────────────────────────────────────────────────────────
+function mobSwitch(tab){
+  var editorEl=document.querySelector('.editor');
+  var sidenavEl=document.getElementById('sideNav');
+  var previewEl=document.querySelector('.preview-area');
+  var tabE=document.getElementById('mobTabEditor');
+  var tabP=document.getElementById('mobTabPreview');
+  if(tab==='preview'){
+    editorEl.style.display='none';
+    sidenavEl.style.display='none';
+    previewEl.classList.add('mob-visible');
+    tabE.classList.remove('active'); tabP.classList.add('active');
+    refreshPreview();
+  } else {
+    editorEl.style.display='';
+    sidenavEl.style.display='';
+    previewEl.classList.remove('mob-visible');
+    tabE.classList.add('active'); tabP.classList.remove('active');
+  }
+}
+
 var SECTIONS      = {{ sections | dump | safe }};
 var ALL_THEMES    = {{ allThemes | dump | safe }};
 var SITE_ID       = {{ site.id }};

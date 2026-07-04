@@ -132,7 +132,31 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
 .hero-sub{animation-delay:0.18s;}
 .search-wrap{animation-delay:0.24s;}
 .quick-tags{animation-delay:0.3s;}
-@media(max-width:768px){nav{padding:0 20px;}.nav-links{display:none;}.hero,section,.cta-section{padding-left:20px;padding-right:20px;}.divider{margin:0 20px;}.cards-grid{grid-template-columns:repeat(2,1fr);}.cat-grid{grid-template-columns:repeat(3,1fr);}.steps-grid{grid-template-columns:1fr;gap:32px;}.steps-grid::before{display:none;}.stats-row{grid-template-columns:1fr;}.stat-cell{border-right:none;border-bottom:1px solid var(--border);}.stat-cell:last-child{border-bottom:none;}footer{flex-direction:column;gap:20px;text-align:center;}}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;}
+.nav-hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:all .25s;}
+.nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-hamburger.open span:nth-child(2){opacity:0;}
+.nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-mobile{display:none;position:fixed;top:60px;left:0;right:0;background:#fff;border-bottom:1px solid var(--border);padding:12px 20px 20px;z-index:99;flex-direction:column;gap:0;box-shadow:0 8px 24px rgba(0,0,0,0.08);}
+.nav-mobile.open{display:flex;}
+.nav-mobile a{padding:13px 0;font-size:15px;color:var(--ink-muted);text-decoration:none;border-bottom:1px solid var(--border);}
+.nav-mobile a:last-child{border-bottom:none;}
+.nav-mobile .btn-nav{margin-top:12px;text-align:center;justify-content:center;border-radius:10px;padding:12px;}
+@media(max-width:768px){
+  nav{padding:0 20px;}
+  .nav-links{display:none;}
+  .nav-hamburger{display:flex;}
+  .hero,section,.cta-section{padding-left:20px;padding-right:20px;}
+  .divider{margin:0 20px;}
+  .cards-grid{grid-template-columns:repeat(2,1fr);}
+  .cat-grid{grid-template-columns:repeat(3,1fr);}
+  .steps-grid{grid-template-columns:1fr;gap:32px;}
+  .steps-grid::before{display:none;}
+  .stats-row{grid-template-columns:1fr;}
+  .stat-cell{border-right:none;border-bottom:1px solid var(--border);}
+  .stat-cell:last-child{border-bottom:none;}
+  footer{flex-direction:column;gap:20px;text-align:center;}
+}
 </style>
 {% endblock %}
 {% block body %}
@@ -152,7 +176,35 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
       {% endif %}
     </li>
   </ul>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Menu" onclick="toggleMobileNav()">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<div class="nav-mobile" id="navMobile">
+  <a href="#explore" onclick="closeMobileNav()">Explore</a>
+  <a href="#categories" onclick="closeMobileNav()">Categories</a>
+  <a href="#how" onclick="closeMobileNav()">For business</a>
+  <a href="/register" onclick="closeMobileNav()">Pricing</a>
+  {% if user %}
+    <a class="btn-nav" href="/dashboard">Dashboard</a>
+  {% else %}
+    <a class="btn-nav" href="/register">Create your site →</a>
+  {% endif %}
+</div>
+
+<script>
+function toggleMobileNav(){
+  var btn=document.getElementById('navHamburger');
+  var menu=document.getElementById('navMobile');
+  btn.classList.toggle('open');
+  menu.classList.toggle('open');
+}
+function closeMobileNav(){
+  document.getElementById('navHamburger').classList.remove('open');
+  document.getElementById('navMobile').classList.remove('open');
+}
+</script>
 
 <div class="hero">
   <div class="hero-eyebrow"><span></span> India's local services directory</div>
