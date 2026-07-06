@@ -241,7 +241,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
           <span style="font-size:8px;">{{ '●' if site.is_published else '◌' }}</span>
           {{ 'Live' if site.is_published else 'Draft' }}
         </button>
-        <a class="btn-edit" href="/dashboard/site/{% if site.category == 'linktree' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit →</a>
+        <a class="btn-edit" href="/dashboard/site/{% if site.category == 'linktree' or ('biolink-' in (site.template_id or '')) %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit →</a>
         <div class="more-wrap">
           <button class="btn-more" onclick="toggleMore(event, 'more-{{ site.id }}')">⋯</button>
           <div class="more-menu" id="more-{{ site.id }}">

@@ -247,12 +247,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 <!-- ── Left panel ──────────────────────────────── -->
 <div class="panel">
   <div class="panel-tabs">
-    <button class="pt active" id="tabBtnSettings" onclick="showTab('settings')">Settings</button>
-    <button class="pt" id="tabBtnBlocks" onclick="showTab('blocks')">Blocks</button>
+    <button class="pt active" id="tabBtnBlocks" onclick="showTab('blocks')">Blocks</button>
+    <button class="pt" id="tabBtnSettings" onclick="showTab('settings')">Settings</button>
   </div>
 
   <!-- SETTINGS TAB -->
-  <div class="tab-content active" id="tabSettings">
+  <div class="tab-content" id="tabSettings">
 
     <!-- URL & Slug -->
     <div class="acc open" id="accUrl">
@@ -402,7 +402,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
   </div><!-- /tabSettings -->
 
   <!-- BLOCKS TAB -->
-  <div class="tab-content" id="tabBlocks">
+  <div class="tab-content active" id="tabBlocks">
     <div style="padding:12px 12px 8px;">
       <button class="btn-add-block" onclick="openAddModal()">+ Add block</button>
     </div>
@@ -1070,14 +1070,24 @@ function refreshPreview(){
   };
   fetch('/dashboard/site/biolink-preview',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
     body:JSON.stringify(payload)
   })
-  .then(function(r){return r.text();})
+  .then(function(r){
+    if(!r.ok) return '<p style="font-family:sans-serif;padding:20px;color:#dc2626">Preview error (HTTP '+r.status+'). Try refreshing the page.</p>';
+    return r.text();
+  })
   .then(function(html){
+    // Guard: if the response looks like a redirect to the dashboard, show an error
+    if(html.indexOf('<title>Dashboard</title>')!==-1 || html.indexOf('/dashboard/site/biolink')!==-1){
+      html='<p style="font-family:sans-serif;padding:20px;color:#dc2626">Session error. Please refresh the page and try again.</p>';
+    }
     document.getElementById('previewFrame').srcdoc=html;
   })
-  .catch(function(){})
+  .catch(function(e){
+    document.getElementById('previewFrame').srcdoc='<p style="font-family:sans-serif;padding:20px;color:#dc2626">Preview failed. Check your connection.</p>';
+  })
   .finally(function(){
     previewInflight=false;
     document.getElementById('previewLoading').classList.remove('show');
