@@ -5,6 +5,20 @@
   "categories": ["finance"],
   "tags": ["wealth", "investment", "minimal", "professional", "india"],
   "order": 12,
+  "default_appearance": {
+    "bgColor": "#faf8f4", "btnColor": "#1B3A6B", "btnTextColor": "#ffffff",
+    "textColor": "#1a1a2e", "btnStyle": "filled", "btnRadius": "6",
+    "bgType": "color", "fontFamily": "inter"
+  },
+  "default_blocks": [
+    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Priya Mehta", "bio":"SEBI RIA · CFP · AMFI ARN Holder · 15 years experience" },
+    { "id":"b2", "type":"link",    "enabled":true, "title":"📊 Book a free portfolio review →", "url":"#" },
+    { "id":"b3", "type":"heading", "enabled":true, "text":"What I Offer", "size":"h3", "align":"center" },
+    { "id":"b4", "type":"link",    "enabled":true, "title":"📊 Mutual Funds & SIP · Goal-based investing", "url":"#" },
+    { "id":"b5", "type":"link",    "enabled":true, "title":"🛡️ Life & Health Insurance · Best-fit coverage", "url":"#" },
+    { "id":"b6", "type":"link",    "enabled":true, "title":"🧮 SIP Calculator · Plan your investments", "url":"#" },
+    { "id":"b7", "type":"socials", "enabled":true, "linkedin":"https://linkedin.com", "youtube":"https://youtube.com" }
+  ],
   "sections": [
     {
       "id": "profile",
