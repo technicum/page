@@ -1,275 +1,304 @@
 {% extends "layouts/base.njk" %}
 {% block head %}
 <style>
-body{font-family:"DM Sans",sans-serif;background:var(--off);}
-.layout{display:flex;min-height:100vh;}
-.sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;box-shadow:2px 0 8px rgba(0,0,0,0.03);}
-.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:28px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;font-weight:600;}
-.sidebar-logo em{font-style:italic;color:var(--blue);}
-.sidebar-nav{padding:20px 12px;flex:1;}
-.nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:4px;font-weight:500;}
-.nav-item:hover{background:var(--off);color:var(--ink);}
-.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:600;}
-.nav-item::before{font-size:16px;}
-.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);background:var(--off);}
-.user-chip{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius);background:var(--white);transition:all 0.15s;}
-.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, var(--blue), var(--blue-light));color:var(--white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;}
-.user-name{font-size:13px;font-weight:600;color:var(--ink);}
-.user-plan{font-size:11px;color:var(--ink-muted);}
-.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:8px 12px;margin-top:8px;border-radius:var(--radius);transition:all 0.15s;}
-.logout-link:hover{color:var(--red);background:rgba(255,0,0,0.05);}
-.content{flex:1;padding:40px;min-width:0;overflow-y:auto;}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;gap:20px;}
-.page-title{font-family:"DM Serif Display",serif;font-size:32px;font-weight:400;letter-spacing:-0.5px;}
-.btn-new{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:var(--white);padding:11px 24px;border-radius:var(--radius);font-size:14px;font-weight:600;transition:all 0.2s;border:none;cursor:pointer;white-space:nowrap;}
-.btn-new:hover{background:var(--blue);opacity:0.9;transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.3);}
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:36px;}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;transition:all 0.2s;}
-.stat-card:hover{border-color:var(--blue);box-shadow:0 4px 12px rgba(59,130,246,0.1);}
-.stat-num{font-family:"DM Serif Display",serif;font-size:36px;font-weight:600;color:var(--blue);letter-spacing:-1px;margin-bottom:8px;}
-.stat-label{font-size:13px;color:var(--ink-muted);font-weight:500;}
-.flash-success{background:linear-gradient(135deg, rgba(22,163,74,0.1), rgba(34,197,94,0.05));border:1px solid rgba(22,163,74,0.3);border-radius:var(--radius);padding:14px 18px;font-size:14px;color:var(--green);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
-.flash-success::before{content:"✓";font-weight:bold;font-size:16px;}
-.sites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
-.site-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0;transition:all 0.25s;overflow:hidden;display:flex;flex-direction:column;}
-.site-card:hover{border-color:var(--blue);box-shadow:0 8px 24px rgba(59,130,246,0.15);transform:translateY(-2px);}
-.site-card-header{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
-.site-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex:1;}
-.site-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--blue-light);color:var(--blue);text-transform:uppercase;letter-spacing:0.3px;}
-.site-status{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600;}
-.site-status.live{background:rgba(34,197,94,0.1);color:var(--green);display:flex;align-items:center;gap:4px;}
-.site-status.live::before{content:"●";font-size:8px;}
-.site-name{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--ink);line-height:1.3;}
-.site-url{font-size:13px;color:var(--blue);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color 0.2s;}
-.site-card:hover .site-url{color:var(--blue);}
-.site-card-body{padding:18px 22px;flex:1;font-size:13px;color:var(--ink-muted);line-height:1.5;}
-.site-meta{display:flex;gap:16px;flex-wrap:wrap;}
-.site-meta-item{display:flex;gap:4px;align-items:center;}
-.site-meta-label{color:var(--ink-muted);font-size:12px;}
-.site-meta-value{color:var(--ink);font-weight:500;}
-.site-actions{display:grid;grid-template-columns:1fr 1fr;gap:1px;border-top:1px solid var(--border);background:var(--border);}
-.btn-action{padding:12px;border-radius:0;font-size:13px;font-weight:600;cursor:pointer;text-align:center;border:none;background:var(--white);color:var(--blue);font-family:"DM Sans",sans-serif;transition:all 0.15s;}
-.btn-action:hover{background:var(--off);color:var(--blue);}
-.btn-action.danger{color:var(--red);}
-.btn-action.danger:hover{background:rgba(255,0,0,0.05);}
-.btn-action-group-primary{display:flex;gap:1px;flex:1;}
-.btn-action-group-primary .btn-action{flex:1;border-right:1px solid var(--border);}
-.btn-action-group-primary .btn-action:last-child{border-right:none;}
-.empty-state{text-align:center;padding:80px 40px;background:var(--white);border:2px dashed var(--border-md);border-radius:var(--radius-lg);margin:20px 0;}
-.empty-icon{font-size:48px;margin-bottom:20px;}
-.empty-state h3{font-family:"DM Serif Display",serif;font-size:24px;font-weight:600;margin-bottom:12px;color:var(--ink);}
-.empty-state p{font-size:14px;color:var(--ink-muted);margin-bottom:28px;max-width:400px;margin-left:auto;margin-right:auto;}
-@media(max-width:1024px){
-  .layout{flex-direction:column;}
-  .sidebar{width:100%;height:auto;position:relative;}
-  .sidebar-nav{display:flex;gap:12px;overflow-x:auto;padding:12px;}
-  .nav-item{margin-bottom:0;white-space:nowrap;}
-  .content{padding:28px 20px;}
-  .sites-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
-  .page-title{font-size:24px;}
-}
-.sites-table{width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
-.sites-table thead{background:var(--off);border-bottom:1px solid var(--border);}
-.sites-table th{padding:16px 20px;text-align:left;font-weight:600;font-size:13px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.3px;}
-.sites-table td{padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;}
-.sites-table tbody tr{transition:background 0.15s;}
-.sites-table tbody tr:hover{background:var(--off);}
-.sites-table tbody tr:last-child td{border-bottom:none;}
-.table-site-name{font-weight:600;color:var(--ink);}
-.table-site-url{color:var(--blue);text-decoration:none;transition:color 0.2s;}
-.table-site-url:hover{color:var(--blue);text-decoration:underline;}
-.table-badge{font-size:11px;font-weight:600;padding:4px 8px;border-radius:16px;background:var(--blue-light);color:var(--blue);display:inline-block;}
-.table-actions{display:flex;gap:8px;}
-.btn-table-action{padding:6px 12px;border-radius:var(--radius);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--blue);transition:all 0.15s;white-space:nowrap;}
-.btn-table-action:hover{background:var(--blue-light);border-color:var(--blue);}
-.btn-table-action.danger{color:var(--red);border-color:var(--red);}
-.btn-table-action.danger:hover{background:rgba(255,0,0,0.05);border-color:var(--red);}
-.load-more-container{display:flex;justify-content:center;margin-top:32px;}
-.btn-load-more{display:inline-flex;align-items:center;gap:8px;background:var(--white);color:var(--blue);padding:12px 28px;border-radius:var(--radius);font-size:14px;font-weight:600;transition:all 0.2s;border:1px solid var(--border);cursor:pointer;}
-.btn-load-more:hover{background:var(--off);border-color:var(--blue);}
-.btn-load-more.loading{opacity:0.6;cursor:not-allowed;}
-.empty-table{text-align:center;padding:48px 20px;color:var(--ink-muted);}
-.pagination-info{font-size:13px;color:var(--ink-muted);margin-bottom:16px;text-align:center;}
-/* Info modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:900;backdrop-filter:blur(2px);}
+*{box-sizing:border-box;}
+body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
+
+/* ── Top nav ─────────────────────────────────── */
+.topnav{height:56px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:200;}
+.tn-logo{font-size:17px;font-weight:800;color:#111827;text-decoration:none;letter-spacing:-0.5px;flex-shrink:0;}
+.tn-logo em{color:#6366f1;font-style:normal;}
+.tn-divider{width:1px;height:20px;background:#e5e7eb;flex-shrink:0;}
+.tn-links{display:flex;gap:2px;}
+.tn-link{padding:6px 12px;border-radius:7px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;transition:all .15s;}
+.tn-link:hover{background:#f3f4f6;color:#111827;}
+.tn-link.active{background:#eef2ff;color:#6366f1;font-weight:600;}
+.tn-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.btn-create{display:flex;align-items:center;gap:6px;background:#111827;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s;white-space:nowrap;border:none;cursor:pointer;font-family:inherit;}
+.btn-create:hover{background:#374151;}
+.user-menu-wrap{position:relative;}
+.tn-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;user-select:none;}
+.user-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;overflow:hidden;display:none;z-index:400;}
+.user-dropdown.open{display:block;}
+.ud-name{padding:12px 14px;font-size:12px;font-weight:600;color:#6b7280;border-bottom:1px solid #f3f4f6;}
+.ud-item{display:block;padding:9px 14px;font-size:13px;color:#374151;text-decoration:none;transition:background .1s;}
+.ud-item:hover{background:#f9fafb;}
+.ud-item.danger{color:#ef4444;}
+
+/* ── Page content ────────────────────────────── */
+.page{max-width:860px;margin:0 auto;padding:32px 20px 60px;}
+
+/* ── Page header ─────────────────────────────── */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.page-title{font-size:22px;font-weight:700;color:#111827;}
+.page-sub{font-size:13px;color:#9ca3af;margin-top:2px;}
+
+/* ── Flash ───────────────────────────────────── */
+.flash-ok{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;font-size:13px;color:#15803d;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+
+/* ── Stats ───────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
+.stat-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px;}
+.stat-num{font-size:28px;font-weight:800;color:#111827;letter-spacing:-1px;line-height:1;}
+.stat-num.green{color:#16a34a;}
+.stat-num.muted{color:#9ca3af;}
+.stat-label{font-size:12px;color:#6b7280;margin-top:4px;font-weight:500;}
+
+/* ── Section header ──────────────────────────── */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.section-title{font-size:14px;font-weight:700;color:#111827;}
+.section-sub{font-size:12px;color:#9ca3af;}
+
+/* ── Site list ───────────────────────────────── */
+.site-list{display:flex;flex-direction:column;gap:8px;}
+.site-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;transition:border-color .15s,box-shadow .15s;}
+.site-item:hover{border-color:#c7d2fe;box-shadow:0 2px 8px rgba(99,102,241,.08);}
+.site-item.staff-item{margin-left:28px;border-style:dashed;background:#fafafa;}
+.si-avatar{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;background:linear-gradient(135deg,#6366f1,#8b5cf6);}
+.si-avatar.staff{background:linear-gradient(135deg,#7c3aed,#a78bfa);}
+.si-info{flex:1;min-width:0;}
+.si-name{font-size:14px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.si-url{font-size:12px;color:#6366f1;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;transition:opacity .15s;}
+.si-url:hover{opacity:.7;}
+.si-meta{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.si-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:#eef2ff;color:#6366f1;}
+.si-tag.staff{background:#f3e8ff;color:#7c3aed;}
+.si-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+
+/* ── Status button ───────────────────────────── */
+.status-btn{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid;display:inline-flex;align-items:center;gap:3px;transition:all .15s;font-family:inherit;}
+.status-btn.live{color:#15803d;border-color:rgba(22,163,74,.3);background:rgba(22,163,74,.07);}
+.status-btn.live:hover{background:rgba(22,163,74,.15);}
+.status-btn.draft{color:#6b7280;border-color:#e5e7eb;background:#f9fafb;}
+.status-btn.draft:hover{border-color:#6366f1;color:#6366f1;}
+
+/* ── Action buttons ──────────────────────────── */
+.btn-edit{padding:7px 14px;background:#111827;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;transition:all .15s;font-family:inherit;}
+.btn-edit:hover{background:#374151;}
+.more-wrap{position:relative;}
+.btn-more{width:30px;height:30px;border:1.5px solid #e5e7eb;background:#fff;border-radius:7px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:#6b7280;transition:all .15s;font-family:inherit;}
+.btn-more:hover{border-color:#6366f1;color:#6366f1;background:#eef2ff;}
+.more-menu{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:180px;overflow:hidden;z-index:100;display:none;}
+.more-menu.open{display:block;}
+.mm-item{display:block;width:100%;padding:9px 14px;font-size:13px;color:#374151;text-decoration:none;background:none;border:none;text-align:left;cursor:pointer;transition:background .1s;font-family:inherit;}
+.mm-item:hover{background:#f9fafb;}
+.mm-item.danger{color:#ef4444;}
+.mm-item.danger:hover{background:#fef2f2;}
+.mm-sep{height:1px;background:#f3f4f6;margin:4px 0;}
+
+/* ── Staff indent arrow ──────────────────────── */
+.staff-arrow{font-size:13px;color:#d1d5db;flex-shrink:0;margin-left:4px;}
+
+/* ── Empty state ─────────────────────────────── */
+.empty-state{text-align:center;padding:60px 32px;background:#fff;border:2px dashed #e5e7eb;border-radius:14px;}
+.empty-icon{font-size:44px;margin-bottom:16px;}
+.empty-state h3{font-size:18px;font-weight:700;color:#111827;margin-bottom:8px;}
+.empty-state p{font-size:14px;color:#6b7280;margin-bottom:24px;}
+
+/* ── Modals ──────────────────────────────────── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;backdrop-filter:blur(2px);}
 .modal-overlay.open{display:flex;align-items:center;justify-content:center;}
-.modal-box{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.18);margin:16px;}
-.modal-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 18px;border-bottom:1px solid var(--border);}
-.modal-title{font-family:"DM Serif Display",serif;font-size:20px;font-weight:400;color:var(--ink);}
-.modal-close{border:none;background:none;font-size:22px;cursor:pointer;color:var(--ink-faint);line-height:1;padding:0 4px;}
-.modal-close:hover{color:var(--ink);}
-.modal-body{padding:24px;}
-.modal-field{margin-bottom:18px;}
-.modal-field label{display:block;font-size:13px;font-weight:500;color:var(--ink-muted);margin-bottom:6px;}
-.modal-field input,.modal-field select,.modal-field textarea{width:100%;padding:10px 13px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:14px;font-family:"DM Sans",sans-serif;color:var(--ink);outline:none;transition:border-color 0.2s;}
-.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
+.modal-box{background:#fff;border-radius:14px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.18);margin:16px;}
+.modal-box.wide{max-width:600px;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 16px;border-bottom:1px solid #f0f0f3;}
+.modal-title{font-size:16px;font-weight:700;color:#111827;}
+.modal-close{border:none;background:none;font-size:20px;cursor:pointer;color:#9ca3af;line-height:1;padding:0 4px;}
+.modal-close:hover{color:#374151;}
+.modal-body{padding:22px;}
+.modal-field{margin-bottom:16px;}
+.modal-field:last-child{margin-bottom:0;}
+.modal-field label{display:block;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s;}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.08);}
 .modal-field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;gap:10px;}
-.btn-modal-save{background:var(--blue);color:#fff;border:none;padding:10px 24px;border-radius:var(--radius);font-size:14px;font-weight:600;font-family:"DM Sans",sans-serif;cursor:pointer;transition:opacity 0.2s;}
-.btn-modal-save:hover{opacity:0.88;}
-.btn-modal-save:disabled{opacity:0.5;cursor:not-allowed;}
-.btn-modal-cancel{background:none;border:1px solid var(--border-md);color:var(--ink-muted);padding:10px 20px;border-radius:var(--radius);font-size:14px;font-family:"DM Sans",sans-serif;cursor:pointer;}
-.modal-msg{font-size:13px;margin-right:auto;}
-.modal-msg.ok{color:var(--green);}
-.modal-msg.err{color:var(--red);}
-/* Status toggle */
-.status-btn{background:none;border:1px solid transparent;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s;white-space:nowrap;}
-.status-btn.live{color:var(--green);border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.06);}
-.status-btn.live:hover{background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.5);}
-.status-btn.draft{color:var(--ink-muted);border-color:var(--border);background:var(--off);}
-.status-btn.draft:hover{border-color:var(--blue);color:var(--blue);}
-/* Staff bio link rows */
-.staff-row{background:linear-gradient(90deg,rgba(59,130,246,0.03) 0,transparent 400px);}
-.staff-row td:first-child{padding-left:32px;}
-.staff-indent{color:var(--ink-faint);font-size:13px;margin-right:6px;vertical-align:middle;}
-.table-badge.staff-badge{background:rgba(139,92,246,0.1);color:#7c3aed;}
-.btn-table-action.staff{color:#7c3aed;border-color:#c4b5fd;}
-.btn-table-action.staff:hover{background:rgba(139,92,246,0.08);border-color:#7c3aed;}
-/* Add Staff modal */
-.staff-modal-parent{font-size:13px;color:var(--ink-muted);margin-bottom:20px;padding:10px 14px;background:var(--off);border-radius:var(--radius);border-left:3px solid var(--blue);}
-/* SEO button */
-.btn-table-action.seo{color:#059669;border-color:rgba(5,150,105,0.3);}
-.btn-table-action.seo:hover{background:rgba(5,150,105,0.07);border-color:rgba(5,150,105,0.6);}
+.modal-foot{padding:14px 22px;border-top:1px solid #f0f0f3;display:flex;align-items:center;justify-content:flex-end;gap:10px;}
+.btn-modal-save{background:#111827;color:#fff;border:none;padding:9px 22px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .2s;}
+.btn-modal-save:hover{opacity:.85;}
+.btn-modal-save:disabled{opacity:.5;cursor:not-allowed;}
+.btn-modal-cancel{background:none;border:1.5px solid #e5e7eb;color:#6b7280;padding:9px 18px;border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;}
+.btn-modal-cancel:hover{border-color:#374151;color:#374151;}
+.modal-msg{font-size:12px;margin-right:auto;}
+.modal-msg.ok{color:#16a34a;}
+.modal-msg.err{color:#ef4444;}
+.modal-info-note{font-size:12px;color:#6b7280;padding:10px 13px;background:#f9fafb;border-radius:7px;border-left:3px solid #6366f1;margin-bottom:16px;}
+
+/* ── Reviews modal ───────────────────────────── */
+.reviews-stats{background:#f9fafb;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+.reviews-avg-num{font-size:36px;font-weight:800;color:#111827;line-height:1;}
+.reviews-stars{color:#f59e0b;font-size:16px;letter-spacing:2px;}
+.reviews-total{font-size:12px;color:#9ca3af;margin-top:2px;}
+.review-link-row{display:flex;gap:8px;}
+.review-link-inp{flex:1;padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:12px;font-family:inherit;color:#374151;background:#fff;min-width:0;}
+.review-link-copy{padding:7px 12px;background:#6366f1;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.review-card{background:#f9fafb;border-radius:8px;padding:12px 14px;}
+.review-card+.review-card{margin-top:8px;}
+.review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.review-name{font-size:13px;font-weight:600;color:#111827;}
+.review-stars-sm{color:#f59e0b;font-size:12px;}
+.review-date{font-size:11px;color:#9ca3af;}
+.review-del{font-size:11px;color:#ef4444;background:none;border:none;cursor:pointer;padding:0 4px;}
+.review-comment{font-size:12px;color:#6b7280;line-height:1.55;margin-top:4px;}
+
+/* ── Staff modal ─────────────────────────────── */
+.staff-parent-note{font-size:12px;color:#6b7280;padding:9px 12px;background:#f9fafb;border-radius:7px;border-left:3px solid #6366f1;margin-bottom:14px;}
+.staff-slug-preview{font-size:11px;color:#9ca3af;margin-top:5px;}
+.staff-slug-preview strong{color:#6366f1;}
+
+/* ── Mobile ──────────────────────────────────── */
 @media(max-width:640px){
-  .page-header{flex-direction:column;align-items:stretch;margin-bottom:24px;}
-  .page-title{font-size:20px;}
-  .btn-new{width:100%;}
-  .sidebar{width:100%;}
-  .sites-table{font-size:12px;}
-  .sites-table th,.sites-table td{padding:12px 10px;}
-  .btn-table-action{padding:4px 8px;font-size:11px;}
-  .stat-card{padding:16px;}
-  .stat-num{font-size:28px;}
-  .content{padding:16px;}
+  .page{padding:20px 14px 50px;}
+  .stats-row{grid-template-columns:1fr 1fr 1fr;}
+  .stat-card{padding:14px;}
+  .stat-num{font-size:22px;}
+  .si-tag,.si-right .status-btn{display:none;}
+  .btn-edit{padding:6px 10px;font-size:11px;}
+  .modal-field-row{grid-template-columns:1fr;}
+  .tn-links{display:none;}
+  .topnav{padding:0 14px;}
 }
 </style>
 {% endblock %}
+
 {% block body %}
-{% set activePage = 'dashboard' %}
-<div class="layout">
-  {% include "dashboard/_sidebar.njk" %}
-  <main class="content">
-    <div class="page-header">
-      <div>
-        <div class="page-title">Dashboard</div>
-        <p style="color:var(--ink-muted);margin-top:4px;font-size:14px;">Welcome back! Manage your sites and content.</p>
+<!-- ── Top nav ───────────────────────────────── -->
+<nav class="topnav">
+  <a class="tn-logo" href="/dashboard"><em>Page</em>Zaper</a>
+  <div class="tn-divider"></div>
+  <div class="tn-links">
+    <a class="tn-link active" href="/dashboard">My Links</a>
+    <a class="tn-link" href="/dashboard/settings">Settings</a>
+  </div>
+  <div class="tn-right">
+    <a class="btn-create" href="/dashboard/wizard">+ Create new</a>
+    <div class="user-menu-wrap">
+      <div class="tn-avatar" onclick="toggleUserMenu()">{{ user.name | first | upper }}</div>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="ud-name">{{ user.name }}</div>
+        <a class="ud-item" href="/dashboard/settings">⚙️ Settings</a>
+        <a class="ud-item danger" href="/auth/logout">← Log out</a>
       </div>
-      <a class="btn-new" href="/dashboard/wizard">+ Create New Site</a>
     </div>
-    {% if flash_success and flash_success.length %}
-    <div class="flash-success">{{ flash_success[0] }}</div>
+  </div>
+</nav>
+
+<div class="page">
+  <!-- ── Flash ── -->
+  {% if flash_success and flash_success.length %}
+  <div class="flash-ok">✓ {{ flash_success[0] }}</div>
+  {% endif %}
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">My bio links</div>
+      <div class="page-sub">Manage your pages and team member links</div>
+    </div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num">{{ sites.length }}</div>
+      <div class="stat-label">Total links</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">{{ publishedCount }}</div>
+      <div class="stat-label">Published</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num muted">{{ draftCount }}</div>
+      <div class="stat-label">Drafts</div>
+    </div>
+  </div>
+
+  <!-- ── Site list ── -->
+  {% if not sites.length %}
+  <div class="empty-state">
+    <div class="empty-icon">🚀</div>
+    <h3>Create your first bio link</h3>
+    <p>Get started in minutes with our intuitive builder.</p>
+    <a class="btn-create" href="/dashboard/wizard">Create your first site</a>
+  </div>
+  {% else %}
+  <div class="section-head">
+    <span class="section-title">All sites</span>
+    <span class="section-sub">{{ sites.length }} site{{ 's' if sites.length != 1 }}</span>
+  </div>
+  <div class="site-list">
+    {% for site in siteRows %}
+    {# ── Main site ── #}
+    <div class="site-item" id="si-{{ site.id }}">
+      <div class="si-avatar">{{ site.title | first | upper }}</div>
+      <div class="si-info">
+        <div class="si-name">{{ site.title }}</div>
+        <a class="si-url" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a>
+        <div class="si-meta">
+          <span class="si-tag">{% if site.category == 'linktree' %}Business{% elif site.category %}{{ site.category | capitalize }}{% else %}Bio Link{% endif %}</span>
+        </div>
+      </div>
+      <div class="si-right">
+        <button class="status-btn {{ 'live' if site.is_published else 'draft' }}" id="status-{{ site.id }}" onclick="togglePublish({{ site.id }}, {{ 1 if site.is_published else 0 }})">
+          <span style="font-size:8px;">{{ '●' if site.is_published else '◌' }}</span>
+          {{ 'Live' if site.is_published else 'Draft' }}
+        </button>
+        <a class="btn-edit" href="/dashboard/site/{% if site.category == 'linktree' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit →</a>
+        <div class="more-wrap">
+          <button class="btn-more" onclick="toggleMore(event, 'more-{{ site.id }}')">⋯</button>
+          <div class="more-menu" id="more-{{ site.id }}">
+            <a class="mm-item" href="/dashboard/site/templates?id={{ site.id }}">🎨 Theme</a>
+            <button class="mm-item" onclick="closeMoreMenus();openInfoModal({{ site.id }})">📋 Info</button>
+            <button class="mm-item" onclick="closeMoreMenus();openSeoModal({{ site.id }})">🔍 SEO</button>
+            <button class="mm-item" onclick="closeMoreMenus();openReviewsModal({{ site.id }}, '{{ site.subdomain }}')">⭐ Reviews</button>
+            <a class="mm-item" href="/dashboard/booking/{{ site.id }}">📅 Booking</a>
+            <button class="mm-item" onclick="closeMoreMenus();openAddStaffModal({{ site.id }}, '{{ site.title | escape }}', '{{ site.subdomain }}')">👤 Add Team Member</button>
+            <div class="mm-sep"></div>
+            <form method="POST" action="/dashboard/site/delete" onsubmit="return confirm('Delete this site and all its data?')">
+              <input type="hidden" name="site_id" value="{{ site.id }}">
+              <button type="submit" class="mm-item danger">🗑️ Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {# ── Staff bio links ── #}
+    {% if site.staffSites and site.staffSites.length %}
+    {% for staff in site.staffSites %}
+    <div class="site-item staff-item" id="si-{{ staff.id }}">
+      <span class="staff-arrow">↳</span>
+      <div class="si-avatar staff">{{ staff.title | first | upper }}</div>
+      <div class="si-info">
+        <div class="si-name">{{ staff.title }}</div>
+        <a class="si-url" href="https://{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}</a>
+        <div class="si-meta"><span class="si-tag staff">👤 Team Member</span></div>
+      </div>
+      <div class="si-right">
+        <button class="status-btn {{ 'live' if staff.is_published else 'draft' }}" id="status-{{ staff.id }}" onclick="togglePublish({{ staff.id }}, {{ 1 if staff.is_published else 0 }})">
+          <span style="font-size:8px;">{{ '●' if staff.is_published else '◌' }}</span>
+          {{ 'Live' if staff.is_published else 'Draft' }}
+        </button>
+        <a class="btn-edit" href="/dashboard/site/biolink-builder?id={{ staff.id }}">Edit →</a>
+        <div class="more-wrap">
+          <button class="btn-more" onclick="toggleMore(event, 'more-{{ staff.id }}')">⋯</button>
+          <div class="more-menu" id="more-{{ staff.id }}">
+            <a class="mm-item" href="/dashboard/site/templates?id={{ staff.id }}">🎨 Theme</a>
+            <button class="mm-item" onclick="closeMoreMenus();openSeoModal({{ staff.id }})">🔍 SEO</button>
+            <div class="mm-sep"></div>
+            <form method="POST" action="/dashboard/site/delete" onsubmit="return confirm('Delete this team member bio link?')">
+              <input type="hidden" name="site_id" value="{{ staff.id }}">
+              <button type="submit" class="mm-item danger">🗑️ Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
     {% endif %}
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-num">{{ sites.length }}</div>
-        <div class="stat-label">Total Bio Links</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num" style="color:var(--green);">{{ publishedCount }}</div>
-        <div class="stat-label">Published</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num" style="color:var(--ink-muted);">{{ draftCount }}</div>
-        <div class="stat-label">Drafts</div>
-      </div>
-    </div>
-    {% if not sites.length %}
-    <div class="empty-state">
-      <div class="empty-icon">🚀</div>
-      <h3>Ready to create your first site?</h3>
-      <p>Get started in minutes with our intuitive builder. Choose from stunning templates or start from scratch.</p>
-      <a class="btn-new" href="/dashboard/wizard">Launch Your First Site</a>
-    </div>
-    {% else %}
-    <div style="margin-bottom:20px;">
-      <h2 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:600;color:var(--ink);margin-bottom:4px;">Your Bio Links</h2>
-      <p style="color:var(--ink-muted);font-size:13px;">Manage your business page and team member bio links</p>
-    </div>
-    <table class="sites-table" id="sites-table">
-      <thead>
-        <tr>
-          <th style="width:32%;">Name</th>
-          <th style="width:22%;">URL</th>
-          <th style="width:14%;">Type</th>
-          <th style="width:10%;">Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="sites-tbody">
-        {% for site in siteRows %}
-        {# ── Main / business site row ── #}
-        <tr class="site-row">
-          <td>
-            <div class="table-site-name">{{ site.title }}</div>
-            <div style="font-size:12px;color:var(--ink-muted);margin-top:2px;">{{ site.template_id or "Default" }}</div>
-          </td>
-          <td><a class="table-site-url" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a></td>
-          <td><span class="table-badge">{% if site.category == 'linktree' %}Business{% elif site.category %}{{ site.category | capitalize }}{% else %}Site{% endif %}</span></td>
-          <td>
-            <button class="status-btn {% if site.is_published %}live{% else %}draft{% endif %}"
-                    id="status-{{ site.id }}"
-                    onclick="togglePublish({{ site.id }}, {{ site.is_published }})">
-              {% if site.is_published %}<span style="font-size:8px;">●</span> Live
-              {% else %}<span style="font-size:8px;">◌</span> Draft{% endif %}
-            </button>
-          </td>
-          <td>
-            <div class="table-actions">
-              <a class="btn-table-action" href="/dashboard/site/{% if site.category == 'linktree' %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit</a>
-              <a class="btn-table-action" href="/dashboard/site/templates?id={{ site.id }}">Theme</a>
-              <button type="button" class="btn-table-action" onclick="openInfoModal({{ site.id }})">Info</button>
-              <button type="button" class="btn-table-action seo" onclick="openSeoModal({{ site.id }})">SEO</button>
-              <button type="button" class="btn-table-action" onclick="openReviewsModal({{ site.id }}, '{{ site.subdomain }}')">Reviews</button>
-              <a class="btn-table-action" href="/dashboard/booking/{{ site.id }}">Booking</a>
-              <button type="button" class="btn-table-action staff" onclick="openAddStaffModal({{ site.id }}, '{{ site.title | escape }}', '{{ site.subdomain }}')">+ Team Member</button>
-              <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Delete this site and all its data?')">
-                <input type="hidden" name="site_id" value="{{ site.id }}">
-                <button type="submit" class="btn-table-action danger">Delete</button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        {# ── Staff / employee bio link rows ── #}
-        {% if site.staffSites and site.staffSites.length %}
-        {% for staff in site.staffSites %}
-        <tr class="site-row staff-row">
-          <td>
-            <span class="staff-indent">↳</span>
-            <div class="table-site-name" style="display:inline-block;">{{ staff.title }}</div>
-            <div style="font-size:12px;color:var(--ink-muted);margin-top:2px;padding-left:20px;">Team Member Bio Link</div>
-          </td>
-          <td><a class="table-site-url" href="https://{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}</a></td>
-          <td><span class="table-badge staff-badge">👤 Team Member</span></td>
-          <td>
-            <button class="status-btn {% if staff.is_published %}live{% else %}draft{% endif %}"
-                    id="status-{{ staff.id }}"
-                    onclick="togglePublish({{ staff.id }}, {{ staff.is_published }})">
-              {% if staff.is_published %}<span style="font-size:8px;">●</span> Live
-              {% else %}<span style="font-size:8px;">◌</span> Draft{% endif %}
-            </button>
-          </td>
-          <td>
-            <div class="table-actions">
-              <a class="btn-table-action" href="/dashboard/site/biolink-builder?id={{ staff.id }}">Edit</a>
-              <a class="btn-table-action" href="/dashboard/site/templates?id={{ staff.id }}">Theme</a>
-              <button type="button" class="btn-table-action seo" onclick="openSeoModal({{ staff.id }})">SEO</button>
-              <form method="POST" action="/dashboard/site/delete" style="display:inline;" onsubmit="return confirm('Delete this team member bio link?')">
-                <input type="hidden" name="site_id" value="{{ staff.id }}">
-                <button type="submit" class="btn-table-action danger">Delete</button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-        {% endif %}
-        {% endfor %}
-      </tbody>
-    </table>
-    {% endif %}
-  </main>
+    {% endfor %}
+  </div>
+  {% endif %}
 </div>
 
-<!-- ── Info / Edit modal ── -->
+<!-- ── Info modal ─────────────────────────────── -->
 <div class="modal-overlay" id="info-modal">
   <div class="modal-box">
     <div class="modal-head">
@@ -278,57 +307,34 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
     </div>
     <div class="modal-body">
       <input type="hidden" id="info-site-id">
-      <div class="modal-field">
-        <label>Business Name</label>
-        <input type="text" id="info-title" placeholder="e.g. Glamour Studio">
-      </div>
+      <div class="modal-field"><label>Business Name</label><input type="text" id="info-title" placeholder="e.g. Glamour Studio"></div>
       <div class="modal-field">
         <label>Category</label>
         <select id="info-category">
           <option value="">— No category —</option>
-          {% for cat in categories %}
-          <option value="{{ cat.id }}">{{ cat.icon }} {{ cat.name }}</option>
-          {% endfor %}
+          {% for cat in categories %}<option value="{{ cat.id }}">{{ cat.icon }} {{ cat.name }}</option>{% endfor %}
         </select>
       </div>
-      <div class="modal-field">
-        <label>Description</label>
-        <input type="text" id="info-description" placeholder="Short description of your business">
+      <div class="modal-field"><label>Description</label><input type="text" id="info-description" placeholder="Short description"></div>
+      <div class="modal-field-row">
+        <div class="modal-field"><label>City</label><input type="text" id="info-city" placeholder="e.g. Mumbai"></div>
+        <div class="modal-field"><label>Phone</label><input type="text" id="info-phone" placeholder="+91 98765 43210"></div>
       </div>
       <div class="modal-field-row">
-        <div class="modal-field" style="margin-bottom:0">
-          <label>City</label>
-          <input type="text" id="info-city" placeholder="e.g. Ludhiana">
-        </div>
-        <div class="modal-field" style="margin-bottom:0">
-          <label>Phone</label>
-          <input type="text" id="info-phone" placeholder="+91 98765 43210">
-        </div>
+        <div class="modal-field"><label>WhatsApp</label><input type="text" id="info-whatsapp" placeholder="+91 98765 43210"></div>
+        <div class="modal-field"><label>Address</label><input type="text" id="info-address" placeholder="Area, City"></div>
       </div>
-      <div class="modal-field-row" style="margin-top:18px;">
-        <div class="modal-field" style="margin-bottom:0">
-          <label>WhatsApp</label>
-          <input type="text" id="info-whatsapp" placeholder="+91 98765 43210">
-        </div>
-        <div class="modal-field" style="margin-bottom:0">
-          <label>Address</label>
-          <input type="text" id="info-address" placeholder="Model Town, Ludhiana">
-        </div>
-      </div>
-      <div class="modal-field" style="margin-top:18px;">
-        <label>Logo URL <span style="font-weight:400;color:var(--ink-faint);">(shown on search cards — paste image URL or use your avatar link)</span></label>
-        <input type="text" id="info-logo" placeholder="https://example.com/logo.png">
-      </div>
+      <div class="modal-field"><label>Logo URL</label><input type="text" id="info-logo" placeholder="https://example.com/logo.png"></div>
     </div>
     <div class="modal-foot">
       <span class="modal-msg" id="info-msg"></span>
       <button class="btn-modal-cancel" onclick="closeInfoModal()">Cancel</button>
-      <button class="btn-modal-save" id="info-save-btn" onclick="saveInfo()">Save Changes</button>
+      <button class="btn-modal-save" id="info-save-btn" onclick="saveInfo()">Save changes</button>
     </div>
   </div>
 </div>
 
-<!-- ── Add Staff Bio Link modal ── -->
+<!-- ── Add Staff modal ────────────────────────── -->
 <div class="modal-overlay" id="staff-modal">
   <div class="modal-box">
     <div class="modal-head">
@@ -337,17 +343,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
     </div>
     <div class="modal-body">
       <input type="hidden" id="staff-parent-id">
-      <div class="staff-modal-parent" id="staff-modal-parent-label"></div>
+      <div class="staff-parent-note" id="staff-modal-parent-label"></div>
+      <div class="modal-field"><label>Team Member Name</label><input type="text" id="staff-name" placeholder="e.g. Rahul Sharma" oninput="staffAutoSlug()"></div>
       <div class="modal-field">
-        <label>Team Member Name</label>
-        <input type="text" id="staff-name" placeholder="e.g. Rahul Sharma" oninput="staffAutoSlug()">
-      </div>
-      <div class="modal-field">
-        <label>URL Slug <span style="font-weight:400;color:var(--ink-faint);">(appears in their link)</span></label>
+        <label>URL Slug</label>
         <input type="text" id="staff-subdomain" placeholder="e.g. rahul" style="font-family:monospace;" oninput="staffSlugPreview()">
-        <div style="font-size:12px;color:var(--ink-muted);margin-top:4px;">
-          🔗 <span id="staff-parent-sub-preview"></span>.{{ base_domain }}/<span id="staff-sub-preview" style="font-weight:600;">…</span>
-        </div>
+        <div class="staff-slug-preview">🔗 <span id="staff-parent-sub-preview"></span>.{{ base_domain }}/<strong id="staff-sub-preview">…</strong></div>
       </div>
     </div>
     <div class="modal-foot">
@@ -358,36 +359,24 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
   </div>
 </div>
 
-<!-- ── SEO Settings modal ── -->
+<!-- ── SEO modal ──────────────────────────────── -->
 <div class="modal-overlay" id="seo-modal">
   <div class="modal-box">
     <div class="modal-head">
-      <div class="modal-title">🔍 SEO Settings</div>
+      <div class="modal-title">SEO Settings</div>
       <button class="modal-close" onclick="closeSeoModal()">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="seo-site-id">
-      <p style="font-size:13px;color:var(--ink-muted);margin-bottom:20px;padding:10px 14px;background:var(--off);border-radius:var(--radius);border-left:3px solid var(--blue);">
-        Help your bio link appear in Google, WhatsApp previews, and social media.
-      </p>
+      <div class="modal-info-note">Help your page appear in Google, WhatsApp previews, and social media.</div>
+      <div class="modal-field"><label>Page Title</label><input type="text" id="seo-title" placeholder="e.g. Rahul Sharma — Hair Stylist in Mumbai" maxlength="70"></div>
+      <div class="modal-field"><label>Meta Description</label><textarea id="seo-description" rows="3" style="resize:vertical;" placeholder="Short description for Google (120–160 chars)"></textarea></div>
+      <div class="modal-field"><label>Social Share Image URL</label><input type="text" id="seo-og-image" placeholder="https://example.com/photo.jpg"></div>
       <div class="modal-field">
-        <label>SEO Title <span style="font-weight:400;color:var(--ink-faint);">(shown in search results — defaults to your name)</span></label>
-        <input type="text" id="seo-title" placeholder="e.g. Rahul Sharma — Hair Stylist in Ludhiana" maxlength="70">
-      </div>
-      <div class="modal-field">
-        <label>Meta Description <span style="font-weight:400;color:var(--ink-faint);">(snippet shown in Google — aim for 120–160 chars)</span></label>
-        <textarea id="seo-description" rows="3" style="resize:vertical;" placeholder="e.g. Book Rahul Sharma for expert hair styling in Ludhiana. 10+ years experience. Walk-ins welcome."></textarea>
-      </div>
-      <div class="modal-field">
-        <label>Social Share Image URL <span style="font-weight:400;color:var(--ink-faint);">(WhatsApp, Facebook, LinkedIn preview image)</span></label>
-        <input type="text" id="seo-og-image" placeholder="https://example.com/photo.jpg">
-      </div>
-      <div class="modal-field">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500;color:var(--ink);">
-          <input type="checkbox" id="seo-noindex" style="width:auto;accent-color:var(--blue);cursor:pointer;">
-          Block this page from search engines (noindex)
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;color:#374151;cursor:pointer;">
+          <input type="checkbox" id="seo-noindex" style="width:auto;accent-color:#6366f1;">
+          Hide from search engines (noindex)
         </label>
-        <div style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Leave unchecked to allow Google to index your page.</div>
       </div>
     </div>
     <div class="modal-foot">
@@ -398,32 +387,30 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
   </div>
 </div>
 
-<!-- ── Reviews modal ── -->
+<!-- ── Reviews modal ─────────────────────────── -->
 <div class="modal-overlay" id="reviews-modal">
-  <div class="modal-box" style="max-width:600px;">
+  <div class="modal-box wide">
     <div class="modal-head">
       <div class="modal-title">⭐ Reviews</div>
       <button class="modal-close" onclick="closeReviewsModal()">✕</button>
     </div>
-    <div style="padding:24px;">
-      <!-- Stats bar -->
-      <div id="reviews-stats" style="background:var(--off);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:20px;">
-        <div style="text-align:center;">
-          <div id="reviews-avg" style="font-family:'DM Serif Display',serif;font-size:36px;color:var(--ink);line-height:1;">—</div>
-          <div id="reviews-stars-disp" style="color:#f59e0b;font-size:18px;letter-spacing:2px;">☆☆☆☆☆</div>
-          <div id="reviews-total" style="font-size:12px;color:var(--ink-muted);margin-top:2px;">No reviews yet</div>
+    <div style="padding:20px;">
+      <div class="reviews-stats">
+        <div>
+          <div class="reviews-avg-num" id="reviews-avg">—</div>
+          <div class="reviews-stars" id="reviews-stars-disp">☆☆☆☆☆</div>
+          <div class="reviews-total" id="reviews-total">No reviews yet</div>
         </div>
-        <div style="flex:1;border-left:1px solid var(--border);padding-left:16px;">
-          <div style="font-size:13px;color:var(--ink-muted);margin-bottom:8px;">Share review link:</div>
-          <div style="display:flex;gap:8px;">
-            <input id="reviews-link" type="text" readonly style="flex:1;border:1px solid var(--border-md);border-radius:var(--radius-sm);padding:8px 12px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);min-width:0;">
-            <button onclick="copyReviewLink()" style="padding:8px 14px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Copy</button>
+        <div style="flex:1;border-left:1px solid #e5e7eb;padding-left:16px;">
+          <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">Share review link:</div>
+          <div class="review-link-row">
+            <input class="review-link-inp" id="reviews-link" type="text" readonly>
+            <button class="review-link-copy" onclick="copyReviewLink()">Copy</button>
           </div>
         </div>
       </div>
-      <!-- Reviews list -->
-      <div id="reviews-list" style="max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
-        <div style="text-align:center;padding:32px;color:var(--ink-faint);font-size:14px;">Loading…</div>
+      <div id="reviews-list" style="max-height:340px;overflow-y:auto;">
+        <div style="text-align:center;padding:32px;color:#9ca3af;font-size:13px;">Loading…</div>
       </div>
     </div>
   </div>
@@ -433,373 +420,209 @@ body{font-family:"DM Sans",sans-serif;background:var(--off);}
 <script>
 var ALL_SITES_DATA = JSON.parse(document.getElementById('pz-sites-json').textContent || '[]');
 
+/* ── User dropdown ─── */
+function toggleUserMenu(){
+  document.getElementById('userDropdown').classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.user-menu-wrap')) document.getElementById('userDropdown').classList.remove('open');
+});
+
+/* ── More menus ─── */
+function toggleMore(e, id){
+  e.stopPropagation();
+  var menu = document.getElementById(id);
+  var wasOpen = menu.classList.contains('open');
+  closeMoreMenus();
+  if(!wasOpen) menu.classList.add('open');
+}
+function closeMoreMenus(){
+  document.querySelectorAll('.more-menu.open').forEach(function(m){m.classList.remove('open');});
+}
+document.addEventListener('click', function(){ closeMoreMenus(); });
+
+/* ── Publish / Draft toggle ─── */
+function togglePublish(siteId, currentlyPublished) {
+  var action = currentlyPublished ? 'set to draft' : 'publish';
+  if (!confirm('Are you sure you want to ' + action + ' this site?')) return;
+  fetch('/dashboard/site/toggle-publish', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ site_id: siteId })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (!d.ok) { alert(d.error || 'Failed to update status.'); return; }
+    var btn = document.getElementById('status-' + siteId);
+    if (!btn) return;
+    if (d.is_published) {
+      btn.className = 'status-btn live';
+      btn.innerHTML = '<span style="font-size:8px;">●</span> Live';
+      btn.setAttribute('onclick', 'togglePublish(' + siteId + ', 1)');
+    } else {
+      btn.className = 'status-btn draft';
+      btn.innerHTML = '<span style="font-size:8px;">◌</span> Draft';
+      btn.setAttribute('onclick', 'togglePublish(' + siteId + ', 0)');
+    }
+    var liveCount  = document.querySelectorAll('.status-btn.live').length;
+    var draftCount = document.querySelectorAll('.status-btn.draft').length;
+    var nums = document.querySelectorAll('.stat-num');
+    if (nums[1]) nums[1].textContent = liveCount;
+    if (nums[2]) nums[2].textContent = draftCount;
+  }).catch(function(){ alert('Network error.'); });
+}
+
+/* ── Info modal ─── */
 function openInfoModal(siteId) {
-  var site = ALL_SITES_DATA.find(function(s){ return s.id === siteId })
-  if (!site) return
-  var st = {}
-  try { st = JSON.parse(site.settings || '{}') } catch(e) {}
-
-  document.getElementById('info-site-id').value    = site.id
-  document.getElementById('info-title').value       = site.title || ''
-  document.getElementById('info-description').value = st.description || ''
-  document.getElementById('info-city').value        = st.city        || ''
-  document.getElementById('info-phone').value       = st.phone       || ''
-  document.getElementById('info-whatsapp').value    = st.whatsapp    || ''
-  document.getElementById('info-address').value     = st.address     || ''
-  document.getElementById('info-logo').value        = st.logo        || ''
-
-  var catSel = document.getElementById('info-category')
-  catSel.value = site.category_id || ''
-
-  document.getElementById('info-msg').textContent = ''
-  document.getElementById('info-modal').classList.add('open')
+  var site = ALL_SITES_DATA.find(function(s){ return s.id === siteId; });
+  if (!site) return;
+  var st = {};
+  try { st = JSON.parse(site.settings || '{}'); } catch(e) {}
+  document.getElementById('info-site-id').value    = site.id;
+  document.getElementById('info-title').value       = site.title || '';
+  document.getElementById('info-description').value = st.description || '';
+  document.getElementById('info-city').value        = st.city || '';
+  document.getElementById('info-phone').value       = st.phone || '';
+  document.getElementById('info-whatsapp').value    = st.whatsapp || '';
+  document.getElementById('info-address').value     = st.address || '';
+  document.getElementById('info-logo').value        = st.logo || '';
+  document.getElementById('info-category').value    = site.category_id || '';
+  document.getElementById('info-msg').textContent   = '';
+  document.getElementById('info-modal').classList.add('open');
 }
-
-function closeInfoModal() {
-  document.getElementById('info-modal').classList.remove('open')
-}
-
-// Close on overlay click
-document.getElementById('info-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeInfoModal()
-})
-document.getElementById('staff-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeStaffModal()
-})
-document.getElementById('seo-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeSeoModal()
-})
-document.getElementById('reviews-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeReviewsModal()
-})
-
-// ── Reviews modal ─────────────────────────────────────────────────────────────
-var _reviewSiteId = null, _reviewSubdomain = null
-
-function openReviewsModal(siteId, subdomain) {
-  _reviewSiteId   = siteId
-  _reviewSubdomain = subdomain
-  document.getElementById('reviews-modal').classList.add('open')
-  document.getElementById('reviews-link').value = window.location.origin + '/review/' + subdomain
-  loadReviews(siteId)
-}
-
-function closeReviewsModal() {
-  document.getElementById('reviews-modal').classList.remove('open')
-}
-
-function copyReviewLink() {
-  var inp = document.getElementById('reviews-link')
-  inp.select(); document.execCommand('copy')
-  inp.blur()
-}
-
-function loadReviews(siteId) {
-  var list = document.getElementById('reviews-list')
-  list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--ink-faint);font-size:14px;">Loading…</div>'
-  fetch('/dashboard/site/reviews?id=' + siteId)
-    .then(function(r){ return r.json() })
-    .then(function(d) {
-      if (!d.ok) { list.innerHTML = '<div style="color:var(--red);padding:16px;">Error loading reviews.</div>'; return }
-
-      // Stats
-      var avg   = d.stats && d.stats.avg_rating ? parseFloat(d.stats.avg_rating) : 0
-      var total = d.stats && d.stats.total ? d.stats.total : 0
-      document.getElementById('reviews-avg').textContent   = avg ? avg.toFixed(1) : '—'
-      document.getElementById('reviews-total').textContent = total ? total + ' review' + (total !== 1 ? 's' : '') : 'No reviews yet'
-      var filled = Math.round(avg), empty = 5 - filled
-      document.getElementById('reviews-stars-disp').textContent = '★'.repeat(filled) + '☆'.repeat(empty)
-
-      if (!d.reviews.length) {
-        list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--ink-faint);font-size:14px;">No reviews yet. Share your review link to start collecting feedback!</div>'
-        return
-      }
-      list.innerHTML = d.reviews.map(function(r) {
-        var stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating)
-        var date  = new Date(r.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
-        return '<div style="background:var(--off);border-radius:var(--radius);padding:14px 16px;">' +
-          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
-            '<div style="display:flex;align-items:center;gap:8px;">' +
-              '<span style="font-size:14px;font-weight:600;color:var(--ink);">' + r.reviewer_name + '</span>' +
-              '<span style="color:#f59e0b;font-size:13px;">' + stars + '</span>' +
-            '</div>' +
-            '<div style="display:flex;align-items:center;gap:8px;">' +
-              '<span style="font-size:11px;color:var(--ink-faint);">' + date + '</span>' +
-              '<button onclick="deleteReview(' + r.id + ',' + siteId + ',this)" style="font-size:11px;color:var(--red);background:none;border:none;cursor:pointer;padding:0;">Delete</button>' +
-            '</div>' +
-          '</div>' +
-          (r.comment ? '<div style="font-size:13px;color:var(--ink-muted);line-height:1.6;margin-top:6px;">' + r.comment + '</div>' : '') +
-        '</div>'
-      }).join('')
-    })
-    .catch(function(){ list.innerHTML = '<div style="color:var(--red);padding:16px;">Could not load reviews.</div>' })
-}
-
-function deleteReview(reviewId, siteId, btn) {
-  if (!confirm('Delete this review?')) return
-  btn.textContent = '…'
-  fetch('/dashboard/site/reviews/delete', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ review_id: reviewId, site_id: siteId })
-  })
-    .then(function(r){ return r.json() })
-    .then(function(d){
-      if (d.ok) loadReviews(siteId)
-      else alert('Could not delete review.')
-    })
-}
+function closeInfoModal(){ document.getElementById('info-modal').classList.remove('open'); }
+document.getElementById('info-modal').addEventListener('click', function(e){ if(e.target===this) closeInfoModal(); });
 
 function saveInfo() {
-  var btn = document.getElementById('info-save-btn')
-  var msg = document.getElementById('info-msg')
-  btn.disabled = true
-  btn.textContent = 'Saving…'
-  msg.textContent = ''
-  msg.className = 'modal-msg'
-
+  var btn = document.getElementById('info-save-btn');
+  var msg = document.getElementById('info-msg');
+  btn.disabled = true; btn.textContent = 'Saving…'; msg.textContent = '';
   fetch('/dashboard/site/update-info', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
-      site_id:     document.getElementById('info-site-id').value,
-      title:       document.getElementById('info-title').value,
+      site_id: document.getElementById('info-site-id').value,
+      title: document.getElementById('info-title').value,
       category_id: document.getElementById('info-category').value,
       description: document.getElementById('info-description').value,
-      city:        document.getElementById('info-city').value,
-      phone:       document.getElementById('info-phone').value,
-      whatsapp:    document.getElementById('info-whatsapp').value,
-      address:     document.getElementById('info-address').value,
-      logo:        document.getElementById('info-logo').value
+      city: document.getElementById('info-city').value,
+      phone: document.getElementById('info-phone').value,
+      whatsapp: document.getElementById('info-whatsapp').value,
+      address: document.getElementById('info-address').value,
+      logo: document.getElementById('info-logo').value
     })
-  })
-  .then(function(r){ return r.json() })
-  .then(function(d) {
-    btn.disabled = false
-    btn.textContent = 'Save Changes'
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    btn.disabled = false; btn.textContent = 'Save changes';
     if (d.ok) {
-      msg.textContent = '✓ Saved successfully'
-      msg.className = 'modal-msg ok'
-      // Update local allSites data so re-open shows fresh values
-      var siteId = parseInt(document.getElementById('info-site-id').value)
-      var site = ALL_SITES_DATA.find(function(s){ return s.id === siteId })
-      if (site) {
-        site.title = document.getElementById('info-title').value
-        site.category_id = document.getElementById('info-category').value
-        var st = {}
-        try { st = JSON.parse(site.settings || '{}') } catch(e) {}
-        st.description = document.getElementById('info-description').value
-        st.city        = document.getElementById('info-city').value
-        st.phone       = document.getElementById('info-phone').value
-        st.whatsapp    = document.getElementById('info-whatsapp').value
-        st.address     = document.getElementById('info-address').value
-        st.logo        = document.getElementById('info-logo').value
-        site.settings  = JSON.stringify(st)
-      }
-      setTimeout(closeInfoModal, 1200)
-    } else {
-      msg.textContent = d.error || 'Something went wrong.'
-      msg.className = 'modal-msg err'
-    }
-  })
-  .catch(function() {
-    btn.disabled = false
-    btn.textContent = 'Save Changes'
-    msg.textContent = 'Network error. Try again.'
-    msg.className = 'modal-msg err'
-  })
+      msg.textContent = '✓ Saved'; msg.className = 'modal-msg ok';
+      setTimeout(closeInfoModal, 1200);
+    } else { msg.textContent = d.error || 'Error'; msg.className = 'modal-msg err'; }
+  }).catch(function(){ btn.disabled=false; btn.textContent='Save changes'; msg.textContent='Network error'; msg.className='modal-msg err'; });
 }
 
-// ── Publish / Draft toggle ───────────────────────────────────────────────────
-function togglePublish(siteId, currentlyPublished) {
-  var action = currentlyPublished ? 'unpublish (set to draft)' : 'publish'
-  if (!confirm('Are you sure you want to ' + action + ' this site?')) return
-
-  fetch('/dashboard/site/toggle-publish', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ site_id: siteId })
-  })
-  .then(function(r){ return r.json() })
-  .then(function(d) {
-    if (!d.ok) { alert(d.error || 'Failed to update status.'); return }
-    var btn = document.getElementById('status-' + siteId)
-    if (!btn) return
-    if (d.is_published) {
-      btn.className = 'status-btn live'
-      btn.innerHTML = '<span style="font-size:8px;">●</span> Live'
-      btn.setAttribute('onclick', 'togglePublish(' + siteId + ', 1)')
-    } else {
-      btn.className = 'status-btn draft'
-      btn.innerHTML = '<span style="font-size:8px;">◌</span> Draft'
-      btn.setAttribute('onclick', 'togglePublish(' + siteId + ', 0)')
-    }
-    // Update stat counters
-    var liveCount  = document.querySelectorAll('.status-btn.live').length
-    var draftCount = document.querySelectorAll('.status-btn.draft').length
-    var statNums = document.querySelectorAll('.stat-num')
-    if (statNums[1]) statNums[1].textContent = liveCount
-    if (statNums[2]) statNums[2].textContent = draftCount
-  })
-  .catch(function(){ alert('Network error. Please try again.') })
-}
-
-// ── Staff Bio Link modal ──────────────────────────────────────────────────────
-var _staffParentSub = ''
-
+/* ── Staff modal ─── */
+var _staffParentSub = '';
 function openAddStaffModal(parentId, parentTitle, parentSub) {
-  _staffParentSub = parentSub
-  document.getElementById('staff-parent-id').value = parentId
-  document.getElementById('staff-modal-parent-label').textContent = '📁 Business: ' + parentTitle
-  document.getElementById('staff-parent-sub-preview').textContent = parentSub
-  document.getElementById('staff-name').value      = ''
-  document.getElementById('staff-subdomain').value = ''
-  document.getElementById('staff-sub-preview').textContent = '…'
-  document.getElementById('staff-msg').textContent  = ''
-  document.getElementById('staff-msg').className    = 'modal-msg'
-  document.getElementById('staff-save-btn').disabled    = false
-  document.getElementById('staff-save-btn').textContent = 'Create & Edit'
-  document.getElementById('staff-modal').classList.add('open')
-  setTimeout(function(){ document.getElementById('staff-name').focus() }, 100)
+  _staffParentSub = parentSub;
+  document.getElementById('staff-parent-id').value = parentId;
+  document.getElementById('staff-modal-parent-label').textContent = '📁 ' + parentTitle;
+  document.getElementById('staff-parent-sub-preview').textContent = parentSub;
+  document.getElementById('staff-name').value = '';
+  document.getElementById('staff-subdomain').value = '';
+  document.getElementById('staff-sub-preview').textContent = '…';
+  document.getElementById('staff-msg').textContent = '';
+  document.getElementById('staff-save-btn').disabled = false;
+  document.getElementById('staff-save-btn').textContent = 'Create & Edit';
+  document.getElementById('staff-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('staff-name').focus(); }, 100);
 }
-
-function closeStaffModal() {
-  document.getElementById('staff-modal').classList.remove('open')
+function closeStaffModal(){ document.getElementById('staff-modal').classList.remove('open'); }
+document.getElementById('staff-modal').addEventListener('click', function(e){ if(e.target===this) closeStaffModal(); });
+function staffAutoSlug(){
+  var slug = document.getElementById('staff-name').value.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,40);
+  document.getElementById('staff-subdomain').value = slug;
+  document.getElementById('staff-sub-preview').textContent = slug || '…';
 }
-
-function staffAutoSlug() {
-  var name = document.getElementById('staff-name').value
-  var slug = name.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .substring(0, 40)
-  document.getElementById('staff-subdomain').value    = slug
-  document.getElementById('staff-sub-preview').textContent = slug || '…'
-}
-
-function staffSlugPreview() {
-  document.getElementById('staff-sub-preview').textContent =
-    document.getElementById('staff-subdomain').value || '…'
-}
-
-// ── SEO modal ────────────────────────────────────────────────────────────────
-function openSeoModal(siteId) {
-  var site = ALL_SITES_DATA.find(function(s){ return s.id === siteId })
-  if (!site) return
-  var st = {}
-  try { st = JSON.parse(site.settings || '{}') } catch(e) {}
-  var seo = st.seo || {}
-
-  document.getElementById('seo-site-id').value        = site.id
-  document.getElementById('seo-title').value           = seo.title       || ''
-  document.getElementById('seo-description').value    = seo.description || ''
-  document.getElementById('seo-og-image').value       = seo.og_image    || ''
-  document.getElementById('seo-noindex').checked      = !!seo.noindex
-  document.getElementById('seo-msg').textContent      = ''
-  document.getElementById('seo-msg').className        = 'modal-msg'
-  document.getElementById('seo-save-btn').disabled    = false
-  document.getElementById('seo-save-btn').textContent = 'Save SEO'
-  document.getElementById('seo-modal').classList.add('open')
-  setTimeout(function(){ document.getElementById('seo-title').focus() }, 100)
-}
-
-function closeSeoModal() {
-  document.getElementById('seo-modal').classList.remove('open')
-}
-
-function saveSeoSettings() {
-  var btn = document.getElementById('seo-save-btn')
-  var msg = document.getElementById('seo-msg')
-  btn.disabled    = true
-  btn.textContent = 'Saving…'
-  msg.textContent = ''
-  msg.className   = 'modal-msg'
-
-  fetch('/dashboard/site/update-seo', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      site_id:         document.getElementById('seo-site-id').value,
-      seo_title:       document.getElementById('seo-title').value,
-      seo_description: document.getElementById('seo-description').value,
-      seo_og_image:    document.getElementById('seo-og-image').value,
-      seo_noindex:     document.getElementById('seo-noindex').checked ? '1' : '0'
-    })
-  })
-  .then(function(r){ return r.json() })
-  .then(function(d) {
-    btn.disabled    = false
-    btn.textContent = 'Save SEO'
-    if (d.ok) {
-      msg.textContent = '✓ SEO settings saved'
-      msg.className   = 'modal-msg ok'
-      // Update local data so re-open shows fresh values
-      var siteId = parseInt(document.getElementById('seo-site-id').value)
-      var site   = ALL_SITES_DATA.find(function(s){ return s.id === siteId })
-      if (site) {
-        var st = {}
-        try { st = JSON.parse(site.settings || '{}') } catch(e) {}
-        st.seo = {
-          title:       document.getElementById('seo-title').value,
-          description: document.getElementById('seo-description').value,
-          og_image:    document.getElementById('seo-og-image').value,
-          noindex:     document.getElementById('seo-noindex').checked
-        }
-        site.settings = JSON.stringify(st)
-      }
-      setTimeout(closeSeoModal, 1200)
-    } else {
-      msg.textContent = d.error || 'Something went wrong.'
-      msg.className   = 'modal-msg err'
-    }
-  })
-  .catch(function() {
-    btn.disabled    = false
-    btn.textContent = 'Save SEO'
-    msg.textContent = 'Network error. Try again.'
-    msg.className   = 'modal-msg err'
-  })
-}
-
+function staffSlugPreview(){ document.getElementById('staff-sub-preview').textContent = document.getElementById('staff-subdomain').value || '…'; }
 function saveStaffSite() {
-  var btn = document.getElementById('staff-save-btn')
-  var msg = document.getElementById('staff-msg')
-  btn.disabled    = true
-  btn.textContent = 'Creating…'
-  msg.textContent = ''
-  msg.className   = 'modal-msg'
-
+  var btn = document.getElementById('staff-save-btn');
+  var msg = document.getElementById('staff-msg');
+  btn.disabled = true; btn.textContent = 'Creating…'; msg.textContent = '';
   fetch('/dashboard/site/create-staff', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      parent_site_id: document.getElementById('staff-parent-id').value,
-      employee_name:  document.getElementById('staff-name').value,
-      path_slug:      document.getElementById('staff-subdomain').value
-    })
-  })
-  .then(function(r){ return r.json() })
-  .then(function(d) {
-    if (d.ok) {
-      msg.textContent = '✓ Created! Opening editor…'
-      msg.className   = 'modal-msg ok'
-      setTimeout(function(){ window.location.href = d.redirect }, 700)
-    } else {
-      btn.disabled    = false
-      btn.textContent = 'Create & Edit'
-      msg.textContent = d.error || 'Something went wrong.'
-      msg.className   = 'modal-msg err'
-    }
-  })
-  .catch(function() {
-    btn.disabled    = false
-    btn.textContent = 'Create & Edit'
-    msg.textContent = 'Network error. Try again.'
-    msg.className   = 'modal-msg err'
-  })
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ parent_site_id: document.getElementById('staff-parent-id').value, employee_name: document.getElementById('staff-name').value, path_slug: document.getElementById('staff-subdomain').value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.ok) { msg.textContent = '✓ Created! Opening…'; msg.className = 'modal-msg ok'; setTimeout(function(){ window.location.href = d.redirect; }, 700); }
+    else { btn.disabled=false; btn.textContent='Create & Edit'; msg.textContent=d.error||'Error'; msg.className='modal-msg err'; }
+  }).catch(function(){ btn.disabled=false; btn.textContent='Create & Edit'; msg.textContent='Network error'; msg.className='modal-msg err'; });
+}
+
+/* ── SEO modal ─── */
+function openSeoModal(siteId) {
+  var site = ALL_SITES_DATA.find(function(s){ return s.id === siteId; });
+  if (!site) return;
+  var st = {};
+  try { st = JSON.parse(site.settings || '{}'); } catch(e) {}
+  var seo = st.seo || {};
+  document.getElementById('seo-site-id').value     = site.id;
+  document.getElementById('seo-title').value        = seo.title || '';
+  document.getElementById('seo-description').value = seo.description || '';
+  document.getElementById('seo-og-image').value    = seo.og_image || '';
+  document.getElementById('seo-noindex').checked   = !!seo.noindex;
+  document.getElementById('seo-msg').textContent   = '';
+  document.getElementById('seo-save-btn').disabled = false;
+  document.getElementById('seo-save-btn').textContent = 'Save SEO';
+  document.getElementById('seo-modal').classList.add('open');
+}
+function closeSeoModal(){ document.getElementById('seo-modal').classList.remove('open'); }
+document.getElementById('seo-modal').addEventListener('click', function(e){ if(e.target===this) closeSeoModal(); });
+function saveSeoSettings() {
+  var btn = document.getElementById('seo-save-btn');
+  var msg = document.getElementById('seo-msg');
+  btn.disabled = true; btn.textContent = 'Saving…'; msg.textContent = '';
+  fetch('/dashboard/site/update-seo', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ site_id: document.getElementById('seo-site-id').value, seo_title: document.getElementById('seo-title').value, seo_description: document.getElementById('seo-description').value, seo_og_image: document.getElementById('seo-og-image').value, seo_noindex: document.getElementById('seo-noindex').checked ? '1' : '0' })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    btn.disabled=false; btn.textContent='Save SEO';
+    if (d.ok) { msg.textContent='✓ Saved'; msg.className='modal-msg ok'; setTimeout(closeSeoModal, 1200); }
+    else { msg.textContent=d.error||'Error'; msg.className='modal-msg err'; }
+  }).catch(function(){ btn.disabled=false; btn.textContent='Save SEO'; msg.textContent='Network error'; msg.className='modal-msg err'; });
+}
+
+/* ── Reviews modal ─── */
+var _reviewSiteId = null;
+function openReviewsModal(siteId, subdomain) {
+  _reviewSiteId = siteId;
+  document.getElementById('reviews-link').value = window.location.origin + '/review/' + subdomain;
+  document.getElementById('reviews-modal').classList.add('open');
+  loadReviews(siteId);
+}
+function closeReviewsModal(){ document.getElementById('reviews-modal').classList.remove('open'); }
+document.getElementById('reviews-modal').addEventListener('click', function(e){ if(e.target===this) closeReviewsModal(); });
+function copyReviewLink(){ var inp=document.getElementById('reviews-link'); inp.select(); document.execCommand('copy'); }
+function loadReviews(siteId) {
+  var list = document.getElementById('reviews-list');
+  list.innerHTML = '<div style="text-align:center;padding:32px;color:#9ca3af;font-size:13px;">Loading…</div>';
+  fetch('/dashboard/site/reviews?id=' + siteId)
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d.ok) { list.innerHTML = '<div style="color:#ef4444;padding:16px;">Error loading reviews.</div>'; return; }
+      var avg = d.stats && d.stats.avg_rating ? parseFloat(d.stats.avg_rating) : 0;
+      var total = d.stats && d.stats.total ? d.stats.total : 0;
+      document.getElementById('reviews-avg').textContent   = avg ? avg.toFixed(1) : '—';
+      document.getElementById('reviews-total').textContent = total ? total + ' review' + (total!==1?'s':'') : 'No reviews yet';
+      var filled = Math.round(avg);
+      document.getElementById('reviews-stars-disp').textContent = '★'.repeat(filled) + '☆'.repeat(5-filled);
+      if (!d.reviews.length) { list.innerHTML = '<div style="text-align:center;padding:32px;color:#9ca3af;font-size:13px;">No reviews yet. Share your review link to collect feedback!</div>'; return; }
+      list.innerHTML = d.reviews.map(function(r) {
+        var stars = '★'.repeat(r.rating) + '☆'.repeat(5-r.rating);
+        var date  = new Date(r.created_at).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+        return '<div class="review-card"><div class="review-head"><div style="display:flex;align-items:center;gap:8px;"><span class="review-name">'+r.reviewer_name+'</span><span class="review-stars-sm">'+stars+'</span></div><div style="display:flex;align-items:center;gap:8px;"><span class="review-date">'+date+'</span><button class="review-del" onclick="deleteReview('+r.id+','+siteId+',this)">Delete</button></div></div>'+(r.comment?'<div class="review-comment">'+r.comment+'</div>':'')+'</div>';
+      }).join('');
+    }).catch(function(){ list.innerHTML = '<div style="color:#ef4444;padding:16px;">Could not load reviews.</div>'; });
+}
+function deleteReview(reviewId, siteId, btn) {
+  if (!confirm('Delete this review?')) return;
+  btn.textContent = '…';
+  fetch('/dashboard/site/reviews/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({review_id:reviewId,site_id:siteId}) })
+    .then(function(r){ return r.json(); }).then(function(d){ if(d.ok) loadReviews(siteId); else alert('Could not delete.'); });
 }
 </script>
-
 {% endblock %}
