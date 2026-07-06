@@ -461,14 +461,18 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 
 <script>
 /* ── Server data ─────────────────────────────── */
-var BLOCKS       = {{ blocks | dump | safe }} || [];
-var APP          = {{ appearance | dump | safe }} || {};
-var SEO          = {{ settings.seo | dump | safe }} || {};
+var BLOCKS       = {{ blocks | dump | safe }};
+var APP          = {{ appearance | dump | safe }};
+var SEO          = {{ seo | dump | safe }};
 var SITE_ID      = {{ site.id }};
 var SITE_SUB     = '{{ site.subdomain }}';
 var BASE_DOMAIN  = '{{ baseDomain }}';
 var CURRENT_THEME= '{{ currentThemeSlug }}';
-var ALL_THEMES   = {{ allThemes | dump | safe }} || {};
+var ALL_THEMES   = {{ allThemes | dump | safe }};
+if(!BLOCKS) BLOCKS=[];
+if(!APP) APP={};
+if(!SEO) SEO={};
+if(!ALL_THEMES) ALL_THEMES={};
 
 /* ── Appearance defaults ─────────────────────── */
 APP = Object.assign({
