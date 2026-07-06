@@ -418,12 +418,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 <!-- ── Preview ──────────────────────────────────── -->
 <div class="preview-area">
   <div class="preview-toolbar">
-    <button class="ptb-btn" onclick="refreshPreview()">⟳ Refresh</button>
+    <button class="ptb-btn" onclick="reloadLivePreview()">⟳ Refresh</button>
     <button class="ptb-btn" onclick="window.open('https://{{ site.subdomain }}.{{ baseDomain }}','_blank')">↗ Open</button>
   </div>
   <div class="phone-frame">
     <div class="phone-notch"></div>
-    <iframe id="previewFrame" src="about:blank"></iframe>
+    <iframe id="previewFrame" src="https://{{ site.subdomain }}.{{ baseDomain }}"></iframe>
   </div>
   <div class="preview-loading" id="previewLoading">Updating…</div>
   <div class="preview-hint">Changes preview live · click Publish to go live</div>
@@ -1051,9 +1051,14 @@ function closeAddModal(e){
 
 /* ── Live preview ────────────────────────────── */
 var previewTimer=null, previewInflight=false;
+var LIVE_URL='https://'+SITE_SUB+'.'+BASE_DOMAIN;
 function debouncedPreview(){
   clearTimeout(previewTimer);
   previewTimer=setTimeout(refreshPreview,700);
+}
+function reloadLivePreview(){
+  var f=document.getElementById('previewFrame');
+  f.src=LIVE_URL+'?_t='+Date.now(); // cache-bust
 }
 function refreshPreview(){
   if(previewInflight) return;
@@ -1075,18 +1080,26 @@ function refreshPreview(){
     body:JSON.stringify(payload)
   })
   .then(function(r){
-    if(!r.ok) return '<p style="font-family:sans-serif;padding:20px;color:#dc2626">Preview error (HTTP '+r.status+'). Try refreshing the page.</p>';
+    if(!r.ok) return null; // non-200: skip update, keep showing live site
     return r.text();
   })
   .then(function(html){
-    // Guard: if the response looks like a redirect to the dashboard, show an error
-    if(html.indexOf('<title>Dashboard</title>')!==-1 || html.indexOf('/dashboard/site/biolink')!==-1){
-      html='<p style="font-family:sans-serif;padding:20px;color:#dc2626">Session error. Please refresh the page and try again.</p>';
+    if(!html) return; // skip on error
+    // Only apply if the response looks like a real biolink theme page
+    // (contains the page-wrap class injected by ALL biolink templates)
+    if(html.indexOf('page-wrap')===-1){
+      // Response is not a biolink page (likely redirected to builder/dashboard)
+      // Just reload the live site in the iframe
+      var f=document.getElementById('previewFrame');
+      f.src='https://'+SITE_SUB+'.'+BASE_DOMAIN;
+      return;
     }
     document.getElementById('previewFrame').srcdoc=html;
   })
-  .catch(function(e){
-    document.getElementById('previewFrame').srcdoc='<p style="font-family:sans-serif;padding:20px;color:#dc2626">Preview failed. Check your connection.</p>';
+  .catch(function(){
+    // On failure, reload the live site so user sees actual published state
+    var f=document.getElementById('previewFrame');
+    f.src='https://'+SITE_SUB+'.'+BASE_DOMAIN;
   })
   .finally(function(){
     previewInflight=false;
@@ -1118,10 +1131,12 @@ function saveAll(){
       isDirty=false;
       document.getElementById('saveDot').className='save-dot saved';
       document.getElementById('saveLabel').textContent='Published';
+      // Reload live preview to show just-saved changes
       setTimeout(function(){
+        reloadLivePreview();
         document.getElementById('saveLabel').textContent='Saved';
         document.getElementById('saveDot').className='save-dot';
-      },2500);
+      },800);
     }
   })
   .finally(function(){btn.disabled=false;btn.textContent='Publish';});
@@ -1130,7 +1145,6 @@ function saveAll(){
 /* ── Init ────────────────────────────────────── */
 buildSettingsUI();
 renderBlocks();
-refreshPreview();
 </script>
 </body>
 </html>
