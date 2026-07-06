@@ -5,6 +5,20 @@
   "categories": ["job-placement", "recruitment"],
   "tags": ["dark", "orange", "energetic", "bold", "india", "network"],
   "order": 22,
+  "default_appearance": {
+    "bgColor": "#111111", "btnColor": "#FF6B00", "btnTextColor": "#ffffff",
+    "textColor": "#f5f5f5", "btnStyle": "filled", "btnRadius": "6",
+    "bgType": "color", "fontFamily": "inter"
+  },
+  "default_blocks": [
+    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"PlacePro Network", "bio":"Jobs · Internships · Placements · 3,200+ openings 🚀" },
+    { "id":"b2", "type":"link",    "enabled":true, "title":"🔎 Browse Jobs", "url":"#" },
+    { "id":"b3", "type":"link",    "enabled":true, "title":"💬 Chat with us", "url":"#" },
+    { "id":"b4", "type":"heading", "enabled":true, "text":"Featured Openings", "size":"h3", "align":"center" },
+    { "id":"b5", "type":"link",    "enabled":true, "title":"Customer Success Lead · Zepto · ₹7–11 LPA 🔥", "url":"#" },
+    { "id":"b6", "type":"link",    "enabled":true, "title":"Operations Manager · Delhivery · ₹9–14 LPA", "url":"#" },
+    { "id":"b7", "type":"socials", "enabled":true, "linkedin":"https://linkedin.com", "instagram":"https://instagram.com" }
+  ],
   "sections": [
     {
       "id": "profile",

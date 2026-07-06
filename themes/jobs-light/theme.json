@@ -5,6 +5,20 @@
   "categories": ["job-placement", "recruitment"],
   "tags": ["light", "clean", "modern", "green", "professional"],
   "order": 21,
+  "default_appearance": {
+    "bgColor": "#f9fafb", "btnColor": "#059669", "btnTextColor": "#ffffff",
+    "textColor": "#111827", "btnStyle": "filled", "btnRadius": "8",
+    "bgType": "color", "fontFamily": "inter"
+  },
+  "default_blocks": [
+    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"CareerBridge India", "bio":"Job Placement · Pune & Remote · 1,800+ candidates placed 🎯" },
+    { "id":"b2", "type":"link",    "enabled":true, "title":"📄 Upload your resume", "url":"#" },
+    { "id":"b3", "type":"link",    "enabled":true, "title":"💬 WhatsApp us now", "url":"#" },
+    { "id":"b4", "type":"heading", "enabled":true, "text":"Active Openings", "size":"h3", "align":"center" },
+    { "id":"b5", "type":"link",    "enabled":true, "title":"BPO Executive · Cognizant · ₹3–5 LPA · Fresher ok", "url":"#" },
+    { "id":"b6", "type":"link",    "enabled":true, "title":"Sales Executive · ICICI Bank · ₹4–7 LPA", "url":"#" },
+    { "id":"b7", "type":"socials", "enabled":true, "linkedin":"https://linkedin.com" }
+  ],
   "sections": [
     {
       "id": "profile",

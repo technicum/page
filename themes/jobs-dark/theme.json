@@ -5,6 +5,20 @@
   "categories": ["job-placement", "recruitment"],
   "tags": ["dark", "professional", "corporate", "navy", "india"],
   "order": 20,
+  "default_appearance": {
+    "bgColor": "#0f172a", "btnColor": "#3B82F6", "btnTextColor": "#ffffff",
+    "textColor": "#e2e8f0", "btnStyle": "filled", "btnRadius": "8",
+    "bgType": "color", "fontFamily": "inter"
+  },
+  "default_blocks": [
+    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"HireEdge Placements", "bio":"Connecting talent with opportunity · Mumbai · Pan India 🏢" },
+    { "id":"b2", "type":"link",    "enabled":true, "title":"📋 Submit your CV →", "url":"#" },
+    { "id":"b3", "type":"heading", "enabled":true, "text":"Active Openings", "size":"h3", "align":"center" },
+    { "id":"b4", "type":"link",    "enabled":true, "title":"Senior Relationship Manager · HDFC Bank · ₹8–12 LPA", "url":"#" },
+    { "id":"b5", "type":"link",    "enabled":true, "title":"React Developer · TCS · ₹10–16 LPA · Remote", "url":"#" },
+    { "id":"b6", "type":"link",    "enabled":true, "title":"BPO Team Leader · Infosys BPM · ₹4–6 LPA", "url":"#" },
+    { "id":"b7", "type":"socials", "enabled":true, "linkedin":"https://linkedin.com", "instagram":"https://instagram.com" }
+  ],
   "sections": [
     {
       "id": "profile",

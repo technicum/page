@@ -5,6 +5,20 @@
   "categories": ["finance"],
   "tags": ["banking", "india", "dsa", "dark", "professional"],
   "order": 10,
+  "default_appearance": {
+    "bgColor": "#0d1b2a", "btnColor": "#F5A623", "btnTextColor": "#000000",
+    "textColor": "#e2e8f0", "btnStyle": "filled", "btnRadius": "8",
+    "bgType": "color", "fontFamily": "inter"
+  },
+  "default_blocks": [
+    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Rajesh Kumar", "bio":"Certified Bank DSA Partner · ARN-084721 · IRDAI-1234567" },
+    { "id":"b2", "type":"link",    "enabled":true, "title":"🏦 Check loan eligibility →", "url":"#" },
+    { "id":"b3", "type":"heading", "enabled":true, "text":"Loan Products", "size":"h3", "align":"center" },
+    { "id":"b4", "type":"link",    "enabled":true, "title":"🏠 Home Loan · From 8.4%", "url":"#" },
+    { "id":"b5", "type":"link",    "enabled":true, "title":"⚡ Personal Loan · Instant approval · 10.5%", "url":"#" },
+    { "id":"b6", "type":"link",    "enabled":true, "title":"🏢 Business Loan · No collateral · 12%", "url":"#" },
+    { "id":"b7", "type":"socials", "enabled":true, "linkedin":"https://linkedin.com", "youtube":"https://youtube.com" }
+  ],
   "sections": [
     {
       "id": "profile",
