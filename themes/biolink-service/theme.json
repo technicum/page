@@ -4,6 +4,19 @@
   "for": ["minisite"],
   "categories": ["beauty", "healthcare", "fitness", "restaurant", "retail", "events", "travel", "education", "finance", "freelancer", "other"],
   "preview": "preview.jpg",
+  "default_appearance": {
+    "bgColor": "#f0f9ff", "btnColor": "#2563eb", "btnTextColor": "#ffffff",
+    "textColor": "#1a1a1a", "btnStyle": "filled", "btnRadius": "8",
+    "bgType": "color", "fontFamily": "inter"
+  },
+  "default_blocks": [
+    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Your Name", "bio":"Professional Hair Stylist · 5+ years experience · Book today!" },
+    { "id":"b2", "type":"link",    "enabled":true, "title":"📅 Book Appointment", "url":"#" },
+    { "id":"b3", "type":"heading", "enabled":true, "text":"What I Offer", "size":"h3", "align":"center" },
+    { "id":"b4", "type":"service", "enabled":true, "title":"Hair Cut & Style", "description":"Wash, cut and blow-dry", "price":"Starting ₹500", "duration":"45 min", "btn_text":"Book now", "btn_url":"#" },
+    { "id":"b5", "type":"service", "enabled":true, "title":"Hair Colouring", "description":"Global or highlight colouring", "price":"Starting ₹1,500", "duration":"90 min", "btn_text":"Book now", "btn_url":"#" },
+    { "id":"b6", "type":"socials", "enabled":true, "instagram":"https://instagram.com" }
+  ],
   "sections": [
     {
       "id": "profile",

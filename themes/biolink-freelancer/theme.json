@@ -4,6 +4,19 @@
   "for": ["minisite"],
   "categories": ["freelancer", "creative", "technology", "education"],
   "preview": "preview.jpg",
+  "default_appearance": {
+    "bgColor": "#faf5ff", "btnColor": "#7c3aed", "btnTextColor": "#ffffff",
+    "textColor": "#1a1a1a", "btnStyle": "filled", "btnRadius": "8",
+    "bgType": "color", "fontFamily": "inter"
+  },
+  "default_blocks": [
+    { "id":"b1", "type":"avatar",    "enabled":true, "photo":"", "name":"Your Name", "bio":"UI Designer & Developer · 5+ years experience · Available for projects ✅" },
+    { "id":"b2", "type":"link",      "enabled":true, "title":"🤝 Hire Me", "url":"#" },
+    { "id":"b3", "type":"link",      "enabled":true, "title":"🎨 View Portfolio", "url":"#" },
+    { "id":"b4", "type":"heading",   "enabled":true, "text":"What I Do", "size":"h3", "align":"center" },
+    { "id":"b5", "type":"paragraph", "enabled":true, "text":"Specializing in Web Design · UI/UX · React · Node.js · Mobile Apps. I help brands look great online.", "align":"center" },
+    { "id":"b6", "type":"socials",   "enabled":true, "linkedin":"https://linkedin.com", "github":"https://github.com" }
+  ],
   "sections": [
     {
       "id": "profile",

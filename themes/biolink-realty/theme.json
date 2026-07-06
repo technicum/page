@@ -4,6 +4,20 @@
   "for": ["minisite"],
   "categories": ["real-estate"],
   "preview": "preview.jpg",
+  "default_appearance": {
+    "bgColor": "#f0fdf9", "btnColor": "#0f766e", "btnTextColor": "#ffffff",
+    "textColor": "#1a1a1a", "btnStyle": "filled", "btnRadius": "8",
+    "bgType": "color", "fontFamily": "inter"
+  },
+  "default_blocks": [
+    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Your Name", "bio":"Real Estate Broker · 10+ years experience · Finding your perfect home 🏠" },
+    { "id":"b2", "type":"link",    "enabled":true, "title":"🏠 Schedule a Site Visit", "url":"#" },
+    { "id":"b3", "type":"link",    "enabled":true, "title":"💬 WhatsApp Me Now", "url":"#" },
+    { "id":"b4", "type":"heading", "enabled":true, "text":"Featured Properties", "size":"h3", "align":"center" },
+    { "id":"b5", "type":"banner",  "enabled":true, "text":"3BHK Premium Apartment · Gurgaon · ₹1.2 Cr", "btn_text":"View Details", "btn_url":"#" },
+    { "id":"b6", "type":"banner",  "enabled":true, "text":"2BHK Ready to Move · Powai, Mumbai · ₹85 Lac", "btn_text":"View Details", "btn_url":"#" },
+    { "id":"b7", "type":"socials", "enabled":true, "instagram":"https://instagram.com", "linkedin":"https://linkedin.com" }
+  ],
   "sections": [
     {
       "id": "profile",

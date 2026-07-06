@@ -4,6 +4,19 @@
   "for": ["minisite"],
   "categories": ["creative", "education", "events", "technology", "nonprofit"],
   "preview": "preview.jpg",
+  "default_appearance": {
+    "bgColor": "#ffffff", "btnColor": "#e11d48", "btnTextColor": "#ffffff",
+    "textColor": "#1a1a1a", "btnStyle": "filled", "btnRadius": "8",
+    "bgType": "color", "fontFamily": "inter"
+  },
+  "default_blocks": [
+    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"@yourchannel", "bio":"Content Creator · Making videos you love 🎬" },
+    { "id":"b2", "type":"socials", "enabled":true, "instagram":"https://instagram.com", "youtube":"https://youtube.com", "tiktok":"https://tiktok.com" },
+    { "id":"b3", "type":"heading", "enabled":true, "text":"Quick Links", "size":"h3", "align":"center" },
+    { "id":"b4", "type":"link",    "enabled":true, "title":"Subscribe to my channel", "url":"#", "icon":"▶️" },
+    { "id":"b5", "type":"link",    "enabled":true, "title":"Shop my presets", "url":"#", "icon":"🛍️" },
+    { "id":"b6", "type":"link",    "enabled":true, "title":"Book a collab", "url":"#", "icon":"🤝" }
+  ],
   "sections": [
     {
       "id": "profile",
