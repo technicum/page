@@ -396,8 +396,26 @@ exports.templatePreview = async (req, res) => {
 
   const demoSite = { id: 0, title: siteTitle, subdomain: 'demo', template_id: preview, is_published: 1, owner_name: siteTitle }
 
+  // Mini Site themes use biolink-creator (universal block renderer) in production.
+  // Mirror that here and inject demo blocks so the preview shows actual content.
+  const isMinisiteTheme = data && Array.isArray(data.for) && data.for.includes('minisite')
+  let renderSlug = preview
+  if (isMinisiteTheme) {
+    renderSlug = 'biolink-creator'
+    demoSettings.blocks = data.default_blocks || [
+      { id:'b1', type:'avatar',  enabled:true, photo:'', name:siteTitle, bio:'Creating amazing content ✨' },
+      { id:'b2', type:'link',    enabled:true, title:'Visit My Website', url:'#', icon:'🔗' },
+      { id:'b3', type:'link',    enabled:true, title:'My Latest Work',   url:'#', icon:'✨' },
+      { id:'b4', type:'socials', enabled:true, instagram:'https://instagram.com', youtube:'https://youtube.com' }
+    ]
+    demoSettings.appearance = data.default_appearance || {
+      bgColor:'#ffffff', btnColor:'#6366f1', btnTextColor:'#ffffff',
+      textColor:'#1a1a1a', btnStyle:'filled', btnRadius:'8', bgType:'color', fontFamily:'inter'
+    }
+  }
+
   try {
-    const html = await themeManager.render(preview, demoSite, demoSettings)
+    const html = await themeManager.render(renderSlug, demoSite, demoSettings)
     res.send(html)
   } catch(e) {
     res.status(500).send('<h1>Preview error: ' + e.message + '</h1>')
