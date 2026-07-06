@@ -132,16 +132,19 @@ exports.biolinkBuilder = async (req, res) => {
 
   const settings         = JSON.parse(site.settings || '{}')
   const currentThemeSlug = settings.template_id || site.template_id || 'biolink-creator'
-  const themeData        = themeManager.loadTheme(currentThemeSlug)
-  const sections         = themeData ? (themeData.sections || []) : []
   const allThemes        = themeManager.loadAll()
+
+  // Universal block model — blocks[] and appearance{} live directly in settings
+  const blocks     = settings.blocks     || []
+  const appearance = settings.appearance || {}
 
   res.render('dashboard/biolink-builder.njk', {
     title:            'Bio Link Editor',
     user,
     site,
     settings,
-    sections,
+    blocks,
+    appearance,
     currentThemeSlug,
     allThemes,
     baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
