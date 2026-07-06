@@ -1,7 +1,7 @@
 {
   "name": "FinNest Wealth",
   "description": "Clean cream-and-navy biolink for SEBI RIAs, CFPs, and mutual fund distributors — services, AUM trust stats, portfolio review CTA.",
-  "for": ["linktree"],
+  "for": ["minisite"],
   "categories": ["finance"],
   "tags": ["wealth", "investment", "minimal", "professional", "india"],
   "order": 12,

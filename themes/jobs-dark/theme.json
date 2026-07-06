@@ -1,7 +1,7 @@
 {
   "name": "Jobs Dark Pro",
   "description": "Dark navy biolink for placement agencies & recruiters — job listings, hiring partners, CV submission CTA.",
-  "for": ["linktree"],
+  "for": ["minisite"],
   "categories": ["job-placement", "recruitment"],
   "tags": ["dark", "professional", "corporate", "navy", "india"],
   "order": 20,

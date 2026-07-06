@@ -224,7 +224,7 @@
 
 <script>
 const siteId    = {{ site.id }};
-const isBiolink = {{ 'true' if site.category == 'linktree' else 'false' }};
+const isBiolink = {{ 'true' if site.category == 'minisite' or site.category == 'linktree' else 'false' }};
 let selectedSlug  = '{{ settings.template_id or "" }}';
 let activeCategory = 'all';
 let activeTag      = 'all';

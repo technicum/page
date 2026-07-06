@@ -1,7 +1,7 @@
 {
   "name": "Jobs Clean Light",
   "description": "Clean white biolink for job placement agencies — modern card layout, green accents, two-CTA header.",
-  "for": ["linktree"],
+  "for": ["minisite"],
   "categories": ["job-placement", "recruitment"],
   "tags": ["light", "clean", "modern", "green", "professional"],
   "order": 21,

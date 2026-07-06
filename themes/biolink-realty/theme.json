@@ -1,7 +1,7 @@
 {
   "name": "Realty Link",
   "description": "Biolink for real estate brokers — property listings, agent profile, inquiry CTA.",
-  "for": ["linktree"],
+  "for": ["minisite"],
   "categories": ["real-estate"],
   "preview": "preview.jpg",
   "sections": [

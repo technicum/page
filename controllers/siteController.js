@@ -36,7 +36,7 @@ exports.store = async (req, res) => {
     sections: null
   })
 
-  // category: use the site_type as the primary category (linktree/business/etc.)
+  // category: use the site_type as the primary category (minisite/business/etc.)
   // The subcategory dropdown value (Salon & Beauty, etc.) is saved inside settings
   const resolvedCategory = site_type || category || ''
 
@@ -314,7 +314,7 @@ exports.createStaffSite = async (req, res) => {
     // Inherit parent branding
     const parentSettings = JSON.parse(parent.settings || '{}')
     const settings = JSON.stringify({
-      site_type:   'linktree',
+      site_type:   'minisite',
       template_id: parent.template_id || 'biolink-creator',
       theme:       parentSettings.theme || 'blue',
       city:        parentSettings.city  || '',
@@ -325,7 +325,7 @@ exports.createStaffSite = async (req, res) => {
     const id = await db.lastId(
       `INSERT INTO ms_sites
         (account_id, title, subdomain, category, template_id, settings, is_published, parent_site_id, path_slug, category_id, lat, lng, state)
-       VALUES (?, ?, ?, 'linktree', ?, ?, 1, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, 'minisite', ?, ?, 1, ?, ?, ?, ?, ?, ?)`,
       [user.id, name, syntheticSub, parent.template_id || 'biolink-creator', settings,
        parent.id, pathSlug, parent.category_id || null, parent.lat || null, parent.lng || null, parent.state || null]
     )

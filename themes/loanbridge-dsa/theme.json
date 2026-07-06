@@ -1,7 +1,7 @@
 {
   "name": "LoanBridge DSA",
   "description": "Dark navy biolink for bank DSA agents in India — loan products, bank partners, EMI CTA, WhatsApp quick-connect.",
-  "for": ["linktree"],
+  "for": ["minisite"],
   "categories": ["finance"],
   "tags": ["banking", "india", "dsa", "dark", "professional"],
   "order": 10,

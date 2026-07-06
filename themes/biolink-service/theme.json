@@ -1,7 +1,7 @@
 {
   "name": "Service Link",
   "description": "Biolink for service providers — services list, booking CTA, contact.",
-  "for": ["linktree"],
+  "for": ["minisite"],
   "categories": ["beauty", "healthcare", "fitness", "restaurant", "retail", "events", "travel", "education", "finance", "freelancer", "other"],
   "preview": "preview.jpg",
   "sections": [

@@ -61,9 +61,10 @@ async function serveSite(req, res, next, lookup) {
     }
 
     const settings  = JSON.parse(site.settings || '{}')
-    // Biolink sites always use the universal block renderer regardless of stored template_id
+    // Mini Site pages always use the universal block renderer regardless of stored template_id
     const rawSlug   = settings.template_id || site.template_id || 'minimal'
-    const slug      = rawSlug.startsWith('biolink-') ? 'biolink-creator' : rawSlug
+    const isMiniSite = rawSlug.startsWith('biolink-') || site.category === 'minisite' || site.category === 'linktree'
+    const slug      = isMiniSite ? 'biolink-creator' : rawSlug
     const rawPath   = req.path.replace(/^\/+|\/+$/g, '') || 'home'
     const pathParts = rawPath.split('/')
     const pageId    = pathParts[0] || 'home'

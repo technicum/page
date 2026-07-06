@@ -1,7 +1,7 @@
 {
   "name": "Jobs Saffron Energy",
   "description": "Bold black & orange biolink for high-energy placement networks — job categories, featured openings, fast apply CTA.",
-  "for": ["linktree"],
+  "for": ["minisite"],
   "categories": ["job-placement", "recruitment"],
   "tags": ["dark", "orange", "energetic", "bold", "india", "network"],
   "order": 22,

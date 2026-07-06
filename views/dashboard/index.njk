@@ -233,7 +233,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
         <div class="si-name">{{ site.title }}</div>
         <a class="si-url" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a>
         <div class="si-meta">
-          <span class="si-tag">{% if site.category == 'linktree' %}Business{% elif site.category %}{{ site.category | capitalize }}{% else %}Bio Link{% endif %}</span>
+          <span class="si-tag">{% if site.category == 'minisite' or site.category == 'linktree' %}Mini Site{% elif site.category %}{{ site.category | capitalize }}{% else %}Mini Site{% endif %}</span>
         </div>
       </div>
       <div class="si-right">
@@ -241,7 +241,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
           <span style="font-size:8px;">{{ '●' if site.is_published else '◌' }}</span>
           {{ 'Live' if site.is_published else 'Draft' }}
         </button>
-        <a class="btn-edit" href="/dashboard/site/{% if site.category == 'linktree' or ('biolink-' in (site.template_id or '')) %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit →</a>
+        <a class="btn-edit" href="/dashboard/site/{% if site.category == 'minisite' or site.category == 'linktree' or ('biolink-' in (site.template_id or '')) %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit →</a>
         <div class="more-wrap">
           <button class="btn-more" onclick="toggleMore(event, 'more-{{ site.id }}')">⋯</button>
           <div class="more-menu" id="more-{{ site.id }}">

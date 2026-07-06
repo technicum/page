@@ -1,7 +1,7 @@
 {
   "name": "TradeVault Academy",
   "description": "Dark market-terminal biolink for SEBI-registered traders and course creators — live stats, course cards, Telegram/YouTube CTAs.",
-  "for": ["linktree"],
+  "for": ["minisite"],
   "categories": ["finance", "education"],
   "tags": ["trading", "courses", "dark", "education", "finance"],
   "order": 11,

@@ -1,7 +1,7 @@
 {
   "name": "Shop Link",
   "description": "Biolink for ecommerce & product sellers — product grid, order links, contact.",
-  "for": ["linktree"],
+  "for": ["minisite"],
   "categories": ["retail", "restaurant", "technology"],
   "preview": "preview.jpg",
   "sections": [
