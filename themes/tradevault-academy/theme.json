@@ -5,6 +5,20 @@
   "categories": ["finance", "education"],
   "tags": ["trading", "courses", "dark", "education", "finance"],
   "order": 11,
+  "default_appearance": {
+    "bgColor": "#0a0a0a", "btnColor": "#00D964", "btnTextColor": "#000000",
+    "textColor": "#e5e5e5", "btnStyle": "filled", "btnRadius": "6",
+    "bgType": "color", "fontFamily": "inter"
+  },
+  "default_blocks": [
+    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Arjun Verma", "bio":"SEBI Reg. Analyst · Options Trader · 9 yrs · 4,200+ students 📈" },
+    { "id":"b2", "type":"link",    "enabled":true, "title":"🎓 Join the academy →", "url":"#" },
+    { "id":"b3", "type":"heading", "enabled":true, "text":"Courses", "size":"h3", "align":"center" },
+    { "id":"b4", "type":"product", "enabled":true, "title":"Options Mastery Pro", "description":"12 weeks · Live sessions", "price":"₹9,999", "btn_text":"Enroll now", "btn_url":"#" },
+    { "id":"b5", "type":"product", "enabled":true, "title":"Intraday Scalping", "description":"6 weeks · Recorded", "price":"₹4,999", "btn_text":"Enroll now", "btn_url":"#" },
+    { "id":"b6", "type":"link",    "enabled":true, "title":"📺 YouTube channel · Free trading videos", "url":"#" },
+    { "id":"b7", "type":"link",    "enabled":true, "title":"💬 Telegram community · Daily market calls", "url":"#" }
+  ],
   "sections": [
     {
       "id": "profile",
