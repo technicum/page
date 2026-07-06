@@ -504,7 +504,33 @@ var BLOCK_TYPES = {
   contact_form:{label:'Contact Form',icon:'📋',cat:'advanced',desc:'A contact form',defaults:{heading:'Contact me',show_name:true,show_email:true,show_phone:false,show_message:true,btn_text:'Send message'},
     fields:[{id:'heading',label:'Heading',type:'text',ph:'Contact me'},{id:'show_name',label:'Name field',type:'toggle'},{id:'show_email',label:'Email field',type:'toggle'},{id:'show_phone',label:'Phone field',type:'toggle'},{id:'show_message',label:'Message field',type:'toggle'},{id:'btn_text',label:'Button text',type:'text',ph:'Send message'}]},
   business_hours:{label:'Business Hours',icon:'🕐',cat:'advanced',desc:'Opening hours',defaults:{heading:'Business Hours',mon_open:'9:00 AM',mon_close:'6:00 PM',tue_open:'9:00 AM',tue_close:'6:00 PM',wed_open:'9:00 AM',wed_close:'6:00 PM',thu_open:'9:00 AM',thu_close:'6:00 PM',fri_open:'9:00 AM',fri_close:'6:00 PM',sat_open:'',sat_close:'',sun_open:'',sun_close:''},
-    fields:[{id:'heading',label:'Heading',type:'text',ph:'Business Hours'},{id:'_hours',label:'Hours',type:'hours'}]}
+    fields:[{id:'heading',label:'Heading',type:'text',ph:'Business Hours'},{id:'_hours',label:'Hours',type:'hours'}]},
+
+  /* ── New standard blocks ── */
+  video:{label:'Video',icon:'▶️',cat:'standard',desc:'YouTube, Vimeo or TikTok',defaults:{url:'',caption:''},
+    fields:[{id:'url',label:'Video URL',type:'text',ph:'https://youtube.com/watch?v=...'},{id:'caption',label:'Caption (optional)',type:'text',ph:''}]},
+
+  divider:{label:'Divider',icon:'—',cat:'standard',desc:'Section separator',defaults:{style:'line',spacing:'16'},
+    fields:[{id:'style',label:'Style',type:'select',opts:[{v:'line',l:'Line'},{v:'dots',l:'Dots ···'},{v:'gradient',l:'Gradient bar'},{v:'space',l:'Space only'}]},{id:'spacing',label:'Spacing',type:'select',opts:[{v:'8',l:'Small (8px)'},{v:'16',l:'Medium (16px)'},{v:'32',l:'Large (32px)'},{v:'48',l:'X-Large (48px)'}]}]},
+
+  /* ── New advanced blocks ── */
+  product:{label:'Product',icon:'🛍️',cat:'advanced',desc:'Product card with buy button',defaults:{image:'',title:'',description:'',price:'',btn_text:'Buy now',btn_url:''},
+    fields:[{id:'image',label:'Product image',type:'image'},{id:'title',label:'Name',type:'text',ph:'Product name'},{id:'description',label:'Description',type:'textarea',ph:'Short description...'},{id:'price',label:'Price',type:'text',ph:'$29.99'},{id:'btn_text',label:'Button text',type:'text',ph:'Buy now'},{id:'btn_url',label:'Buy URL',type:'text',ph:'https://'}]},
+
+  banner:{label:'Banner',icon:'📢',cat:'advanced',desc:'Announcement / promo bar',defaults:{text:'🎉 Special offer!',btn_text:'',btn_url:'',bg_color:'#fef3c7',text_color:'#92400e'},
+    fields:[{id:'text',label:'Banner text',type:'text',ph:'🎉 Special offer!'},{id:'btn_text',label:'Button text',type:'text',ph:'Learn more'},{id:'btn_url',label:'Button URL',type:'text',ph:'https://'},{id:'bg_color',label:'Background color',type:'color',ph:'#fef3c7'},{id:'text_color',label:'Text color',type:'color',ph:'#92400e'}]},
+
+  testimonial:{label:'Testimonial',icon:'💬',cat:'advanced',desc:'Customer review card',defaults:{photo:'',name:'',role:'',quote:'',rating:'5'},
+    fields:[{id:'photo',label:'Photo',type:'image'},{id:'name',label:'Name',type:'text',ph:'Jane Doe'},{id:'role',label:'Role / Company',type:'text',ph:'CEO, Acme Inc.'},{id:'quote',label:'Quote',type:'textarea',ph:'Amazing service...'},{id:'rating',label:'Stars',type:'select',opts:[{v:'5',l:'★★★★★ (5)'},{v:'4',l:'★★★★☆ (4)'},{v:'3',l:'★★★☆☆ (3)'},{v:'2',l:'★★☆☆☆ (2)'},{v:'1',l:'★☆☆☆☆ (1)'}]}]},
+
+  faq:{label:'FAQ',icon:'❓',cat:'advanced',desc:'Questions & answers',defaults:{heading:'FAQ',items:[]},
+    fields:[{id:'heading',label:'Heading',type:'text',ph:'Frequently Asked Questions'},{id:'items',label:'Questions',type:'items',item_fields:[{id:'question',type:'text',ph:'Your question?'},{id:'answer',type:'textarea',ph:'Your answer...'}]}]},
+
+  map:{label:'Map',icon:'📍',cat:'advanced',desc:'Google Maps embed',defaults:{embed_url:'',caption:''},
+    fields:[{id:'embed_url',label:'Google Maps embed URL',type:'text',ph:'Paste the "src" URL from Google Maps → Share → Embed'},{id:'caption',label:'Caption',type:'text',ph:'Find us here'}]},
+
+  html:{label:'Custom HTML',icon:'</>',cat:'advanced',desc:'Raw HTML or iframe embed',defaults:{code:''},
+    fields:[{id:'code',label:'HTML / iframe code',type:'textarea',ph:'<iframe src="..."></iframe>'}]}
 };
 
 var GRADIENTS = [
@@ -730,6 +756,14 @@ function getBlockSummary(block){
     case 'phone_collector': return 'Phone collector';
     case 'contact_form': return 'Contact form';
     case 'business_hours': return 'Business hours';
+    case 'video': return block.url ? block.url.slice(0,36)+'…' : 'Video';
+    case 'divider': return 'Divider';
+    case 'product': return block.title||'Product';
+    case 'banner': return block.text||'Banner';
+    case 'testimonial': return block.name||'Testimonial';
+    case 'faq': return 'FAQ ('+(block.items?block.items.length:0)+' items)';
+    case 'map': return 'Map';
+    case 'html': return 'Custom HTML';
     default: return block.type;
   }
 }
@@ -846,6 +880,69 @@ function buildBlockFields(block, container){
       });
       sel.addEventListener('change',function(){block[f.id]=this.value; markDirty(); debouncedPreview();});
       fg.appendChild(sel);
+    } else if(f.type==='color'){
+      // Inline color picker: swatch + hex input
+      var cpair=document.createElement('div'); cpair.className='color-pair';
+      var cswatch=document.createElement('div'); cswatch.className='color-swatch';
+      cswatch.style.background=block[f.id]||f.ph||'#cccccc';
+      var cnative=document.createElement('input'); cnative.type='color'; cnative.value=block[f.id]||f.ph||'#cccccc';
+      cswatch.appendChild(cnative);
+      var chex=document.createElement('input'); chex.className='fg-input'; chex.placeholder=f.ph||'#000000'; chex.value=block[f.id]||'';
+      var _fid=f.id;
+      function mkColorHandler(sw,pk,hx,bid){
+        function setC(v){ block[bid]=v; sw.style.background=v; pk.value=v; hx.value=v; markDirty(); debouncedPreview(); }
+        pk.addEventListener('input',function(){setC(this.value);});
+        hx.addEventListener('input',function(){if(/^#[0-9a-fA-F]{6}$/.test(this.value))setC(this.value);});
+      }
+      mkColorHandler(cswatch,cnative,chex,_fid);
+      cpair.appendChild(cswatch); cpair.appendChild(chex);
+      fg.appendChild(cpair);
+    } else if(f.type==='items'){
+      // Mini repeater for list items (FAQ, etc.)
+      if(!block[f.id]) block[f.id]=[];
+      var iListWrap=document.createElement('div');
+      var iAddBtn=document.createElement('button'); iAddBtn.className='btn-upload'; iAddBtn.style.marginBottom='8px'; iAddBtn.textContent='+ Add item';
+      var iList=document.createElement('div'); iList.style.cssText='display:flex;flex-direction:column;gap:6px;';
+      (function(blk,fld,listEl){
+        function renderIList(){
+          listEl.innerHTML='';
+          (blk[fld.id]||[]).forEach(function(item,idx){
+            var icard=document.createElement('div');
+            icard.style.cssText='background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;position:relative;';
+            fld.item_fields.forEach(function(iField){
+              var iel=document.createElement(iField.type==='textarea'?'textarea':'input');
+              iel.className='fg-input'; iel.placeholder=iField.ph||''; iel.value=item[iField.id]||'';
+              iel.style.marginBottom='4px'; iel.style.fontSize='12px';
+              if(iField.type==='textarea'){iel.style.minHeight='50px'; iel.style.resize='vertical';}
+              (function(i,fid){
+                iel.addEventListener('input',function(){blk[fld.id][i][fid]=this.value;markDirty();debouncedPreview();});
+              })(idx,iField.id);
+              icard.appendChild(iel);
+            });
+            var idel=document.createElement('button');
+            idel.style.cssText='position:absolute;top:6px;right:6px;background:none;border:none;color:#d1d5db;cursor:pointer;font-size:13px;padding:0;';
+            idel.textContent='✕';
+            (function(i){idel.onclick=function(){blk[fld.id].splice(i,1);markDirty();debouncedPreview();renderIList();};})(idx);
+            icard.appendChild(idel);
+            listEl.appendChild(icard);
+          });
+        }
+        iAddBtn.onclick=function(){
+          var blank={};
+          fld.item_fields.forEach(function(iField){blank[iField.id]='';});
+          blk[fld.id].push(blank);
+          markDirty();debouncedPreview();renderIList();
+        };
+        renderIList();
+      })(block,f,iList);
+      fg.removeChild(lbl); // label shown via iAddBtn layout
+      var iheadrow=document.createElement('div'); iheadrow.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;';
+      var ilbl2=document.createElement('span'); ilbl2.className='fg-label'; ilbl2.textContent=f.label; ilbl2.style.margin='0';
+      iheadrow.appendChild(ilbl2); iheadrow.appendChild(iAddBtn);
+      fg.appendChild(iheadrow); fg.appendChild(iList);
+      iListWrap.appendChild(fg);
+      container.appendChild(iListWrap);
+      return; // forEach: skip the container.appendChild(fg) at the bottom
     } else {
       var inp=document.createElement('input'); inp.className='fg-input';
       inp.type='text'; inp.placeholder=f.ph||''; inp.value=block[f.id]||'';
