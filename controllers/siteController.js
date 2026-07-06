@@ -185,11 +185,16 @@ exports.biolinkPreview = async (req, res) => {
   if (!site) return res.status(404).send('<h1>Not found</h1>')
 
   const existing = JSON.parse(site.settings || '{}')
-  const merged   = Object.assign({}, existing, newSettings)
-  const slug     = merged.template_id || site.template_id || 'biolink-creator'
+  // Always deep-merge blocks/appearance/seo from the new payload
+  const merged = Object.assign({}, existing, newSettings, {
+    template_id: 'biolink-creator',
+    blocks:      newSettings.blocks      !== undefined ? newSettings.blocks      : (existing.blocks || []),
+    appearance:  newSettings.appearance  !== undefined ? newSettings.appearance  : (existing.appearance || {}),
+    seo:         newSettings.seo         !== undefined ? newSettings.seo         : (existing.seo || {})
+  })
 
   try {
-    const html = await themeManager.render(slug, site, merged)
+    const html = await themeManager.render('biolink-creator', site, merged)
     res.send(html)
   } catch (e) {
     res.status(500).send('<p style="font-family:sans-serif;padding:20px;color:#dc2626">Preview error: ' + e.message + '</p>')
@@ -203,11 +208,16 @@ exports.biolinkSave = async (req, res) => {
   const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [site_id, user.id])
   if (!site) return res.json({ ok: false })
 
-  // Merge new settings over existing (preserve template_id, site_type, etc.)
   const existing = JSON.parse(site.settings || '{}')
-  const merged   = Object.assign({}, existing, newSettings)
+  // Always store blocks/appearance/seo and lock template to biolink-creator
+  const merged = Object.assign({}, existing, newSettings, {
+    template_id: 'biolink-creator',
+    blocks:     newSettings.blocks     !== undefined ? newSettings.blocks     : (existing.blocks || []),
+    appearance: newSettings.appearance !== undefined ? newSettings.appearance : (existing.appearance || {}),
+    seo:        newSettings.seo        !== undefined ? newSettings.seo        : (existing.seo || {})
+  })
 
-  await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?', [JSON.stringify(merged), site_id])
+  await db.execute('UPDATE ms_sites SET settings = ?, template_id = ? WHERE id = ?', [JSON.stringify(merged), 'biolink-creator', site_id])
   res.json({ ok: true })
 }
 

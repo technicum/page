@@ -130,9 +130,7 @@ exports.biolinkBuilder = async (req, res) => {
   const site = await db.first('SELECT * FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   if (!site) return res.redirect('/dashboard')
 
-  const settings         = JSON.parse(site.settings || '{}')
-  const currentThemeSlug = settings.template_id || site.template_id || 'biolink-creator'
-  const allThemes        = themeManager.loadAll()
+  const settings   = JSON.parse(site.settings || '{}')
 
   // Universal block model — blocks[] and appearance{} live directly in settings
   const blocks     = settings.blocks     || []
@@ -140,15 +138,13 @@ exports.biolinkBuilder = async (req, res) => {
   const seo        = settings.seo        || {}
 
   res.render('dashboard/biolink-builder.njk', {
-    title:            'Bio Link Editor',
+    title: 'Bio Link Editor',
     user,
     site,
     settings,
     blocks,
     appearance,
     seo,
-    currentThemeSlug,
-    allThemes,
     baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
   })
 }

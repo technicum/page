@@ -270,18 +270,6 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
       </div>
     </div>
 
-    <!-- Theme -->
-    <div class="acc" id="accTheme">
-      <div class="acc-head" onclick="toggleAcc('accTheme')">
-        <span class="acc-icon">🎨</span>
-        <span class="acc-label">Theme</span>
-        <span class="acc-chevron">›</span>
-      </div>
-      <div class="acc-body">
-        <div class="theme-grid" id="themeGrid"></div>
-      </div>
-    </div>
-
     <!-- Button Style -->
     <div class="acc" id="accBtn">
       <div class="acc-head" onclick="toggleAcc('accBtn')">
@@ -467,12 +455,10 @@ var SEO          = {{ seo | dump | safe }};
 var SITE_ID      = {{ site.id }};
 var SITE_SUB     = '{{ site.subdomain }}';
 var BASE_DOMAIN  = '{{ baseDomain }}';
-var CURRENT_THEME= '{{ currentThemeSlug }}';
-var ALL_THEMES   = {{ allThemes | dump | safe }};
+var CURRENT_THEME= 'biolink-creator'; // always universal block renderer
 if(!BLOCKS) BLOCKS=[];
 if(!APP) APP={};
 if(!SEO) SEO={};
-if(!ALL_THEMES) ALL_THEMES={};
 
 /* ── Appearance defaults ─────────────────────── */
 APP = Object.assign({
@@ -652,25 +638,6 @@ function updateBgThumb(){
 
 /* ── Build Settings UI ───────────────────────── */
 function buildSettingsUI(){
-  // Theme grid
-  var tg=document.getElementById('themeGrid');
-  tg.innerHTML='';
-  Object.values(ALL_THEMES).forEach(function(t){
-    var forArr=t.for||[];
-    if(forArr.indexOf('linktree')<0 && forArr.indexOf('biolink')<0) return;
-    var card=document.createElement('div');
-    card.className='theme-card'+(t.slug===CURRENT_THEME?' active':'');
-    card.onclick=function(){
-      CURRENT_THEME=t.slug;
-      document.querySelectorAll('.theme-card').forEach(function(c){c.classList.remove('active');});
-      card.classList.add('active');
-      markDirty(); debouncedPreview();
-    };
-    card.innerHTML='<div class="theme-card-dot" style="background:'+(t.color||'#6366f1')+'"></div><div class="theme-card-name">'+(t.name||t.slug)+'</div>';
-    tg.appendChild(card);
-  });
-  if(!tg.children.length) tg.innerHTML='<p style="font-size:12px;color:#9ca3af;grid-column:span 2">No themes available</p>';
-
   // Button style chips
   var bsr=document.getElementById('btnStyleRow');
   bsr.innerHTML='';

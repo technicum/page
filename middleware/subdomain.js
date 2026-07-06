@@ -61,7 +61,9 @@ async function serveSite(req, res, next, lookup) {
     }
 
     const settings  = JSON.parse(site.settings || '{}')
-    const slug      = settings.template_id || site.template_id || 'minimal'
+    // Biolink sites always use the universal block renderer regardless of stored template_id
+    const rawSlug   = settings.template_id || site.template_id || 'minimal'
+    const slug      = rawSlug.startsWith('biolink-') ? 'biolink-creator' : rawSlug
     const rawPath   = req.path.replace(/^\/+|\/+$/g, '') || 'home'
     const pathParts = rawPath.split('/')
     const pageId    = pathParts[0] || 'home'
@@ -184,7 +186,8 @@ self.addEventListener('fetch',function(e){});`)
           const base = process.env.BASE_DOMAIN || 'pagezapper.com'
           staffSettings.profile.company_url = `https://${site.subdomain}.${base}`
         }
-        const staffThemeSlug = staffSettings.template_id || staffSite.template_id || 'biolink-creator'
+        const staffRawSlug   = staffSettings.template_id || staffSite.template_id || 'biolink-creator'
+        const staffThemeSlug = staffRawSlug.startsWith('biolink-') ? 'biolink-creator' : staffRawSlug
         let   staffForms     = {}
         try { staffForms = await loadFormsForAccount(staffSite.account_id) } catch(e) {}
         const html = await themeManager.render(staffThemeSlug, staffSite, staffSettings, 'home', staffForms)
