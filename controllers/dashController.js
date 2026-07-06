@@ -133,17 +133,23 @@ exports.biolinkBuilder = async (req, res) => {
   const settings   = JSON.parse(site.settings || '{}')
 
   // Universal block model — blocks[] and appearance{} live directly in settings.
-  // For brand-new sites (no blocks yet), pre-seed from the theme's default_blocks
-  // so the builder opens with demo content instead of a blank canvas.
-  const themeSlug   = (settings.template_id || site.template_id || 'biolink-creator').replace(/[^a-z0-9-]/g, '')
-  const themeData   = themeManager.loadAll()[themeSlug] || {}
+  // For brand-new sites (no blocks yet), seed from the theme's default_blocks and
+  // immediately persist to DB so the live site URL shows content right away.
+  const themeSlug  = (settings.template_id || site.template_id || 'biolink-creator').replace(/[^a-z0-9-]/g, '')
+  const themeData  = themeManager.loadAll()[themeSlug] || {}
+  const isNew      = !settings.blocks || !settings.blocks.length
 
-  const blocks     = settings.blocks     && settings.blocks.length
-                       ? settings.blocks
-                       : (themeData.default_blocks || [])
-  const appearance = Object.keys(settings.appearance || {}).length
-                       ? settings.appearance
-                       : (themeData.default_appearance || {})
+  if (isNew && themeData.default_blocks && themeData.default_blocks.length) {
+    settings.blocks     = themeData.default_blocks
+    settings.appearance = settings.appearance && Object.keys(settings.appearance).length
+                            ? settings.appearance
+                            : (themeData.default_appearance || {})
+    await db.execute('UPDATE ms_sites SET settings = ? WHERE id = ?',
+      [JSON.stringify(settings), siteId])
+  }
+
+  const blocks     = settings.blocks     || []
+  const appearance = settings.appearance || {}
   const seo        = settings.seo        || {}
 
   res.render('dashboard/biolink-builder.njk', {
