@@ -18,6 +18,10 @@
 {% for b in settings.blocks %}{% if b.type == 'avatar' %}{% assign _avatar_block = b %}{% break %}{% endif %}{% endfor %}
 {% assign _seo = settings.seo %}
 {% assign _pg_title = _seo.title | default: _avatar_block.name | default: site.title %}
+{% assign _anim_style = settings.appearance.animationStyle | default: 'slide-up' %}
+{% assign _anim_stagger = settings.appearance.animationStagger | default: '100' %}
+{% assign _anim_speed = settings.appearance.animationSpeed | default: 'normal' %}
+{% if _anim_speed == 'fast' %}{% assign _anim_dur = '0.35s' %}{% elsif _anim_speed == 'slow' %}{% assign _anim_dur = '0.75s' %}{% else %}{% assign _anim_dur = '0.5s' %}{% endif %}
 {% assign _pg_desc = _seo.description | default: _avatar_block.bio | default: '' %}
 <title>{{ _pg_title }}</title>
 <meta name="description" content="{{ _pg_desc }}">
@@ -244,15 +248,37 @@ body{
 
 /* ── Custom HTML ─────────────────────────────── */
 .b-html{border-radius:12px;overflow:hidden;}
+
+/* ── Block animations ────────────────────────── */
+@keyframes bk-fade{from{opacity:0}to{opacity:1}}
+@keyframes bk-slide-up{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bk-slide-down{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bk-slide-left{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
+@keyframes bk-slide-right{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:translateX(0)}}
+@keyframes bk-zoom{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
+@keyframes bk-bounce{0%{opacity:0;transform:scale(.55)}55%{opacity:1;transform:scale(1.07)}78%{transform:scale(.96)}100%{transform:scale(1)}}
+@keyframes bk-flip{from{opacity:0;transform:perspective(500px) rotateX(22deg)}to{opacity:1;transform:perspective(500px) rotateX(0)}}
+
+.bk-init{opacity:0;}
+.bk-init[data-bk-anim="none"]{opacity:1 !important;}
+.bk-go[data-bk-anim="fade"]{animation:bk-fade var(--bk-dur,.5s) ease both;}
+.bk-go[data-bk-anim="slide-up"]{animation:bk-slide-up var(--bk-dur,.5s) ease both;}
+.bk-go[data-bk-anim="slide-down"]{animation:bk-slide-down var(--bk-dur,.5s) ease both;}
+.bk-go[data-bk-anim="slide-left"]{animation:bk-slide-left var(--bk-dur,.45s) ease both;}
+.bk-go[data-bk-anim="slide-right"]{animation:bk-slide-right var(--bk-dur,.45s) ease both;}
+.bk-go[data-bk-anim="zoom"]{animation:bk-zoom var(--bk-dur,.45s) cubic-bezier(.34,1.08,.64,1) both;}
+.bk-go[data-bk-anim="bounce"]{animation:bk-bounce var(--bk-dur,.65s) cubic-bezier(.34,1.56,.64,1) both;}
+.bk-go[data-bk-anim="flip"]{animation:bk-flip var(--bk-dur,.5s) ease both;}
 </style>
 </head>
-<body>
+<body data-bk-stagger="{{ _anim_stagger }}" style="--bk-dur:{{ _anim_dur }}">
 <div class="page-wrap">
 
 {% if settings.blocks %}
 {% for block in settings.blocks %}
 {% if block.enabled != false %}
-<div class="block" id="blk-{{ block.id }}">
+{% assign _blk_anim = block.animation %}{% if _blk_anim == blank or _blk_anim == nil %}{% assign _blk_anim = _anim_style %}{% endif %}
+<div class="block{% if _blk_anim != 'none' %} bk-init{% endif %}" id="blk-{{ block.id }}" data-bk-anim="{{ _blk_anim }}"{% if block.animation_delay != nil and block.animation_delay != blank %} data-bk-delay="{{ block.animation_delay }}"{% endif %}>
 {% case block.type %}
 
 {% when 'avatar' %}
@@ -605,6 +631,36 @@ function pzContact(e, siteId, blockId) {
   });
   return false;
 }
+
+// ── Block entrance animations (IntersectionObserver) ──────────────────
+(function(){
+  var stagger=parseInt(document.body.dataset.bkStagger||'100');
+  var els=document.querySelectorAll('.bk-init[data-bk-anim]');
+  if(!els.length) return;
+  function trigger(el,delay){
+    el.style.animationDelay=delay+'ms';
+    el.classList.add('bk-go');
+  }
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(el,i){ trigger(el, el.dataset.bkDelay!==undefined ? parseInt(el.dataset.bkDelay) : i*stagger); });
+    return;
+  }
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        var el=entry.target;
+        var idx=parseInt(el.dataset.bkIdx||'0');
+        var delay=el.dataset.bkDelay!==undefined ? parseInt(el.dataset.bkDelay) : idx*stagger;
+        trigger(el,delay);
+        io.unobserve(el);
+      }
+    });
+  },{threshold:0.08,rootMargin:'0px 0px -10px 0px'});
+  els.forEach(function(el,i){
+    el.dataset.bkIdx=String(i);
+    io.observe(el);
+  });
+})();
 </script>
 </body>
 </html>

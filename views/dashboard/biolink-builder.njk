@@ -104,6 +104,19 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .preset-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
 .preset-btn:hover{transform:scale(1.03);}
 
+/* ── Animation chips ─────────────────────────── */
+.anim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:2px;}
+.anim-chip{border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 4px;cursor:pointer;text-align:center;transition:all .15s;background:#fff;font-family:inherit;}
+.anim-chip:hover{border-color:#a5b4fc;background:#f5f3ff;}
+.anim-chip.active{border-color:#6366f1;background:#eef2ff;}
+.anim-chip-icon{font-size:14px;line-height:1;}
+.anim-chip-label{font-size:10px;font-weight:600;color:#374151;margin-top:2px;line-height:1.2;}
+.anim-chip.active .anim-chip-label{color:#6366f1;}
+.btn-apply-anim{width:100%;margin-top:8px;padding:8px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:600;color:#374151;cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-apply-anim:hover{background:#e5e7eb;}
+.anim-block-sep{border-top:1px solid #f0f0f3;margin-top:10px;padding-top:10px;}
+.anim-block-row{display:flex;gap:8px;}
+
 /* ── Gradient chips ──────────────────────────── */
 .grad-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;}
 .grad-chip{height:40px;border-radius:8px;cursor:pointer;border:2.5px solid transparent;transition:all .15s;}
@@ -389,6 +402,30 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
       </div>
     </div>
 
+    <!-- Animations -->
+    <div class="acc" id="accAnim">
+      <div class="acc-head" onclick="toggleAcc('accAnim')">
+        <span class="acc-icon">✨</span>
+        <span class="acc-label">Animations</span>
+        <span class="acc-chevron">›</span>
+      </div>
+      <div class="acc-body">
+        <div class="fg">
+          <label class="fg-label">Animation Style</label>
+          <div class="anim-grid" id="animStyleGrid"></div>
+        </div>
+        <div class="fg">
+          <label class="fg-label">Speed</label>
+          <div class="chip-row" id="animSpeedRow"></div>
+        </div>
+        <div class="fg">
+          <label class="fg-label">Stagger between blocks</label>
+          <div class="chip-row" id="animStaggerRow"></div>
+        </div>
+        <button class="btn-apply-anim" onclick="applyAnimToAll()">↻ Apply style to all blocks</button>
+      </div>
+    </div>
+
     <!-- SEO -->
     <div class="acc" id="accSeo">
       <div class="acc-head" onclick="toggleAcc('accSeo')">
@@ -480,7 +517,8 @@ if(!SEO) SEO={};
 APP = Object.assign({
   bgType:'color', bgColor:'#ffffff', bgGradient:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)', bgImage:'',
   btnStyle:'filled', btnRadius:'8', btnColor:'#6366f1', btnTextColor:'#ffffff',
-  fontFamily:'Inter', textColor:'#1a1a1a'
+  fontFamily:'Inter', textColor:'#1a1a1a',
+  animationStyle:'slide-up', animationStagger:'100', animationSpeed:'normal'
 }, APP);
 
 SEO = Object.assign({ title:'', description:'', noindex:false }, SEO);
@@ -733,6 +771,43 @@ function buildSettingsUI(){
     c.onclick=function(){setApp('fontFamily',f.v);};
     fr.appendChild(c);
   });
+
+  // Animation style chips
+  var animStyles=[
+    {v:'none',l:'None',i:'⛔'},{v:'fade',l:'Fade',i:'🌫'},{v:'slide-up',l:'↑ Slide Up',i:'⬆'},
+    {v:'slide-down',l:'↓ Slide Dn',i:'⬇'},{v:'slide-left',l:'→ From R',i:'➡'},{v:'slide-right',l:'← From L',i:'⬅'},
+    {v:'zoom',l:'Zoom',i:'🔍'},{v:'bounce',l:'Bounce',i:'🏀'},{v:'flip',l:'Flip',i:'🔄'}
+  ];
+  var asg=document.getElementById('animStyleGrid');
+  if(asg){
+    asg.innerHTML='';
+    animStyles.forEach(function(s){
+      var c=document.createElement('button'); c.className='anim-chip'; c.dataset.val=s.v;
+      c.innerHTML='<div class="anim-chip-icon">'+s.i+'</div><div class="anim-chip-label">'+s.l+'</div>';
+      c.onclick=function(){ setApp('animationStyle',s.v); };
+      asg.appendChild(c);
+    });
+  }
+  // Animation speed chips
+  var asr=document.getElementById('animSpeedRow');
+  if(asr){
+    asr.innerHTML='';
+    [{v:'fast',l:'Fast'},{v:'normal',l:'Normal'},{v:'slow',l:'Slow'}].forEach(function(s){
+      var c=document.createElement('div'); c.className='chip'; c.dataset.val=s.v; c.textContent=s.l;
+      c.onclick=function(){ setApp('animationSpeed',s.v); };
+      asr.appendChild(c);
+    });
+  }
+  // Stagger chips
+  var asts=document.getElementById('animStaggerRow');
+  if(asts){
+    asts.innerHTML='';
+    [{v:'0',l:'None'},{v:'60',l:'60ms'},{v:'100',l:'100ms'},{v:'150',l:'150ms'},{v:'200',l:'200ms'}].forEach(function(s){
+      var c=document.createElement('div'); c.className='chip'; c.dataset.val=s.v; c.textContent=s.l;
+      c.onclick=function(){ setApp('animationStagger',s.v); };
+      asts.appendChild(c);
+    });
+  }
 
   // Build Add Modal
   var ms=document.getElementById('modalStandard');
