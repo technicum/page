@@ -3,324 +3,462 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-{% comment %}── SEO ──{% endcomment %}
-{% assign _pr  = settings.profile %}
+{% assign _app = settings.appearance %}
+{% assign _bg_color = _app.bgColor | default: '#ffffff' %}
+{% assign _btn_color = _app.btnColor | default: '#6366f1' %}
+{% assign _btn_text_color = _app.btnTextColor | default: '#ffffff' %}
+{% assign _btn_radius = _app.btnRadius | default: '8' %}
+{% assign _btn_style = _app.btnStyle | default: 'filled' %}
+{% assign _font = _app.fontFamily | default: 'Inter' %}
+{% assign _text_color = _app.textColor | default: '#1a1a1a' %}
+{% assign _bg_type = _app.bgType | default: 'color' %}
+{% assign _bg_gradient = _app.bgGradient | default: 'linear-gradient(135deg,#667eea 0%,#764ba2 100%)' %}
+{% assign _bg_image = _app.bgImage | default: '' %}
+{% assign _avatar_block = nil %}
+{% for b in settings.blocks %}{% if b.type == 'avatar' %}{% assign _avatar_block = b %}{% break %}{% endif %}{% endfor %}
 {% assign _seo = settings.seo %}
-{% assign _t   = _seo.title | default: _pr.name %}
-{% assign _d   = _seo.description | default: _pr.bio | default: _pr.tagline %}
-{% assign _img = _seo.og_image | default: _pr.avatar %}
-<title>{{ _t }}</title>
-<meta name="description" content="{{ _d }}">
-<meta name="robots" content="{% if _seo.noindex %}noindex,nofollow{% else %}index,follow{% endif %}">
-<link rel="canonical" href="{{ site.url }}">
-<link rel="manifest" href="/manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="{{ settings.profile.name | default: site.title }}">
-<meta property="og:type" content="profile">
-<meta property="og:title" content="{{ _t }}">
-<meta property="og:description" content="{{ _d }}">
-<meta property="og:url" content="{{ site.url }}">
-{% if _img != blank %}<meta property="og:image" content="{{ _img }}"><meta name="twitter:image" content="{{ _img }}">{% endif %}
-<meta name="twitter:card" content="{% if _img != blank %}summary_large_image{% else %}summary{% endif %}">
-<meta name="twitter:title" content="{{ _t }}">
-<meta name="twitter:description" content="{{ _d }}">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":{{ _pr.name | json }},"url":{{ site.url | json }}{% if _d != blank %},"description":{{ _d | json }}{% endif %}{% if _img != blank %},"image":{{ _img | json }}{% endif %}}</script>
-<link rel="stylesheet" href="/themes/biolink-service/assets/css/style.css">
+{% assign _pg_title = _seo.title | default: _avatar_block.name | default: site.title %}
+{% assign _pg_desc = _seo.description | default: _avatar_block.bio | default: '' %}
+<title>{{ _pg_title }}</title>
+<meta name="description" content="{{ _pg_desc }}">
+{% if _seo.noindex %}<meta name="robots" content="noindex">{% endif %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family={{ _font }}:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-:root{
-  --accent: {{ settings.profile.accent | default: '#2563eb' }};
-  --ink: #1a1a18; --muted: #6b6b66; --border: #e5e5e2;
-  --bg: #fafaf8; --white: #fff; --radius: 14px;
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'{{ _font }}',system-ui,sans-serif;
+  color:{{ _text_color }};
+  min-height:100vh;
+  {% if _bg_type == 'gradient' %}
+  background:{{ _bg_gradient }};
+  {% elsif _bg_type == 'image' %}
+  {% if _bg_image != '' %}
+  background:url('{{ _bg_image }}') center/cover no-repeat fixed;
+  {% else %}
+  background:{{ _bg_color }};
+  {% endif %}
+  {% else %}
+  background:{{ _bg_color }};
+  {% endif %}
 }
-.pz-company{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted);background:rgba(0,0,0,0.05);padding:3px 10px;border-radius:20px;margin-top:6px;text-decoration:none;cursor:pointer;}
-.pz-company:hover{background:rgba(0,0,0,0.1);color:var(--ink);}
-.pz-svc-actions{margin-top:9px;}
-.pz-svc-cart{display:block;width:100%;padding:8px 0;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;text-decoration:none;}
-.pz-svc-cart:hover{opacity:.88;}
-.pz-svc-cart.added{background:#16a34a;}
-/* Cart */
-.pz-cart-fab{position:fixed;bottom:24px;right:20px;background:var(--accent);color:#fff;border:none;border-radius:50px;padding:13px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.2);display:flex;align-items:center;gap:8px;z-index:100;font-family:inherit;transition:transform .2s,opacity .2s;}
-.pz-cart-fab:hover{transform:translateY(-2px);}
-.pz-cart-fab.hidden{opacity:0;pointer-events:none;}
-.pz-cart-badge{background:#fff;color:var(--accent);border-radius:50%;width:22px;height:22px;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;}
-.pz-cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:199;opacity:0;transition:opacity .3s;pointer-events:none;}
-.pz-cart-overlay.show{opacity:1;pointer-events:auto;}
-.pz-cart-drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.15);z-index:200;padding:0 0 env(safe-area-inset-bottom);transition:transform .3s ease;}
-.pz-cart-drawer.closed{transform:translateX(-50%) translateY(110%);}
-.pz-cart-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid #f3f4f6;}
-.pz-cart-title{font-size:17px;font-weight:700;color:#111;}
-.pz-cart-close{background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280;padding:0;line-height:1;}
-.pz-cart-items{max-height:50vh;overflow-y:auto;padding:12px 20px;}
-.pz-cart-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f3f4f6;}
-.pz-cart-item:last-child{border-bottom:none;}
-.pz-cart-item-info{flex:1;min-width:0;}
-.pz-cart-item-name{font-size:14px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pz-cart-item-price{font-size:13px;color:var(--accent);font-weight:700;margin-top:2px;}
-.pz-cart-item-qty{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.pz-cart-qty-btn{width:28px;height:28px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;color:#374151;}
-.pz-cart-qty-num{font-size:14px;font-weight:600;min-width:20px;text-align:center;}
-.pz-cart-footer{padding:14px 20px;border-top:1px solid #f3f4f6;}
-.pz-cart-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-bottom:14px;}
-.pz-cart-wa-btn{display:block;width:100%;padding:14px;background:#25D366;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;text-align:center;cursor:pointer;font-family:inherit;text-decoration:none;}
-.pz-cart-wa-btn:hover{background:#22c55e;}
-.pz-cart-empty{text-align:center;padding:32px 0;color:#9ca3af;font-size:14px;}
+.page-wrap{max-width:480px;margin:0 auto;padding:32px 16px 60px;}
+.block{margin-bottom:12px;}
+
+/* ── Avatar ──────────────────────────────────── */
+.b-avatar{text-align:center;padding:24px 0 8px;}
+.b-avatar .av-img,.b-avatar .av-ph{width:88px;height:88px;border-radius:50%;display:block;margin:0 auto 14px;object-fit:cover;}
+.b-avatar .av-ph{display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;background:{{ _btn_color }};color:{{ _btn_text_color }};}
+.b-avatar h1{font-size:21px;font-weight:700;margin-bottom:5px;}
+.b-avatar .av-bio{font-size:14px;line-height:1.55;opacity:0.72;}
+
+/* ── Link button ─────────────────────────────── */
+.b-link a{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:14px 20px;border-radius:{{ _btn_radius }}px;
+  font-size:15px;font-weight:600;text-decoration:none;transition:transform .15s,opacity .15s;
+  {% if _btn_style == 'outline' %}
+  border:2px solid {{ _btn_color }};color:{{ _btn_color }};background:transparent;
+  {% elsif _btn_style == 'soft' %}
+  background:{{ _btn_color }}22;color:{{ _btn_color }};border:none;
+  {% elsif _btn_style == 'shadow' %}
+  background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;box-shadow:0 4px 14px {{ _btn_color }}55;
+  {% else %}
+  background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;
+  {% endif %}
+}
+.b-link a:hover{transform:translateY(-2px);opacity:.9;}
+.b-link .lk-icon{font-size:18px;flex-shrink:0;}
+.b-link .lk-thumb{width:34px;height:34px;border-radius:6px;object-fit:cover;flex-shrink:0;}
+
+/* ── Heading ─────────────────────────────────── */
+.b-heading{padding:6px 0;}
+.b-heading h1{font-size:28px;font-weight:700;}
+.b-heading h2{font-size:21px;font-weight:600;}
+.b-heading h3{font-size:16px;font-weight:500;opacity:.75;}
+
+/* ── Paragraph ───────────────────────────────── */
+.b-paragraph p{font-size:14px;line-height:1.65;opacity:.8;}
+
+/* ── Image ───────────────────────────────────── */
+.b-image img{width:100%;border-radius:12px;display:block;}
+.b-image .img-caption{font-size:12px;text-align:center;opacity:.6;margin-top:6px;}
+
+/* ── Socials ─────────────────────────────────── */
+.b-socials .soc-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:4px 0;}
+.b-socials a{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;text-decoration:none;background:rgba(0,0,0,0.07);color:{{ _text_color }};transition:background .15s,color .15s;}
+.b-socials a:hover{background:{{ _btn_color }};color:{{ _btn_text_color }};}
+
+/* ── Collector ───────────────────────────────── */
+.b-collector{background:rgba(0,0,0,0.05);border-radius:12px;padding:20px;text-align:center;}
+.b-collector h3{font-size:15px;font-weight:600;margin-bottom:12px;}
+.b-collector form{display:flex;gap:8px;}
+.b-collector input{flex:1;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.85);outline:none;}
+.b-collector button{padding:10px 16px;background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.b-collector .col-msg{font-size:13px;margin-top:8px;display:none;}
+
+/* ── Contact form ────────────────────────────── */
+.b-contact{background:rgba(0,0,0,0.05);border-radius:12px;padding:20px;}
+.b-contact h3{font-size:15px;font-weight:600;margin-bottom:12px;text-align:center;}
+.b-contact input,.b-contact textarea{width:100%;padding:10px 14px;margin-bottom:8px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.85);outline:none;}
+.b-contact textarea{min-height:80px;resize:vertical;}
+.b-contact button{width:100%;padding:12px;background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.b-contact .con-msg{font-size:13px;margin-top:8px;text-align:center;display:none;}
+
+/* ── Business hours ──────────────────────────── */
+.b-hours{background:rgba(0,0,0,0.05);border-radius:12px;padding:16px 20px;}
+.b-hours h3{font-size:15px;font-weight:600;margin-bottom:10px;}
+.b-hours .day-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);}
+.b-hours .day-row:last-child{border-bottom:none;}
+.b-hours .day-name{font-weight:500;}
+.b-hours .day-time{opacity:.7;}
+
+/* ── Video ───────────────────────────────────── */
+.b-video .vid-wrap{position:relative;padding-bottom:56.25%;height:0;border-radius:12px;overflow:hidden;}
+.b-video .vid-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.b-video .vid-caption{font-size:12px;text-align:center;opacity:.6;margin-top:6px;}
+
+/* ── Divider ─────────────────────────────────── */
+.b-divider{padding:4px 0;}
+.b-divider .d-line{border:none;border-top:1.5px solid rgba(0,0,0,0.15);}
+.b-divider .d-dots{text-align:center;font-size:16px;opacity:.4;letter-spacing:4px;}
+.b-divider .d-gradient{height:3px;border-radius:99px;background:linear-gradient(90deg,transparent,{{ _btn_color }},transparent);}
+
+/* ── Product ─────────────────────────────────── */
+.b-product{background:rgba(0,0,0,0.05);border-radius:12px;overflow:hidden;}
+.b-product img{width:100%;height:180px;object-fit:cover;display:block;}
+.b-product .prod-body{padding:14px 16px;}
+.b-product .prod-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+.b-product .prod-desc{font-size:13px;opacity:.7;line-height:1.5;margin-bottom:10px;}
+.b-product .prod-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.b-product .prod-price{font-size:18px;font-weight:700;color:{{ _btn_color }};}
+.b-product .prod-btn{padding:10px 18px;border-radius:{{ _btn_radius }}px;background:{{ _btn_color }};color:{{ _btn_text_color }};font-size:13px;font-weight:600;text-decoration:none;display:inline-block;white-space:nowrap;}
+
+/* ── Banner ──────────────────────────────────── */
+.b-banner{border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.b-banner .ban-text{font-size:14px;font-weight:600;flex:1;}
+.b-banner .ban-btn{padding:8px 16px;border-radius:{{ _btn_radius }}px;background:rgba(0,0,0,0.15);color:inherit;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;}
+
+/* ── Testimonial ─────────────────────────────── */
+.b-testimonial{background:rgba(0,0,0,0.05);border-radius:12px;padding:18px;}
+.b-testimonial .test-stars{color:#f59e0b;font-size:15px;margin-bottom:8px;}
+.b-testimonial .test-quote{font-size:14px;line-height:1.65;font-style:italic;opacity:.85;margin-bottom:12px;}
+.b-testimonial .test-author{display:flex;align-items:center;gap:10px;}
+.b-testimonial .test-photo{width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+.b-testimonial .test-ph{width:38px;height:38px;border-radius:50%;background:{{ _btn_color }};color:{{ _btn_text_color }};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;}
+.b-testimonial .test-name{font-size:14px;font-weight:600;}
+.b-testimonial .test-role{font-size:12px;opacity:.6;}
+
+/* ── FAQ ─────────────────────────────────────── */
+.b-faq .faq-heading{font-size:17px;font-weight:700;margin-bottom:10px;text-align:center;}
+.b-faq .faq-item{border-bottom:1px solid rgba(0,0,0,0.08);}
+.b-faq .faq-q{width:100%;text-align:left;background:none;border:none;padding:13px 4px;font-size:14px;font-weight:600;color:{{ _text_color }};cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;}
+.b-faq .faq-q .faq-arrow{transition:transform .2s;font-size:11px;opacity:.5;}
+.b-faq .faq-q.open .faq-arrow{transform:rotate(180deg);}
+.b-faq .faq-a{font-size:13px;line-height:1.65;padding:0 4px 13px;opacity:.8;display:none;}
+.b-faq .faq-a.open{display:block;}
+
+/* ── Map ─────────────────────────────────────── */
+.b-map .map-wrap{border-radius:12px;overflow:hidden;}
+.b-map iframe{width:100%;height:280px;border:none;display:block;}
+.b-map .map-caption{font-size:12px;text-align:center;opacity:.6;margin-top:6px;}
+
+/* ── Custom HTML ─────────────────────────────── */
+.b-html{border-radius:12px;overflow:hidden;}
 </style>
 </head>
 <body>
-<div class="page">
+<div class="page-wrap">
 
-  <!-- Profile -->
-  {% assign pr = settings.profile %}
-  <div class="profile" data-sec="profile">
-    {% if pr.avatar != blank %}
-      <img class="avatar" src="{{ pr.avatar }}" alt="{{ pr.name }}">
-    {% else %}
-      <div class="avatar-ph">{{ pr.name | slice: 0, 1 | upcase }}</div>
+{% if settings.blocks %}
+{% for block in settings.blocks %}
+{% if block.enabled != false %}
+<div class="block" id="blk-{{ block.id }}">
+{% case block.type %}
+
+{% when 'avatar' %}
+<div class="b-avatar">
+  {% if block.photo != blank and block.photo != nil %}
+    <img class="av-img" src="{{ block.photo }}" alt="{{ block.name }}">
+  {% else %}
+    <div class="av-ph">{{ block.name | slice: 0, 1 | upcase | default: '?' }}</div>
+  {% endif %}
+  {% if block.name != blank and block.name != nil %}<h1>{{ block.name }}</h1>{% endif %}
+  {% if block.bio != blank and block.bio != nil %}<p class="av-bio">{{ block.bio }}</p>{% endif %}
+</div>
+
+{% when 'link' %}
+<div class="b-link">
+  <a href="{{ block.url | default: '#' }}" target="_blank" rel="noopener">
+    {% if block.thumbnail != blank and block.thumbnail != nil %}
+      <img class="lk-thumb" src="{{ block.thumbnail }}" alt="">
+    {% elsif block.icon != blank and block.icon != nil %}
+      <span class="lk-icon">{{ block.icon }}</span>
     {% endif %}
-    <div class="name">{{ pr.name }}</div>
-    {% if pr.title %}<div class="title">{{ pr.title }}</div>{% endif %}
-    {% if pr.company %}<a class="pz-company" href="{{ pr.company_url | default: '#' }}" target="_blank">🏢 {{ pr.company }}</a>{% endif %}
-    {% if pr.bio %}<div class="bio">{{ pr.bio }}</div>{% endif %}
-  </div>
+    {{ block.title | default: 'Link' }}
+  </a>
+</div>
 
-  <!-- Links (always visible) -->
-  {% assign lk = settings.links %}
-  {% if lk.items and lk.items.size > 0 %}
-  <div class="links" data-sec="links" style="margin-bottom:20px;">
-    {% for item in lk.items %}
-    <a class="link-btn {% if item.primary == 'yes' %}primary{% else %}secondary{% endif %}" href="{{ item.url }}" target="_blank">
-      {% if item.emoji and item.primary != 'yes' %}<span class="link-emoji">{{ item.emoji }}</span>{% endif %}
-      {{ item.label }}
-    </a>
-    {% endfor %}
+{% when 'heading' %}
+{% assign _ha = block.align | default: 'center' %}
+{% assign _hs = block.size | default: 'h2' %}
+<div class="b-heading" style="text-align:{{ _ha }}">
+  {% if _hs == 'h1' %}<h1>{{ block.text }}</h1>
+  {% elsif _hs == 'h3' %}<h3>{{ block.text }}</h3>
+  {% else %}<h2>{{ block.text }}</h2>{% endif %}
+</div>
+
+{% when 'paragraph' %}
+{% assign _pa = block.align | default: 'center' %}
+<div class="b-paragraph">
+  <p style="text-align:{{ _pa }}">{{ block.text }}</p>
+</div>
+
+{% when 'image' %}
+<div class="b-image">
+  {% if block.url != blank and block.url != nil %}
+    {% if block.link_url != blank and block.link_url != nil %}<a href="{{ block.link_url }}" target="_blank">{% endif %}
+    <img src="{{ block.url }}" alt="{{ block.caption | default: '' }}">
+    {% if block.link_url != blank and block.link_url != nil %}</a>{% endif %}
+    {% if block.caption != blank and block.caption != nil %}<div class="img-caption">{{ block.caption }}</div>{% endif %}
+  {% endif %}
+</div>
+
+{% when 'socials' %}
+<div class="b-socials">
+  <div class="soc-row">
+    {% if block.instagram != blank and block.instagram != nil %}<a href="{{ block.instagram }}" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>{% endif %}
+    {% if block.twitter != blank and block.twitter != nil %}<a href="{{ block.twitter }}" target="_blank" title="X / Twitter"><i class="fab fa-x-twitter"></i></a>{% endif %}
+    {% if block.youtube != blank and block.youtube != nil %}<a href="{{ block.youtube }}" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>{% endif %}
+    {% if block.tiktok != blank and block.tiktok != nil %}<a href="{{ block.tiktok }}" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>{% endif %}
+    {% if block.linkedin != blank and block.linkedin != nil %}<a href="{{ block.linkedin }}" target="_blank" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>{% endif %}
+    {% if block.facebook != blank and block.facebook != nil %}<a href="{{ block.facebook }}" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>{% endif %}
+    {% if block.github != blank and block.github != nil %}<a href="{{ block.github }}" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>{% endif %}
+    {% if block.whatsapp != blank and block.whatsapp != nil %}<a href="https://wa.me/{{ block.whatsapp | remove: '+' | remove: ' ' | remove: '-' }}" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>{% endif %}
+    {% if block.telegram != blank and block.telegram != nil %}<a href="{{ block.telegram }}" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>{% endif %}
+    {% if block.spotify != blank and block.spotify != nil %}<a href="{{ block.spotify }}" target="_blank" title="Spotify"><i class="fab fa-spotify"></i></a>{% endif %}
+  </div>
+</div>
+
+{% when 'email_collector' %}
+<div class="b-collector">
+  {% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}
+  <form onsubmit="return pzCollect(event,'email','{{ block.id }}','{{ site.id }}')">
+    <input type="email" placeholder="{{ block.placeholder | default: 'Enter your email' }}" required>
+    <button type="submit">{{ block.btn_text | default: 'Subscribe' }}</button>
+  </form>
+  <div class="col-msg" id="col-{{ block.id }}"></div>
+</div>
+
+{% when 'phone_collector' %}
+<div class="b-collector">
+  {% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}
+  <form onsubmit="return pzCollect(event,'phone','{{ block.id }}','{{ site.id }}')">
+    <input type="tel" placeholder="{{ block.placeholder | default: 'Enter your phone number' }}" required>
+    <button type="submit">{{ block.btn_text | default: 'Submit' }}</button>
+  </form>
+  <div class="col-msg" id="col-{{ block.id }}"></div>
+</div>
+
+{% when 'contact_form' %}
+<div class="b-contact">
+  {% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}
+  <form onsubmit="return pzContact(event,'{{ site.id }}','{{ block.id }}')">
+    {% if block.show_name %}<input type="text" name="name" placeholder="Your name">{% endif %}
+    {% if block.show_email %}<input type="email" name="email" placeholder="Your email">{% endif %}
+    {% if block.show_phone %}<input type="tel" name="phone" placeholder="Your phone">{% endif %}
+    {% if block.show_message %}<textarea name="message" placeholder="Your message"></textarea>{% endif %}
+    <button type="submit">{{ block.btn_text | default: 'Send message' }}</button>
+  </form>
+  <div class="con-msg" id="con-{{ block.id }}"></div>
+</div>
+
+{% when 'business_hours' %}
+<div class="b-hours">
+  {% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% else %}<h3>Business Hours</h3>{% endif %}
+  {% assign _bh_days = 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday' | split: ',' %}
+  {% assign _bh_keys = 'mon,tue,wed,thu,fri,sat,sun' | split: ',' %}
+  {% for _bk in _bh_keys %}
+    {% assign _bopen_key = _bk | append: '_open' %}
+    {% assign _bclose_key = _bk | append: '_close' %}
+    {% assign _bopen = block[_bopen_key] %}
+    {% assign _bclose = block[_bclose_key] %}
+    {% if _bopen != blank and _bopen != nil %}
+    <div class="day-row">
+      <span class="day-name">{{ _bh_days[forloop.index0] }}</span>
+      <span class="day-time">{{ _bopen }}{% if _bclose != blank and _bclose != nil %} – {{ _bclose }}{% endif %}</span>
+    </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+{% when 'video' %}
+<div class="b-video">
+  {% if block.url != blank and block.url != nil %}
+  <div class="vid-wrap" id="vw-{{ block.id }}">
+    <iframe src="{{ block.url }}" allowfullscreen allow="autoplay; encrypted-media" loading="lazy"></iframe>
   </div>
   {% endif %}
+  {% if block.caption != blank and block.caption != nil %}<div class="vid-caption">{{ block.caption }}</div>{% endif %}
+</div>
 
-  <!-- Accordion: Services -->
-  {% assign sv = settings.services %}
-  {% if sv.items and sv.items.size > 0 %}
-  <div class="pz-sections" data-sec="services">
-    <div class="pz-sec" id="sec-services">
-      <div class="pz-sec-head" onclick="pzToggle('sec-services')">
-        <div class="pz-sec-icon">✅</div>
-        <div class="pz-sec-meta">
-          <div class="pz-sec-title">{{ sv.heading | default: 'What I Offer' }}</div>
-          <div class="pz-sec-sub">{{ sv.items.size }} service{% if sv.items.size != 1 %}s{% endif %}</div>
-        </div>
-        <div class="pz-sec-right">
-          <span class="pz-count">{{ sv.items.size }}</span>
-          <svg class="pz-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
-      <div class="pz-sec-body">
-        <div class="pz-sec-inner">
-          <div class="services">
-            {% for item in sv.items %}
-            <div class="service-card">
-              <div class="svc-emoji">{{ item.emoji | default: '✅' }}</div>
-              <div class="svc-body">
-                <div class="svc-name">{{ item.name }}</div>
-                {% if item.description %}<div class="svc-desc">{{ item.description }}</div>{% endif %}
-                {% if item.price %}<div class="svc-price">{{ item.price }}</div>{% endif %}
-                <div class="pz-svc-actions">
-                  {% if item.url != blank %}
-                    <a class="pz-svc-cart" href="{{ item.url }}" target="_blank">Book Now →</a>
-                  {% else %}
-                    <button class="pz-svc-cart" onclick="pzSvcAddToCart(this,'{{ item.name | escape }}','{{ item.price | escape }}')">🛒 Add to cart</button>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+{% when 'divider' %}
+{% assign _dsp = block.spacing | default: '16' %}
+<div class="b-divider" style="padding:{{ _dsp }}px 0;">
+  {% if block.style == 'dots' %}
+    <div class="d-dots">· · ·</div>
+  {% elsif block.style == 'gradient' %}
+    <div class="d-gradient"></div>
+  {% elsif block.style == 'space' %}
+    {%- comment -%}space only{%- endcomment -%}
+  {% else %}
+    <hr class="d-line">
   {% endif %}
+</div>
 
-  <!-- Socials accordion -->
-  {% assign s = settings.socials %}
-  {% if s.instagram != blank or s.linkedin != blank or s.facebook != blank or s.twitter != blank or s.youtube != blank %}
-  <div class="pz-sections" data-sec="socials">
-    <div class="pz-sec" id="sec-socials">
-      <div class="pz-sec-head" onclick="pzToggle('sec-socials')">
-        <div class="pz-sec-icon">📱</div>
-        <div class="pz-sec-meta">
-          <div class="pz-sec-title">{{ s.heading | default: 'Follow me' }}</div>
-          {% if s.sub != blank %}<div class="pz-sec-sub">{{ s.sub }}</div>{% endif %}
-        </div>
-        <div class="pz-sec-right">
-          <svg class="pz-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
-      <div class="pz-sec-body">
-        {% assign _sz = 58 %}{% assign _fz = 24 %}
-        {% if s.icon_size == 'sm' %}{% assign _sz = 44 %}{% assign _fz = 18 %}{% endif %}
-        {% if s.icon_size == 'lg' %}{% assign _sz = 70 %}{% assign _fz = 30 %}{% endif %}
-        {% if s.icon_size == 'xl' %}{% assign _sz = 86 %}{% assign _fz = 38 %}{% endif %}
-        <style>#sec-socials .soc-icon{width:{{ _sz }}px;height:{{ _sz }}px;font-size:{{ _fz }}px;{% if s.icon_color != blank %}color:{{ s.icon_color }};border-color:{{ s.icon_color }};background:{{ s.icon_color }}1a;{% endif %}}{% if s.icon_color != blank %}#sec-socials .soc-icon:hover{background:{{ s.icon_color }};color:#fff;}{% endif %}</style>
-        <div class="pz-sec-inner" style="padding:20px 16px;text-align:center;">
-          <div class="social-row">
-            {% if s.instagram != blank %}<a class="soc-icon" href="{{ s.instagram }}" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>{% endif %}
-            {% if s.linkedin != blank %}<a class="soc-icon" href="{{ s.linkedin }}" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>{% endif %}
-            {% if s.facebook != blank %}<a class="soc-icon" href="{{ s.facebook }}" target="_blank" title="Facebook"><i class="fa-brands fa-facebook"></i></a>{% endif %}
-            {% if s.twitter != blank %}<a class="soc-icon" href="{{ s.twitter }}" target="_blank" title="Twitter"><i class="fa-brands fa-x-twitter"></i></a>{% endif %}
-            {% if s.youtube != blank %}<a class="soc-icon" href="{{ s.youtube }}" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>{% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+{% when 'product' %}
+<div class="b-product">
+  {% if block.image != blank and block.image != nil %}
+    <img src="{{ block.image }}" alt="{{ block.title | default: '' }}">
   {% endif %}
-
-  <!-- Contact accordion -->
-  {% assign c = settings.contact %}
-  {% if c.whatsapp != blank or c.phone != blank or c.email != blank %}
-  <div class="pz-sections" data-sec="contact">
-    <div class="pz-sec" id="sec-contact">
-      <div class="pz-sec-head" onclick="pzToggle('sec-contact')">
-        <div class="pz-sec-icon">📞</div>
-        <div class="pz-sec-meta">
-          <div class="pz-sec-title">Get in Touch</div>
-        </div>
-        <div class="pz-sec-right">
-          <svg class="pz-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
-      <div class="pz-sec-body">
-        <div class="pz-sec-inner" style="padding:12px 16px 16px;">
-          <div class="contact-actions">
-            {% if c.whatsapp != blank %}<a class="contact-btn" href="https://wa.me/{{ c.whatsapp | remove: '+' | remove: ' ' }}" target="_blank"><span class="contact-btn-icon"><i class="fa-brands fa-whatsapp"></i></span><span class="contact-btn-label">WhatsApp</span></a>{% endif %}
-            {% if c.phone != blank %}<a class="contact-btn" href="tel:{{ c.phone }}"><span class="contact-btn-icon"><i class="fa-solid fa-phone"></i></span><span class="contact-btn-label">Call</span><span class="contact-btn-val">{{ c.phone }}</span></a>{% endif %}
-            {% if c.email != blank %}<a class="contact-btn" href="mailto:{{ c.email }}"><span class="contact-btn-icon"><i class="fa-solid fa-envelope"></i></span><span class="contact-btn-label">Email</span><span class="contact-btn-val">{{ c.email }}</span></a>{% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
-  <!-- Reviews -->
-  <div class="pz-sections" data-sec="reviews">
-    <div class="pz-sec" id="sec-reviews">
-      <div class="pz-sec-head" onclick="pzToggle('sec-reviews')">
-        <div class="pz-sec-icon">⭐</div>
-        <div class="pz-sec-meta">
-          <div class="pz-sec-title">Reviews</div>
-          <div class="pz-sec-sub" id="pz-rev-sub">Loading…</div>
-        </div>
-        <div class="pz-sec-right">
-          <svg class="pz-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
-      <div class="pz-sec-body">
-        <div class="pz-sec-inner" style="padding:16px;">
-          <a href="/review/{{ site.subdomain }}" style="display:block;text-align:center;background:var(--accent);color:#fff;padding:12px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;">📝 View / Write a Review</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Save Contact -->
-  {% if settings.contact.email != blank or settings.contact.phone != blank or settings.contact.whatsapp != blank %}
-  <div class="save-contact-bar">
-    <button class="save-contact-btn" onclick="pzSaveContact()"><i class="fa-solid fa-user-plus"></i> {{ settings.contact.save_label | default: 'Save Contact' }}</button>
-  </div>
-  {% endif %}
-
-  <!-- Share -->
-  <div class="share-bar">
-    <button class="share-btn" onclick="pzShare()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-      Share this page
-    </button>
-    <button class="share-btn" onclick="pzSaveToPhone()">📲 Save to phone</button>
-    <div class="share-toast" id="pzToast">✓ Link copied!</div>
-  </div>
-
-  <!-- Floating Cart Button -->
-  <button class="pz-cart-fab hidden" id="pzCartFab" onclick="pzOpenCart()">
-    🛒 <span id="pzCartLabel">Cart</span>
-    <span class="pz-cart-badge" id="pzCartBadge">0</span>
-  </button>
-  <div class="pz-cart-overlay" id="pzCartOverlay" onclick="pzCloseCart()"></div>
-  <div class="pz-cart-drawer closed" id="pzCartDrawer">
-    <div class="pz-cart-header">
-      <span class="pz-cart-title">🛒 Your Cart</span>
-      <button class="pz-cart-close" onclick="pzCloseCart()">×</button>
-    </div>
-    <div class="pz-cart-items" id="pzCartItems">
-      <div class="pz-cart-empty">Your cart is empty</div>
-    </div>
-    <div class="pz-cart-footer">
-      <div class="pz-cart-total"><span>Total</span><span id="pzCartTotal"></span></div>
-      {% if sv.order_on_whatsapp == 'yes' %}
-      <button class="pz-cart-wa-btn" onclick="pzSvcWhatsAppOrder()">
-        💬 Order via WhatsApp
-      </button>
+  <div class="prod-body">
+    {% if block.title != blank and block.title != nil %}<div class="prod-title">{{ block.title }}</div>{% endif %}
+    {% if block.description != blank and block.description != nil %}<div class="prod-desc">{{ block.description }}</div>{% endif %}
+    <div class="prod-foot">
+      {% if block.price != blank and block.price != nil %}<div class="prod-price">{{ block.price }}</div>{% endif %}
+      {% if block.btn_url != blank and block.btn_url != nil %}
+        <a class="prod-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Buy now' }}</a>
       {% endif %}
     </div>
   </div>
+</div>
 
-  <div id="pzIOSHint" style="display:none;text-align:center;padding:8px 16px 2px;">
-    <div style="display:inline-flex;align-items:flex-start;gap:10px;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:11px 15px;font-size:12px;color:#6b6b66;max-width:280px;text-align:left;line-height:1.5;">
-      <span style="font-size:18px;flex-shrink:0;margin-top:1px;">📲</span>
-      <span>Tap <strong style="color:#1a1a18;">Share</strong> <svg style="display:inline;vertical-align:middle;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a1a18" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> in Safari, then tap <strong style="color:#1a1a18;">"Add to Home Screen"</strong></span>
+{% when 'banner' %}
+{% assign _ban_bg = block.bg_color | default: '#fef3c7' %}
+{% assign _ban_tc = block.text_color | default: '#92400e' %}
+<div class="b-banner" style="background:{{ _ban_bg }};color:{{ _ban_tc }};">
+  <div class="ban-text">{{ block.text | default: '' }}</div>
+  {% if block.btn_url != blank and block.btn_url != nil %}
+    <a class="ban-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener" style="color:{{ _ban_tc }};">{{ block.btn_text | default: 'Learn more' }}</a>
+  {% endif %}
+</div>
+
+{% when 'testimonial' %}
+{% assign _tr = block.rating | default: '5' | times: 1 %}
+<div class="b-testimonial">
+  {% if block.quote != blank and block.quote != nil %}
+    <div class="test-stars">{% for i in (1.._tr) %}★{% endfor %}</div>
+    <div class="test-quote">"{{ block.quote }}"</div>
+  {% endif %}
+  <div class="test-author">
+    {% if block.photo != blank and block.photo != nil %}
+      <img class="test-photo" src="{{ block.photo }}" alt="{{ block.name | default: '' }}">
+    {% else %}
+      <div class="test-ph">{{ block.name | slice: 0, 1 | upcase | default: '?' }}</div>
+    {% endif %}
+    <div>
+      {% if block.name != blank and block.name != nil %}<div class="test-name">{{ block.name }}</div>{% endif %}
+      {% if block.role != blank and block.role != nil %}<div class="test-role">{{ block.role }}</div>{% endif %}
     </div>
   </div>
-
 </div>
+
+{% when 'faq' %}
+<div class="b-faq">
+  {% if block.heading != blank and block.heading != nil %}<div class="faq-heading">{{ block.heading }}</div>{% endif %}
+  {% for item in block.items %}
+  <div class="faq-item">
+    <button class="faq-q" onclick="var a=this.nextElementSibling;var open=a.classList.toggle('open');this.classList.toggle('open',open);" type="button">
+      {{ item.question }}<span class="faq-arrow">▼</span>
+    </button>
+    <div class="faq-a">{{ item.answer }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+{% when 'map' %}
+<div class="b-map">
+  {% if block.embed_url != blank and block.embed_url != nil %}
+  <div class="map-wrap">
+    <iframe src="{{ block.embed_url }}" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+  {% endif %}
+  {% if block.caption != blank and block.caption != nil %}<div class="map-caption">{{ block.caption }}</div>{% endif %}
+</div>
+
+{% when 'html' %}
+<div class="b-html">{{ block.code }}</div>
+
+{% endcase %}
+</div>
+{% endif %}
+{% endfor %}
+
+{% else %}
+<!-- ── Legacy format fallback ── -->
+{% if settings.profile %}
+<div class="b-avatar">
+  {% if settings.profile.avatar != blank and settings.profile.avatar != nil %}
+    <img class="av-img" src="{{ settings.profile.avatar }}" alt="{{ settings.profile.name }}">
+  {% else %}
+    <div class="av-ph">{{ settings.profile.name | slice: 0, 1 | upcase | default: '?' }}</div>
+  {% endif %}
+  {% if settings.profile.name != blank %}<h1>{{ settings.profile.name }}</h1>{% endif %}
+  {% if settings.profile.bio != blank %}<p class="av-bio">{{ settings.profile.bio }}</p>{% endif %}
+</div>
+{% endif %}
+{% if settings.links and settings.links.items %}
+{% for lk in settings.links.items %}
+<div class="block b-link">
+  <a href="{{ lk.url | default: '#' }}" target="_blank">
+    {% if lk.emoji != blank %}{{ lk.emoji }} {% endif %}{{ lk.label | default: lk.title }}
+  </a>
+</div>
+{% endfor %}
+{% endif %}
+{% endif %}
+
+</div><!-- .page-wrap -->
+
 <script>
-function pzToggle(id){var el=document.getElementById(id);el.classList.toggle('open');}
-
-// ── Service Cart ──────────────────────────────────────────────────────────────
-var pzCart=[];
-function pzSvcAddToCart(btn,name,price){
-  var ex=pzCart.find(function(i){return i.name===name;});
-  if(ex){ex.qty++;}else{pzCart.push({name:name,price:price,qty:1});}
-  btn.textContent='✓ Added';btn.classList.add('added');
-  setTimeout(function(){btn.textContent='🛒 Add to cart';btn.classList.remove('added');},1200);
-  pzUpdateSvcCartUI();
-}
-function pzUpdateSvcCartUI(){
-  var total=pzCart.reduce(function(s,i){return s+i.qty;},0);
-  document.getElementById('pzCartBadge').textContent=total;
-  document.getElementById('pzCartLabel').textContent='Cart ('+total+')';
-  var fab=document.getElementById('pzCartFab');
-  if(total>0)fab.classList.remove('hidden');else fab.classList.add('hidden');
-  var container=document.getElementById('pzCartItems');
-  if(!pzCart.length){container.innerHTML='<div class="pz-cart-empty">Your cart is empty</div>';document.getElementById('pzCartTotal').textContent='';return;}
-  var html='';var sum=0;var allNum=true;var prefix='';
-  pzCart.forEach(function(item,idx){
-    var match=(item.price||'').match(/^([^\d]*)(\d[\d,.]*)$/);
-    if(match){prefix=prefix||match[1];var n=parseFloat(match[2].replace(/,/g,''));if(!isNaN(n)){sum+=n*item.qty;}else{allNum=false;}}else{allNum=false;}
-    html+='<div class="pz-cart-item"><div class="pz-cart-item-info"><div class="pz-cart-item-name">'+item.name+'</div><div class="pz-cart-item-price">'+item.price+'</div></div><div class="pz-cart-item-qty"><button class="pz-cart-qty-btn" onclick="pzSvcQty('+idx+',-1)">−</button><span class="pz-cart-qty-num">'+item.qty+'</span><button class="pz-cart-qty-btn" onclick="pzSvcQty('+idx+',1)">+</button></div></div>';
+(function(){
+  document.querySelectorAll('.vid-wrap iframe').forEach(function(iframe){
+    var src=iframe.src||'';
+    src=src.replace(/youtube\.com\/watch\?v=([^&]+)/,'youtube.com/embed/$1');
+    src=src.replace(/youtu\.be\/([^?]+)/,'youtube.com/embed/$1');
+    src=src.replace(/(?:www\.)?vimeo\.com\/(\d+)/,'player.vimeo.com/video/$1');
+    iframe.src=src;
   });
-  container.innerHTML=html;
-  document.getElementById('pzCartTotal').textContent=allNum?prefix+sum.toLocaleString('en-IN'):'';
+})();
+function pzCollect(e,type,blockId,siteId){
+  e.preventDefault();
+  var input=e.target.querySelector('input');
+  var msgEl=document.getElementById('col-'+blockId);
+  var payload={};
+  if(type==='email')payload.email=input.value.trim();
+  else payload.phone=input.value.trim();
+  fetch('/api/biolink-lead/'+siteId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(function(r){return r.json();}).then(function(d){
+    if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Thank you!';}
+    e.target.reset();
+  }).catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}});
+  return false;
 }
-function pzSvcQty(i,d){pzCart[i].qty+=d;if(pzCart[i].qty<=0)pzCart.splice(i,1);pzUpdateSvcCartUI();}
-function pzOpenCart(){document.getElementById('pzCartDrawer').classList.remove('closed');document.getElementById('pzCartOverlay').classList.add('show');}
-function pzCloseCart(){document.getElementById('pzCartDrawer').classList.add('closed');document.getElementById('pzCartOverlay').classList.remove('show');}
-function pzSvcWhatsAppOrder(){
-  var waNum='{{ settings.contact.whatsapp | remove: "+" | remove: " " | remove: "-" }}';
-  if(!waNum){alert('WhatsApp number not configured.');return;}
-  var lines=['Hello! I want to book/order from {{ settings.profile.name | escape }}:'];
-  pzCart.forEach(function(item,i){lines.push((i+1)+'. '+item.name+' × '+item.qty+(item.price?' — '+item.price:''));});
-  var tot=document.getElementById('pzCartTotal').textContent;
-  if(tot)lines.push('Total: '+tot);
-  lines.push('\nPlease confirm. Thank you!');
-  window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(lines.join('\n')),'_blank');
+function pzContact(e,siteId,blockId){
+  e.preventDefault();
+  var fd=new FormData(e.target);var data={};
+  fd.forEach(function(v,k){if(v.trim())data[k]=v.trim();});
+  var form=e.target;var btn=form.querySelector('button');
+  var msgEl=document.getElementById('con-'+blockId);
+  if(btn)btn.disabled=true;
+  fetch('/api/biolink-lead/'+siteId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+  .then(function(r){return r.json();}).then(function(d){
+    if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Message sent!';}
+    form.reset();if(btn)btn.disabled=false;
+  }).catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}if(btn)btn.disabled=false;});
+  return false;
 }
-
-(function(){fetch('/api/reviews/{{ site.subdomain }}').then(function(r){return r.json()}).then(function(d){document.getElementById('pz-rev-sub').textContent=d.avg_rating?('⭐ '+d.avg_rating+' · '+d.total+' review'+(d.total!==1?'s':'')):('No reviews yet');}).catch(function(){document.getElementById('pz-rev-sub').textContent='Reviews';});})();
-function pzSaveContact(){var n='{{ settings.profile.name | escape }}';var t='{{ settings.profile.title | default: "" | escape }}';var p='{{ settings.contact.phone | default: "" | escape }}';if(!p)p='{{ settings.contact.whatsapp | default: "" | escape }}';var e='{{ settings.contact.email | default: "" | escape }}';var w='{{ settings.contact.website | default: "" | escape }}';var vcf='BEGIN:VCARD\nVERSION:3.0\nFN:'+n+'\n'+(t?'TITLE:'+t+'\n':'')+(p?'TEL;TYPE=CELL:'+p+'\n':'')+(e?'EMAIL:'+e+'\n':'')+(w?'URL:'+w+'\n':'')+'URL:'+location.href+'\nEND:VCARD';var b=new Blob([vcf],{type:'text/vcard'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(n||'contact').replace(/\s+/g,'-')+'.vcf';a.click();}
-function pzShare(){var u=location.href,t=document.title;if(navigator.share){navigator.share({title:t,url:u});}else{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
-(function(){var _dp=null;var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;if(window.navigator.standalone===true)return;if(navigator.serviceWorker){navigator.serviceWorker.register('/sw.js').catch(function(){});}window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_dp=e;});window.addEventListener('appinstalled',function(){_dp=null;});window.pzSaveToPhone=function(){if(_dp){_dp.prompt();_dp.userChoice.then(function(){_dp=null;});}else if(isIOS){var h=document.getElementById('pzIOSHint');if(h)h.style.display=h.style.display==='none'?'':'none';}else{var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:flex-end;justify-content:center;';o.innerHTML='<div style="background:#fff;border-radius:16px 16px 0 0;padding:24px;max-width:480px;width:100%;text-align:center;"><div style="font-size:15px;font-weight:600;margin-bottom:12px;">Save to your phone</div><div style="font-size:14px;color:#6b6b66;line-height:1.6;">Tap the <strong>⋮ menu</strong> at the top right, then tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></div><button onclick="this.parentElement.parentElement.remove()" style="margin-top:16px;padding:10px 24px;background:var(--accent,#2563eb);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Got it</button></div>';document.body.appendChild(o);o.addEventListener('click',function(e){if(e.target===o)o.remove();});}};})();
 </script>
 </body>
 </html>
