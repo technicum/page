@@ -184,6 +184,17 @@ body{
   display:inline-block;white-space:nowrap;
 }
 
+/* ── Service ─────────────────────────────────── */
+.b-service{background:rgba(0,0,0,0.05);border-radius:12px;overflow:hidden;}
+.b-service img{width:100%;height:180px;object-fit:cover;display:block;}
+.b-service .svc-body{padding:14px 16px;}
+.b-service .svc-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+.b-service .svc-desc{font-size:13px;opacity:.7;line-height:1.5;margin-bottom:8px;}
+.b-service .svc-meta{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.b-service .svc-price{font-size:15px;font-weight:700;color:{{ _btn_color }};}
+.b-service .svc-dur{font-size:12px;opacity:.6;background:rgba(0,0,0,0.07);padding:2px 8px;border-radius:20px;}
+.b-service .svc-btn{display:block;width:100%;padding:11px;border-radius:{{ _btn_radius }}px;background:{{ _btn_color }};color:{{ _btn_text_color }};font-size:14px;font-weight:600;text-align:center;text-decoration:none;box-sizing:border-box;}
+
 /* ── Banner ──────────────────────────────────── */
 .b-banner{border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
 .b-banner .ban-text{font-size:14px;font-weight:600;flex:1;}
@@ -222,6 +233,14 @@ body{
 .b-map .map-wrap{border-radius:12px;overflow:hidden;}
 .b-map iframe{width:100%;height:280px;border:none;display:block;}
 .b-map .map-caption{font-size:12px;text-align:center;opacity:.6;margin-top:6px;}
+
+/* ── Reviews ─────────────────────────────────── */
+.b-reviews .rev-heading{font-size:17px;font-weight:700;margin-bottom:12px;text-align:center;}
+.b-reviews .rev-list{display:flex;flex-direction:column;gap:10px;}
+.b-reviews .rev-item{background:rgba(0,0,0,0.05);border-radius:10px;padding:14px;}
+.b-reviews .rev-stars{font-size:14px;color:#f59e0b;margin-bottom:4px;}
+.b-reviews .rev-text{font-size:13px;line-height:1.6;opacity:.85;margin-bottom:6px;}
+.b-reviews .rev-name{font-size:12px;font-weight:600;opacity:.6;}
 
 /* ── Custom HTML ─────────────────────────────── */
 .b-html{border-radius:12px;overflow:hidden;}
@@ -395,6 +414,24 @@ body{
   </div>
 </div>
 
+{% when 'service' %}
+<div class="b-service">
+  {% if block.image != blank and block.image != nil %}
+    <img src="{{ block.image }}" alt="{{ block.title | default: '' }}">
+  {% endif %}
+  <div class="svc-body">
+    {% if block.title != blank and block.title != nil %}<div class="svc-title">{{ block.title }}</div>{% endif %}
+    {% if block.description != blank and block.description != nil %}<div class="svc-desc">{{ block.description }}</div>{% endif %}
+    <div class="svc-meta">
+      {% if block.price != blank and block.price != nil %}<div class="svc-price">{{ block.price }}</div>{% endif %}
+      {% if block.duration != blank and block.duration != nil %}<div class="svc-dur">⏱ {{ block.duration }}</div>{% endif %}
+    </div>
+    {% if block.btn_url != blank and block.btn_url != nil %}
+      <a class="svc-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>
+    {% endif %}
+  </div>
+</div>
+
 {% when 'banner' %}
 {% assign _ban_bg = block.bg_color | default: '#fef3c7' %}
 {% assign _ban_tc = block.text_color | default: '#92400e' %}
@@ -448,6 +485,23 @@ body{
   </div>
   {% endif %}
   {% if block.caption != blank and block.caption != nil %}<div class="map-caption">{{ block.caption }}</div>{% endif %}
+</div>
+
+{% when 'reviews' %}
+<div class="b-reviews">
+  {% if block.heading != blank and block.heading != nil %}<div class="rev-heading">{{ block.heading }}</div>{% endif %}
+  {% if block.items and block.items.size > 0 %}
+  <div class="rev-list">
+    {% for item in block.items %}
+    <div class="rev-item">
+      {% assign _stars = item.rating | default: '5' | times: 1 %}
+      <div class="rev-stars">{% for i in (1.._stars) %}★{% endfor %}</div>
+      {% if item.review != blank and item.review != nil %}<div class="rev-text">{{ item.review }}</div>{% endif %}
+      {% if item.name != blank and item.name != nil %}<div class="rev-name">— {{ item.name }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 </div>
 
 {% when 'html' %}
