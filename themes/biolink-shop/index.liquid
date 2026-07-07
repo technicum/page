@@ -177,13 +177,18 @@ body{
 .b-testimonial .test-role{font-size:12px;opacity:.6;}
 
 /* ── FAQ ─────────────────────────────────────── */
-.b-faq .faq-heading{font-size:17px;font-weight:700;margin-bottom:10px;text-align:center;}
-.b-faq .faq-item{border-bottom:1px solid rgba(0,0,0,0.08);}
-.b-faq .faq-q{width:100%;text-align:left;background:none;border:none;padding:13px 4px;font-size:14px;font-weight:600;color:{{ _text_color }};cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;}
-.b-faq .faq-q .faq-arrow{transition:transform .2s;font-size:11px;opacity:.5;}
-.b-faq .faq-q.open .faq-arrow{transform:rotate(180deg);}
-.b-faq .faq-a{font-size:13px;line-height:1.65;padding:0 4px 13px;opacity:.8;display:none;}
-.b-faq .faq-a.open{display:block;}
+.b-faq .faq-heading{font-size:17px;font-weight:700;margin-bottom:12px;text-align:center;}
+.b-faq .faq-list{border:1px solid rgba(0,0,0,0.09);border-radius:12px;overflow:hidden;}
+.b-faq .faq-item{border-bottom:1px solid rgba(0,0,0,0.07);}
+.b-faq .faq-item:last-child{border-bottom:none;}
+.b-faq .faq-q{width:100%;text-align:left;background:none;border:none;padding:14px 16px;font-size:14px;font-weight:600;color:{{ _text_color }};cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background .15s;}
+.b-faq .faq-q:hover{background:rgba(0,0,0,0.03);}
+.b-faq .faq-q.open{background:rgba(0,0,0,0.025);}
+.b-faq .faq-icon{width:22px;height:22px;border-radius:50%;border:1.5px solid {{ _text_color }};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:400;opacity:0.4;transition:transform .25s,opacity .2s;}
+.b-faq .faq-q.open .faq-icon{transform:rotate(45deg);opacity:0.7;}
+.b-faq .faq-body{max-height:0;overflow:hidden;transition:max-height .32s cubic-bezier(.4,0,.2,1);}
+.b-faq .faq-body.open{max-height:800px;}
+.b-faq .faq-a{font-size:13px;line-height:1.7;padding:2px 16px 14px;opacity:0.72;}
 
 /* ── Map ─────────────────────────────────────── */
 .b-map .map-wrap{border-radius:12px;overflow:hidden;}
@@ -425,14 +430,18 @@ body{
 {% when 'faq' %}
 <div class="b-faq">
   {% if block.heading != blank and block.heading != nil %}<div class="faq-heading">{{ block.heading }}</div>{% endif %}
-  {% for item in block.items %}
-  <div class="faq-item">
-    <button class="faq-q" onclick="var a=this.nextElementSibling;var open=a.classList.toggle('open');this.classList.toggle('open',open);" type="button">
-      {{ item.question }}<span class="faq-arrow">▼</span>
-    </button>
-    <div class="faq-a">{{ item.answer }}</div>
+  <div class="faq-list">
+    {% for item in block.items %}
+    <div class="faq-item">
+      <button class="faq-q" onclick="faqToggle(this)" type="button">
+        <span>{{ item.question }}</span><span class="faq-icon">+</span>
+      </button>
+      <div class="faq-body">
+        <div class="faq-a">{{ item.answer }}</div>
+      </div>
+    </div>
+    {% endfor %}
   </div>
-  {% endfor %}
 </div>
 
 {% when 'map' %}
@@ -499,6 +508,16 @@ body{
 </div><!-- .page-wrap -->
 
 <script>
+// ── FAQ accordion ─────────────────────────────────────────────────────────────
+function faqToggle(btn) {
+  var list  = btn.closest('.faq-list');
+  var body  = btn.nextElementSibling;
+  var isOpen = body.classList.contains('open');
+  list.querySelectorAll('.faq-body').forEach(function(b){ b.classList.remove('open'); });
+  list.querySelectorAll('.faq-q').forEach(function(b){ b.classList.remove('open'); });
+  if (!isOpen) { body.classList.add('open'); btn.classList.add('open'); }
+}
+
 (function(){
   document.querySelectorAll('.vid-wrap iframe').forEach(function(iframe){
     var src=iframe.src||'';

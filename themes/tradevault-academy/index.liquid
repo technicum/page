@@ -3,219 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{ settings.profile.name | default: site.title }}</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+{% assign _app = settings.appearance %}
+{% assign _bg_color = _app.bgColor | default: '#0a0a0a' %}
+{% assign _btn_color = _app.btnColor | default: '#00D964' %}
+{% assign _btn_text_color = _app.btnTextColor | default: '#000000' %}
+{% assign _btn_radius = _app.btnRadius | default: '8' %}
+{% assign _btn_style = _app.btnStyle | default: 'filled' %}
+{% assign _font = _app.fontFamily | default: 'Inter' %}
+{% assign _text_color = _app.textColor | default: '#e5e5e5' %}
+{% assign _bg_type = _app.bgType | default: 'color' %}
+{% assign _bg_gradient = _app.bgGradient | default: 'linear-gradient(135deg,#0a0a0a 0%,#0d2c18 100%)' %}
+{% assign _bg_image = _app.bgImage | default: '' %}
+{% assign _avatar_block = nil %}
+{% for b in settings.blocks %}{% if b.type == 'avatar' %}{% assign _avatar_block = b %}{% break %}{% endif %}{% endfor %}
+{% assign _seo = settings.seo %}
+{% assign _pg_title = _seo.title | default: _avatar_block.name | default: site.title %}
+{% assign _anim_style = settings.appearance.animationStyle | default: 'slide-up' %}
+{% assign _anim_stagger = settings.appearance.animationStagger | default: '100' %}
+{% assign _anim_speed = settings.appearance.animationSpeed | default: 'normal' %}
+{% if _anim_speed == 'fast' %}{% assign _anim_dur = '0.35s' %}{% elsif _anim_speed == 'slow' %}{% assign _anim_dur = '0.75s' %}{% else %}{% assign _anim_dur = '0.5s' %}{% endif %}
+{% assign _pg_desc = _seo.description | default: _avatar_block.bio | default: '' %}
+<title>{{ _pg_title }}</title>
+<meta name="description" content="{{ _pg_desc }}">
+{% if _seo.noindex %}<meta name="robots" content="noindex">{% endif %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family={{ _font }}:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --ac:{{ settings.profile.accent | default:'#00D964' }};
-  --bg:#0D1117;
-  --card:rgba(255,255,255,0.04);
-  --border:rgba(255,255,255,0.08);
-  --border-ac:rgba(0,217,100,0.25);
-  --ink:#fff;
-  --muted:rgba(255,255,255,0.45);
-  --red:#FF3B30;
-}
-body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;min-height:100vh;}
-.page{width:100%;max-width:400px;padding:28px 18px 64px;display:flex;flex-direction:column;align-items:center;}
-
-/* Ticker */
-.ticker-wrap{width:100%;overflow:hidden;margin-bottom:16px;animation:fadeIn .4s both;}
-.ticker-inner{display:flex;gap:7px;animation:tickerScroll 18s linear infinite;}
-.tick-item{display:flex;align-items:center;gap:4px;background:rgba(0,217,100,0.07);border:1px solid rgba(0,217,100,0.18);border-radius:6px;padding:4px 9px;white-space:nowrap;flex-shrink:0;}
-.tick-item.red{background:rgba(255,59,48,0.07);border-color:rgba(255,59,48,0.18);}
-.tick-name{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.05em;}
-.tick-val{font-size:10px;font-weight:700;color:var(--ink);margin-left:3px;}
-.tick-chg{font-size:10px;font-weight:700;color:var(--ac);}
-.tick-item.red .tick-chg{color:var(--red);}
-
-/* Avatar */
-.av-wrap{position:relative;width:84px;height:84px;animation:popIn .6s cubic-bezier(.34,1.56,.64,1) .1s both;}
-.av-ring{position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--border-ac);border-top-color:var(--ac);animation:spin 2.5s linear infinite;}
-.av{position:absolute;inset:0;border-radius:14px;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#0D1117;border-radius:14px;}
-.av img{position:absolute;inset:0;width:100%;height:100%;border-radius:14px;object-fit:cover;}
-.name{margin-top:14px;font-size:21px;font-weight:800;color:var(--ink);text-align:center;letter-spacing:-.3px;animation:fadeUp .4s .35s both;}
-.title-line{font-size:11px;color:var(--muted);text-align:center;margin-top:3px;animation:fadeUp .4s .45s both;}
-.sebi{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:3px 10px;border-radius:8px;background:rgba(0,217,100,0.08);border:1px solid var(--border-ac);font-size:9px;color:var(--ac);animation:fadeUp .4s .5s both;}
-
-/* Stats grid */
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%;margin-top:16px;animation:fadeUp .4s .55s both;}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:10px 12px;}
-.stat-label{font-size:9px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;}
-.stat-val{font-size:18px;font-weight:800;color:var(--ac);}
-.stat-val.red{color:var(--red);}
-
-/* CTA */
-.cta-btn{display:block;width:100%;margin-top:14px;padding:14px;border-radius:13px;background:var(--ac);color:#0D1117;font-size:14px;font-weight:800;text-align:center;text-decoration:none;letter-spacing:.02em;animation:slideUp .4s .65s both,glowPulse 3s 2s ease-in-out infinite;position:relative;overflow:hidden;}
-.cta-btn .shimmer{position:absolute;top:0;left:-80%;width:45%;height:100%;background:rgba(255,255,255,0.2);transform:skewX(-18deg);animation:shimmer 3.5s 1.5s ease-in-out infinite;}
-
-/* Section title */
-.sec-title{width:100%;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:18px 0 9px;border-bottom:1px solid var(--border);padding-bottom:6px;animation:fadeIn .4s .7s both;}
-
-/* Courses */
-.course{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:7px;text-decoration:none;transition:border-color .2s,transform .15s;}
-.course:hover{border-color:var(--border-ac);transform:translateX(3px);}
-.c-emoji{font-size:20px;flex-shrink:0;width:30px;text-align:center;}
-.c-body{flex:1;}
-.c-name{font-size:13px;font-weight:600;color:var(--ink);}
-.c-sub{font-size:10px;color:var(--muted);margin-top:1px;}
-.c-price{font-size:12px;font-weight:800;color:var(--ac);white-space:nowrap;}
-.course:nth-child(1){animation:slideL .35s .72s both;}
-.course:nth-child(2){animation:slideR .35s .80s both;}
-.course:nth-child(3){animation:slideL .35s .88s both;}
-
-/* Community links */
-.com-link{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 13px;margin-bottom:7px;text-decoration:none;transition:border-color .2s;}
-.com-link:hover{border-color:rgba(255,255,255,0.2);}
-.cl-emoji{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
-.cl-label{font-size:13px;font-weight:500;color:var(--ink);}
-.cl-sub{font-size:10px;color:var(--muted);margin-top:1px;}
-.cl-arr{margin-left:auto;color:var(--muted);}
-
-/* WhatsApp */
-.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:13px;background:rgba(37,211,102,0.1);border:1.5px solid rgba(37,211,102,0.3);color:#25D366;font-size:13px;font-weight:700;text-decoration:none;margin-top:4px;transition:background .2s;animation:fadeUp .4s 1s both;}
-.wa-btn:hover{background:rgba(37,211,102,0.18);}
-
-/* Disclaimer */
-.disclaimer{margin-top:20px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:9px;color:var(--muted);line-height:1.6;text-align:center;animation:fadeIn .4s 1.1s both;}
-
-/* Share */
-.share-wrap{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeIn .4s 1.2s both;}
-.share-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
-.share-toast{font-size:12px;color:var(--ac);opacity:0;transition:opacity .3s;}
-.share-toast.show{opacity:1;}
-
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-@keyframes slideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
-@keyframes slideL{from{opacity:0;transform:translateX(-26px);}to{opacity:1;transform:translateX(0);}}
-@keyframes slideR{from{opacity:0;transform:translateX(26px);}to{opacity:1;transform:translateX(0);}}
-@keyframes popIn{0%{transform:scale(.2);opacity:0;}65%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
-@keyframes spin{to{transform:rotate(360deg);}}
-@keyframes shimmer{0%{left:-80%;}40%,100%{left:130%;}}
-@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,217,100,0);}50%{box-shadow:0 0 18px 4px rgba(0,217,100,0.25);}}
-@keyframes tickerScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'{{ _font }}',system-ui,sans-serif;color:{{ _text_color }};min-height:100vh;{% if _bg_type == 'gradient' %}background:{{ _bg_gradient }};{% elsif _bg_type == 'image' %}{% if _bg_image != '' %}background:url('{{ _bg_image }}') center/cover no-repeat fixed;{% else %}background:{{ _bg_color }};{% endif %}{% else %}background:{{ _bg_color }};{% endif %}}
+.page-wrap{max-width:480px;margin:0 auto;padding:32px 16px 60px;}
+.block{margin-bottom:12px;}
+.b-avatar{text-align:center;padding:24px 0 8px;}
+.b-avatar .av-wrap{position:relative;width:88px;height:88px;margin:0 auto 14px;animation:av-pop .65s cubic-bezier(.34,1.56,.64,1) both,av-float 4s 1.2s ease-in-out infinite;}
+.b-avatar .av-ring{position:absolute;inset:-7px;border-radius:50%;border:2.5px solid transparent;border-top-color:{{ _btn_color }};border-right-color:{{ _btn_color }}88;animation:av-spin 2.4s linear infinite;}
+.b-avatar .av-ring-2{position:absolute;inset:-14px;border-radius:50%;border:1.5px solid transparent;border-bottom-color:{{ _btn_color }}44;border-left-color:{{ _btn_color }}44;animation:av-spin 4.5s linear infinite reverse;}
+.b-avatar .av-img,.b-avatar .av-ph{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;display:flex;object-fit:cover;}
+.b-avatar .av-ph{align-items:center;justify-content:center;font-size:34px;font-weight:700;background:{{ _btn_color }};color:{{ _btn_text_color }};}
+.b-avatar h1{font-size:21px;font-weight:700;margin-bottom:5px;}
+.b-avatar .av-bio{font-size:14px;line-height:1.55;opacity:0.72;}
+@keyframes av-spin{to{transform:rotate(360deg)}}
+@keyframes av-pop{from{opacity:0;transform:scale(.65)}to{opacity:1;transform:scale(1)}}
+@keyframes av-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.b-link a{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 20px;border-radius:{{ _btn_radius }}px;font-size:15px;font-weight:600;text-decoration:none;transition:transform .15s,opacity .15s;{% if _btn_style == 'outline' %}border:2px solid {{ _btn_color }};color:{{ _btn_color }};background:transparent;{% elsif _btn_style == 'soft' %}background:{{ _btn_color }}22;color:{{ _btn_color }};border:none;{% elsif _btn_style == 'shadow' %}background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;box-shadow:0 4px 14px {{ _btn_color }}55;{% else %}background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;{% endif %}}
+.b-link a:hover{transform:translateY(-2px);opacity:.9;}
+.b-link .lk-icon{font-size:18px;flex-shrink:0;}
+.b-link .lk-thumb{width:34px;height:34px;border-radius:6px;object-fit:cover;flex-shrink:0;}
+.b-heading{padding:6px 0;}.b-heading h1{font-size:28px;font-weight:700;}.b-heading h2{font-size:21px;font-weight:600;}.b-heading h3{font-size:16px;font-weight:500;opacity:.75;}
+.b-paragraph p{font-size:14px;line-height:1.65;opacity:.8;}
+.b-image img{width:100%;border-radius:12px;display:block;}.b-image .img-caption{font-size:12px;text-align:center;opacity:.6;margin-top:6px;}
+.b-socials .soc-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:4px 0;}
+.b-socials a{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;text-decoration:none;background:rgba(255,255,255,0.09);color:{{ _text_color }};transition:background .15s,color .15s;}
+.b-socials a:hover{background:{{ _btn_color }};color:{{ _btn_text_color }};}
+.b-collector{background:rgba(255,255,255,0.07);border-radius:12px;padding:20px;text-align:center;}
+.b-collector h3{font-size:15px;font-weight:600;margin-bottom:12px;}
+.b-collector form{display:flex;gap:8px;}
+.b-collector input{flex:1;padding:10px 14px;border:1.5px solid rgba(255,255,255,0.15);border-radius:8px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.1);color:inherit;outline:none;}
+.b-collector button{padding:10px 16px;background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.b-collector .col-msg{font-size:13px;margin-top:8px;display:none;}
+.b-contact{background:rgba(255,255,255,0.07);border-radius:12px;padding:20px;}
+.b-contact h3{font-size:15px;font-weight:600;margin-bottom:12px;text-align:center;}
+.b-contact input,.b-contact textarea{width:100%;padding:10px 14px;margin-bottom:8px;border:1.5px solid rgba(255,255,255,0.15);border-radius:8px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.1);color:inherit;outline:none;}
+.b-contact textarea{min-height:80px;resize:vertical;}
+.b-contact button{width:100%;padding:12px;background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.b-contact .con-msg{font-size:13px;margin-top:8px;text-align:center;display:none;}
+.b-hours{background:rgba(255,255,255,0.07);border-radius:12px;padding:16px 20px;}
+.b-hours h3{font-size:15px;font-weight:600;margin-bottom:10px;}
+.b-hours .day-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);}
+.b-hours .day-row:last-child{border-bottom:none;}.b-hours .day-name{font-weight:500;}.b-hours .day-time{opacity:.7;}
+.b-video .vid-wrap{position:relative;padding-bottom:56.25%;height:0;border-radius:12px;overflow:hidden;}
+.b-video .vid-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.b-video .vid-caption{font-size:12px;text-align:center;opacity:.6;margin-top:6px;}
+.b-divider{padding:4px 0;}.b-divider .d-line{border:none;border-top:1.5px solid rgba(255,255,255,0.12);}
+.b-divider .d-dots{text-align:center;font-size:16px;opacity:.4;letter-spacing:4px;}
+.b-divider .d-gradient{height:3px;border-radius:99px;background:linear-gradient(90deg,transparent,{{ _btn_color }},transparent);}
+.b-product{background:rgba(255,255,255,0.07);border-radius:12px;overflow:hidden;}
+.b-product img{width:100%;height:180px;object-fit:cover;display:block;}.b-product .prod-body{padding:14px 16px;}
+.b-product .prod-title{font-size:16px;font-weight:700;margin-bottom:4px;}.b-product .prod-desc{font-size:13px;opacity:.7;line-height:1.5;margin-bottom:10px;}
+.b-product .prod-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.b-product .prod-price{font-size:18px;font-weight:700;color:{{ _btn_color }};}
+.b-product .prod-btn{padding:10px 18px;border-radius:{{ _btn_radius }}px;background:{{ _btn_color }};color:{{ _btn_text_color }};font-size:13px;font-weight:600;text-decoration:none;display:inline-block;white-space:nowrap;}
+.b-service{background:rgba(255,255,255,0.07);border-radius:12px;overflow:hidden;}
+.b-service img{width:100%;height:180px;object-fit:cover;display:block;}.b-service .svc-body{padding:14px 16px;}
+.b-service .svc-title{font-size:16px;font-weight:700;margin-bottom:4px;}.b-service .svc-desc{font-size:13px;opacity:.7;line-height:1.5;margin-bottom:8px;}
+.b-service .svc-meta{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.b-service .svc-price{font-size:15px;font-weight:700;color:{{ _btn_color }};}
+.b-service .svc-dur{font-size:12px;opacity:.6;background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:20px;}
+.b-service .svc-btn{display:block;width:100%;padding:11px;border-radius:{{ _btn_radius }}px;background:{{ _btn_color }};color:{{ _btn_text_color }};font-size:14px;font-weight:600;text-align:center;text-decoration:none;box-sizing:border-box;}
+.b-banner{border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.b-banner .ban-text{font-size:14px;font-weight:600;flex:1;}
+.b-banner .ban-btn{padding:8px 16px;border-radius:{{ _btn_radius }}px;background:rgba(255,255,255,0.15);color:inherit;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;}
+.b-testimonial{background:rgba(255,255,255,0.07);border-radius:12px;padding:18px;}
+.b-testimonial .test-stars{color:#f59e0b;font-size:15px;margin-bottom:8px;}
+.b-testimonial .test-quote{font-size:14px;line-height:1.65;font-style:italic;opacity:.85;margin-bottom:12px;}
+.b-testimonial .test-author{display:flex;align-items:center;gap:10px;}
+.b-testimonial .test-photo{width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+.b-testimonial .test-ph{width:38px;height:38px;border-radius:50%;background:{{ _btn_color }};color:{{ _btn_text_color }};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;}
+.b-testimonial .test-name{font-size:14px;font-weight:600;}.b-testimonial .test-role{font-size:12px;opacity:.6;}
+.b-faq .faq-heading{font-size:17px;font-weight:700;margin-bottom:12px;text-align:center;}
+.b-faq .faq-list{border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;}
+.b-faq .faq-item{border-bottom:1px solid rgba(255,255,255,0.07);}.b-faq .faq-item:last-child{border-bottom:none;}
+.b-faq .faq-q{width:100%;text-align:left;background:none;border:none;padding:14px 16px;font-size:14px;font-weight:600;color:{{ _text_color }};cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background .15s;}
+.b-faq .faq-q:hover{background:rgba(255,255,255,0.04);}.b-faq .faq-q.open{background:rgba(255,255,255,0.03);}
+.b-faq .faq-icon{width:22px;height:22px;border-radius:50%;border:1.5px solid {{ _text_color }};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;opacity:0.4;transition:transform .25s,opacity .2s;}
+.b-faq .faq-q.open .faq-icon{transform:rotate(45deg);opacity:0.7;}
+.b-faq .faq-body{max-height:0;overflow:hidden;transition:max-height .32s cubic-bezier(.4,0,.2,1);}.b-faq .faq-body.open{max-height:800px;}
+.b-faq .faq-a{font-size:13px;line-height:1.7;padding:2px 16px 14px;opacity:0.72;}
+.b-map .map-wrap{border-radius:12px;overflow:hidden;}.b-map iframe{width:100%;height:280px;border:none;display:block;}.b-map .map-caption{font-size:12px;text-align:center;opacity:.6;margin-top:6px;}
+.b-reviews .rev-heading{font-size:17px;font-weight:700;margin-bottom:12px;text-align:center;}
+.b-reviews .rev-list{display:flex;flex-direction:column;gap:10px;}
+.b-reviews .rev-item{background:rgba(255,255,255,0.07);border-radius:10px;padding:14px;}
+.b-reviews .rev-stars{font-size:14px;color:#f59e0b;margin-bottom:4px;}.b-reviews .rev-text{font-size:13px;line-height:1.6;opacity:.85;margin-bottom:6px;}.b-reviews .rev-name{font-size:12px;font-weight:600;opacity:.6;}
+.b-html{border-radius:12px;overflow:hidden;}
+@keyframes bk-fade{from{opacity:0}to{opacity:1}}@keyframes bk-slide-up{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}@keyframes bk-slide-down{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:translateY(0)}}@keyframes bk-slide-left{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}@keyframes bk-slide-right{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:translateX(0)}}@keyframes bk-zoom{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}@keyframes bk-bounce{0%{opacity:0;transform:scale(.55)}55%{opacity:1;transform:scale(1.07)}78%{transform:scale(.96)}100%{transform:scale(1)}}@keyframes bk-flip{from{opacity:0;transform:perspective(500px) rotateX(22deg)}to{opacity:1;transform:perspective(500px) rotateX(0)}}
+.bk-init{opacity:0;}.bk-init[data-bk-anim="none"]{opacity:1 !important;}
+.bk-go[data-bk-anim="fade"]{animation:bk-fade var(--bk-dur,.5s) ease both;}.bk-go[data-bk-anim="slide-up"]{animation:bk-slide-up var(--bk-dur,.5s) ease both;}.bk-go[data-bk-anim="slide-down"]{animation:bk-slide-down var(--bk-dur,.5s) ease both;}.bk-go[data-bk-anim="slide-left"]{animation:bk-slide-left var(--bk-dur,.45s) ease both;}.bk-go[data-bk-anim="slide-right"]{animation:bk-slide-right var(--bk-dur,.45s) ease both;}.bk-go[data-bk-anim="zoom"]{animation:bk-zoom var(--bk-dur,.45s) cubic-bezier(.34,1.08,.64,1) both;}.bk-go[data-bk-anim="bounce"]{animation:bk-bounce var(--bk-dur,.65s) cubic-bezier(.34,1.56,.64,1) both;}.bk-go[data-bk-anim="flip"]{animation:bk-flip var(--bk-dur,.5s) ease both;}
 </style>
 </head>
-<body>
-<div class="page">
-
-{% assign pr = settings.profile %}
-{% assign tk = settings.ticker %}
-{% assign st = settings.stats %}
-{% assign ct = settings.cta %}
-{% assign cs = settings.courses %}
-{% assign lk = settings.links %}
-{% assign co = settings.contact %}
-
-{% if tk.show == 'yes' and tk.items and tk.items.size > 0 %}
-<div class="ticker-wrap">
-  <div class="ticker-inner">
-    {% for t in tk.items %}
-    <div class="tick-item{% if t.up == 'no' %} red{% endif %}">
-      <span class="tick-name">{{ t.label }}</span>
-      <span class="tick-val">{{ t.value }}</span>
-      <span class="tick-chg">{{ t.change }}</span>
-    </div>
-    {% endfor %}
-    {% for t in tk.items %}
-    <div class="tick-item{% if t.up == 'no' %} red{% endif %}">
-      <span class="tick-name">{{ t.label }}</span>
-      <span class="tick-val">{{ t.value }}</span>
-      <span class="tick-chg">{{ t.change }}</span>
-    </div>
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
-
-<div class="av-wrap">
-  <div class="av-ring"></div>
-  <div class="av">
-    {% if pr.avatar != blank %}<img src="{{ pr.avatar }}" alt="{{ pr.name }}">
-    {% else %}{{ pr.name | slice: 0, 2 | upcase }}{% endif %}
-  </div>
-</div>
-
-<h1 class="name">{{ pr.name | default: 'Your Name' }}</h1>
-<p class="title-line">{{ pr.title | default: 'SEBI Reg. Analyst · Options Trader' }}</p>
-{% if pr.sebi_reg != blank %}
-<div class="sebi"><i class="ti ti-certificate"></i> {{ pr.sebi_reg }}</div>
-{% endif %}
-
-{% if st %}
-<div class="stats">
-  {% if st.monthly_pnl != blank %}<div class="stat-card"><div class="stat-label">This month</div><div class="stat-val">{{ st.monthly_pnl }}</div></div>{% endif %}
-  {% if st.win_rate != blank %}<div class="stat-card"><div class="stat-label">Win rate</div><div class="stat-val">{{ st.win_rate }}</div></div>{% endif %}
-  {% if st.students != blank %}<div class="stat-card"><div class="stat-label">Students</div><div class="stat-val">{{ st.students }}</div></div>{% endif %}
-  {% if st.experience != blank %}<div class="stat-card"><div class="stat-label">Experience</div><div class="stat-val" style="font-size:15px;">{{ st.experience }}</div></div>{% endif %}
-</div>
-{% endif %}
-
-{% if ct.label != blank %}
-<a class="cta-btn" href="{{ ct.url }}" target="_blank">
-  <div class="shimmer"></div>
-  {{ ct.label }}
-</a>
-{% endif %}
-
-{% if cs.items and cs.items.size > 0 %}
-<div class="sec-title">Courses</div>
-{% for item in cs.items %}
-<a class="course" href="{{ item.url }}" target="_blank">
-  <span class="c-emoji">{{ item.emoji | default: '📚' }}</span>
-  <div class="c-body">
-    <div class="c-name">{{ item.name }}</div>
-    {% if item.sub != blank %}<div class="c-sub">{{ item.sub }}</div>{% endif %}
-  </div>
-  {% if item.price != blank %}<div class="c-price">{{ item.price }}</div>{% endif %}
-</a>
-{% endfor %}
-{% endif %}
-
-{% if lk.items and lk.items.size > 0 %}
-<div class="sec-title">Community</div>
-{% for item in lk.items %}
-<a class="com-link" href="{{ item.url }}" target="_blank">
-  <span class="cl-emoji">{{ item.emoji }}</span>
-  <div>
-    <div class="cl-label">{{ item.label }}</div>
-    {% if item.sub != blank %}<div class="cl-sub">{{ item.sub }}</div>{% endif %}
-  </div>
-  <i class="ti ti-chevron-right cl-arr"></i>
-</a>
-{% endfor %}
-{% endif %}
-
-{% if co.whatsapp != blank %}
-<a class="wa-btn" href="https://wa.me/{{ co.whatsapp | replace:'+','' | replace:' ','' }}" target="_blank">
-  <i class="ti ti-brand-whatsapp" style="font-size:18px;"></i> WhatsApp me
-</a>
-{% endif %}
-
-{% if co.disclaimer != blank %}
-<div class="disclaimer">{{ co.disclaimer }}</div>
-{% endif %}
-
-<div class="share-wrap">
-  <button class="share-btn" onclick="pzShare()">
-    <i class="ti ti-share" style="font-size:14px;"></i> Share this page
-  </button>
-  <button class="share-btn" onclick="pzSaveToPhone()"><i class="ti ti-device-mobile-down" style="font-size:14px;"></i> Save to phone</button>
-  <div class="share-toast" id="pzToast">✓ Link copied!</div>
-</div>
-<div id="pzIOSHint" style="display:none;text-align:center;padding:8px 16px 2px;">
-  <div style="display:inline-flex;align-items:flex-start;gap:10px;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:11px 15px;font-size:12px;color:#6b6b66;max-width:280px;text-align:left;line-height:1.5;">
-    <span style="font-size:18px;flex-shrink:0;margin-top:1px;">📲</span>
-    <span>Tap <strong style="color:#1a1a18;">Share</strong> <svg style="display:inline;vertical-align:middle;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a1a18" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> in Safari, then tap <strong style="color:#1a1a18;">"Add to Home Screen"</strong></span>
-  </div>
-</div>
-
+<body data-bk-stagger="{{ _anim_stagger }}" style="--bk-dur:{{ _anim_dur }}">
+<div class="page-wrap">
+{% if settings.blocks %}{% for block in settings.blocks %}{% if block.enabled != false %}
+{% assign _blk_anim = block.animation %}{% if _blk_anim == blank or _blk_anim == nil %}{% assign _blk_anim = _anim_style %}{% endif %}
+{% assign _blk_margin = '' %}{% if block.spacing == 'none' %}{% assign _blk_margin = 'margin-bottom:0;' %}{% elsif block.spacing == 'compact' %}{% assign _blk_margin = 'margin-bottom:4px;' %}{% elsif block.spacing == 'relaxed' %}{% assign _blk_margin = 'margin-bottom:20px;' %}{% elsif block.spacing == 'loose' %}{% assign _blk_margin = 'margin-bottom:36px;' %}{% endif %}
+{% assign _blk_card = '' %}{% if block.card_style == 'light' %}{% assign _blk_card = 'background:rgba(255,255,255,0.12);border-radius:14px;padding:12px;' %}{% elsif block.card_style == 'dark' %}{% assign _blk_card = 'background:rgba(0,0,0,0.35);border-radius:14px;padding:12px;' %}{% elsif block.card_style == 'glass' %}{% assign _blk_card = 'background:rgba(255,255,255,0.1);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,0.18);' %}{% elsif block.card_style == 'color' %}{% if block.card_color != blank and block.card_color != nil %}{% assign _blk_card = 'background:' | append: block.card_color | append: ';border-radius:14px;padding:12px;' %}{% endif %}{% endif %}
+{% assign _blk_inline = _blk_margin | append: _blk_card %}
+<div class="block{% if _blk_anim != 'none' %} bk-init{% endif %}" id="blk-{{ block.id }}" data-bk-anim="{{ _blk_anim }}"{% if block.animation_delay != nil and block.animation_delay != blank %} data-bk-delay="{{ block.animation_delay }}"{% endif %}{% if _blk_inline != blank %} style="{{ _blk_inline }}"{% endif %}>
+{% case block.type %}
+{% when 'avatar' %}<div class="b-avatar"><div class="av-wrap"><div class="av-ring"></div><div class="av-ring-2"></div>{% if block.photo != blank and block.photo != nil %}<img class="av-img" src="{{ block.photo }}" alt="{{ block.name }}">{% else %}<div class="av-ph">{{ block.name | slice: 0, 1 | upcase | default: '?' }}</div>{% endif %}</div>{% if block.name != blank and block.name != nil %}<h1>{{ block.name }}</h1>{% endif %}{% if block.bio != blank and block.bio != nil %}<p class="av-bio">{{ block.bio }}</p>{% endif %}</div>
+{% when 'link' %}<div class="b-link"><a href="{{ block.url | default: '#' }}" target="_blank" rel="noopener">{% if block.thumbnail != blank and block.thumbnail != nil %}<img class="lk-thumb" src="{{ block.thumbnail }}" alt="">{% elsif block.icon != blank and block.icon != nil %}<span class="lk-icon">{{ block.icon }}</span>{% endif %}{{ block.title | default: 'Link' }}</a></div>
+{% when 'heading' %}{% assign _ha = block.align | default: 'center' %}{% assign _hs = block.size | default: 'h2' %}<div class="b-heading" style="text-align:{{ _ha }}">{% if _hs == 'h1' %}<h1>{{ block.text }}</h1>{% elsif _hs == 'h3' %}<h3>{{ block.text }}</h3>{% else %}<h2>{{ block.text }}</h2>{% endif %}</div>
+{% when 'paragraph' %}<div class="b-paragraph"><p style="text-align:{{ block.align | default: 'center' }}">{{ block.text }}</p></div>
+{% when 'image' %}<div class="b-image">{% if block.url != blank and block.url != nil %}{% if block.link_url != blank and block.link_url != nil %}<a href="{{ block.link_url }}" target="_blank">{% endif %}<img src="{{ block.url }}" alt="{{ block.caption | default: '' }}">{% if block.link_url != blank and block.link_url != nil %}</a>{% endif %}{% if block.caption != blank and block.caption != nil %}<div class="img-caption">{{ block.caption }}</div>{% endif %}{% endif %}</div>
+{% when 'socials' %}<div class="b-socials"><div class="soc-row">{% if block.instagram != blank and block.instagram != nil %}<a href="{{ block.instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>{% endif %}{% if block.twitter != blank and block.twitter != nil %}<a href="{{ block.twitter }}" target="_blank"><i class="fab fa-x-twitter"></i></a>{% endif %}{% if block.youtube != blank and block.youtube != nil %}<a href="{{ block.youtube }}" target="_blank"><i class="fab fa-youtube"></i></a>{% endif %}{% if block.tiktok != blank and block.tiktok != nil %}<a href="{{ block.tiktok }}" target="_blank"><i class="fab fa-tiktok"></i></a>{% endif %}{% if block.linkedin != blank and block.linkedin != nil %}<a href="{{ block.linkedin }}" target="_blank"><i class="fab fa-linkedin-in"></i></a>{% endif %}{% if block.facebook != blank and block.facebook != nil %}<a href="{{ block.facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>{% endif %}{% if block.github != blank and block.github != nil %}<a href="{{ block.github }}" target="_blank"><i class="fab fa-github"></i></a>{% endif %}{% if block.whatsapp != blank and block.whatsapp != nil %}<a href="https://wa.me/{{ block.whatsapp | remove: '+' | remove: ' ' | remove: '-' }}" target="_blank"><i class="fab fa-whatsapp"></i></a>{% endif %}{% if block.telegram != blank and block.telegram != nil %}<a href="{{ block.telegram }}" target="_blank"><i class="fab fa-telegram"></i></a>{% endif %}{% if block.spotify != blank and block.spotify != nil %}<a href="{{ block.spotify }}" target="_blank"><i class="fab fa-spotify"></i></a>{% endif %}</div></div>
+{% when 'email_collector' %}<div class="b-collector">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}<form onsubmit="return pzCollect(event,'email','{{ block.id }}','{{ site.id }}')"><input type="email" placeholder="{{ block.placeholder | default: 'Enter your email' }}" required><button type="submit">{{ block.btn_text | default: 'Subscribe' }}</button></form><div class="col-msg" id="col-{{ block.id }}"></div></div>
+{% when 'phone_collector' %}<div class="b-collector">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}<form onsubmit="return pzCollect(event,'phone','{{ block.id }}','{{ site.id }}')"><input type="tel" placeholder="{{ block.placeholder | default: 'Enter your phone number' }}" required><button type="submit">{{ block.btn_text | default: 'Submit' }}</button></form><div class="col-msg" id="col-{{ block.id }}"></div></div>
+{% when 'contact_form' %}<div class="b-contact">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}<form onsubmit="return pzContact(event,'{{ site.id }}','{{ block.id }}')">{% if block.show_name %}<input type="text" name="name" placeholder="Your name">{% endif %}{% if block.show_email %}<input type="email" name="email" placeholder="Your email">{% endif %}{% if block.show_phone %}<input type="tel" name="phone" placeholder="Your phone">{% endif %}{% if block.show_message %}<textarea name="message" placeholder="Your message"></textarea>{% endif %}<button type="submit">{{ block.btn_text | default: 'Send message' }}</button></form><div class="con-msg" id="con-{{ block.id }}"></div></div>
+{% when 'business_hours' %}<div class="b-hours">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% else %}<h3>Business Hours</h3>{% endif %}{% assign _bh_days = 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday' | split: ',' %}{% assign _bh_keys = 'mon,tue,wed,thu,fri,sat,sun' | split: ',' %}{% for _bk in _bh_keys %}{% assign _bopen_key = _bk | append: '_open' %}{% assign _bclose_key = _bk | append: '_close' %}{% assign _bopen = block[_bopen_key] %}{% assign _bclose = block[_bclose_key] %}{% if _bopen != blank and _bopen != nil %}<div class="day-row"><span class="day-name">{{ _bh_days[forloop.index0] }}</span><span class="day-time">{{ _bopen }}{% if _bclose != blank and _bclose != nil %} – {{ _bclose }}{% endif %}</span></div>{% endif %}{% endfor %}</div>
+{% when 'video' %}<div class="b-video">{% if block.url != blank and block.url != nil %}<div class="vid-wrap" id="vw-{{ block.id }}"><iframe src="{{ block.url }}" allowfullscreen allow="autoplay; encrypted-media" loading="lazy"></iframe></div>{% endif %}{% if block.caption != blank and block.caption != nil %}<div class="vid-caption">{{ block.caption }}</div>{% endif %}</div>
+{% when 'divider' %}<div class="b-divider" style="padding:{{ block.spacing | default: '16' }}px 0;">{% if block.style == 'dots' %}<div class="d-dots">· · ·</div>{% elsif block.style == 'gradient' %}<div class="d-gradient"></div>{% elsif block.style == 'space' %}{% else %}<hr class="d-line">{% endif %}</div>
+{% when 'product' %}<div class="b-product">{% if block.image != blank and block.image != nil %}<img src="{{ block.image }}" alt="{{ block.title | default: '' }}">{% endif %}<div class="prod-body">{% if block.title != blank and block.title != nil %}<div class="prod-title">{{ block.title }}</div>{% endif %}{% if block.description != blank and block.description != nil %}<div class="prod-desc">{{ block.description }}</div>{% endif %}<div class="prod-foot">{% if block.price != blank and block.price != nil %}<div class="prod-price">{{ block.price }}</div>{% endif %}{% if block.btn_url != blank and block.btn_url != nil %}<a class="prod-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Buy now' }}</a>{% endif %}</div></div></div>
+{% when 'service' %}<div class="b-service">{% if block.image != blank and block.image != nil %}<img src="{{ block.image }}" alt="{{ block.title | default: '' }}">{% endif %}<div class="svc-body">{% if block.title != blank and block.title != nil %}<div class="svc-title">{{ block.title }}</div>{% endif %}{% if block.description != blank and block.description != nil %}<div class="svc-desc">{{ block.description }}</div>{% endif %}<div class="svc-meta">{% if block.price != blank and block.price != nil %}<div class="svc-price">{{ block.price }}</div>{% endif %}{% if block.duration != blank and block.duration != nil %}<div class="svc-dur">⏱ {{ block.duration }}</div>{% endif %}</div>{% if block.btn_url != blank and block.btn_url != nil %}<a class="svc-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>{% endif %}</div></div>
+{% when 'banner' %}{% assign _ban_bg = block.bg_color | default: '#0d2c18' %}{% assign _ban_tc = block.text_color | default: '#e5e5e5' %}<div class="b-banner" style="background:{{ _ban_bg }};color:{{ _ban_tc }};"><div class="ban-text">{{ block.text | default: '' }}</div>{% if block.btn_url != blank and block.btn_url != nil %}<a class="ban-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener" style="color:{{ _ban_tc }};">{{ block.btn_text | default: 'Learn more' }}</a>{% endif %}</div>
+{% when 'testimonial' %}{% assign _tr = block.rating | default: '5' | times: 1 %}<div class="b-testimonial">{% if block.quote != blank and block.quote != nil %}<div class="test-stars">{% for i in (1.._tr) %}★{% endfor %}</div><div class="test-quote">"{{ block.quote }}"</div>{% endif %}<div class="test-author">{% if block.photo != blank and block.photo != nil %}<img class="test-photo" src="{{ block.photo }}" alt="{{ block.name | default: '' }}">{% else %}<div class="test-ph">{{ block.name | slice: 0, 1 | upcase | default: '?' }}</div>{% endif %}<div>{% if block.name != blank and block.name != nil %}<div class="test-name">{{ block.name }}</div>{% endif %}{% if block.role != blank and block.role != nil %}<div class="test-role">{{ block.role }}</div>{% endif %}</div></div></div>
+{% when 'faq' %}<div class="b-faq">{% if block.heading != blank and block.heading != nil %}<div class="faq-heading">{{ block.heading }}</div>{% endif %}<div class="faq-list">{% for item in block.items %}<div class="faq-item"><button class="faq-q" onclick="faqToggle(this)" type="button"><span>{{ item.question }}</span><span class="faq-icon">+</span></button><div class="faq-body"><div class="faq-a">{{ item.answer }}</div></div></div>{% endfor %}</div></div>
+{% when 'map' %}<div class="b-map">{% if block.embed_url != blank and block.embed_url != nil %}<div class="map-wrap"><iframe src="{{ block.embed_url }}" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>{% endif %}{% if block.caption != blank and block.caption != nil %}<div class="map-caption">{{ block.caption }}</div>{% endif %}</div>
+{% when 'reviews' %}<div class="b-reviews">{% if block.heading != blank and block.heading != nil %}<div class="rev-heading">{{ block.heading }}</div>{% endif %}{% if block.items and block.items.size > 0 %}<div class="rev-list">{% for item in block.items %}<div class="rev-item">{% assign _stars = item.rating | default: '5' | times: 1 %}<div class="rev-stars">{% for i in (1.._stars) %}★{% endfor %}</div>{% if item.review != blank and item.review != nil %}<div class="rev-text">{{ item.review }}</div>{% endif %}{% if item.name != blank and item.name != nil %}<div class="rev-name">— {{ item.name }}</div>{% endif %}</div>{% endfor %}</div>{% endif %}</div>
+{% when 'html' %}<div class="b-html">{{ block.code }}</div>
+{% endcase %}
+</div>{% endif %}{% endfor %}{% endif %}
 </div>
 <script>
-function pzShare(){var u=location.href;if(navigator.share){navigator.share({title:document.title,url:u});}else{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
-(function(){var _dp=null;var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;if(window.navigator.standalone===true)return;if(navigator.serviceWorker){navigator.serviceWorker.register('/sw.js').catch(function(){});}window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_dp=e;});window.addEventListener('appinstalled',function(){_dp=null;});window.pzSaveToPhone=function(){if(_dp){_dp.prompt();_dp.userChoice.then(function(){_dp=null;});}else if(isIOS){var h=document.getElementById('pzIOSHint');if(h)h.style.display=h.style.display==='none'?'':'none';}else{var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:flex-end;justify-content:center;';o.innerHTML='<div style="background:#fff;border-radius:16px 16px 0 0;padding:24px;max-width:480px;width:100%;text-align:center;"><div style="font-size:15px;font-weight:600;margin-bottom:12px;">Save to your phone</div><div style="font-size:14px;color:#6b6b66;line-height:1.6;">Tap the <strong>⋮ menu</strong> at the top right, then tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></div><button onclick="this.parentElement.parentElement.remove()" style="margin-top:16px;padding:10px 24px;background:var(--ac,#2563eb);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Got it</button></div>';document.body.appendChild(o);o.addEventListener('click',function(e){if(e.target===o)o.remove();});}};})();
+function faqToggle(btn){var list=btn.closest('.faq-list');var body=btn.nextElementSibling;var isOpen=body.classList.contains('open');list.querySelectorAll('.faq-body').forEach(function(b){b.classList.remove('open');});list.querySelectorAll('.faq-q').forEach(function(b){b.classList.remove('open');});if(!isOpen){body.classList.add('open');btn.classList.add('open');}}
+(function(){document.querySelectorAll('.vid-wrap iframe').forEach(function(iframe){var src=iframe.src||'';src=src.replace(/youtube\.com\/watch\?v=([^&]+)/,'youtube.com/embed/$1');src=src.replace(/youtu\.be\/([^?]+)/,'youtube.com/embed/$1');src=src.replace(/(?:www\.)?vimeo\.com\/(\d+)/,'player.vimeo.com/video/$1');iframe.src=src;});})();
+function pzCollect(e,type,blockId,siteId){e.preventDefault();var input=e.target.querySelector('input');var msgEl=document.getElementById('col-'+blockId);var payload={};if(type==='email')payload.email=input.value.trim();else payload.phone=input.value.trim();fetch('/api/biolink-lead/'+siteId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(d){if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Thank you!';}e.target.reset();}).catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}});return false;}
+function pzContact(e,siteId,blockId){e.preventDefault();var fd=new FormData(e.target);var data={};fd.forEach(function(v,k){if(v.trim())data[k]=v.trim();});var form=e.target;var btn=form.querySelector('button');var msgEl=document.getElementById('con-'+blockId);if(btn)btn.disabled=true;fetch('/api/biolink-lead/'+siteId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();}).then(function(d){if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Message sent!';}form.reset();if(btn)btn.disabled=false;}).catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}if(btn)btn.disabled=false;});return false;}
+(function(){var stagger=parseInt(document.body.dataset.bkStagger||'100');var els=document.querySelectorAll('.bk-init[data-bk-anim]');if(!els.length)return;function trigger(el,delay){el.style.animationDelay=delay+'ms';el.classList.add('bk-go');}if(!('IntersectionObserver' in window)){els.forEach(function(el,i){trigger(el,el.dataset.bkDelay!==undefined?parseInt(el.dataset.bkDelay):i*stagger);});return;}var io=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){var el=entry.target;var idx=parseInt(el.dataset.bkIdx||'0');var delay=el.dataset.bkDelay!==undefined?parseInt(el.dataset.bkDelay):idx*stagger;trigger(el,delay);io.unobserve(el);}});},{threshold:0.08,rootMargin:'0px 0px -10px 0px'});els.forEach(function(el,i){el.dataset.bkIdx=String(i);io.observe(el);});})();
 </script>
 </body>
 </html>
