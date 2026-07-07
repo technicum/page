@@ -63,7 +63,7 @@ exports.store = async (req, res) => {
 
 exports.setTemplate = async (req, res) => {
   const user     = req.session.user
-  const { site_id, template_id } = req.body
+  const { site_id, template_id, importDemo } = req.body
   const allowed  = themeManager.loadAll()
 
   if (!allowed[template_id]) {
@@ -76,6 +76,18 @@ exports.setTemplate = async (req, res) => {
   const settings          = JSON.parse(site.settings || '{}')
   settings.template_id    = template_id
   settings.sections       = null
+
+  // If importDemo, wipe blocks + appearance so biolinkBuilder seeds fresh defaults
+  if (importDemo) {
+    settings.blocks     = null
+    settings.appearance = null
+  } else {
+    // Still apply new theme's appearance defaults (colors/style), keep existing blocks
+    const themeData = allowed[template_id]
+    if (themeData && themeData.default_appearance) {
+      settings.appearance = themeData.default_appearance
+    }
+  }
 
   await db.execute('UPDATE ms_sites SET template_id = ?, settings = ? WHERE id = ?',
     [template_id, JSON.stringify(settings), site_id])

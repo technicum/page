@@ -92,7 +92,10 @@
 .tm-action-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;z-index:100;}
 .tm-action-left{font-size:13px;color:var(--ink-muted);}
 .tm-action-left strong{color:var(--ink);}
-.tm-action-right{display:flex;align-items:center;gap:10px;}
+.tm-action-right{display:flex;align-items:center;gap:12px;}
+.tm-demo-toggle{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-muted);cursor:pointer;user-select:none;padding:8px 12px;border:1px solid var(--border-md);border-radius:var(--radius);transition:all .15s;}
+.tm-demo-toggle:hover{border-color:var(--ink);color:var(--ink);}
+.tm-demo-toggle input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ink);}
 .tm-btn-skip{font-size:13px;padding:9px 18px;border:1px solid var(--border-md);border-radius:var(--radius);background:transparent;color:var(--ink-muted);text-decoration:none;cursor:pointer;font-family:"DM Sans",sans-serif;}
 .tm-btn-skip:hover{border-color:var(--ink);color:var(--ink);}
 .tm-btn-apply{font-size:14px;padding:10px 24px;background:var(--ink);color:var(--white);border:none;border-radius:var(--radius);font-weight:500;cursor:pointer;font-family:"DM Sans",sans-serif;}
@@ -174,6 +177,7 @@
              data-name="{{ theme.name | lower }}"
              data-cats="{{ (theme.categories or ['other']) | join(',') }}"
              data-tags="{{ (theme.tags or []) | join(',') }}"
+             data-for="{{ (theme.for or []) | join(',') }}"
              onclick="selectTheme('{{ slug }}','{{ theme.name }}',this)">
           {% if settings.template_id == slug %}
           <div class="tm-selected-badge">✓ Selected</div>
@@ -217,6 +221,10 @@
 <div class="tm-action-bar">
   <div class="tm-action-left">Theme: <strong id="tm-selected-label">{{ settings.template_id or 'None selected' }}</strong></div>
   <div class="tm-action-right">
+    <label class="tm-demo-toggle" title="Replace your current content with the theme's sample blocks and colors">
+      <input type="checkbox" id="tm-import-demo" checked>
+      Import demo content
+    </label>
     <a href="/dashboard" class="tm-btn-skip">Cancel</a>
     <button class="tm-btn-apply" id="tm-apply-btn" onclick="applyTheme()">Use this theme →</button>
   </div>
@@ -224,8 +232,12 @@
 
 <script>
 const siteId    = {{ site.id }};
-const isBiolink = {{ 'true' if site.category == 'minisite' or site.category == 'linktree' else 'false' }};
 let selectedSlug  = '{{ settings.template_id or "" }}';
+// Map of slug → whether this theme is a minisite theme (for routing after apply)
+const THEME_IS_MINISITE = {};
+{% for slug, theme in allThemes %}
+THEME_IS_MINISITE['{{ slug }}'] = {{ 'true' if 'minisite' in (theme.for or []) else 'false' }};
+{% endfor %}
 let activeCategory = 'all';
 let activeTag      = 'all';
 let searchQuery    = '';
@@ -417,18 +429,20 @@ async function applyTheme() {
     alert('Please select a theme first.');
     return;
   }
-  const btn = document.getElementById('tm-apply-btn');
-  btn.textContent = 'Applying…';
-  btn.disabled = true;
+  const btn        = document.getElementById('tm-apply-btn');
+  const importDemo = document.getElementById('tm-import-demo').checked;
+  btn.textContent  = 'Applying…';
+  btn.disabled     = true;
   try {
     const res  = await fetch('/dashboard/site/set-template', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ site_id: siteId, template_id: selectedSlug })
+      body:    JSON.stringify({ site_id: siteId, template_id: selectedSlug, importDemo })
     });
     const data = await res.json();
     if (data.ok) {
-      window.location.href = isBiolink
+      const isMinisiteTheme = THEME_IS_MINISITE[selectedSlug] !== false;
+      window.location.href = isMinisiteTheme
         ? `/dashboard/site/biolink-builder?id=${siteId}`
         : `/dashboard/site/builder?id=${siteId}`;
     } else {
