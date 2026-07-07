@@ -48,10 +48,16 @@ body{
 
 /* ── Avatar ──────────────────────────────────── */
 .b-avatar{text-align:center;padding:24px 0 8px;}
-.b-avatar .av-img,.b-avatar .av-ph{width:88px;height:88px;border-radius:50%;display:block;margin:0 auto 14px;object-fit:cover;}
-.b-avatar .av-ph{display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;background:{{ _btn_color }};color:{{ _btn_text_color }};}
+.b-avatar .av-wrap{position:relative;width:88px;height:88px;margin:0 auto 14px;animation:av-pop .65s cubic-bezier(.34,1.56,.64,1) both,av-float 4s 1.2s ease-in-out infinite;}
+.b-avatar .av-ring{position:absolute;inset:-7px;border-radius:50%;border:2.5px solid transparent;border-top-color:{{ _btn_color }};border-right-color:{{ _btn_color }}88;animation:av-spin 2.4s linear infinite;}
+.b-avatar .av-ring-2{position:absolute;inset:-14px;border-radius:50%;border:1.5px solid transparent;border-bottom-color:{{ _btn_color }}44;border-left-color:{{ _btn_color }}44;animation:av-spin 4.5s linear infinite reverse;}
+.b-avatar .av-img,.b-avatar .av-ph{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;display:flex;object-fit:cover;}
+.b-avatar .av-ph{align-items:center;justify-content:center;font-size:34px;font-weight:700;background:{{ _btn_color }};color:{{ _btn_text_color }};}
 .b-avatar h1{font-size:21px;font-weight:700;margin-bottom:5px;}
 .b-avatar .av-bio{font-size:14px;line-height:1.55;opacity:0.72;}
+@keyframes av-spin{to{transform:rotate(360deg)}}
+@keyframes av-pop{from{opacity:0;transform:scale(.65)}to{opacity:1;transform:scale(1)}}
+@keyframes av-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 
 /* ── Link button ─────────────────────────────── */
 .b-link a{
@@ -198,11 +204,15 @@ body{
 
 {% when 'avatar' %}
 <div class="b-avatar">
-  {% if block.photo != blank and block.photo != nil %}
-    <img class="av-img" src="{{ block.photo }}" alt="{{ block.name }}">
-  {% else %}
-    <div class="av-ph">{{ block.name | slice: 0, 1 | upcase | default: '?' }}</div>
-  {% endif %}
+  <div class="av-wrap">
+    <div class="av-ring"></div>
+    <div class="av-ring-2"></div>
+    {% if block.photo != blank and block.photo != nil %}
+      <img class="av-img" src="{{ block.photo }}" alt="{{ block.name }}">
+    {% else %}
+      <div class="av-ph">{{ block.name | slice: 0, 1 | upcase | default: '?' }}</div>
+    {% endif %}
+  </div>
   {% if block.name != blank and block.name != nil %}<h1>{{ block.name }}</h1>{% endif %}
   {% if block.bio != blank and block.bio != nil %}<p class="av-bio">{{ block.bio }}</p>{% endif %}
 </div>

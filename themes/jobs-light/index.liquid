@@ -24,8 +24,13 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 /* Hero band */
 .hero{width:100%;background:linear-gradient(160deg,var(--ac-bg) 0%,#F0FDF4 100%);padding:40px 20px 28px;text-align:center;border-bottom:1px solid var(--ac-border);}
-.av-wrap{width:72px;height:72px;border-radius:16px;background:#fff;border:1px solid var(--ac-border);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;overflow:hidden;animation:popIn .6s cubic-bezier(.34,1.56,.64,1) both;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
-.av-wrap img{width:100%;height:100%;object-fit:cover;}
+.av-wrap{position:relative;width:72px;height:72px;margin:0 auto 12px;animation:popIn .6s cubic-bezier(.34,1.56,.64,1) both,av-float 4s 1.2s ease-in-out infinite;}
+.av-inner{position:absolute;inset:0;border-radius:16px;background:#fff;border:1px solid var(--ac-border);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.av-inner img{width:100%;height:100%;object-fit:cover;}
+.av-ring-o{position:absolute;inset:-7px;border-radius:22px;border:2px solid transparent;border-top-color:var(--ac);border-right-color:var(--ac-border);animation:av-spin 2.4s linear infinite;}
+.av-ring-o2{position:absolute;inset:-13px;border-radius:28px;border:1.5px solid transparent;border-bottom-color:var(--ac-border);border-left-color:var(--ac-border);animation:av-spin 4.5s linear infinite reverse;}
+@keyframes av-spin{to{transform:rotate(360deg)}}
+@keyframes av-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .name{font-size:20px;font-weight:700;color:var(--ink);animation:fadeUp .4s .25s both;}
 .tagline{font-size:12px;color:var(--muted);margin-top:4px;animation:fadeUp .4s .35s both;}
 .badge-hiring{display:inline-block;background:var(--ac-bg);color:var(--ac-text);font-size:10px;padding:4px 12px;border-radius:20px;margin-top:10px;font-weight:500;border:1px solid var(--ac-border);animation:fadeUp .4s .45s both;}
@@ -135,8 +140,12 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <!-- Hero -->
 <div class="hero">
   <div class="av-wrap">
-    {% if pr.avatar != blank %}<img src="{{ pr.avatar }}" alt="{{ pr.name }}">
-    {% else %}{{ pr.emoji | default: '🎯' }}{% endif %}
+    <div class="av-ring-o"></div>
+    <div class="av-ring-o2"></div>
+    <div class="av-inner">
+      {% if pr.avatar != blank %}<img src="{{ pr.avatar }}" alt="{{ pr.name }}">
+      {% else %}{{ pr.emoji | default: '🎯' }}{% endif %}
+    </div>
   </div>
   <h1 class="name">{{ pr.name | default: 'CareerBridge India' }}</h1>
   <p class="tagline">{{ pr.tagline | default: 'Job Placement' }}{% if pr.city != blank %} · {{ pr.city }}{% endif %}</p>

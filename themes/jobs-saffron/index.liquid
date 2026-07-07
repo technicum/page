@@ -23,8 +23,13 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 /* Hero */
 .hero{width:100%;padding:40px 20px 20px;text-align:center;background:var(--bg);}
-.av-wrap{width:72px;height:72px;border-radius:20px;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;overflow:hidden;animation:popIn .6s cubic-bezier(.34,1.56,.64,1) both;}
-.av-wrap img{width:100%;height:100%;object-fit:cover;}
+.av-wrap{position:relative;width:72px;height:72px;margin:0 auto 12px;animation:popIn .6s cubic-bezier(.34,1.56,.64,1) both,av-float 4s 1.2s ease-in-out infinite;}
+.av-inner{position:absolute;inset:0;border-radius:20px;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;}
+.av-inner img{width:100%;height:100%;object-fit:cover;}
+.av-ring-o{position:absolute;inset:-7px;border-radius:26px;border:2px solid transparent;border-top-color:var(--ac);border-right-color:rgba(255,255,255,.3);animation:av-spin 2.4s linear infinite;}
+.av-ring-o2{position:absolute;inset:-13px;border-radius:32px;border:1.5px solid transparent;border-bottom-color:rgba(255,255,255,.12);border-left-color:rgba(255,255,255,.12);animation:av-spin 4.5s linear infinite reverse;}
+@keyframes av-spin{to{transform:rotate(360deg)}}
+@keyframes av-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .name{font-size:20px;font-weight:700;color:var(--ink);animation:fadeUp .4s .25s both;}
 .tagline{font-size:12px;color:var(--sub);margin-top:4px;animation:fadeUp .4s .35s both;}
 .hero-btns{display:flex;gap:8px;justify-content:center;margin-top:16px;animation:fadeUp .4s .45s both;}
@@ -138,8 +143,12 @@ body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <!-- Hero -->
 <div class="hero">
   <div class="av-wrap">
-    {% if pr.avatar != blank %}<img src="{{ pr.avatar }}" alt="{{ pr.name }}">
-    {% else %}{{ pr.emoji | default: '🚀' }}{% endif %}
+    <div class="av-ring-o"></div>
+    <div class="av-ring-o2"></div>
+    <div class="av-inner">
+      {% if pr.avatar != blank %}<img src="{{ pr.avatar }}" alt="{{ pr.name }}">
+      {% else %}{{ pr.emoji | default: '🚀' }}{% endif %}
+    </div>
   </div>
   <h1 class="name">{{ pr.name | default: 'PlacePro Network' }}</h1>
   <p class="tagline">{{ pr.tagline | default: 'Jobs · Internships · Placements' }}</p>
