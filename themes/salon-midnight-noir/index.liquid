@@ -3,301 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{ settings.profile.name }}</title>
-<link rel="manifest" href="/manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="{{ settings.profile.name | default: site.title }}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+{% assign _app = settings.appearance %}
+{% assign _bg_color = _app.bgColor | default: '#0a0a0a' %}
+{% assign _btn_color = _app.btnColor | default: '#F1EFE8' %}
+{% assign _btn_text_color = _app.btnTextColor | default: '#000000' %}
+{% assign _btn_radius = _app.btnRadius | default: '50' %}
+{% assign _btn_style = _app.btnStyle | default: 'filled' %}
+{% assign _font = _app.fontFamily | default: 'Cormorant Garamond' %}
+{% assign _text_color = _app.textColor | default: '#F1EFE8' %}
+{% assign _bg_type = _app.bgType | default: 'color' %}
+{% assign _bg_gradient = _app.bgGradient | default: 'linear-gradient(160deg,#0a0a0a 0%,#1a1008 100%)' %}
+{% assign _bg_image = _app.bgImage | default: '' %}
+{% assign _avatar_block = nil %}
+{% for b in settings.blocks %}{% if b.type == 'avatar' %}{% assign _avatar_block = b %}{% break %}{% endif %}{% endfor %}
+{% assign _seo = settings.seo %}
+{% assign _pg_title = _seo.title | default: _avatar_block.name | default: site.title %}
+{% assign _anim_style = settings.appearance.animationStyle | default: 'fade' %}
+{% assign _anim_stagger = settings.appearance.animationStagger | default: '120' %}
+{% assign _anim_speed = settings.appearance.animationSpeed | default: 'normal' %}
+{% if _anim_speed == 'fast' %}{% assign _anim_dur = '0.35s' %}{% elsif _anim_speed == 'slow' %}{% assign _anim_dur = '0.75s' %}{% else %}{% assign _anim_dur = '0.5s' %}{% endif %}
+{% assign _pg_desc = _seo.description | default: _avatar_block.bio | default: '' %}
+<title>{{ _pg_title }}</title>
+<meta name="description" content="{{ _pg_desc }}">
+{% if _seo.noindex %}<meta name="robots" content="noindex">{% endif %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family={{ _font }}:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --accent: {{ settings.profile.accent | default: '#F1EFE8' }};
-  --bg: #0C0C0C;
-  --ink: #F1EFE8;
-  --ink-muted: #888780;
-  --border: #2a2a2a;
-  --avatar-bg: #1C1C1E;
-  --accent-faint: rgba(255,255,255,.04);
-  --card-bg: #1C1C1E;
-  --card-border: #3a3a3a;
-  --sec-bg: #1C1C1E;
-}
-body{min-height:100vh;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:flex-start;}
-.page{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;padding:48px 20px 60px;margin:0 auto;}
-
-[data-sec="profile"]{display:flex;flex-direction:column;align-items:center;width:100%;}
-.avatar-wrap{position:relative;width:96px;height:96px;animation:popIn .65s cubic-bezier(.34,1.56,.64,1) both,float 4s 1.4s ease-in-out infinite;}
-.avatar-ring{position:absolute;inset:-5px;border-radius:50%;border:2.5px solid rgba(255,255,255,.07);border-top-color:rgba(255,255,255,.9);border-right-color:rgba(255,255,255,.4);animation:spin 2.4s linear infinite;}
-.avatar-ring-2{position:absolute;inset:-10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.04);border-bottom-color:rgba(255,255,255,.2);border-left-color:rgba(255,255,255,.2);animation:spin 4s linear infinite reverse;}
-.avatar{position:absolute;inset:0;border-radius:50%;background:var(--avatar-bg);border:1.5px solid #3a3a3a;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:600;color:var(--ink);letter-spacing:-1px;}
-.avatar-img{position:absolute;inset:0;border-radius:50%;width:100%;height:100%;object-fit:cover;}
-
-.name{margin-top:18px;font-size:22px;font-weight:600;color:var(--ink);letter-spacing:-0.3px;animation:fadeUp .45s .4s both;}
-.tagline{margin-top:4px;font-size:12px;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;animation:fadeUp .45s .5s both;}
-
-.badges{display:flex;align-items:center;gap:14px;margin-top:12px;animation:fadeUp .45s .6s both;}
-.badge-open{display:flex;align-items:center;gap:5px;background:rgba(29,158,117,.15);border-radius:20px;padding:4px 10px;}
-.dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;animation:dotBlink 2s ease-in-out infinite;}
-.badge-open span{font-size:11px;font-weight:500;color:#5DCAA5;}
-.badge-stars{display:flex;align-items:center;gap:4px;}
-.stars{font-size:13px;color:var(--ink);letter-spacing:1px;}
-.review-count{font-size:11px;color:#5F5E5A;}
-
-.divider{width:40px;height:1px;background:var(--border);border-radius:2px;margin:20px 0;animation:fadeUp .45s .68s both;}
-
-[data-sec="links"]{width:100%;}
-.links{width:100%;display:flex;flex-direction:column;gap:10px;}
-.link-btn{display:flex;align-items:center;gap:12px;border-radius:14px;padding:13px 16px;text-decoration:none;cursor:pointer;transition:transform .18s ease,opacity .18s ease;position:relative;overflow:hidden;}
-.link-btn:hover{transform:scale(1.025);opacity:.88;}
-.link-btn:active{transform:scale(.98);}
-.link-btn.primary{background:var(--accent);animation:slideUp .4s .76s both,ctaPulse 3s 2s ease-in-out infinite;}
-.link-btn.primary .shimmer{position:absolute;top:0;left:-80%;width:55%;height:100%;background:rgba(255,255,255,.5);transform:skewX(-18deg);animation:shimmerPass 3.8s 1.8s ease-in-out infinite;pointer-events:none;}
-.link-btn.primary i,.link-btn.primary .link-emoji{color:#0C0C0C;font-size:20px;}
-.link-btn.primary .btn-text{color:#0C0C0C;font-size:14px;font-weight:600;}
-.link-btn.primary .btn-sub{color:rgba(12,12,12,.5);font-size:11px;margin-top:1px;}
-.link-btn.secondary{background:transparent;border:1px solid var(--border);}
-.link-btn.secondary:hover{background:var(--accent-faint);}
-.link-btn.secondary i,.link-btn.secondary .link-emoji{color:var(--ink-muted);font-size:20px;}
-.link-btn.secondary .btn-text{color:var(--ink);font-size:14px;font-weight:500;}
-.link-btn.secondary .btn-sub{color:#5F5E5A;font-size:11px;margin-top:1px;}
-.link-btn.n1{animation:slideL .4s .86s both;}
-.link-btn.n2{animation:slideR .4s .96s both;}
-.link-btn.n3{animation:slideL .4s 1.06s both;}
-.link-btn.n4{animation:slideR .4s 1.16s both;}
-.link-btn.n5{animation:slideL .4s 1.26s both;}
-.link-btn.n6{animation:slideR .4s 1.36s both;}
-.link-btn.n7{animation:slideL .4s 1.46s both;}
-.link-btn.n8{animation:slideR .4s 1.56s both;}
-.btn-label{display:flex;flex-direction:column;}
-
-[data-sec="socials"]{display:flex;flex-direction:column;align-items:center;}
-.social-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;justify-content:center;animation:fadeUp .45s 1.4s both;}
-.social-icon{width:42px;height:42px;border-radius:50%;background:transparent;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .18s ease,border-color .18s ease;text-decoration:none;}
-.social-icon:hover{transform:scale(1.12);border-color:#5F5E5A;}
-.social-icon i{font-size:18px;color:var(--ink-muted);}
-
-.share-bar{margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:8px;animation:fadeUp .45s 1.6s both;}
-.share-btn{background:transparent;border:1px solid var(--border);color:var(--ink-muted);padding:8px 18px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:border-color .15s;}
-.share-btn:hover{border-color:#5F5E5A;}
-.share-toast{font-size:12px;color:#5DCAA5;opacity:0;transition:opacity .3s;}
-.share-toast.show{opacity:1;}
-
-.salon-acc{width:100%;border-radius:16px;overflow:hidden;border:1px solid var(--card-border);background:var(--sec-bg);margin-bottom:0;}
-.salon-acc-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none;}
-.salon-acc-icon{font-size:20px;line-height:1;flex-shrink:0;}
-.salon-acc-meta{flex:1;}
-.salon-acc-title{font-size:14px;font-weight:600;color:var(--ink);}
-.salon-acc-sub{font-size:11px;color:var(--ink-muted);margin-top:2px;}
-.salon-acc-chevron{flex-shrink:0;color:var(--ink-muted);transition:transform .25s;}
-.salon-acc.open .salon-acc-chevron{transform:rotate(180deg);}
-.salon-acc-body{display:none;border-top:1px solid var(--card-border);}
-.salon-acc.open .salon-acc-body{display:block;}
-.salon-acc-inner{padding:12px 16px 16px;}
-.svc-list{display:flex;flex-direction:column;gap:10px;}
-.svc-card{display:flex;align-items:flex-start;gap:12px;background:var(--bg);border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;}
-.svc-emoji{font-size:22px;line-height:1;flex-shrink:0;margin-top:1px;}
-.svc-body{flex:1;}
-.svc-name{font-size:13px;font-weight:600;color:var(--ink);}
-.svc-desc{font-size:12px;color:var(--ink-muted);margin-top:2px;}
-.svc-price{font-size:13px;font-weight:700;color:var(--accent);margin-top:4px;}
-.products-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.product-card{border-radius:12px;overflow:hidden;border:1px solid var(--card-border);background:var(--bg);}
-.product-img{width:100%;height:110px;object-fit:cover;display:block;}
-.product-img-ph{width:100%;height:110px;display:flex;align-items:center;justify-content:center;font-size:32px;background:var(--accent-faint);}
-.product-info{padding:10px 10px 12px;}
-.product-name{font-size:12px;font-weight:600;color:var(--ink);}
-.product-desc{font-size:11px;color:var(--ink-muted);margin-top:2px;}
-.product-price{font-size:13px;font-weight:700;color:var(--accent);margin-top:4px;}
-.product-btn{display:block;margin-top:8px;text-align:center;background:var(--accent);color:#0C0C0C;font-size:11px;font-weight:700;padding:6px 10px;border-radius:8px;text-decoration:none;transition:opacity .15s;}
-.product-btn:hover{opacity:.85;}
-@keyframes popIn{0%{transform:scale(.25);opacity:0;}65%{transform:scale(1.12);opacity:1;}100%{transform:scale(1);opacity:1;}}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
-@keyframes spin{to{transform:rotate(360deg);}}
-@keyframes fadeUp{from{transform:translateY(18px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-@keyframes slideL{from{transform:translateX(-30px);opacity:0;}to{transform:translateX(0);opacity:1;}}
-@keyframes slideR{from{transform:translateX(30px);opacity:0;}to{transform:translateX(0);opacity:1;}}
-@keyframes shimmerPass{0%{left:-80%;}40%,100%{left:130%;}}
-@keyframes ctaPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.018);}}
-@keyframes dotBlink{0%,100%{opacity:1;}50%{opacity:.2;}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'{{ _font }}',Georgia,serif;color:{{ _text_color }};min-height:100vh;letter-spacing:0.01em;{% if _bg_type == 'gradient' %}background:{{ _bg_gradient }};{% elsif _bg_type == 'image' %}{% if _bg_image != '' %}background:url('{{ _bg_image }}') center/cover no-repeat fixed;{% else %}background:{{ _bg_color }};{% endif %}{% else %}background:{{ _bg_color }};{% endif %}}
+.page-wrap{max-width:480px;margin:0 auto;padding:32px 16px 60px;}
+.block{margin-bottom:12px;}
+.b-avatar{text-align:center;padding:24px 0 8px;}
+.b-avatar .av-wrap{position:relative;width:88px;height:88px;margin:0 auto 14px;animation:av-pop .65s cubic-bezier(.34,1.56,.64,1) both,av-float 4s 1.2s ease-in-out infinite;}
+.b-avatar .av-ring{position:absolute;inset:-7px;border-radius:50%;border:1.5px solid transparent;border-top-color:{{ _btn_color }}99;border-right-color:{{ _btn_color }}44;animation:av-spin 3s linear infinite;}
+.b-avatar .av-ring-2{position:absolute;inset:-14px;border-radius:50%;border:1px solid transparent;border-bottom-color:{{ _btn_color }}33;animation:av-spin 5s linear infinite reverse;}
+.b-avatar .av-img,.b-avatar .av-ph{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;display:flex;object-fit:cover;}
+.b-avatar .av-ph{align-items:center;justify-content:center;font-size:34px;font-weight:400;background:rgba(255,255,255,0.07);color:{{ _text_color }};}
+.b-avatar h1{font-size:22px;font-weight:600;margin-bottom:5px;letter-spacing:0.04em;}
+.b-avatar .av-bio{font-size:14px;line-height:1.6;opacity:0.68;font-style:italic;}
+@keyframes av-spin{to{transform:rotate(360deg)}}
+@keyframes av-pop{from{opacity:0;transform:scale(.65)}to{opacity:1;transform:scale(1)}}
+@keyframes av-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.b-link a{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px 20px;border-radius:{{ _btn_radius }}px;font-size:14px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;transition:transform .15s,opacity .15s;{% if _btn_style == 'outline' %}border:1.5px solid {{ _btn_color }};color:{{ _btn_color }};background:transparent;{% elsif _btn_style == 'soft' %}background:{{ _btn_color }}18;color:{{ _btn_color }};border:none;{% elsif _btn_style == 'shadow' %}background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;box-shadow:0 4px 20px {{ _btn_color }}33;{% else %}background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;{% endif %}}
+.b-link a:hover{transform:translateY(-2px);opacity:.9;}
+.b-link .lk-icon{font-size:16px;flex-shrink:0;}
+.b-link .lk-thumb{width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+.b-heading{padding:6px 0;}.b-heading h1{font-size:26px;font-weight:600;letter-spacing:0.04em;}.b-heading h2{font-size:19px;font-weight:500;letter-spacing:0.05em;}.b-heading h3{font-size:14px;font-weight:400;opacity:.65;letter-spacing:0.1em;text-transform:uppercase;}
+.b-paragraph p{font-size:14px;line-height:1.7;opacity:.78;font-style:italic;}
+.b-image img{width:100%;border-radius:8px;display:block;}.b-image .img-caption{font-size:12px;text-align:center;opacity:.55;margin-top:6px;font-style:italic;}
+.b-socials .soc-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:4px 0;}
+.b-socials a{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;text-decoration:none;background:rgba(255,255,255,0.06);color:{{ _text_color }};transition:background .15s,color .15s;}
+.b-socials a:hover{background:{{ _btn_color }};color:{{ _btn_text_color }};}
+.b-collector{background:rgba(255,255,255,0.05);border-radius:{{ _btn_radius }}px;padding:20px;text-align:center;border:1px solid rgba(255,255,255,0.08);}
+.b-collector h3{font-size:14px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;}
+.b-collector form{display:flex;gap:8px;}
+.b-collector input{flex:1;padding:10px 16px;border:1px solid rgba(255,255,255,0.12);border-radius:{{ _btn_radius }}px;font-size:13px;font-family:inherit;background:rgba(255,255,255,0.07);color:inherit;outline:none;letter-spacing:0.02em;}
+.b-collector button{padding:10px 16px;background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;border-radius:{{ _btn_radius }}px;font-size:12px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.b-collector .col-msg{font-size:13px;margin-top:8px;display:none;font-style:italic;}
+.b-contact{background:rgba(255,255,255,0.05);border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);}
+.b-contact h3{font-size:14px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;text-align:center;}
+.b-contact input,.b-contact textarea{width:100%;padding:10px 14px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.12);border-radius:8px;font-size:13px;font-family:inherit;background:rgba(255,255,255,0.07);color:inherit;outline:none;}
+.b-contact textarea{min-height:80px;resize:vertical;}
+.b-contact button{width:100%;padding:12px;background:{{ _btn_color }};color:{{ _btn_text_color }};border:none;border-radius:{{ _btn_radius }}px;font-size:12px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;font-family:inherit;}
+.b-contact .con-msg{font-size:13px;margin-top:8px;text-align:center;display:none;font-style:italic;}
+.b-hours{background:rgba(255,255,255,0.05);border-radius:12px;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);}
+.b-hours h3{font-size:13px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;opacity:.7;}
+.b-hours .day-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.b-hours .day-row:last-child{border-bottom:none;}.b-hours .day-name{font-weight:500;}.b-hours .day-time{opacity:.6;font-style:italic;}
+.b-video .vid-wrap{position:relative;padding-bottom:56.25%;height:0;border-radius:8px;overflow:hidden;}
+.b-video .vid-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.b-video .vid-caption{font-size:12px;text-align:center;opacity:.55;margin-top:6px;font-style:italic;}
+.b-divider{padding:4px 0;}.b-divider .d-line{border:none;border-top:1px solid rgba(255,255,255,0.1);}
+.b-divider .d-dots{text-align:center;font-size:16px;opacity:.3;letter-spacing:6px;}
+.b-divider .d-gradient{height:1px;background:linear-gradient(90deg,transparent,{{ _btn_color }}66,transparent);}
+.b-product{background:rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);}
+.b-product img{width:100%;height:180px;object-fit:cover;display:block;}.b-product .prod-body{padding:14px 16px;}
+.b-product .prod-title{font-size:15px;font-weight:600;letter-spacing:0.03em;margin-bottom:4px;}.b-product .prod-desc{font-size:13px;opacity:.65;line-height:1.55;margin-bottom:10px;font-style:italic;}
+.b-product .prod-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.b-product .prod-price{font-size:17px;font-weight:600;color:{{ _btn_color }};}
+.b-product .prod-btn{padding:9px 18px;border-radius:{{ _btn_radius }}px;background:{{ _btn_color }};color:{{ _btn_text_color }};font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;display:inline-block;white-space:nowrap;}
+.b-service{background:rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);}
+.b-service img{width:100%;height:180px;object-fit:cover;display:block;}.b-service .svc-body{padding:14px 16px;}
+.b-service .svc-title{font-size:15px;font-weight:600;letter-spacing:0.03em;margin-bottom:4px;}.b-service .svc-desc{font-size:13px;opacity:.65;line-height:1.55;margin-bottom:8px;font-style:italic;}
+.b-service .svc-meta{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.b-service .svc-price{font-size:14px;font-weight:600;color:{{ _btn_color }};}
+.b-service .svc-dur{font-size:12px;opacity:.55;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:20px;font-style:italic;}
+.b-service .svc-btn{display:block;width:100%;padding:11px;border-radius:{{ _btn_radius }}px;background:{{ _btn_color }};color:{{ _btn_text_color }};font-size:12px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;text-align:center;text-decoration:none;box-sizing:border-box;}
+.b-banner{border-radius:{{ _btn_radius }}px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);}
+.b-banner .ban-text{font-size:14px;font-weight:500;flex:1;font-style:italic;}
+.b-banner .ban-btn{padding:8px 16px;border-radius:{{ _btn_radius }}px;background:{{ _btn_color }};color:{{ _btn_text_color }};font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;white-space:nowrap;flex-shrink:0;}
+.b-testimonial{background:rgba(255,255,255,0.05);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.08);}
+.b-testimonial .test-stars{color:#c9a96e;font-size:14px;margin-bottom:8px;letter-spacing:2px;}
+.b-testimonial .test-quote{font-size:14px;line-height:1.7;font-style:italic;opacity:.8;margin-bottom:12px;}
+.b-testimonial .test-author{display:flex;align-items:center;gap:10px;}
+.b-testimonial .test-photo{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid rgba(255,255,255,0.15);}
+.b-testimonial .test-ph{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);color:{{ _text_color }};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;}
+.b-testimonial .test-name{font-size:13px;font-weight:600;letter-spacing:0.04em;}.b-testimonial .test-role{font-size:11px;opacity:.55;font-style:italic;letter-spacing:0.04em;}
+.b-faq .faq-heading{font-size:14px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;text-align:center;opacity:.7;}
+.b-faq .faq-list{border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;}
+.b-faq .faq-item{border-bottom:1px solid rgba(255,255,255,0.06);}.b-faq .faq-item:last-child{border-bottom:none;}
+.b-faq .faq-q{width:100%;text-align:left;background:none;border:none;padding:14px 16px;font-size:13px;font-weight:500;letter-spacing:0.04em;color:{{ _text_color }};cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background .15s;}
+.b-faq .faq-q:hover{background:rgba(255,255,255,0.03);}
+.b-faq .faq-icon{width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;opacity:0.4;transition:transform .25s,opacity .2s;}
+.b-faq .faq-q.open .faq-icon{transform:rotate(45deg);opacity:0.7;}
+.b-faq .faq-body{max-height:0;overflow:hidden;transition:max-height .32s cubic-bezier(.4,0,.2,1);}.b-faq .faq-body.open{max-height:800px;}
+.b-faq .faq-a{font-size:13px;line-height:1.7;padding:2px 16px 14px;opacity:0.65;font-style:italic;}
+.b-map .map-wrap{border-radius:8px;overflow:hidden;}.b-map iframe{width:100%;height:280px;border:none;display:block;}.b-map .map-caption{font-size:12px;text-align:center;opacity:.55;margin-top:6px;font-style:italic;}
+.b-reviews .rev-heading{font-size:14px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;text-align:center;opacity:.7;}
+.b-reviews .rev-list{display:flex;flex-direction:column;gap:10px;}
+.b-reviews .rev-item{background:rgba(255,255,255,0.05);border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,0.07);}
+.b-reviews .rev-stars{font-size:13px;color:#c9a96e;margin-bottom:4px;letter-spacing:2px;}.b-reviews .rev-text{font-size:13px;line-height:1.6;opacity:.78;margin-bottom:6px;font-style:italic;}.b-reviews .rev-name{font-size:11px;font-weight:600;opacity:.5;letter-spacing:0.05em;}
+.b-html{border-radius:8px;overflow:hidden;}
+@keyframes bk-fade{from{opacity:0}to{opacity:1}}@keyframes bk-slide-up{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}@keyframes bk-slide-down{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:translateY(0)}}@keyframes bk-slide-left{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}@keyframes bk-slide-right{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:translateX(0)}}@keyframes bk-zoom{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}@keyframes bk-bounce{0%{opacity:0;transform:scale(.55)}55%{opacity:1;transform:scale(1.07)}78%{transform:scale(.96)}100%{transform:scale(1)}}@keyframes bk-flip{from{opacity:0;transform:perspective(500px) rotateX(22deg)}to{opacity:1;transform:perspective(500px) rotateX(0)}}
+.bk-init{opacity:0;}.bk-init[data-bk-anim="none"]{opacity:1 !important;}
+.bk-go[data-bk-anim="fade"]{animation:bk-fade var(--bk-dur,.5s) ease both;}.bk-go[data-bk-anim="slide-up"]{animation:bk-slide-up var(--bk-dur,.5s) ease both;}.bk-go[data-bk-anim="slide-down"]{animation:bk-slide-down var(--bk-dur,.5s) ease both;}.bk-go[data-bk-anim="slide-left"]{animation:bk-slide-left var(--bk-dur,.45s) ease both;}.bk-go[data-bk-anim="slide-right"]{animation:bk-slide-right var(--bk-dur,.45s) ease both;}.bk-go[data-bk-anim="zoom"]{animation:bk-zoom var(--bk-dur,.45s) cubic-bezier(.34,1.08,.64,1) both;}.bk-go[data-bk-anim="bounce"]{animation:bk-bounce var(--bk-dur,.65s) cubic-bezier(.34,1.56,.64,1) both;}.bk-go[data-bk-anim="flip"]{animation:bk-flip var(--bk-dur,.5s) ease both;}
 </style>
 </head>
-<body>
-<div class="page">
-
-{% assign pr = settings.profile %}
-
-<div data-sec="profile">
-  <div class="avatar-wrap">
-    <div class="avatar-ring-2"></div>
-    <div class="avatar-ring"></div>
-    {% if pr.avatar != blank %}
-      <img class="avatar-img" src="{{ pr.avatar }}" alt="{{ pr.name }}">
-    {% else %}
-      <div class="avatar">{{ pr.name | slice: 0, 2 | upcase }}</div>
-    {% endif %}
-  </div>
-  <h1 class="name">{{ pr.name }}</h1>
-  {% if pr.title != blank %}<p class="tagline">{{ pr.title }}</p>{% endif %}
-  {% if pr.show_open == 'yes' or pr.rating != blank %}
-  <div class="badges">
-    {% if pr.show_open == 'yes' %}<div class="badge-open"><span class="dot"></span><span>Open now</span></div>{% endif %}
-    {% if pr.rating != blank %}
-    <div class="badge-stars">
-      <span class="stars">★★★★★</span>
-      <span class="review-count">{{ pr.rating }}{% if pr.review_count != blank %} · {{ pr.review_count }}{% endif %}</span>
-    </div>
-    {% endif %}
-  </div>
-  {% endif %}
-  <div class="divider"></div>
-</div>
-
-{% assign lk = settings.links %}
-{% if lk.items and lk.items.size > 0 %}
-<div data-sec="links">
-  <div class="links">
-    {% for item in lk.items %}
-      {% if item.primary == 'yes' %}
-      <a class="link-btn primary" href="{{ item.url }}" target="_blank">
-        <div class="shimmer"></div>
-        {% if item.emoji != blank %}{% if item.emoji contains 'ti ' %}<i class="{{ item.emoji }}"></i>{% else %}<span class="link-emoji" style="font-size:20px;">{{ item.emoji }}</span>{% endif %}{% endif %}
-        <div class="btn-label"><span class="btn-text">{{ item.label }}</span>{% if item.sub != blank %}<span class="btn-sub">{{ item.sub }}</span>{% endif %}</div>
-      </a>
-      {% else %}
-      {% assign nidx = forloop.index %}
-      <a class="link-btn secondary n{{ nidx }}" href="{{ item.url }}" target="_blank">
-        {% if item.emoji != blank %}{% if item.emoji contains 'ti ' %}<i class="{{ item.emoji }}"></i>{% else %}<span class="link-emoji" style="font-size:20px;">{{ item.emoji }}</span>{% endif %}{% endif %}
-        <div class="btn-label"><span class="btn-text">{{ item.label }}</span>{% if item.sub != blank %}<span class="btn-sub">{{ item.sub }}</span>{% endif %}</div>
-      </a>
-      {% endif %}
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
-
-{% assign sv = settings.services %}
-{% if sv.items and sv.items.size > 0 %}
-<div data-sec="services" style="width:100%;margin-top:10px;">
-  <div class="salon-acc" id="salon-services">
-    <div class="salon-acc-head" onclick="salonToggle('salon-services')">
-      <span class="salon-acc-icon">✂️</span>
-      <div class="salon-acc-meta">
-        <div class="salon-acc-title">{{ sv.heading | default: 'Our Services' }}</div>
-        <div class="salon-acc-sub">{{ sv.items.size }} service{% if sv.items.size != 1 %}s{% endif %}</div>
-      </div>
-      <svg class="salon-acc-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-    <div class="salon-acc-body">
-      <div class="salon-acc-inner">
-        <div class="svc-list">
-          {% for item in sv.items %}
-          <div class="svc-card">
-            <div class="svc-emoji">{{ item.emoji | default: '✂️' }}</div>
-            <div class="svc-body">
-              <div class="svc-name">{{ item.name }}</div>
-              {% if item.description != blank %}<div class="svc-desc">{{ item.description }}</div>{% endif %}
-              {% if item.price != blank %}<div class="svc-price">{{ item.price }}</div>{% endif %}
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
-
-{% assign pd = settings.products %}
-{% if pd.items and pd.items.size > 0 %}
-<div data-sec="products" style="width:100%;margin-top:10px;">
-  <div class="salon-acc" id="salon-products">
-    <div class="salon-acc-head" onclick="salonToggle('salon-products')">
-      <span class="salon-acc-icon">🛍️</span>
-      <div class="salon-acc-meta">
-        <div class="salon-acc-title">{{ pd.heading | default: 'Shop Products' }}</div>
-        <div class="salon-acc-sub">{{ pd.items.size }} product{% if pd.items.size != 1 %}s{% endif %}</div>
-      </div>
-      <svg class="salon-acc-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-    <div class="salon-acc-body">
-      <div class="salon-acc-inner">
-        <div class="products-grid">
-          {% for item in pd.items %}
-          <div class="product-card">
-            {% if item.image != blank %}<img class="product-img" src="{{ item.image }}" alt="{{ item.name }}">
-            {% else %}<div class="product-img-ph">🛍️</div>{% endif %}
-            <div class="product-info">
-              <div class="product-name">{{ item.name }}</div>
-              {% if item.description != blank %}<div class="product-desc">{{ item.description }}</div>{% endif %}
-              {% if item.price != blank %}<div class="product-price">{{ item.price }}</div>{% endif %}
-              {% if item.url != blank %}<a class="product-btn" href="{{ item.url }}" target="_blank">Buy Now →</a>{% endif %}
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
-
-{% assign s = settings.socials %}
-{% if s.instagram != blank or s.facebook != blank or s.tiktok != blank or s.youtube != blank or s.twitter != blank or s.linkedin != blank %}
-<div data-sec="socials">
-  <div class="social-row">
-    {% if s.instagram != blank %}<a href="{{ s.instagram }}" class="social-icon" target="_blank"><i class="ti ti-brand-instagram"></i></a>{% endif %}
-    {% if s.facebook != blank %}<a href="{{ s.facebook }}" class="social-icon" target="_blank"><i class="ti ti-brand-facebook"></i></a>{% endif %}
-    {% if s.tiktok != blank %}<a href="{{ s.tiktok }}" class="social-icon" target="_blank"><i class="ti ti-brand-tiktok"></i></a>{% endif %}
-    {% if s.youtube != blank %}<a href="{{ s.youtube }}" class="social-icon" target="_blank"><i class="ti ti-brand-youtube"></i></a>{% endif %}
-    {% if s.twitter != blank %}<a href="{{ s.twitter }}" class="social-icon" target="_blank"><i class="ti ti-brand-x"></i></a>{% endif %}
-    {% if s.linkedin != blank %}<a href="{{ s.linkedin }}" class="social-icon" target="_blank"><i class="ti ti-brand-linkedin"></i></a>{% endif %}
-  </div>
-</div>
-{% endif %}
-
-<!-- Reviews -->
-<div data-sec="reviews" style="width:100%;margin-top:10px;">
-  <div class="salon-acc" id="salon-reviews">
-    <div class="salon-acc-head" onclick="salonToggle('salon-reviews')">
-      <span class="salon-acc-icon">⭐</span>
-      <div class="salon-acc-meta">
-        <div class="salon-acc-title">Reviews</div>
-        <div class="salon-acc-sub" id="pz-rev-sub">Loading…</div>
-      </div>
-      <svg class="salon-acc-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-    <div class="salon-acc-body">
-      <div class="salon-acc-inner">
-        <a href="/review/{{ site.subdomain }}" style="display:block;text-align:center;background:var(--accent);color:#fff;padding:11px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;">📝 View / Write a Review</a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="share-bar">
-  <button class="share-btn" onclick="pzShare()">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-    Share this page
-  </button>
-  <button class="share-btn" onclick="pzSaveToPhone()">📲 Save to phone</button>
-  <div class="share-toast" id="pzToast">✓ Link copied!</div>
-</div>
-<div id="pzIOSHint" style="display:none;text-align:center;padding:8px 16px 2px;">
-  <div style="display:inline-flex;align-items:flex-start;gap:10px;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:11px 15px;font-size:12px;color:#6b6b66;max-width:280px;text-align:left;line-height:1.5;">
-    <span style="font-size:18px;flex-shrink:0;margin-top:1px;">📲</span>
-    <span>Tap <strong style="color:#1a1a18;">Share</strong> <svg style="display:inline;vertical-align:middle;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a1a18" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> in Safari, then tap <strong style="color:#1a1a18;">"Add to Home Screen"</strong></span>
-  </div>
-</div>
-
+<body data-bk-stagger="{{ _anim_stagger }}" style="--bk-dur:{{ _anim_dur }}">
+<div class="page-wrap">
+{% if settings.blocks %}{% for block in settings.blocks %}{% if block.enabled != false %}
+{% assign _blk_anim = block.animation %}{% if _blk_anim == blank or _blk_anim == nil %}{% assign _blk_anim = _anim_style %}{% endif %}
+{% assign _blk_margin = '' %}{% if block.spacing == 'none' %}{% assign _blk_margin = 'margin-bottom:0;' %}{% elsif block.spacing == 'compact' %}{% assign _blk_margin = 'margin-bottom:4px;' %}{% elsif block.spacing == 'relaxed' %}{% assign _blk_margin = 'margin-bottom:20px;' %}{% elsif block.spacing == 'loose' %}{% assign _blk_margin = 'margin-bottom:36px;' %}{% endif %}
+{% assign _blk_card = '' %}{% if block.card_style == 'light' %}{% assign _blk_card = 'background:rgba(255,255,255,0.1);border-radius:14px;padding:12px;' %}{% elsif block.card_style == 'dark' %}{% assign _blk_card = 'background:rgba(0,0,0,0.35);border-radius:14px;padding:12px;' %}{% elsif block.card_style == 'glass' %}{% assign _blk_card = 'background:rgba(255,255,255,0.07);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,0.12);' %}{% elsif block.card_style == 'color' %}{% if block.card_color != blank and block.card_color != nil %}{% assign _blk_card = 'background:' | append: block.card_color | append: ';border-radius:14px;padding:12px;' %}{% endif %}{% endif %}
+{% assign _blk_inline = _blk_margin | append: _blk_card %}
+<div class="block{% if _blk_anim != 'none' %} bk-init{% endif %}" id="blk-{{ block.id }}" data-bk-anim="{{ _blk_anim }}"{% if block.animation_delay != nil and block.animation_delay != blank %} data-bk-delay="{{ block.animation_delay }}"{% endif %}{% if _blk_inline != blank %} style="{{ _blk_inline }}"{% endif %}>
+{% case block.type %}
+{% when 'avatar' %}<div class="b-avatar"><div class="av-wrap"><div class="av-ring"></div><div class="av-ring-2"></div>{% if block.photo != blank and block.photo != nil %}<img class="av-img" src="{{ block.photo }}" alt="{{ block.name }}">{% else %}<div class="av-ph">{{ block.name | slice: 0, 1 | upcase | default: '?' }}</div>{% endif %}</div>{% if block.name != blank and block.name != nil %}<h1>{{ block.name }}</h1>{% endif %}{% if block.bio != blank and block.bio != nil %}<p class="av-bio">{{ block.bio }}</p>{% endif %}</div>
+{% when 'link' %}<div class="b-link"><a href="{{ block.url | default: '#' }}" target="_blank" rel="noopener">{% if block.thumbnail != blank and block.thumbnail != nil %}<img class="lk-thumb" src="{{ block.thumbnail }}" alt="">{% elsif block.icon != blank and block.icon != nil %}<span class="lk-icon">{{ block.icon }}</span>{% endif %}{{ block.title | default: 'Link' }}</a></div>
+{% when 'heading' %}{% assign _ha = block.align | default: 'center' %}{% assign _hs = block.size | default: 'h2' %}<div class="b-heading" style="text-align:{{ _ha }}">{% if _hs == 'h1' %}<h1>{{ block.text }}</h1>{% elsif _hs == 'h3' %}<h3>{{ block.text }}</h3>{% else %}<h2>{{ block.text }}</h2>{% endif %}</div>
+{% when 'paragraph' %}<div class="b-paragraph"><p style="text-align:{{ block.align | default: 'center' }}">{{ block.text }}</p></div>
+{% when 'image' %}<div class="b-image">{% if block.url != blank and block.url != nil %}{% if block.link_url != blank and block.link_url != nil %}<a href="{{ block.link_url }}" target="_blank">{% endif %}<img src="{{ block.url }}" alt="{{ block.caption | default: '' }}">{% if block.link_url != blank and block.link_url != nil %}</a>{% endif %}{% if block.caption != blank and block.caption != nil %}<div class="img-caption">{{ block.caption }}</div>{% endif %}{% endif %}</div>
+{% when 'socials' %}<div class="b-socials"><div class="soc-row">{% if block.instagram != blank and block.instagram != nil %}<a href="{{ block.instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>{% endif %}{% if block.twitter != blank and block.twitter != nil %}<a href="{{ block.twitter }}" target="_blank"><i class="fab fa-x-twitter"></i></a>{% endif %}{% if block.youtube != blank and block.youtube != nil %}<a href="{{ block.youtube }}" target="_blank"><i class="fab fa-youtube"></i></a>{% endif %}{% if block.tiktok != blank and block.tiktok != nil %}<a href="{{ block.tiktok }}" target="_blank"><i class="fab fa-tiktok"></i></a>{% endif %}{% if block.linkedin != blank and block.linkedin != nil %}<a href="{{ block.linkedin }}" target="_blank"><i class="fab fa-linkedin-in"></i></a>{% endif %}{% if block.facebook != blank and block.facebook != nil %}<a href="{{ block.facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>{% endif %}{% if block.pinterest != blank and block.pinterest != nil %}<a href="{{ block.pinterest }}" target="_blank"><i class="fab fa-pinterest"></i></a>{% endif %}{% if block.github != blank and block.github != nil %}<a href="{{ block.github }}" target="_blank"><i class="fab fa-github"></i></a>{% endif %}{% if block.whatsapp != blank and block.whatsapp != nil %}<a href="https://wa.me/{{ block.whatsapp | remove: '+' | remove: ' ' | remove: '-' }}" target="_blank"><i class="fab fa-whatsapp"></i></a>{% endif %}{% if block.telegram != blank and block.telegram != nil %}<a href="{{ block.telegram }}" target="_blank"><i class="fab fa-telegram"></i></a>{% endif %}{% if block.spotify != blank and block.spotify != nil %}<a href="{{ block.spotify }}" target="_blank"><i class="fab fa-spotify"></i></a>{% endif %}</div></div>
+{% when 'email_collector' %}<div class="b-collector">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}<form onsubmit="return pzCollect(event,'email','{{ block.id }}','{{ site.id }}')"><input type="email" placeholder="{{ block.placeholder | default: 'Enter your email' }}" required><button type="submit">{{ block.btn_text | default: 'Subscribe' }}</button></form><div class="col-msg" id="col-{{ block.id }}"></div></div>
+{% when 'phone_collector' %}<div class="b-collector">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}<form onsubmit="return pzCollect(event,'phone','{{ block.id }}','{{ site.id }}')"><input type="tel" placeholder="{{ block.placeholder | default: 'Enter your phone number' }}" required><button type="submit">{{ block.btn_text | default: 'Submit' }}</button></form><div class="col-msg" id="col-{{ block.id }}"></div></div>
+{% when 'contact_form' %}<div class="b-contact">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}<form onsubmit="return pzContact(event,'{{ site.id }}','{{ block.id }}')">{% if block.show_name %}<input type="text" name="name" placeholder="Your name">{% endif %}{% if block.show_email %}<input type="email" name="email" placeholder="Your email">{% endif %}{% if block.show_phone %}<input type="tel" name="phone" placeholder="Your phone">{% endif %}{% if block.show_message %}<textarea name="message" placeholder="Your message"></textarea>{% endif %}<button type="submit">{{ block.btn_text | default: 'Send message' }}</button></form><div class="con-msg" id="con-{{ block.id }}"></div></div>
+{% when 'business_hours' %}<div class="b-hours">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% else %}<h3>Hours</h3>{% endif %}{% assign _bh_days = 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday' | split: ',' %}{% assign _bh_keys = 'mon,tue,wed,thu,fri,sat,sun' | split: ',' %}{% for _bk in _bh_keys %}{% assign _bopen_key = _bk | append: '_open' %}{% assign _bclose_key = _bk | append: '_close' %}{% assign _bopen = block[_bopen_key] %}{% assign _bclose = block[_bclose_key] %}{% if _bopen != blank and _bopen != nil %}<div class="day-row"><span class="day-name">{{ _bh_days[forloop.index0] }}</span><span class="day-time">{{ _bopen }}{% if _bclose != blank and _bclose != nil %} – {{ _bclose }}{% endif %}</span></div>{% endif %}{% endfor %}</div>
+{% when 'video' %}<div class="b-video">{% if block.url != blank and block.url != nil %}<div class="vid-wrap" id="vw-{{ block.id }}"><iframe src="{{ block.url }}" allowfullscreen allow="autoplay; encrypted-media" loading="lazy"></iframe></div>{% endif %}{% if block.caption != blank and block.caption != nil %}<div class="vid-caption">{{ block.caption }}</div>{% endif %}</div>
+{% when 'divider' %}<div class="b-divider" style="padding:{{ block.spacing | default: '16' }}px 0;">{% if block.style == 'dots' %}<div class="d-dots">· · ·</div>{% elsif block.style == 'gradient' %}<div class="d-gradient"></div>{% elsif block.style == 'space' %}{% else %}<hr class="d-line">{% endif %}</div>
+{% when 'product' %}<div class="b-product">{% if block.image != blank and block.image != nil %}<img src="{{ block.image }}" alt="{{ block.title | default: '' }}">{% endif %}<div class="prod-body">{% if block.title != blank and block.title != nil %}<div class="prod-title">{{ block.title }}</div>{% endif %}{% if block.description != blank and block.description != nil %}<div class="prod-desc">{{ block.description }}</div>{% endif %}<div class="prod-foot">{% if block.price != blank and block.price != nil %}<div class="prod-price">{{ block.price }}</div>{% endif %}{% if block.btn_url != blank and block.btn_url != nil %}<a class="prod-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Buy now' }}</a>{% endif %}</div></div></div>
+{% when 'service' %}<div class="b-service">{% if block.image != blank and block.image != nil %}<img src="{{ block.image }}" alt="{{ block.title | default: '' }}">{% endif %}<div class="svc-body">{% if block.title != blank and block.title != nil %}<div class="svc-title">{{ block.title }}</div>{% endif %}{% if block.description != blank and block.description != nil %}<div class="svc-desc">{{ block.description }}</div>{% endif %}<div class="svc-meta">{% if block.price != blank and block.price != nil %}<div class="svc-price">{{ block.price }}</div>{% endif %}{% if block.duration != blank and block.duration != nil %}<div class="svc-dur">⏱ {{ block.duration }}</div>{% endif %}</div>{% if block.btn_url != blank and block.btn_url != nil %}<a class="svc-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>{% endif %}</div></div>
+{% when 'banner' %}{% assign _ban_bg = block.bg_color | default: 'rgba(255,255,255,0.06)' %}{% assign _ban_tc = block.text_color | default: _text_color %}<div class="b-banner" style="background:{{ _ban_bg }};color:{{ _ban_tc }};border-color:{{ _ban_bg }};"><div class="ban-text">{{ block.text | default: '' }}</div>{% if block.btn_url != blank and block.btn_url != nil %}<a class="ban-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Learn more' }}</a>{% endif %}</div>
+{% when 'testimonial' %}{% assign _tr = block.rating | default: '5' | times: 1 %}<div class="b-testimonial">{% if block.quote != blank and block.quote != nil %}<div class="test-stars">{% for i in (1.._tr) %}★{% endfor %}</div><div class="test-quote">"{{ block.quote }}"</div>{% endif %}<div class="test-author">{% if block.photo != blank and block.photo != nil %}<img class="test-photo" src="{{ block.photo }}" alt="{{ block.name | default: '' }}">{% else %}<div class="test-ph">{{ block.name | slice: 0, 1 | upcase | default: '?' }}</div>{% endif %}<div>{% if block.name != blank and block.name != nil %}<div class="test-name">{{ block.name }}</div>{% endif %}{% if block.role != blank and block.role != nil %}<div class="test-role">{{ block.role }}</div>{% endif %}</div></div></div>
+{% when 'faq' %}<div class="b-faq">{% if block.heading != blank and block.heading != nil %}<div class="faq-heading">{{ block.heading }}</div>{% endif %}<div class="faq-list">{% for item in block.items %}<div class="faq-item"><button class="faq-q" onclick="faqToggle(this)" type="button"><span>{{ item.question }}</span><span class="faq-icon">+</span></button><div class="faq-body"><div class="faq-a">{{ item.answer }}</div></div></div>{% endfor %}</div></div>
+{% when 'map' %}<div class="b-map">{% if block.embed_url != blank and block.embed_url != nil %}<div class="map-wrap"><iframe src="{{ block.embed_url }}" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>{% endif %}{% if block.caption != blank and block.caption != nil %}<div class="map-caption">{{ block.caption }}</div>{% endif %}</div>
+{% when 'reviews' %}<div class="b-reviews">{% if block.heading != blank and block.heading != nil %}<div class="rev-heading">{{ block.heading }}</div>{% endif %}{% if block.items and block.items.size > 0 %}<div class="rev-list">{% for item in block.items %}<div class="rev-item">{% assign _stars = item.rating | default: '5' | times: 1 %}<div class="rev-stars">{% for i in (1.._stars) %}★{% endfor %}</div>{% if item.review != blank and item.review != nil %}<div class="rev-text">{{ item.review }}</div>{% endif %}{% if item.name != blank and item.name != nil %}<div class="rev-name">— {{ item.name }}</div>{% endif %}</div>{% endfor %}</div>{% endif %}</div>
+{% when 'html' %}<div class="b-html">{{ block.code }}</div>
+{% endcase %}
+</div>{% endif %}{% endfor %}{% endif %}
 </div>
 <script>
-function salonToggle(id){document.getElementById(id).classList.toggle('open');}
-(function(){fetch('/api/reviews/{{ site.subdomain }}').then(function(r){return r.json()}).then(function(d){document.getElementById('pz-rev-sub').textContent=d.avg_rating?('⭐ '+d.avg_rating+' · '+d.total+' review'+(d.total!==1?'s':'')):('No reviews yet');}).catch(function(){document.getElementById('pz-rev-sub').textContent='Reviews';});})();
-function pzShare(){var u=location.href,t=document.title;if(navigator.share){navigator.share({title:t,url:u});}else{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('pzToast');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2200);}}
-(function(){var _dp=null;var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;if(window.navigator.standalone===true)return;if(navigator.serviceWorker){navigator.serviceWorker.register('/sw.js').catch(function(){});}window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_dp=e;});window.addEventListener('appinstalled',function(){_dp=null;});window.pzSaveToPhone=function(){if(_dp){_dp.prompt();_dp.userChoice.then(function(){_dp=null;});}else if(isIOS){var h=document.getElementById('pzIOSHint');if(h)h.style.display=h.style.display==='none'?'':'none';}else{var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:flex-end;justify-content:center;';o.innerHTML='<div style="background:#fff;border-radius:16px 16px 0 0;padding:24px;max-width:480px;width:100%;text-align:center;"><div style="font-size:15px;font-weight:600;margin-bottom:12px;">Save to your phone</div><div style="font-size:14px;color:#6b6b66;line-height:1.6;">Tap the <strong>⋮ menu</strong> at the top right, then tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></div><button onclick="this.parentElement.parentElement.remove()" style="margin-top:16px;padding:10px 24px;background:var(--accent,#2563eb);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Got it</button></div>';document.body.appendChild(o);o.addEventListener('click',function(e){if(e.target===o)o.remove();});}};})();
+function faqToggle(btn){var list=btn.closest('.faq-list');var body=btn.nextElementSibling;var isOpen=body.classList.contains('open');list.querySelectorAll('.faq-body').forEach(function(b){b.classList.remove('open');});list.querySelectorAll('.faq-q').forEach(function(b){b.classList.remove('open');});if(!isOpen){body.classList.add('open');btn.classList.add('open');}}
+(function(){document.querySelectorAll('.vid-wrap iframe').forEach(function(iframe){var src=iframe.src||'';src=src.replace(/youtube\.com\/watch\?v=([^&]+)/,'youtube.com/embed/$1');src=src.replace(/youtu\.be\/([^?]+)/,'youtube.com/embed/$1');src=src.replace(/(?:www\.)?vimeo\.com\/(\d+)/,'player.vimeo.com/video/$1');iframe.src=src;});})();
+function pzCollect(e,type,blockId,siteId){e.preventDefault();var input=e.target.querySelector('input');var msgEl=document.getElementById('col-'+blockId);var payload={};if(type==='email')payload.email=input.value.trim();else payload.phone=input.value.trim();fetch('/api/biolink-lead/'+siteId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(d){if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Thank you!';}e.target.reset();}).catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}});return false;}
+function pzContact(e,siteId,blockId){e.preventDefault();var fd=new FormData(e.target);var data={};fd.forEach(function(v,k){if(v.trim())data[k]=v.trim();});var form=e.target;var btn=form.querySelector('button');var msgEl=document.getElementById('con-'+blockId);if(btn)btn.disabled=true;fetch('/api/biolink-lead/'+siteId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();}).then(function(d){if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Message sent!';}form.reset();if(btn)btn.disabled=false;}).catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}if(btn)btn.disabled=false;});return false;}
+(function(){var stagger=parseInt(document.body.dataset.bkStagger||'120');var els=document.querySelectorAll('.bk-init[data-bk-anim]');if(!els.length)return;function trigger(el,delay){el.style.animationDelay=delay+'ms';el.classList.add('bk-go');}if(!('IntersectionObserver' in window)){els.forEach(function(el,i){trigger(el,el.dataset.bkDelay!==undefined?parseInt(el.dataset.bkDelay):i*stagger);});return;}var io=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){var el=entry.target;var idx=parseInt(el.dataset.bkIdx||'0');var delay=el.dataset.bkDelay!==undefined?parseInt(el.dataset.bkDelay):idx*stagger;trigger(el,delay);io.unobserve(el);}});},{threshold:0.08,rootMargin:'0px 0px -10px 0px'});els.forEach(function(el,i){el.dataset.bkIdx=String(i);io.observe(el);});})();
 </script>
 </body>
 </html>
