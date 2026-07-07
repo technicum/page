@@ -7,7 +7,8 @@
   "default_appearance": {
     "bgColor": "#f5faf7", "btnColor": "#1D9E75", "btnTextColor": "#ffffff",
     "textColor": "#1a2e26", "btnStyle": "filled", "btnRadius": "50",
-    "bgType": "color", "fontFamily": "inter"
+    "bgType": "color", "fontFamily": "inter",
+    "animationStyle": "zoom", "animationStagger": "100"
   },
   "default_blocks": [
     { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Bloom Studio", "bio":"Organic & Wellness · San Francisco · ⭐ 4.9 (2.4k reviews)" },

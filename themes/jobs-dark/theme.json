@@ -8,7 +8,8 @@
   "default_appearance": {
     "bgColor": "#0f172a", "btnColor": "#3B82F6", "btnTextColor": "#ffffff",
     "textColor": "#e2e8f0", "btnStyle": "filled", "btnRadius": "8",
-    "bgType": "color", "fontFamily": "inter"
+    "bgType": "color", "fontFamily": "inter",
+    "animationStyle": "slide-up", "animationStagger": "100"
   },
   "default_blocks": [
     { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"HireEdge Placements", "bio":"Connecting talent with opportunity · Mumbai · Pan India 🏢" },

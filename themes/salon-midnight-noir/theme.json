@@ -7,7 +7,8 @@
   "default_appearance": {
     "bgColor": "#0a0a0a", "btnColor": "#F1EFE8", "btnTextColor": "#000000",
     "textColor": "#F1EFE8", "btnStyle": "filled", "btnRadius": "50",
-    "bgType": "color", "fontFamily": "inter"
+    "bgType": "color", "fontFamily": "inter",
+    "animationStyle": "fade", "animationStagger": "120"
   },
   "default_blocks": [
     { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Noir Vanité", "bio":"Premium Salon · Los Angeles · ⭐ 4.9 (2.4k reviews)" },

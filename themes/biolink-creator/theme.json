@@ -7,7 +7,8 @@
   "default_appearance": {
     "bgColor": "#ffffff", "btnColor": "#e11d48", "btnTextColor": "#ffffff",
     "textColor": "#1a1a1a", "btnStyle": "filled", "btnRadius": "8",
-    "bgType": "color", "fontFamily": "inter"
+    "bgType": "color", "fontFamily": "inter",
+    "animationStyle": "slide-up", "animationStagger": "120"
   },
   "default_blocks": [
     { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"@yourchannel", "bio":"Content Creator · Making videos you love 🎬" },

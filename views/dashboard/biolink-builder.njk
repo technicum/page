@@ -685,6 +685,16 @@ function syncAppUI(){
   document.getElementById('seoTitle').value=SEO.title||'';
   document.getElementById('seoDesc').value=SEO.description||'';
   document.getElementById('seoNoindex').checked=!!SEO.noindex;
+  // Animation chips
+  document.querySelectorAll('#animStyleGrid .anim-chip').forEach(function(c){
+    c.classList.toggle('active', c.dataset.val===(APP.animationStyle||'slide-up'));
+  });
+  document.querySelectorAll('#animSpeedRow .chip').forEach(function(c){
+    c.classList.toggle('active', c.dataset.val===(APP.animationSpeed||'normal'));
+  });
+  document.querySelectorAll('#animStaggerRow .chip').forEach(function(c){
+    c.classList.toggle('active', c.dataset.val===String(APP.animationStagger||'100'));
+  });
 }
 function setSeo(key,val){
   SEO[key]=val;
@@ -899,6 +909,12 @@ function deleteBlock(id){
   markDirty(); debouncedPreview(); renderBlocks();
 }
 
+/* ── Apply global animation to all blocks ────── */
+function applyAnimToAll(){
+  BLOCKS.forEach(function(b){ b.animation=APP.animationStyle; });
+  markDirty(); debouncedPreview(); renderBlocks();
+}
+
 /* ── Build block edit fields ─────────────────── */
 function buildBlockFields(block, container){
   var bt=BLOCK_TYPES[block.type];
@@ -1069,6 +1085,90 @@ function buildBlockFields(block, container){
     hfg.appendChild(hgrid);
     container.appendChild(hfg);
   }
+
+  // ── Per-block settings ────────────────────────
+  var _bsep=document.createElement('div');
+  _bsep.style.cssText='border-top:1.5px solid #f0f0f3;margin-top:14px;padding-top:12px;';
+  var _bsepTitle=document.createElement('div');
+  _bsepTitle.style.cssText='font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;';
+  _bsepTitle.textContent='⚙ Block Settings';
+  _bsep.appendChild(_bsepTitle);
+  container.appendChild(_bsep);
+
+  // Animation type
+  var _afg=document.createElement('div'); _afg.className='fg';
+  var _albl=document.createElement('label'); _albl.className='fg-label'; _albl.textContent='Animation';
+  var _asel=document.createElement('select'); _asel.className='fg-select';
+  [{v:'',l:'— Use global —'},{v:'none',l:'None'},{v:'fade',l:'Fade'},{v:'slide-up',l:'↑ Slide Up'},{v:'slide-down',l:'↓ Slide Down'},{v:'slide-left',l:'← From Right'},{v:'slide-right',l:'← From Left'},{v:'zoom',l:'Zoom In'},{v:'bounce',l:'Bounce'},{v:'flip',l:'Flip'}].forEach(function(o){
+    var opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.l;
+    if((block.animation||'')===o.v) opt.selected=true;
+    _asel.appendChild(opt);
+  });
+  _asel.addEventListener('change',function(){block.animation=this.value;markDirty();debouncedPreview();});
+  _afg.appendChild(_albl); _afg.appendChild(_asel);
+  container.appendChild(_afg);
+
+  // Animation delay
+  var _dfg=document.createElement('div'); _dfg.className='fg';
+  var _dlbl=document.createElement('label'); _dlbl.className='fg-label'; _dlbl.textContent='Animation delay';
+  var _dsel=document.createElement('select'); _dsel.className='fg-select';
+  [{v:'',l:'Auto (stagger)'},{v:'0',l:'0 ms'},{v:'100',l:'100 ms'},{v:'200',l:'200 ms'},{v:'300',l:'300 ms'},{v:'500',l:'500 ms'},{v:'700',l:'700 ms'},{v:'1000',l:'1 second'}].forEach(function(o){
+    var opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.l;
+    if(String(block.animation_delay||'')===o.v) opt.selected=true;
+    _dsel.appendChild(opt);
+  });
+  _dsel.addEventListener('change',function(){block.animation_delay=this.value;markDirty();debouncedPreview();});
+  _dfg.appendChild(_dlbl); _dfg.appendChild(_dsel);
+  container.appendChild(_dfg);
+
+  // Spacing below
+  var _sfg=document.createElement('div'); _sfg.className='fg';
+  var _slbl=document.createElement('label'); _slbl.className='fg-label'; _slbl.textContent='Spacing below';
+  var _ssel=document.createElement('select'); _ssel.className='fg-select';
+  [{v:'',l:'Normal'},{v:'none',l:'None (0px)'},{v:'compact',l:'Compact (4px)'},{v:'relaxed',l:'Relaxed (20px)'},{v:'loose',l:'Loose (36px)'}].forEach(function(o){
+    var opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.l;
+    if((block.spacing||'')===o.v) opt.selected=true;
+    _ssel.appendChild(opt);
+  });
+  _ssel.addEventListener('change',function(){block.spacing=this.value;markDirty();debouncedPreview();});
+  _sfg.appendChild(_slbl); _sfg.appendChild(_ssel);
+  container.appendChild(_sfg);
+
+  // Card style
+  var _cfg=document.createElement('div'); _cfg.className='fg';
+  var _clbl=document.createElement('label'); _clbl.className='fg-label'; _clbl.textContent='Card style';
+  var _csel=document.createElement('select'); _csel.className='fg-select';
+  [{v:'',l:'None'},{v:'light',l:'Light card'},{v:'dark',l:'Dark card'},{v:'glass',l:'Glass / Frosted'},{v:'color',l:'Custom color'}].forEach(function(o){
+    var opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.l;
+    if((block.card_style||'')===o.v) opt.selected=true;
+    _csel.appendChild(opt);
+  });
+  _cfg.appendChild(_clbl); _cfg.appendChild(_csel);
+  container.appendChild(_cfg);
+
+  // Card custom color (shown only when card_style='color')
+  var _ccfg=document.createElement('div'); _ccfg.className='fg';
+  _ccfg.style.display=(block.card_style==='color')?'block':'none';
+  var _cclbl=document.createElement('label'); _cclbl.className='fg-label'; _cclbl.textContent='Card color';
+  var _ccpair=document.createElement('div'); _ccpair.className='color-pair';
+  var _ccsw=document.createElement('div'); _ccsw.className='color-swatch'; _ccsw.style.background=block.card_color||'#f9fafb';
+  var _ccnat=document.createElement('input'); _ccnat.type='color'; _ccnat.value=block.card_color||'#f9fafb';
+  _ccsw.appendChild(_ccnat);
+  var _cchex=document.createElement('input'); _cchex.className='fg-input'; _cchex.placeholder='#f9fafb'; _cchex.value=block.card_color||'';
+  (function(sw,nat,hex,blk){
+    function _setCC(v){blk.card_color=v;sw.style.background=v;nat.value=v;hex.value=v;markDirty();debouncedPreview();}
+    nat.addEventListener('input',function(){_setCC(this.value);});
+    hex.addEventListener('input',function(){if(/^#[0-9a-fA-F]{6}$/.test(this.value))_setCC(this.value);});
+  })(_ccsw,_ccnat,_cchex,block);
+  _ccpair.appendChild(_ccsw); _ccpair.appendChild(_cchex);
+  _ccfg.appendChild(_cclbl); _ccfg.appendChild(_ccpair);
+  container.appendChild(_ccfg);
+
+  _csel.addEventListener('change',function(){
+    block.card_style=this.value;
+    _ccfg.style.display=(this.value==='color')?'block':'none';
+    markDirty(); debouncedPreview();
+  });
 
   // Done button
   var done=document.createElement('button'); done.className='blk-done'; done.textContent='Done ✓';

@@ -8,7 +8,8 @@
   "default_appearance": {
     "bgColor": "#f9fafb", "btnColor": "#059669", "btnTextColor": "#ffffff",
     "textColor": "#111827", "btnStyle": "filled", "btnRadius": "8",
-    "bgType": "color", "fontFamily": "inter"
+    "bgType": "color", "fontFamily": "inter",
+    "animationStyle": "fade", "animationStagger": "80"
   },
   "default_blocks": [
     { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"CareerBridge India", "bio":"Job Placement · Pune & Remote · 1,800+ candidates placed 🎯" },

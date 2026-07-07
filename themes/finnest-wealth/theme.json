@@ -8,7 +8,8 @@
   "default_appearance": {
     "bgColor": "#faf8f4", "btnColor": "#1B3A6B", "btnTextColor": "#ffffff",
     "textColor": "#1a1a2e", "btnStyle": "filled", "btnRadius": "6",
-    "bgType": "color", "fontFamily": "inter"
+    "bgType": "color", "fontFamily": "inter",
+    "animationStyle": "fade", "animationStagger": "80"
   },
   "default_blocks": [
     { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Priya Mehta", "bio":"SEBI RIA · CFP · AMFI ARN Holder · 15 years experience" },

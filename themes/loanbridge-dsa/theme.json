@@ -8,7 +8,8 @@
   "default_appearance": {
     "bgColor": "#0d1b2a", "btnColor": "#F5A623", "btnTextColor": "#000000",
     "textColor": "#e2e8f0", "btnStyle": "filled", "btnRadius": "8",
-    "bgType": "color", "fontFamily": "inter"
+    "bgType": "color", "fontFamily": "inter",
+    "animationStyle": "slide-up", "animationStagger": "100"
   },
   "default_blocks": [
     { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Rajesh Kumar", "bio":"Certified Bank DSA Partner · ARN-084721 · IRDAI-1234567" },

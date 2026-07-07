@@ -7,7 +7,8 @@
   "default_appearance": {
     "bgColor": "#f0f9ff", "btnColor": "#2563eb", "btnTextColor": "#ffffff",
     "textColor": "#1a1a1a", "btnStyle": "filled", "btnRadius": "8",
-    "bgType": "color", "fontFamily": "inter"
+    "bgType": "color", "fontFamily": "inter",
+    "animationStyle": "slide-left", "animationStagger": "100"
   },
   "default_blocks": [
     { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Your Name", "bio":"Professional Hair Stylist · 5+ years experience · Book today!" },

@@ -7,7 +7,8 @@
   "default_appearance": {
     "bgColor": "#faf5ff", "btnColor": "#7c3aed", "btnTextColor": "#ffffff",
     "textColor": "#1a1a1a", "btnStyle": "filled", "btnRadius": "8",
-    "bgType": "color", "fontFamily": "inter"
+    "bgType": "color", "fontFamily": "inter",
+    "animationStyle": "zoom", "animationStagger": "120"
   },
   "default_blocks": [
     { "id":"b1", "type":"avatar",    "enabled":true, "photo":"", "name":"Your Name", "bio":"UI Designer & Developer · 5+ years experience · Available for projects ✅" },

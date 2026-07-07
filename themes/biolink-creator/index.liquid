@@ -278,7 +278,10 @@ body{
 {% for block in settings.blocks %}
 {% if block.enabled != false %}
 {% assign _blk_anim = block.animation %}{% if _blk_anim == blank or _blk_anim == nil %}{% assign _blk_anim = _anim_style %}{% endif %}
-<div class="block{% if _blk_anim != 'none' %} bk-init{% endif %}" id="blk-{{ block.id }}" data-bk-anim="{{ _blk_anim }}"{% if block.animation_delay != nil and block.animation_delay != blank %} data-bk-delay="{{ block.animation_delay }}"{% endif %}>
+{% assign _blk_margin = '' %}{% if block.spacing == 'none' %}{% assign _blk_margin = 'margin-bottom:0;' %}{% elsif block.spacing == 'compact' %}{% assign _blk_margin = 'margin-bottom:4px;' %}{% elsif block.spacing == 'relaxed' %}{% assign _blk_margin = 'margin-bottom:20px;' %}{% elsif block.spacing == 'loose' %}{% assign _blk_margin = 'margin-bottom:36px;' %}{% endif %}
+{% assign _blk_card = '' %}{% if block.card_style == 'light' %}{% assign _blk_card = 'background:rgba(255,255,255,0.75);border-radius:14px;padding:12px;' %}{% elsif block.card_style == 'dark' %}{% assign _blk_card = 'background:rgba(0,0,0,0.18);border-radius:14px;padding:12px;' %}{% elsif block.card_style == 'glass' %}{% assign _blk_card = 'background:rgba(255,255,255,0.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,0.28);' %}{% elsif block.card_style == 'color' %}{% if block.card_color != blank and block.card_color != nil %}{% assign _blk_card = 'background:' | append: block.card_color | append: ';border-radius:14px;padding:12px;' %}{% endif %}{% endif %}
+{% assign _blk_inline = _blk_margin | append: _blk_card %}
+<div class="block{% if _blk_anim != 'none' %} bk-init{% endif %}" id="blk-{{ block.id }}" data-bk-anim="{{ _blk_anim }}"{% if block.animation_delay != nil and block.animation_delay != blank %} data-bk-delay="{{ block.animation_delay }}"{% endif %}{% if _blk_inline != blank %} style="{{ _blk_inline }}"{% endif %}>
 {% case block.type %}
 
 {% when 'avatar' %}

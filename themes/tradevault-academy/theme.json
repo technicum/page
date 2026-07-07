@@ -8,7 +8,8 @@
   "default_appearance": {
     "bgColor": "#0a0a0a", "btnColor": "#00D964", "btnTextColor": "#000000",
     "textColor": "#e5e5e5", "btnStyle": "filled", "btnRadius": "6",
-    "bgType": "color", "fontFamily": "inter"
+    "bgType": "color", "fontFamily": "inter",
+    "animationStyle": "slide-left", "animationStagger": "100"
   },
   "default_blocks": [
     { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Arjun Verma", "bio":"SEBI Reg. Analyst · Options Trader · 9 yrs · 4,200+ students 📈" },
