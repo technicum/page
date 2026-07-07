@@ -1089,64 +1089,106 @@ function buildBlockFields(block, container){
   // ── Per-block settings ────────────────────────
   var _bsep=document.createElement('div');
   _bsep.style.cssText='border-top:1.5px solid #f0f0f3;margin-top:14px;padding-top:12px;';
-  var _bsepTitle=document.createElement('div');
-  _bsepTitle.style.cssText='font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;';
-  _bsepTitle.textContent='⚙ Block Settings';
-  _bsep.appendChild(_bsepTitle);
+  var _bsHead=document.createElement('div');
+  _bsHead.style.cssText='font-size:10px;font-weight:700;color:#c4c9d4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:4px;';
+  _bsHead.innerHTML='<span>⚙</span><span>Block Settings</span>';
+  _bsep.appendChild(_bsHead);
   container.appendChild(_bsep);
 
-  // Animation type
+  // Helper: make pill chip
+  function _mkChip(label,active){
+    var c=document.createElement('button'); c.type='button';
+    c.textContent=label;
+    c.style.cssText='padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid '+(active?'#6366f1':'#e5e7eb')+';background:'+(active?'#eef2ff':'#fafafa')+';color:'+(active?'#6366f1':'#6b7280')+';cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;line-height:1.5;';
+    return c;
+  }
+  function _activateChip(chip,row){
+    row.querySelectorAll('button').forEach(function(b){b.style.borderColor='#e5e7eb';b.style.background='#fafafa';b.style.color='#6b7280';});
+    chip.style.borderColor='#6366f1';chip.style.background='#eef2ff';chip.style.color='#6366f1';
+  }
+
+  // Animation — 3×3 mini icon grid
   var _afg=document.createElement('div'); _afg.className='fg';
   var _albl=document.createElement('label'); _albl.className='fg-label'; _albl.textContent='Animation';
-  var _asel=document.createElement('select'); _asel.className='fg-select';
-  [{v:'',l:'— Use global —'},{v:'none',l:'None'},{v:'fade',l:'Fade'},{v:'slide-up',l:'↑ Slide Up'},{v:'slide-down',l:'↓ Slide Down'},{v:'slide-left',l:'← From Right'},{v:'slide-right',l:'← From Left'},{v:'zoom',l:'Zoom In'},{v:'bounce',l:'Bounce'},{v:'flip',l:'Flip'}].forEach(function(o){
-    var opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.l;
-    if((block.animation||'')===o.v) opt.selected=true;
-    _asel.appendChild(opt);
+  _afg.appendChild(_albl);
+  var _agrid=document.createElement('div');
+  _agrid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:4px;';
+  [{v:'',i:'🌐',l:'Global'},{v:'none',i:'⛔',l:'None'},{v:'fade',i:'🌫',l:'Fade'},
+   {v:'slide-up',i:'⬆',l:'↑ Up'},{v:'slide-left',i:'➡',l:'← R'},{v:'zoom',i:'🔍',l:'Zoom'},
+   {v:'bounce',i:'🏀',l:'Bounce'},{v:'flip',i:'🔄',l:'Flip'},{v:'slide-down',i:'⬇',l:'↓ Dn'}
+  ].forEach(function(o){
+    var isA=(block.animation||'')===o.v;
+    var c=document.createElement('button'); c.type='button';
+    c.innerHTML='<div style="font-size:13px;line-height:1;">'+o.i+'</div><div style="font-size:9px;font-weight:600;margin-top:2px;line-height:1.2;color:'+(isA?'#6366f1':'#6b7280')+';">'+o.l+'</div>';
+    c.style.cssText='border:1.5px solid '+(isA?'#6366f1':'#e5e7eb')+';border-radius:8px;padding:6px 2px;cursor:pointer;text-align:center;background:'+(isA?'#eef2ff':'#fafafa')+';font-family:inherit;transition:all .12s;';
+    (function(chip,val){
+      chip.onclick=function(){
+        block.animation=val;
+        _agrid.querySelectorAll('button').forEach(function(b){
+          b.style.borderColor='#e5e7eb';b.style.background='#fafafa';
+          b.querySelector('div:last-child').style.color='#6b7280';
+        });
+        chip.style.borderColor='#6366f1';chip.style.background='#eef2ff';
+        chip.querySelector('div:last-child').style.color='#6366f1';
+        markDirty();debouncedPreview();
+      };
+    })(c,o.v);
+    _agrid.appendChild(c);
   });
-  _asel.addEventListener('change',function(){block.animation=this.value;markDirty();debouncedPreview();});
-  _afg.appendChild(_albl); _afg.appendChild(_asel);
+  _afg.appendChild(_agrid);
   container.appendChild(_afg);
 
-  // Animation delay
+  // Delay — pill chips
   var _dfg=document.createElement('div'); _dfg.className='fg';
-  var _dlbl=document.createElement('label'); _dlbl.className='fg-label'; _dlbl.textContent='Animation delay';
-  var _dsel=document.createElement('select'); _dsel.className='fg-select';
-  [{v:'',l:'Auto (stagger)'},{v:'0',l:'0 ms'},{v:'100',l:'100 ms'},{v:'200',l:'200 ms'},{v:'300',l:'300 ms'},{v:'500',l:'500 ms'},{v:'700',l:'700 ms'},{v:'1000',l:'1 second'}].forEach(function(o){
-    var opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.l;
-    if(String(block.animation_delay||'')===o.v) opt.selected=true;
-    _dsel.appendChild(opt);
+  var _dlbl=document.createElement('label'); _dlbl.className='fg-label'; _dlbl.textContent='Delay';
+  _dfg.appendChild(_dlbl);
+  var _drow=document.createElement('div'); _drow.style.cssText='display:flex;flex-wrap:wrap;gap:4px;';
+  [{v:'',l:'Auto'},{v:'0',l:'0'},{v:'100',l:'100ms'},{v:'200',l:'200ms'},{v:'300',l:'300ms'},{v:'500',l:'500ms'},{v:'700',l:'700ms'}].forEach(function(o){
+    var c=_mkChip(o.l, String(block.animation_delay||'')===o.v);
+    (function(chip,val){
+      chip.onclick=function(){block.animation_delay=val;_activateChip(chip,_drow);markDirty();debouncedPreview();};
+    })(c,o.v);
+    _drow.appendChild(c);
   });
-  _dsel.addEventListener('change',function(){block.animation_delay=this.value;markDirty();debouncedPreview();});
-  _dfg.appendChild(_dlbl); _dfg.appendChild(_dsel);
+  _dfg.appendChild(_drow);
   container.appendChild(_dfg);
 
-  // Spacing below
+  // Spacing — pill chips
   var _sfg=document.createElement('div'); _sfg.className='fg';
   var _slbl=document.createElement('label'); _slbl.className='fg-label'; _slbl.textContent='Spacing below';
-  var _ssel=document.createElement('select'); _ssel.className='fg-select';
-  [{v:'',l:'Normal'},{v:'none',l:'None (0px)'},{v:'compact',l:'Compact (4px)'},{v:'relaxed',l:'Relaxed (20px)'},{v:'loose',l:'Loose (36px)'}].forEach(function(o){
-    var opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.l;
-    if((block.spacing||'')===o.v) opt.selected=true;
-    _ssel.appendChild(opt);
+  _sfg.appendChild(_slbl);
+  var _srow=document.createElement('div'); _srow.style.cssText='display:flex;flex-wrap:wrap;gap:4px;';
+  [{v:'',l:'Normal'},{v:'none',l:'None'},{v:'compact',l:'Compact'},{v:'relaxed',l:'Relaxed'},{v:'loose',l:'Loose'}].forEach(function(o){
+    var c=_mkChip(o.l,(block.spacing||'')===o.v);
+    (function(chip,val){
+      chip.onclick=function(){block.spacing=val;_activateChip(chip,_srow);markDirty();debouncedPreview();};
+    })(c,o.v);
+    _srow.appendChild(c);
   });
-  _ssel.addEventListener('change',function(){block.spacing=this.value;markDirty();debouncedPreview();});
-  _sfg.appendChild(_slbl); _sfg.appendChild(_ssel);
+  _sfg.appendChild(_srow);
   container.appendChild(_sfg);
 
-  // Card style
+  // Card style — pill chips with icons
   var _cfg=document.createElement('div'); _cfg.className='fg';
   var _clbl=document.createElement('label'); _clbl.className='fg-label'; _clbl.textContent='Card style';
-  var _csel=document.createElement('select'); _csel.className='fg-select';
-  [{v:'',l:'None'},{v:'light',l:'Light card'},{v:'dark',l:'Dark card'},{v:'glass',l:'Glass / Frosted'},{v:'color',l:'Custom color'}].forEach(function(o){
-    var opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.l;
-    if((block.card_style||'')===o.v) opt.selected=true;
-    _csel.appendChild(opt);
+  _cfg.appendChild(_clbl);
+  var _crow=document.createElement('div'); _crow.style.cssText='display:flex;flex-wrap:wrap;gap:4px;';
+  [{v:'',l:'None'},{v:'light',l:'☀ Light'},{v:'dark',l:'🌑 Dark'},{v:'glass',l:'🪟 Glass'},{v:'color',l:'🎨 Color'}].forEach(function(o){
+    var c=_mkChip(o.l,(block.card_style||'')===o.v);
+    (function(chip,val){
+      chip.onclick=function(){
+        block.card_style=val;
+        _activateChip(chip,_crow);
+        _ccfg.style.display=(val==='color')?'block':'none';
+        markDirty();debouncedPreview();
+      };
+    })(c,o.v);
+    _crow.appendChild(c);
   });
-  _cfg.appendChild(_clbl); _cfg.appendChild(_csel);
+  _cfg.appendChild(_crow);
   container.appendChild(_cfg);
 
-  // Card custom color (shown only when card_style='color')
+  // Card custom color
   var _ccfg=document.createElement('div'); _ccfg.className='fg';
   _ccfg.style.display=(block.card_style==='color')?'block':'none';
   var _cclbl=document.createElement('label'); _cclbl.className='fg-label'; _cclbl.textContent='Card color';
@@ -1163,12 +1205,6 @@ function buildBlockFields(block, container){
   _ccpair.appendChild(_ccsw); _ccpair.appendChild(_cchex);
   _ccfg.appendChild(_cclbl); _ccfg.appendChild(_ccpair);
   container.appendChild(_ccfg);
-
-  _csel.addEventListener('change',function(){
-    block.card_style=this.value;
-    _ccfg.style.display=(this.value==='color')?'block':'none';
-    markDirty(); debouncedPreview();
-  });
 
   // Done button
   var done=document.createElement('button'); done.className='blk-done'; done.textContent='Done ✓';
