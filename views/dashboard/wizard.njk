@@ -217,7 +217,9 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 function clearArea(){
   $area.innerHTML = '';
-  $area.style.cssText = '';   // reset any step-specific layout
+  $area.style.cssText = '';
+  $msgs.style.flex = '';        // restore chatMessages to flex:1
+  $msgs.style.overflow = '';
   $iArea.style.display = 'none';
   $input.value = '';
   $send.disabled = true;
@@ -280,12 +282,14 @@ function showQuickReplies(options, onSelect){
 function showCategoryGrid(onSelect){
   clearArea();
 
-  // Make $area fill all remaining vertical space so search bar never moves
-  $area.style.cssText = 'flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;';
+  // Compress chatMessages to content-only height so $area gets all remaining space
+  // This keeps the search bar pinned without adding a scrollbar
+  $msgs.style.flex = '0 0 auto';
+  $msgs.style.overflow = 'hidden';
 
-  // Search bar — pinned at top, never scrolls
+  // Search bar — sits at the top of $area, never moves
   const searchWrap = document.createElement('div');
-  searchWrap.style.cssText = 'padding:8px 16px 6px;flex-shrink:0;background:var(--off);';
+  searchWrap.style.cssText = 'padding:8px 16px 6px;';
   searchWrap.innerHTML = `
     <div style="display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border-md);border-radius:var(--radius);padding:8px 12px;">
       <i class="ti ti-search" style="font-size:15px;color:var(--ink-faint);flex-shrink:0;"></i>
@@ -293,13 +297,9 @@ function showCategoryGrid(onSelect){
         style="border:none;outline:none;flex:1;font-size:13.5px;font-family:inherit;color:var(--ink);background:transparent;">
     </div>`;
 
-  // Grid wrapper — scrollable, fills remaining space
-  const gridWrapper = document.createElement('div');
-  gridWrapper.style.cssText = 'flex:1;overflow-y:auto;padding:4px 16px 12px;min-height:0;';
-  gridWrapper.classList.add('chat-messages'); // reuse scrollbar style
-
   const grid = document.createElement('div');
   grid.className = 'cat-grid';
+  grid.style.padding = '4px 16px 12px';
 
   function buildCards(filter){
     grid.innerHTML = '';
@@ -324,9 +324,8 @@ function showCategoryGrid(onSelect){
   }
 
   buildCards('');
-  gridWrapper.appendChild(grid);
   $area.appendChild(searchWrap);
-  $area.appendChild(gridWrapper);
+  $area.appendChild(grid);
 
   const searchInput = document.getElementById('catSearch');
   searchInput.oninput = () => buildCards(searchInput.value);
