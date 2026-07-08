@@ -275,25 +275,52 @@ function showQuickReplies(options, onSelect){
   scrollBottom();
 }
 
-// Show category grid from DB
+// Show category grid from DB with live search
 function showCategoryGrid(onSelect){
   clearArea();
+
+  // Search bar
+  const searchWrap = document.createElement('div');
+  searchWrap.style.cssText = 'padding:8px 16px 6px;position:sticky;top:0;z-index:10;background:var(--off);';
+  searchWrap.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border-md);border-radius:var(--radius);padding:8px 12px;">
+      <i class="ti ti-search" style="font-size:15px;color:var(--ink-faint);flex-shrink:0;"></i>
+      <input id="catSearch" type="text" placeholder="Search category…" autocomplete="off" spellcheck="false"
+        style="border:none;outline:none;flex:1;font-size:13.5px;font-family:inherit;color:var(--ink);background:transparent;">
+    </div>`;
+  $area.appendChild(searchWrap);
+
   const grid = document.createElement('div');
   grid.className = 'cat-grid';
-  DB_CATS.forEach(cat => {
-    const card = document.createElement('div');
-    card.className = 'cat-card';
-    // Shorten long names: take text before first comma
-    const shortName = cat.name.split(',')[0].trim();
-    card.innerHTML = `<span class="cat-icon">${esc(cat.icon)}</span><span class="cat-name">${esc(shortName)}</span>`;
-    card.onclick = () => {
-      grid.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      setTimeout(() => onSelect(cat), 150);
-    };
-    grid.appendChild(card);
-  });
+
+  function buildCards(filter){
+    grid.innerHTML = '';
+    const q = filter.toLowerCase().trim();
+    const list = q ? DB_CATS.filter(c => c.name.toLowerCase().includes(q)) : DB_CATS;
+    if(!list.length){
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px 0;font-size:13px;color:var(--ink-faint);">No categories found</div>`;
+      return;
+    }
+    list.forEach(cat => {
+      const card = document.createElement('div');
+      card.className = 'cat-card';
+      const shortName = cat.name.split(',')[0].trim();
+      card.innerHTML = `<span class="cat-icon">${esc(cat.icon)}</span><span class="cat-name">${esc(shortName)}</span>`;
+      card.onclick = () => {
+        grid.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        setTimeout(() => onSelect(cat), 150);
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  buildCards('');
   $area.appendChild(grid);
+
+  const searchInput = document.getElementById('catSearch');
+  searchInput.oninput = () => buildCards(searchInput.value);
+  setTimeout(() => searchInput.focus(), 80);
   scrollBottom();
 }
 
