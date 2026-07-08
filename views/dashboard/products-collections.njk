@@ -141,6 +141,7 @@ function addCollection() {
       '</div>' +
       '<div class="col-actions">' +
         '<a class="btn-view" href="/dashboard/products?collection=' + encodeURIComponent(d.collection.name) + '">View products →</a>' +
+        '<button class="btn-del" onclick="deleteCollection(' + d.collection.id + ',this)" title="Edit collection">🗑</button>' +
         '<button class="btn-del" onclick="deleteCollection(' + d.collection.id + ',this)" title="Delete collection">🗑</button>' +
       '</div>' +
     '</div>';

@@ -31,42 +31,48 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .col-chip.active{background:#f5f3ff;color:#6366f1;border-color:#c4b5fd;}
 
 /* ── Product grid ── */
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
-.product-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s;position:relative;}
-.product-card:hover{border-color:#c7d2fe;box-shadow:0 4px 16px rgba(99,102,241,.1);}
-.product-card.inactive{opacity:.6;}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
+.product-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s,box-shadow .2s;position:relative;}
+.product-card:hover{border-color:#d1d5db;box-shadow:0 2px 12px rgba(0,0,0,.07);}
+.product-card.inactive{opacity:.5;}
 
-/* image */
-.pc-img{width:100%;aspect-ratio:1;object-fit:cover;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:40px;color:#d1d5db;flex-shrink:0;}
+/* image — 4:3 ratio */
+.pc-img{width:100%;aspect-ratio:4/3;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:42px;flex-shrink:0;overflow:hidden;position:relative;}
 .pc-img img{width:100%;height:100%;object-fit:cover;}
 
-/* type badge */
-.pc-type{position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px;}
+/* type badge top-left */
+.pc-type{position:absolute;top:9px;left:9px;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:.2px;}
 .pc-type.physical{background:#fff7ed;color:#c2410c;}
 .pc-type.digital{background:#eff6ff;color:#1d4ed8;}
 .pc-type.service{background:#f0fdf4;color:#15803d;}
 .pc-type.job{background:#faf5ff;color:#7c3aed;}
 
-.pc-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:4px;}
-.pc-name{font-size:14px;font-weight:600;color:#111827;line-height:1.3;}
-.pc-desc{font-size:12px;color:#9ca3af;line-height:1.5;flex:1;}
-.pc-price-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
-.pc-price{font-size:16px;font-weight:700;color:#111827;}
-.pc-compare{font-size:12px;color:#9ca3af;text-decoration:line-through;}
-.pc-duration{font-size:11px;color:#6b7280;background:#f3f4f6;padding:2px 8px;border-radius:12px;}
-.pc-stock{font-size:11px;font-weight:600;color:#ef4444;margin-top:2px;}
+/* status dot top-right */
+.pc-status{position:absolute;top:11px;right:11px;width:8px;height:8px;border-radius:50%;}
+.pc-status.active{background:#22c55e;}
+.pc-status.inactive{background:#d1d5db;}
+
+.pc-body{padding:12px 14px 10px;flex:1;display:flex;flex-direction:column;gap:3px;}
+.pc-name{font-size:13px;font-weight:600;color:#111827;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pc-desc{font-size:11px;color:#9ca3af;line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.pc-collection{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:#6366f1;background:#eef2ff;padding:2px 8px;border-radius:20px;margin-top:4px;align-self:flex-start;font-weight:500;}
+.pc-price-row{display:flex;align-items:center;gap:7px;margin-top:8px;}
+.pc-price{font-size:15px;font-weight:700;color:#111827;}
+.pc-compare{font-size:11px;color:#9ca3af;text-decoration:line-through;}
+.pc-duration{font-size:10px;color:#6b7280;background:#f3f4f6;padding:2px 7px;border-radius:10px;}
+.pc-stock{font-size:10px;font-weight:600;color:#ef4444;margin-top:2px;}
 
 /* job card specific */
-.job-badge{display:inline-block;font-size:11px;font-weight:600;background:#f3e8ff;color:#7c3aed;padding:2px 9px;border-radius:12px;margin-top:3px;}
-.pc-location{font-size:12px;color:#6b7280;margin-top:3px;}
-.pc-apply-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:1.5px solid #6366f1;color:#6366f1;border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;margin-top:8px;align-self:flex-start;}
+.job-badge{display:inline-block;font-size:10px;font-weight:600;background:#f3e8ff;color:#7c3aed;padding:2px 8px;border-radius:10px;margin-top:3px;}
+.pc-location{font-size:11px;color:#6b7280;margin-top:3px;}
+.pc-apply-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border:1.5px solid #6366f1;color:#6366f1;border-radius:20px;font-size:11px;font-weight:600;text-decoration:none;transition:all .15s;margin-top:8px;align-self:flex-start;}
 .pc-apply-btn:hover{background:#6366f1;color:#fff;}
 
-.pc-actions{display:flex;gap:8px;padding:12px 16px;border-top:1px solid #f3f4f6;}
-.btn-edit-sm{flex:1;padding:7px 12px;background:#f3f4f6;color:#374151;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;}
-.btn-edit-sm:hover{background:#e5e7eb;}
-.btn-del-sm{padding:7px 10px;border:1.5px solid #fee2e2;background:#fff;color:#ef4444;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
-.btn-del-sm:hover{background:#fef2f2;}
+.pc-actions{display:flex;gap:6px;padding:10px 13px;border-top:1px solid #f3f4f6;}
+.btn-edit-sm{flex:1;padding:6px 10px;background:#fff;color:#374151;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s;}
+.btn-edit-sm:hover{background:#f9fafb;}
+.btn-del-sm{width:30px;height:30px;border:1px solid #e5e7eb;background:#fff;color:#9ca3af;border-radius:7px;font-size:14px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.btn-del-sm:hover{border-color:#fca5a5;color:#ef4444;background:#fef2f2;}
 
 /* ── Collections modal ── */
 .col-mgr-list{list-style:none;margin:0;padding:0;}
@@ -185,13 +191,14 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
         <div class="product-card {% if not p.status %}inactive{% endif %}" data-type="{{ p.type }}" data-id="{{ p.id }}">
 
           {% if p.type == 'job' %}
-          <!-- Job card -->
+          <!-- ── Job card ── -->
           <div class="pc-img" style="background:#faf5ff;">
             {% if p.image_url %}
-            <img src="{{ p.image_url }}" alt="{{ p.name }}" onerror="this.style.display='none';this.parentNode.textContent='💼'">
+            <img src="{{ p.image_url }}" alt="{{ p.name }}" onerror="this.style.display='none';this.parentNode.innerHTML='💼'">
             {% else %}💼{% endif %}
+            <span class="pc-type job">Job</span>
+            <span class="pc-status {{ 'active' if p.status else 'inactive' }}"></span>
           </div>
-          <span class="pc-type job">Job</span>
           <div class="pc-body">
             <div class="pc-name">{{ p.name }}</div>
             {% if p.duration %}<span class="job-badge">{{ p.duration }}</span>{% endif %}
@@ -201,26 +208,26 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
           </div>
 
           {% else %}
-          <!-- Product card -->
-          <div class="pc-img">
+          <!-- ── Product card ── -->
+          {% set _bg = '#fff7ed' if p.type=='physical' else ('#eff6ff' if p.type=='digital' else '#f0fdf4') %}
+          {% set _em = '📦' if p.type=='physical' else ('💾' if p.type=='digital' else '🛠') %}
+          <div class="pc-img" style="background:{{ _bg }};">
             {% if p.image_url %}
-            <img src="{{ p.image_url }}" alt="{{ p.name }}" onerror="this.style.display='none';this.parentNode.textContent='{{ '📦' if p.type=='physical' else ('💾' if p.type=='digital' else '🛠') }}'">
-            {% else %}
-            {{ '📦' if p.type == 'physical' else ('💾' if p.type == 'digital' else '🛠') }}
-            {% endif %}
+            <img src="{{ p.image_url }}" alt="{{ p.name }}" onerror="this.style.display='none';this.parentNode.innerHTML='{{ _em }}'">
+            {% else %}{{ _em }}{% endif %}
+            <span class="pc-type {{ p.type }}">{{ 'Physical' if p.type=='physical' else ('Digital' if p.type=='digital' else 'Service') }}</span>
+            <span class="pc-status {{ 'active' if p.status else 'inactive' }}"></span>
           </div>
-          <span class="pc-type {{ p.type }}">
-            {{ 'Physical' if p.type == 'physical' else ('Digital' if p.type == 'digital' else 'Service') }}
-          </span>
           <div class="pc-body">
             <div class="pc-name">{{ p.name }}</div>
             {% if p.description %}<div class="pc-desc">{{ p.description | truncate(80) }}</div>{% endif %}
+            {% if p.collection %}<span class="pc-collection">{{ p.collection }}</span>{% endif %}
             <div class="pc-price-row">
               {% if p.price %}
               <span class="pc-price">₹{{ p.price | int }}</span>
               {% if p.compare_price and p.compare_price > p.price %}<span class="pc-compare">₹{{ p.compare_price | int }}</span>{% endif %}
               {% else %}
-              <span class="pc-price" style="color:#9ca3af;">No price set</span>
+              <span class="pc-price" style="color:#d1d5db;font-weight:400;font-size:13px;">No price</span>
               {% endif %}
               {% if p.duration %}<span class="pc-duration">{{ p.duration }}</span>{% endif %}
             </div>
@@ -230,7 +237,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 
           <div class="pc-actions">
             <button class="btn-edit-sm" onclick="openEditModal({{ p.id }})">Edit</button>
-            <button class="btn-del-sm" onclick="deleteProduct({{ p.id }}, this)">🗑</button>
+            <button class="btn-del-sm" onclick="deleteProduct({{ p.id }}, this)" title="Delete">🗑</button>
           </div>
         </div>
         {% endfor %}
