@@ -446,6 +446,17 @@ document.addEventListener('DOMContentLoaded', function(){
   buildCollectionChips('all');
   rebuildCollectionSelect();
   renderCollectionsList();
+  // Auto-filter by collection if ?collection= param present
+  var urlCol = new URLSearchParams(window.location.search).get('collection');
+  if (urlCol) {
+    setTimeout(function(){
+      buildCollectionChips('all');
+      var chips = document.querySelectorAll('.col-chip');
+      chips.forEach(function(chip){
+        if (chip.textContent.trim() === urlCol) chip.click();
+      });
+    }, 50);
+  }
 });
 
 /* ── Type filter ── */

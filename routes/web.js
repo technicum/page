@@ -130,8 +130,9 @@ router.get('/template-preview',       site.templatePreview)
 router.get('/template-preview-frame', site.templatePreviewFrame)
 
 // Products
-router.get ('/dashboard/products',         requireAuth, product.index)
-router.post('/dashboard/products/create',  requireAuth, product.create)
+router.get ('/dashboard/products',                     requireAuth, product.index)
+router.get ('/dashboard/products/collections',         requireAuth, product.collectionsPage)
+router.post('/dashboard/products/create',              requireAuth, product.create)
 router.post('/dashboard/products/update',  requireAuth, product.update)
 router.post('/dashboard/products/delete',  requireAuth, product.destroy)
 router.post('/dashboard/products/reorder',             requireAuth, product.reorder)

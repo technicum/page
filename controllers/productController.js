@@ -57,6 +57,25 @@ exports.index = async (req, res) => {
   })
 }
 
+/* GET /dashboard/products/collections */
+exports.collectionsPage = async (req, res) => {
+  const user = req.session.user
+  let collections = []
+  try {
+    collections = await db.query(
+      'SELECT c.*, COUNT(p.id) AS product_count FROM ms_collections c LEFT JOIN ms_products p ON p.collection = c.name AND p.account_id = c.account_id WHERE c.account_id = ? GROUP BY c.id ORDER BY c.sort_order ASC, c.name ASC',
+      [user.id]
+    ) || []
+  } catch(e) { /* table not yet created */ }
+
+  res.render('dashboard/products-collections.njk', {
+    title: 'Collections',
+    user,
+    activePage: 'collections',
+    collections
+  })
+}
+
 /* POST /dashboard/products/collections/create */
 exports.createCollection = async (req, res) => {
   const user = req.session.user
