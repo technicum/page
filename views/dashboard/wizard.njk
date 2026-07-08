@@ -459,7 +459,7 @@ async function step3b_url(){
   await botMsg(`Got it! Do you have a URL for <strong>${esc(state.ctaText)}</strong>?<br><span class="hint">You can add this later in the builder</span>`);
   showUrlInput('https://wa.me/…  or  https://cal.com/…', async (url) => {
     state.ctaUrl = url;
-    userMsg(url || 'I'll add the link later');
+    userMsg(url || "I'll add the link later");
     clearArea();
     await step4_theme();
   });
