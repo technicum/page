@@ -273,6 +273,51 @@ body{
 .pg-ccp{font-size:11px;opacity:.45;text-decoration:line-through;display:block;}
 .pg-cbtn{padding:8px 16px;background:{{ _btn_color }};color:{{ _btn_text_color }};border-radius:6px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;}
 .pg-coos{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;text-align:center;opacity:.45;background:rgba(128,128,128,0.15);white-space:nowrap;}
+/* ── Services grid ──────────────────────────────────────────── */
+.b-services-grid{border-radius:14px;overflow:hidden;background:{{ _btn_color }}18;}
+.sv-acc-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;-webkit-user-select:none;background:{{ _btn_color }};}
+.sv-acc-head:active{opacity:.85;}
+.sv-acc-title{font-size:16px;font-weight:700;color:{{ _btn_text_color }};}
+.sv-acc-meta{display:flex;align-items:center;gap:8px;}
+.sv-acc-count{font-size:11px;font-weight:500;color:{{ _btn_text_color }};opacity:.75;}
+.sv-acc-chevron{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;color:{{ _btn_text_color }};transition:transform .25s ease;flex-shrink:0;}
+.sv-acc-body{display:none;padding:8px 8px 10px;}
+.sv-acc-body.open{display:block;}
+.sv-acc-chevron.open{transform:rotate(180deg);}
+.sv-list{display:flex;flex-direction:column;gap:6px;}
+.sv-row{display:flex;align-items:center;gap:12px;background:rgba(128,128,128,0.12);border-radius:10px;padding:14px 12px;}
+.sv-thumb{width:58px;height:58px;border-radius:9px;overflow:hidden;flex-shrink:0;background:rgba(128,128,128,0.15);display:flex;align-items:center;justify-content:center;font-size:24px;}
+.sv-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.sv-info{flex:1;min-width:0;}
+.sv-name{font-size:16px;font-weight:600;line-height:1.3;margin-bottom:3px;}
+.sv-desc{font-size:13px;opacity:.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.sv-dur{font-size:12px;opacity:.55;display:block;margin-top:2px;}
+.sv-right{flex-shrink:0;text-align:right;}
+.sv-price{font-size:15px;font-weight:700;display:block;color:{{ _btn_color }};}
+.sv-book{margin-top:6px;display:block;padding:7px 13px;background:{{ _btn_color }};color:{{ _btn_text_color }};border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;border:none;cursor:pointer;font-family:inherit;}
+/* ── Jobs grid ───────────────────────────────────────────────── */
+.b-jobs-grid{border-radius:14px;overflow:hidden;background:{{ _btn_color }}18;}
+.jb-acc-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;-webkit-user-select:none;background:{{ _btn_color }};}
+.jb-acc-head:active{opacity:.85;}
+.jb-acc-title{font-size:16px;font-weight:700;color:{{ _btn_text_color }};}
+.jb-acc-meta{display:flex;align-items:center;gap:8px;}
+.jb-acc-count{font-size:11px;font-weight:500;color:{{ _btn_text_color }};opacity:.75;}
+.jb-acc-chevron{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;color:{{ _btn_text_color }};transition:transform .25s ease;flex-shrink:0;}
+.jb-acc-body{display:none;padding:8px 8px 10px;}
+.jb-acc-body.open{display:block;}
+.jb-acc-chevron.open{transform:rotate(180deg);}
+.jb-list{display:flex;flex-direction:column;gap:8px;}
+.jb-card{background:rgba(128,128,128,0.12);border-radius:10px;padding:14px 12px;}
+.jb-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;}
+.jb-logo{width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:rgba(128,128,128,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.jb-logo img{width:100%;height:100%;object-fit:cover;display:block;}
+.jb-head{flex:1;min-width:0;}
+.jb-title{font-size:16px;font-weight:700;line-height:1.3;margin-bottom:2px;}
+.jb-sub{font-size:13px;opacity:.6;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.jb-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.jb-tag{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;background:rgba(128,128,128,0.15);}
+.jb-salary{font-size:14px;font-weight:700;color:{{ _btn_color }};display:block;margin-bottom:8px;}
+.jb-apply{display:block;width:100%;padding:8px 0;background:{{ _btn_color }};color:{{ _btn_text_color }};border-radius:6px;font-size:13px;font-weight:600;text-align:center;border:none;cursor:pointer;font-family:inherit;}
 /* ── Form link block ───────────────────────────────────────────────── */
 .b-form-link{margin-bottom:8px;}
 .fl-heading{font-size:15px;font-weight:600;margin-bottom:8px;}
@@ -595,6 +640,76 @@ body{
   </div>
 </div>
 
+{% when 'services_grid' %}
+{% assign _sv_items = settings._products | where: "type", "service" %}
+<div class="b-services-grid" id="sv-{{ block.id }}">
+  <div class="sv-acc-head" onclick="svToggle('{{ block.id }}')">
+    <span class="sv-acc-title">{{ block.heading | default: 'Our Services' }}</span>
+    <span class="sv-acc-meta">
+      {% if _sv_items and _sv_items.size > 0 %}<span class="sv-acc-count">{{ _sv_items.size }} services</span>{% endif %}
+      <span class="sv-acc-chevron" id="sv-chv-{{ block.id }}">&#9660;</span>
+    </span>
+  </div>
+  <div class="sv-acc-body" id="sv-body-{{ block.id }}">
+    {% if _sv_items and _sv_items.size > 0 %}
+    <div class="sv-list">
+      {% for s in _sv_items %}
+      <div class="sv-row">
+        <div class="sv-thumb">{% if s.image_url != blank and s.image_url != nil %}<img src="{{ s.image_url }}" alt="{{ s.name }}">{% else %}&#128296;{% endif %}</div>
+        <div class="sv-info">
+          <div class="sv-name">{{ s.name }}</div>
+          {% if s.description != blank %}<div class="sv-desc">{{ s.description | truncate: 80 }}</div>{% endif %}
+          {% if s.duration != blank %}<span class="sv-dur">&#9201; {{ s.duration }}</span>{% endif %}
+        </div>
+        <div class="sv-right">
+          {% if s.price != blank and s.price != nil %}<span class="sv-price">&#8377;{{ s.price | floor }}</span>{% endif %}
+          <button class="sv-book">{{ block.btn_text | default: 'Book' }}</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:24px 16px;opacity:.45;font-size:13px;">No services added yet</div>
+    {% endif %}
+  </div>
+</div>
+
+{% when 'jobs_grid' %}
+{% assign _jb_items = settings._products | where: "type", "job" %}
+<div class="b-jobs-grid" id="jb-{{ block.id }}">
+  <div class="jb-acc-head" onclick="jbToggle('{{ block.id }}')">
+    <span class="jb-acc-title">{{ block.heading | default: 'Open Positions' }}</span>
+    <span class="jb-acc-meta">
+      {% if _jb_items and _jb_items.size > 0 %}<span class="jb-acc-count">{{ _jb_items.size }} positions</span>{% endif %}
+      <span class="jb-acc-chevron" id="jb-chv-{{ block.id }}">&#9660;</span>
+    </span>
+  </div>
+  <div class="jb-acc-body" id="jb-body-{{ block.id }}">
+    {% if _jb_items and _jb_items.size > 0 %}
+    <div class="jb-list">
+      {% for j in _jb_items %}
+      <div class="jb-card">
+        <div class="jb-top">
+          <div class="jb-logo">{% if j.image_url != blank and j.image_url != nil %}<img src="{{ j.image_url }}" alt="{{ j.name }}">{% else %}&#128188;{% endif %}</div>
+          <div class="jb-head">
+            <div class="jb-title">{{ j.name }}</div>
+            {% if j.description != blank %}<div class="jb-sub">{{ j.description | truncate: 60 }}</div>{% endif %}
+          </div>
+        </div>
+        {% if j.duration != blank and j.duration != nil %}
+        <div class="jb-tags"><span class="jb-tag">{{ j.duration }}</span></div>
+        {% endif %}
+        {% if j.price != blank and j.price != nil %}<span class="jb-salary">&#8377;{{ j.price | floor }} / month</span>{% endif %}
+        <button class="jb-apply">{{ block.btn_text | default: 'Apply Now' }}</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:24px 16px;opacity:.45;font-size:13px;">No positions available</div>
+    {% endif %}
+  </div>
+</div>
+
 {% when 'form' %}
 <div class="b-form-link">
   {% if block.heading != blank %}<div class="fl-heading">{{ block.heading }}</div>{% endif %}
@@ -659,6 +774,22 @@ function pgToggle(blockId) {
   var open = body.classList.contains('open');
   body.classList.toggle('open', !open);
   if (chv) chv.classList.toggle('open', !open);
+}
+function svToggle(blockId) {
+  var body=document.getElementById('sv-body-'+blockId);
+  var chv=document.getElementById('sv-chv-'+blockId);
+  if(!body)return;
+  var open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  if(chv)chv.classList.toggle('open',!open);
+}
+function jbToggle(blockId) {
+  var body=document.getElementById('jb-body-'+blockId);
+  var chv=document.getElementById('jb-chv-'+blockId);
+  if(!body)return;
+  var open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  if(chv)chv.classList.toggle('open',!open);
 }
 function faqToggle(btn) {
   var list  = btn.closest('.faq-list');
