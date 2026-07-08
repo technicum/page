@@ -31,6 +31,7 @@ exports.index = async (req, res) => {
   res.render('dashboard/index.njk', {
     title: 'Dashboard',
     user,
+    activePage: 'dashboard',
     sites:    rows,      // flat array — used for data island / openInfoModal
     siteRows,            // grouped array — used for table rendering
     categories: categories || [],

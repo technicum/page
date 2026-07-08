@@ -1,0 +1,464 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+*{box-sizing:border-box;}
+body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
+.dash-main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+
+/* ── Topbar ── */
+.topbar{height:56px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.topbar-title{font-size:15px;font-weight:700;color:#111827;flex:1;}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;background:#111827;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;border:none;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+.btn-primary:hover{opacity:.85;}
+
+/* ── Page ── */
+.page{max-width:960px;margin:0 auto;padding:32px 24px 60px;width:100%;}
+
+/* ── Type tabs ── */
+.type-tabs{display:flex;gap:6px;margin-bottom:28px;flex-wrap:wrap;}
+.type-tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;color:#6b7280;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;transition:all .15s;font-family:inherit;}
+.type-tab:hover{border-color:#6366f1;color:#6366f1;}
+.type-tab.active{background:#6366f1;color:#fff;border-color:#6366f1;}
+.type-tab .count{display:inline-block;background:rgba(255,255,255,.25);padding:1px 7px;border-radius:20px;font-size:11px;margin-left:4px;}
+.type-tab:not(.active) .count{background:#f3f4f6;color:#9ca3af;}
+
+/* ── Product grid ── */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
+.product-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s;position:relative;}
+.product-card:hover{border-color:#c7d2fe;box-shadow:0 4px 16px rgba(99,102,241,.1);}
+.product-card.inactive{opacity:.6;}
+
+/* image */
+.pc-img{width:100%;aspect-ratio:1;object-fit:cover;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:40px;color:#d1d5db;flex-shrink:0;}
+.pc-img img{width:100%;height:100%;object-fit:cover;}
+
+/* type badge */
+.pc-type{position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px;}
+.pc-type.physical{background:#fff7ed;color:#c2410c;}
+.pc-type.digital{background:#eff6ff;color:#1d4ed8;}
+.pc-type.service{background:#f0fdf4;color:#15803d;}
+
+.pc-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:4px;}
+.pc-name{font-size:14px;font-weight:600;color:#111827;line-height:1.3;}
+.pc-desc{font-size:12px;color:#9ca3af;line-height:1.5;flex:1;}
+.pc-price-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.pc-price{font-size:16px;font-weight:700;color:#111827;}
+.pc-compare{font-size:12px;color:#9ca3af;text-decoration:line-through;}
+.pc-duration{font-size:11px;color:#6b7280;background:#f3f4f6;padding:2px 8px;border-radius:12px;}
+.pc-stock{font-size:11px;font-weight:600;color:#ef4444;margin-top:2px;}
+
+.pc-actions{display:flex;gap:8px;padding:12px 16px;border-top:1px solid #f3f4f6;}
+.btn-edit-sm{flex:1;padding:7px 12px;background:#f3f4f6;color:#374151;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;}
+.btn-edit-sm:hover{background:#e5e7eb;}
+.btn-del-sm{padding:7px 10px;border:1.5px solid #fee2e2;background:#fff;color:#ef4444;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-del-sm:hover{background:#fef2f2;}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:80px 32px;background:#fff;border:2px dashed #e5e7eb;border-radius:16px;margin-top:4px;}
+.empty-icon{font-size:52px;margin-bottom:16px;}
+.empty-state h3{font-size:18px;font-weight:700;color:#111827;margin-bottom:8px;}
+.empty-state p{font-size:14px;color:#9ca3af;margin-bottom:24px;max-width:360px;margin-left:auto;margin-right:auto;}
+
+/* ── Modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;backdrop-filter:blur(2px);}
+.modal-overlay.open{display:flex;align-items:center;justify-content:center;}
+.modal-box{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.2);margin:16px;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 16px;border-bottom:1px solid #f0f0f3;position:sticky;top:0;background:#fff;z-index:1;}
+.modal-title{font-size:16px;font-weight:700;color:#111827;}
+.modal-close{border:none;background:none;font-size:20px;cursor:pointer;color:#9ca3af;line-height:1;padding:0 4px;}
+.modal-close:hover{color:#374151;}
+.modal-body{padding:22px;}
+.modal-foot{padding:14px 22px;border-top:1px solid #f0f0f3;display:flex;align-items:center;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#fff;}
+.modal-msg{font-size:12px;margin-right:auto;}
+.modal-msg.ok{color:#16a34a;}
+.modal-msg.err{color:#ef4444;}
+
+/* type selector */
+.type-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.type-opt{border:2px solid #e5e7eb;border-radius:10px;padding:12px 10px;text-align:center;cursor:pointer;transition:all .15s;}
+.type-opt:hover{border-color:#6366f1;}
+.type-opt.selected{border-color:#6366f1;background:#eef2ff;}
+.type-opt-icon{font-size:20px;margin-bottom:4px;}
+.type-opt-label{font-size:12px;font-weight:600;color:#374151;}
+.type-opt-sub{font-size:10px;color:#9ca3af;margin-top:2px;}
+
+/* form fields */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.08);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field-hint{font-size:11px;color:#9ca3af;margin-top:4px;}
+
+.conditional{display:none;}
+.conditional.show{display:block;}
+
+.btn-save{background:#111827;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .2s;}
+.btn-save:hover{opacity:.85;}
+.btn-save:disabled{opacity:.5;cursor:not-allowed;}
+.btn-cancel{background:none;border:1.5px solid #e5e7eb;color:#6b7280;padding:10px 18px;border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;}
+.btn-cancel:hover{border-color:#374151;color:#374151;}
+
+@media(max-width:640px){
+  .product-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+  .field-row{grid-template-columns:1fr;}
+  .type-selector{grid-template-columns:1fr 1fr 1fr;}
+  .page{padding:20px 14px 50px;}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="layout">
+  {% include "dashboard/_sidebar.njk" %}
+
+  <div class="dash-main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-title">Products</div>
+      <button class="btn-primary" onclick="openAddModal()">+ Add product</button>
+    </div>
+
+    <div class="page">
+
+      <!-- Type tabs -->
+      <div class="type-tabs">
+        <button class="type-tab active" data-filter="all" onclick="filterType('all',this)">
+          All <span class="count" id="cnt-all">{{ products.length }}</span>
+        </button>
+        <button class="type-tab" data-filter="physical" onclick="filterType('physical',this)">
+          📦 Physical <span class="count" id="cnt-physical">{{ products | selectattr('type','equalto','physical') | list | length }}</span>
+        </button>
+        <button class="type-tab" data-filter="digital" onclick="filterType('digital',this)">
+          💾 Digital <span class="count" id="cnt-digital">{{ products | selectattr('type','equalto','digital') | list | length }}</span>
+        </button>
+        <button class="type-tab" data-filter="service" onclick="filterType('service',this)">
+          🛠 Service <span class="count" id="cnt-service">{{ products | selectattr('type','equalto','service') | list | length }}</span>
+        </button>
+      </div>
+
+      <!-- Product grid -->
+      {% if products.length %}
+      <div class="product-grid" id="product-grid">
+        {% for p in products %}
+        <div class="product-card {% if not p.status %}inactive{% endif %}" data-type="{{ p.type }}" data-id="{{ p.id }}">
+          <div class="pc-img">
+            {% if p.image_url %}
+            <img src="{{ p.image_url }}" alt="{{ p.name }}" onerror="this.style.display='none';this.parentNode.textContent='{{ '📦' if p.type=='physical' else ('💾' if p.type=='digital' else '🛠') }}'">
+            {% else %}
+            {{ '📦' if p.type == 'physical' else ('💾' if p.type == 'digital' else '🛠') }}
+            {% endif %}
+          </div>
+          <span class="pc-type {{ p.type }}">
+            {{ 'Physical' if p.type == 'physical' else ('Digital' if p.type == 'digital' else 'Service') }}
+          </span>
+          <div class="pc-body">
+            <div class="pc-name">{{ p.name }}</div>
+            {% if p.description %}<div class="pc-desc">{{ p.description | truncate(80) }}</div>{% endif %}
+            <div class="pc-price-row">
+              {% if p.price %}
+              <span class="pc-price">₹{{ p.price | int }}</span>
+              {% if p.compare_price and p.compare_price > p.price %}<span class="pc-compare">₹{{ p.compare_price | int }}</span>{% endif %}
+              {% else %}
+              <span class="pc-price" style="color:#9ca3af;">No price set</span>
+              {% endif %}
+              {% if p.duration %}<span class="pc-duration">{{ p.duration }}</span>{% endif %}
+            </div>
+            {% if p.type == 'physical' and not p.in_stock %}<div class="pc-stock">Out of stock</div>{% endif %}
+          </div>
+          <div class="pc-actions">
+            <button class="btn-edit-sm" onclick="openEditModal({{ p.id }})">Edit</button>
+            <button class="btn-del-sm" onclick="deleteProduct({{ p.id }}, this)">🗑</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">📦</div>
+        <h3>No products yet</h3>
+        <p>Add physical products, digital downloads, or services to showcase on your site.</p>
+        <button class="btn-primary" onclick="openAddModal()">+ Add your first product</button>
+      </div>
+      {% endif %}
+
+    </div>{# end .page #}
+  </div>{# end .dash-main #}
+</div>{# end .layout #}
+
+<!-- ── Add / Edit Modal ── -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title-text">Add product</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="p-id">
+
+      <!-- Type selector (only shown when adding) -->
+      <div id="type-selector-wrap">
+        <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Product type</div>
+        <div class="type-selector">
+          <div class="type-opt selected" data-type="physical" onclick="selectType('physical')">
+            <div class="type-opt-icon">📦</div>
+            <div class="type-opt-label">Physical</div>
+            <div class="type-opt-sub">Ships to customer</div>
+          </div>
+          <div class="type-opt" data-type="digital" onclick="selectType('digital')">
+            <div class="type-opt-icon">💾</div>
+            <div class="type-opt-label">Digital</div>
+            <div class="type-opt-sub">PDF, course, file</div>
+          </div>
+          <div class="type-opt" data-type="service" onclick="selectType('service')">
+            <div class="type-opt-icon">🛠</div>
+            <div class="type-opt-label">Service</div>
+            <div class="type-opt-sub">Consultation, work</div>
+          </div>
+        </div>
+      </div>
+      <input type="hidden" id="p-type" value="physical">
+
+      <div class="field">
+        <label>Name *</label>
+        <input type="text" id="p-name" placeholder="e.g. Handmade Candle Set">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea id="p-description" rows="2" placeholder="Short description..." style="resize:vertical;"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Price (₹)</label>
+          <input type="number" id="p-price" placeholder="499" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>Compare at price (₹)</label>
+          <input type="number" id="p-compare" placeholder="999 (crossed out)" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="field">
+        <label>Image URL</label>
+        <input type="url" id="p-image" placeholder="https://example.com/image.jpg">
+      </div>
+
+      <!-- Digital only: file URL -->
+      <div class="field conditional" id="field-file">
+        <label>Download link / File URL</label>
+        <input type="url" id="p-file" placeholder="https://example.com/product.pdf">
+        <div class="field-hint">Customers will receive this link after purchase.</div>
+      </div>
+
+      <!-- Service only: duration -->
+      <div class="field conditional" id="field-duration">
+        <label>Duration</label>
+        <input type="text" id="p-duration" placeholder="e.g. 1 hour, 30 min">
+      </div>
+
+      <!-- Physical only: stock -->
+      <div class="field conditional" id="field-stock">
+        <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-weight:500;font-size:13px;color:#374151;cursor:pointer;">
+          <input type="checkbox" id="p-in-stock" checked style="width:auto;accent-color:#6366f1;">
+          In stock
+        </label>
+      </div>
+
+      <div class="field">
+        <label>Collection / Group</label>
+        <input type="text" id="p-collection" placeholder="e.g. Skincare, Bestsellers">
+        <div class="field-hint">Optional label to group products.</div>
+      </div>
+
+      {% if sites.length %}
+      <div class="field">
+        <label>Linked site (optional)</label>
+        <select id="p-site">
+          <option value="">— Not linked to a site —</option>
+          {% for s in sites %}<option value="{{ s.id }}">{{ s.title }}</option>{% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <div class="field conditional show" id="field-status">
+        <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-weight:500;font-size:13px;color:#374151;cursor:pointer;">
+          <input type="checkbox" id="p-status" checked style="width:auto;accent-color:#6366f1;">
+          Active (visible)
+        </label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="modal-msg" id="modal-msg"></span>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" id="modal-save-btn" onclick="saveProduct()">Add product</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="pz-products-json">{{ products | dump | safe }}</script>
+<script>
+var ALL_PRODUCTS = JSON.parse(document.getElementById('pz-products-json').textContent || '[]');
+var editingId = null;
+var currentType = 'physical';
+
+/* ── Type filter ── */
+function filterType(type, btn) {
+  document.querySelectorAll('.type-tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.product-card').forEach(function(card){
+    card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
+  });
+  var emptyState = document.getElementById('empty-state');
+  if (emptyState) {
+    var visible = document.querySelectorAll('.product-card[style=""], .product-card:not([style])');
+    var shown = 0;
+    document.querySelectorAll('.product-card').forEach(function(c){ if(c.style.display !== 'none') shown++; });
+    emptyState.style.display = shown === 0 ? 'block' : 'none';
+  }
+}
+
+/* ── Type select in modal ── */
+function selectType(type) {
+  currentType = type;
+  document.getElementById('p-type').value = type;
+  document.querySelectorAll('.type-opt').forEach(function(o){ o.classList.toggle('selected', o.dataset.type === type); });
+  document.getElementById('field-file').classList.toggle('show', type === 'digital');
+  document.getElementById('field-duration').classList.toggle('show', type === 'service');
+  document.getElementById('field-stock').classList.toggle('show', type === 'physical');
+}
+
+/* ── Open add modal ── */
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title-text').textContent = 'Add product';
+  document.getElementById('modal-save-btn').textContent = 'Add product';
+  document.getElementById('type-selector-wrap').style.display = '';
+  clearForm();
+  selectType('physical');
+  document.getElementById('field-status').classList.remove('show');
+  document.getElementById('modal-msg').textContent = '';
+  document.getElementById('product-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('p-name').focus(); }, 80);
+}
+
+/* ── Open edit modal ── */
+function openEditModal(id) {
+  var p = ALL_PRODUCTS.find(function(x){ return x.id === id; });
+  if (!p) return;
+  editingId = id;
+  document.getElementById('modal-title-text').textContent = 'Edit product';
+  document.getElementById('modal-save-btn').textContent = 'Save changes';
+  document.getElementById('type-selector-wrap').style.display = 'none'; // hide type selector when editing
+  document.getElementById('p-type').value = p.type;
+  document.getElementById('p-id').value = p.id;
+  document.getElementById('p-name').value = p.name || '';
+  document.getElementById('p-description').value = p.description || '';
+  document.getElementById('p-price').value = p.price || '';
+  document.getElementById('p-compare').value = p.compare_price || '';
+  document.getElementById('p-image').value = p.image_url || '';
+  document.getElementById('p-file').value = p.file_url || '';
+  document.getElementById('p-duration').value = p.duration || '';
+  document.getElementById('p-collection').value = p.collection || '';
+  var siteEl = document.getElementById('p-site');
+  if (siteEl) siteEl.value = p.site_id || '';
+  document.getElementById('p-in-stock').checked = p.in_stock != '0';
+  document.getElementById('p-status').checked = p.status != '0';
+  document.getElementById('field-file').classList.toggle('show', p.type === 'digital');
+  document.getElementById('field-duration').classList.toggle('show', p.type === 'service');
+  document.getElementById('field-stock').classList.toggle('show', p.type === 'physical');
+  document.getElementById('field-status').classList.add('show');
+  document.getElementById('modal-msg').textContent = '';
+  document.getElementById('product-modal').classList.add('open');
+}
+
+function closeModal(){ document.getElementById('product-modal').classList.remove('open'); }
+document.getElementById('product-modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+function clearForm(){
+  ['p-id','p-name','p-description','p-price','p-compare','p-image','p-file','p-duration','p-collection'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('p-in-stock').checked = true;
+  document.getElementById('p-status').checked = true;
+  var siteEl = document.getElementById('p-site');
+  if (siteEl) siteEl.value = '';
+}
+
+/* ── Save ── */
+function saveProduct() {
+  var btn = document.getElementById('modal-save-btn');
+  var msg = document.getElementById('modal-msg');
+  var name = document.getElementById('p-name').value.trim();
+  if (!name) { msg.textContent = 'Name is required.'; msg.className = 'modal-msg err'; return; }
+
+  btn.disabled = true;
+  btn.textContent = editingId ? 'Saving…' : 'Adding…';
+  msg.textContent = '';
+
+  var url = editingId ? '/dashboard/products/update' : '/dashboard/products/create';
+  var siteEl = document.getElementById('p-site');
+  var payload = {
+    id: editingId || undefined,
+    type: document.getElementById('p-type').value,
+    name: name,
+    description: document.getElementById('p-description').value,
+    price: document.getElementById('p-price').value,
+    compare_price: document.getElementById('p-compare').value,
+    image_url: document.getElementById('p-image').value,
+    file_url: document.getElementById('p-file').value,
+    duration: document.getElementById('p-duration').value,
+    collection: document.getElementById('p-collection').value,
+    site_id: siteEl ? siteEl.value : '',
+    in_stock: document.getElementById('p-in-stock').checked ? '1' : '0',
+    status: document.getElementById('p-status').checked ? '1' : '0'
+  };
+
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    btn.disabled = false;
+    btn.textContent = editingId ? 'Save changes' : 'Add product';
+    if (!d.ok) { msg.textContent = d.error || 'Error saving.'; msg.className = 'modal-msg err'; return; }
+    // Reload page to reflect changes
+    window.location.reload();
+  })
+  .catch(function(){
+    btn.disabled = false;
+    btn.textContent = editingId ? 'Save changes' : 'Add product';
+    msg.textContent = 'Network error.'; msg.className = 'modal-msg err';
+  });
+}
+
+/* ── Delete ── */
+function deleteProduct(id, btn) {
+  if (!confirm('Delete this product?')) return;
+  btn.textContent = '…'; btn.disabled = true;
+  fetch('/dashboard/products/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: id })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (!d.ok) { btn.textContent = '🗑'; btn.disabled = false; alert(d.error || 'Could not delete.'); return; }
+    var card = document.querySelector('.product-card[data-id="' + id + '"]');
+    if (card) card.remove();
+    ALL_PRODUCTS = ALL_PRODUCTS.filter(function(p){ return p.id !== id; });
+    updateCounts();
+  })
+  .catch(function(){ btn.textContent = '🗑'; btn.disabled = false; });
+}
+
+/* ── Update counts ── */
+function updateCounts() {
+  var types = ['physical','digital','service'];
+  document.getElementById('cnt-all').textContent = document.querySelectorAll('.product-card').length;
+  types.forEach(function(t){
+    document.getElementById('cnt-' + t).textContent = document.querySelectorAll('.product-card[data-type="' + t + '"]').length;
+  });
+}
+</script>
+{% endblock %}

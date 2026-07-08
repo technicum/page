@@ -3,17 +3,11 @@
 <style>
 *{box-sizing:border-box;}
 body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
+.dash-main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
 
-/* ── Top nav ─────────────────────────────────── */
-.topnav{height:56px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:200;}
-.tn-logo{font-size:17px;font-weight:800;color:#111827;text-decoration:none;letter-spacing:-0.5px;flex-shrink:0;}
-.tn-logo em{color:#6366f1;font-style:normal;}
-.tn-divider{width:1px;height:20px;background:#e5e7eb;flex-shrink:0;}
-.tn-links{display:flex;gap:2px;}
-.tn-link{padding:6px 12px;border-radius:7px;font-size:13px;font-weight:500;color:#6b7280;text-decoration:none;transition:all .15s;}
-.tn-link:hover{background:#f3f4f6;color:#111827;}
-.tn-link.active{background:#eef2ff;color:#6366f1;font-weight:600;}
-.tn-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+/* ── Topbar ───────────────────────────────────── */
+.topbar{height:56px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.topbar-title{font-size:15px;font-weight:700;color:#111827;flex:1;}
 .btn-create{display:flex;align-items:center;gap:6px;background:#111827;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s;white-space:nowrap;border:none;cursor:pointer;font-family:inherit;}
 .btn-create:hover{background:#374151;}
 .user-menu-wrap{position:relative;}
@@ -26,7 +20,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .ud-item.danger{color:#ef4444;}
 
 /* ── Page content ────────────────────────────── */
-.page{max-width:860px;margin:0 auto;padding:32px 20px 60px;}
+.page{max-width:860px;margin:0 auto;padding:32px 24px 60px;width:100%;}
 
 /* ── Page header ─────────────────────────────── */
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
@@ -145,158 +139,150 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .staff-slug-preview strong{color:#6366f1;}
 
 /* ── Mobile ──────────────────────────────────── */
-@media(max-width:640px){
+@media(max-width:1024px){
+  .topbar{top:auto;position:sticky;top:0;}
   .page{padding:20px 14px 50px;}
+}
+@media(max-width:640px){
   .stats-row{grid-template-columns:1fr 1fr 1fr;}
   .stat-card{padding:14px;}
   .stat-num{font-size:22px;}
   .si-tag,.si-right .status-btn{display:none;}
   .btn-edit{padding:6px 10px;font-size:11px;}
   .modal-field-row{grid-template-columns:1fr;}
-  .tn-links{display:none;}
-  .topnav{padding:0 14px;}
 }
 </style>
 {% endblock %}
 
 {% block body %}
-<!-- ── Top nav ───────────────────────────────── -->
-<nav class="topnav">
-  <a class="tn-logo" href="/dashboard"><em>Page</em>Zaper</a>
-  <div class="tn-divider"></div>
-  <div class="tn-links">
-    <a class="tn-link active" href="/dashboard">My Links</a>
-    <a class="tn-link" href="/dashboard/settings">Settings</a>
-  </div>
-  <div class="tn-right">
-    <a class="btn-create" href="/dashboard/wizard">+ Create new</a>
-    <div class="user-menu-wrap">
-      <div class="tn-avatar" onclick="toggleUserMenu()">{{ user.name | first | upper }}</div>
-      <div class="user-dropdown" id="userDropdown">
-        <div class="ud-name">{{ user.name }}</div>
-        <a class="ud-item" href="/dashboard/settings">⚙️ Settings</a>
-        <a class="ud-item danger" href="/auth/logout">← Log out</a>
-      </div>
-    </div>
-  </div>
-</nav>
+<div class="layout">
+  {% include "dashboard/_sidebar.njk" %}
 
-<div class="page">
-  <!-- ── Flash ── -->
-  {% if flash_success and flash_success.length %}
-  <div class="flash-ok">✓ {{ flash_success[0] }}</div>
-  {% endif %}
-
-  <!-- ── Header ── -->
-  <div class="page-header">
-    <div>
-      <div class="page-title">My bio links</div>
-      <div class="page-sub">Manage your pages and team member links</div>
-    </div>
-  </div>
-
-  <!-- ── Stats ── -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-num">{{ sites.length }}</div>
-      <div class="stat-label">Total links</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num green">{{ publishedCount }}</div>
-      <div class="stat-label">Published</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num muted">{{ draftCount }}</div>
-      <div class="stat-label">Drafts</div>
-    </div>
-  </div>
-
-  <!-- ── Site list ── -->
-  {% if not sites.length %}
-  <div class="empty-state">
-    <div class="empty-icon">🚀</div>
-    <h3>Create your first bio link</h3>
-    <p>Get started in minutes with our intuitive builder.</p>
-    <a class="btn-create" href="/dashboard/wizard">Create your first site</a>
-  </div>
-  {% else %}
-  <div class="section-head">
-    <span class="section-title">All sites</span>
-    <span class="section-sub">{{ sites.length }} site{{ 's' if sites.length != 1 }}</span>
-  </div>
-  <div class="site-list">
-    {% for site in siteRows %}
-    {# ── Main site ── #}
-    <div class="site-item" id="si-{{ site.id }}">
-      <div class="si-avatar">{{ site.title | first | upper }}</div>
-      <div class="si-info">
-        <div class="si-name">{{ site.title }}</div>
-        <a class="si-url" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a>
-        <div class="si-meta">
-          <span class="si-tag">{% if site.category == 'minisite' or site.category == 'linktree' %}Mini Site{% elif site.category %}{{ site.category | capitalize }}{% else %}Mini Site{% endif %}</span>
+  <div class="dash-main">
+    <!-- ── Topbar ── -->
+    <div class="topbar">
+      <div class="topbar-title">My bio links</div>
+      <a class="btn-create" href="/dashboard/wizard">+ Create new</a>
+      <div class="user-menu-wrap">
+        <div class="tn-avatar" onclick="toggleUserMenu()">{{ user.name | first | upper }}</div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="ud-name">{{ user.name }}</div>
+          <a class="ud-item" href="/dashboard/settings">⚙️ Settings</a>
+          <a class="ud-item danger" href="/logout">← Log out</a>
         </div>
       </div>
-      <div class="si-right">
-        <button class="status-btn {{ 'live' if site.is_published else 'draft' }}" id="status-{{ site.id }}" onclick="togglePublish({{ site.id }}, {{ 1 if site.is_published else 0 }})">
-          <span style="font-size:8px;">{{ '●' if site.is_published else '◌' }}</span>
-          {{ 'Live' if site.is_published else 'Draft' }}
-        </button>
-        <a class="btn-edit" href="/dashboard/site/{% if site.category == 'minisite' or site.category == 'linktree' or ('biolink-' in (site.template_id or '')) %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit →</a>
-        <div class="more-wrap">
-          <button class="btn-more" onclick="toggleMore(event, 'more-{{ site.id }}')">⋯</button>
-          <div class="more-menu" id="more-{{ site.id }}">
-            <a class="mm-item" href="/dashboard/site/templates?id={{ site.id }}">🎨 Theme</a>
-            <button class="mm-item" onclick="closeMoreMenus();openInfoModal({{ site.id }})">📋 Info</button>
-            <button class="mm-item" onclick="closeMoreMenus();openSeoModal({{ site.id }})">🔍 SEO</button>
-            <button class="mm-item" onclick="closeMoreMenus();openReviewsModal({{ site.id }}, '{{ site.subdomain }}')">⭐ Reviews</button>
-            <a class="mm-item" href="/dashboard/booking/{{ site.id }}">📅 Booking</a>
-            <button class="mm-item" onclick="closeMoreMenus();openAddStaffModal({{ site.id }}, '{{ site.title | escape }}', '{{ site.subdomain }}')">👤 Add Team Member</button>
-            <div class="mm-sep"></div>
-            <form method="POST" action="/dashboard/site/delete" onsubmit="return confirm('Delete this site and all its data?')">
-              <input type="hidden" name="site_id" value="{{ site.id }}">
-              <button type="submit" class="mm-item danger">🗑️ Delete</button>
-            </form>
+    </div>
+
+    <div class="page">
+      <!-- ── Flash ── -->
+      {% if flash_success and flash_success.length %}
+      <div class="flash-ok">✓ {{ flash_success[0] }}</div>
+      {% endif %}
+
+      <!-- ── Stats ── -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num">{{ sites.length }}</div>
+          <div class="stat-label">Total links</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num green">{{ publishedCount }}</div>
+          <div class="stat-label">Published</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num muted">{{ draftCount }}</div>
+          <div class="stat-label">Drafts</div>
+        </div>
+      </div>
+
+      <!-- ── Site list ── -->
+      {% if not sites.length %}
+      <div class="empty-state">
+        <div class="empty-icon">🚀</div>
+        <h3>Create your first bio link</h3>
+        <p>Get started in minutes with our intuitive builder.</p>
+        <a class="btn-create" href="/dashboard/wizard">Create your first site</a>
+      </div>
+      {% else %}
+      <div class="section-head">
+        <span class="section-title">All sites</span>
+        <span class="section-sub">{{ sites.length }} site{{ 's' if sites.length != 1 }}</span>
+      </div>
+      <div class="site-list">
+        {% for site in siteRows %}
+        {# ── Main site ── #}
+        <div class="site-item" id="si-{{ site.id }}">
+          <div class="si-avatar">{{ site.title | first | upper }}</div>
+          <div class="si-info">
+            <div class="si-name">{{ site.title }}</div>
+            <a class="si-url" href="https://{{ site.subdomain }}.{{ base_domain }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}</a>
+            <div class="si-meta">
+              <span class="si-tag">{% if site.category == 'minisite' or site.category == 'linktree' %}Mini Site{% elif site.category %}{{ site.category | capitalize }}{% else %}Mini Site{% endif %}</span>
+            </div>
+          </div>
+          <div class="si-right">
+            <button class="status-btn {{ 'live' if site.is_published else 'draft' }}" id="status-{{ site.id }}" onclick="togglePublish({{ site.id }}, {{ 1 if site.is_published else 0 }})">
+              <span style="font-size:8px;">{{ '●' if site.is_published else '◌' }}</span>
+              {{ 'Live' if site.is_published else 'Draft' }}
+            </button>
+            <a class="btn-edit" href="/dashboard/site/{% if site.category == 'minisite' or site.category == 'linktree' or ('biolink-' in (site.template_id or '')) %}biolink-builder{% else %}builder{% endif %}?id={{ site.id }}">Edit →</a>
+            <div class="more-wrap">
+              <button class="btn-more" onclick="toggleMore(event, 'more-{{ site.id }}')">⋯</button>
+              <div class="more-menu" id="more-{{ site.id }}">
+                <a class="mm-item" href="/dashboard/site/templates?id={{ site.id }}">🎨 Theme</a>
+                <button class="mm-item" onclick="closeMoreMenus();openInfoModal({{ site.id }})">📋 Info</button>
+                <button class="mm-item" onclick="closeMoreMenus();openSeoModal({{ site.id }})">🔍 SEO</button>
+                <button class="mm-item" onclick="closeMoreMenus();openReviewsModal({{ site.id }}, '{{ site.subdomain }}')">⭐ Reviews</button>
+                <a class="mm-item" href="/dashboard/booking/{{ site.id }}">📅 Booking</a>
+                <button class="mm-item" onclick="closeMoreMenus();openAddStaffModal({{ site.id }}, '{{ site.title | escape }}', '{{ site.subdomain }}')">👤 Add Team Member</button>
+                <div class="mm-sep"></div>
+                <form method="POST" action="/dashboard/site/delete" onsubmit="return confirm('Delete this site and all its data?')">
+                  <input type="hidden" name="site_id" value="{{ site.id }}">
+                  <button type="submit" class="mm-item danger">🗑️ Delete</button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    {# ── Staff bio links ── #}
-    {% if site.staffSites and site.staffSites.length %}
-    {% for staff in site.staffSites %}
-    <div class="site-item staff-item" id="si-{{ staff.id }}">
-      <span class="staff-arrow">↳</span>
-      <div class="si-avatar staff">{{ staff.title | first | upper }}</div>
-      <div class="si-info">
-        <div class="si-name">{{ staff.title }}</div>
-        <a class="si-url" href="https://{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}</a>
-        <div class="si-meta"><span class="si-tag staff">👤 Team Member</span></div>
-      </div>
-      <div class="si-right">
-        <button class="status-btn {{ 'live' if staff.is_published else 'draft' }}" id="status-{{ staff.id }}" onclick="togglePublish({{ staff.id }}, {{ 1 if staff.is_published else 0 }})">
-          <span style="font-size:8px;">{{ '●' if staff.is_published else '◌' }}</span>
-          {{ 'Live' if staff.is_published else 'Draft' }}
-        </button>
-        <a class="btn-edit" href="/dashboard/site/biolink-builder?id={{ staff.id }}">Edit →</a>
-        <div class="more-wrap">
-          <button class="btn-more" onclick="toggleMore(event, 'more-{{ staff.id }}')">⋯</button>
-          <div class="more-menu" id="more-{{ staff.id }}">
-            <a class="mm-item" href="/dashboard/site/templates?id={{ staff.id }}">🎨 Theme</a>
-            <button class="mm-item" onclick="closeMoreMenus();openSeoModal({{ staff.id }})">🔍 SEO</button>
-            <div class="mm-sep"></div>
-            <form method="POST" action="/dashboard/site/delete" onsubmit="return confirm('Delete this team member bio link?')">
-              <input type="hidden" name="site_id" value="{{ staff.id }}">
-              <button type="submit" class="mm-item danger">🗑️ Delete</button>
-            </form>
+        {# ── Staff bio links ── #}
+        {% if site.staffSites and site.staffSites.length %}
+        {% for staff in site.staffSites %}
+        <div class="site-item staff-item" id="si-{{ staff.id }}">
+          <span class="staff-arrow">↳</span>
+          <div class="si-avatar staff">{{ staff.title | first | upper }}</div>
+          <div class="si-info">
+            <div class="si-name">{{ staff.title }}</div>
+            <a class="si-url" href="https://{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}" target="_blank">{{ site.subdomain }}.{{ base_domain }}/{{ staff.path_slug }}</a>
+            <div class="si-meta"><span class="si-tag staff">👤 Team Member</span></div>
+          </div>
+          <div class="si-right">
+            <button class="status-btn {{ 'live' if staff.is_published else 'draft' }}" id="status-{{ staff.id }}" onclick="togglePublish({{ staff.id }}, {{ 1 if staff.is_published else 0 }})">
+              <span style="font-size:8px;">{{ '●' if staff.is_published else '◌' }}</span>
+              {{ 'Live' if staff.is_published else 'Draft' }}
+            </button>
+            <a class="btn-edit" href="/dashboard/site/biolink-builder?id={{ staff.id }}">Edit →</a>
+            <div class="more-wrap">
+              <button class="btn-more" onclick="toggleMore(event, 'more-{{ staff.id }}')">⋯</button>
+              <div class="more-menu" id="more-{{ staff.id }}">
+                <a class="mm-item" href="/dashboard/site/templates?id={{ staff.id }}">🎨 Theme</a>
+                <button class="mm-item" onclick="closeMoreMenus();openSeoModal({{ staff.id }})">🔍 SEO</button>
+                <div class="mm-sep"></div>
+                <form method="POST" action="/dashboard/site/delete" onsubmit="return confirm('Delete this team member bio link?')">
+                  <input type="hidden" name="site_id" value="{{ staff.id }}">
+                  <button type="submit" class="mm-item danger">🗑️ Delete</button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
+        {% endfor %}
+        {% endif %}
+        {% endfor %}
       </div>
-    </div>
-    {% endfor %}
-    {% endif %}
-    {% endfor %}
-  </div>
-  {% endif %}
-</div>
+      {% endif %}
+    </div>{# end .page #}
+  </div>{# end .dash-main #}
+</div>{# end .layout #}
 
 <!-- ── Info modal ─────────────────────────────── -->
 <div class="modal-overlay" id="info-modal">
