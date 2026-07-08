@@ -126,7 +126,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px
 
 <nav>
   <a class="logo" href="/dashboard">Page<em>.</em></a>
-  <span class="step-count">Step <span id="stepLabel">1</span> of 6</span>
+  <span class="step-count">Step <span id="stepLabel">1</span> of 7</span>
 </nav>
 
 <div class="chat-shell">
@@ -147,8 +147,10 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px
   <input type="hidden" name="subdomain"   id="f_subdomain">
   <input type="hidden" name="template_id" id="f_template_id">
   <input type="hidden" name="bio"         id="f_bio">
-  <input type="hidden" name="cta_text"    id="f_cta_text">
-  <input type="hidden" name="cta_url"     id="f_cta_url">
+  <input type="hidden" name="phone"       id="f_phone">
+  <input type="hidden" name="whatsapp"    id="f_whatsapp">
+  <input type="hidden" name="city"        id="f_city">
+  <input type="hidden" name="instagram"   id="f_instagram">
   <input type="hidden" name="category_id" id="f_category_id">
   <input type="hidden" name="site_type"   value="minisite">
 </form>
@@ -199,7 +201,7 @@ const CAT_MAP = {
 const DEFAULT_CONFIG = { themes:['biolink-service'], cta:['💬 Contact Us','📞 Call Now','📅 Book Appointment'], hint:'e.g. Tell us what you do and where you are' };
 
 // ── State ─────────────────────────────────────────────────────────────────────
-const state = { step:0, categoryId:null, categorySlug:null, name:'', bio:'', ctaText:'', ctaUrl:'', themeSlug:'', subdomain:'' };
+const state = { step:0, categoryId:null, categorySlug:null, name:'', bio:'', phone:'', whatsapp:'', city:'', instagram:'', themeSlug:'', subdomain:'' };
 
 // ── DOM ───────────────────────────────────────────────────────────────────────
 const $msgs  = document.getElementById('chatMessages');
@@ -210,7 +212,7 @@ const $send  = document.getElementById('sendBtn');
 const $step  = document.getElementById('stepLabel');
 
 function scrollBottom(){ setTimeout(() => $msgs.scrollTop = $msgs.scrollHeight, 60); }
-function setStep(n){ state.step = n; $step.textContent = Math.min(n+1,6); }
+function setStep(n){ state.step = n; $step.textContent = Math.min(n+1,7); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function clearArea(){
@@ -328,20 +330,22 @@ function showThemePicker(themeKeys, onSelect){
   scrollBottom();
 }
 
-// Show URL input with skip
-function showUrlInput(placeholder, onConfirm){
+// Show text input with optional pre-fill and skip
+function showSkippableInput(placeholder, onConfirm, prefill){
+  clearArea();
   const wrap = document.createElement('div');
   wrap.className = 'url-wrap';
   wrap.innerHTML = `
-    <input class="url-input" id="urlIn" type="url" placeholder="${esc(placeholder)}">
-    <div class="url-note">Leave blank if you don't have one yet</div>
-    <button class="url-skip" id="urlSkip">Skip for now →</button>`;
+    <input class="url-input" id="skipIn" type="text" placeholder="${esc(placeholder)}" autocomplete="off" value="${esc(prefill||'')}">
+    <button class="url-skip" id="skipBtn">Skip →</button>`;
   $area.appendChild(wrap);
-  const urlIn  = document.getElementById('urlIn');
-  const skipBtn= document.getElementById('urlSkip');
-  urlIn.onkeydown = e => { if(e.key==='Enter'){ e.preventDefault(); onConfirm(urlIn.value.trim()); } };
-  skipBtn.onclick = () => onConfirm('');
-  urlIn.focus();
+  const inp = document.getElementById('skipIn');
+  const btn = document.getElementById('skipBtn');
+  const done = (v) => { inp.onkeydown=null; btn.onclick=null; onConfirm(v); };
+  inp.onkeydown = e => { if(e.key==='Enter'){ e.preventDefault(); done(inp.value.trim()); } };
+  btn.onclick = () => done('');
+  inp.focus();
+  if(prefill) inp.select();
   scrollBottom();
 }
 
@@ -434,39 +438,62 @@ async function step1_name(){
 async function step2_bio(){
   setStep(2);
   const cfg = CAT_MAP[state.categorySlug] || DEFAULT_CONFIG;
-  await botMsg(`Nice! Now write a short <strong>description</strong> — what you do, where you are, what makes you special.<br><span class="hint">${cfg.hint}</span>`);
+  await botMsg(`Nice! Now write a short <strong>bio</strong> — what you do, where you are, what makes you special.<br><span class="hint">${cfg.hint}</span>`);
   showTextInput('Your short bio (1–2 sentences)', async (val) => {
     state.bio = val;
     userMsg(val);
     clearArea();
-    await step3_cta();
+    await step3_phone();
   });
 }
 
-async function step3_cta(){
+async function step3_phone(){
   setStep(3);
-  const cfg = CAT_MAP[state.categorySlug] || DEFAULT_CONFIG;
-  await botMsg(`What's the <strong>main action</strong> you want visitors to take? This becomes your top button.`);
-  showQuickReplies(cfg.cta, async (choice) => {
-    state.ctaText = choice;
-    userMsg(choice);
+  await botMsg(`What's your <strong>phone number</strong>?<br><span class="hint">Displayed as a call button on your site</span>`);
+  showSkippableInput('+91 98765 43210', async (val) => {
+    state.phone = val;
+    userMsg(val || 'Skip for now');
     clearArea();
-    await step3b_url();
+    await step3b_whatsapp();
   });
 }
 
-async function step3b_url(){
-  await botMsg(`Got it! Do you have a URL for <strong>${esc(state.ctaText)}</strong>?<br><span class="hint">You can add this later in the builder</span>`);
-  showUrlInput('https://wa.me/…  or  https://cal.com/…', async (url) => {
-    state.ctaUrl = url;
-    userMsg(url || "I'll add the link later");
+async function step3b_whatsapp(){
+  setStep(4);
+  await botMsg(`Your <strong>WhatsApp</strong> number?<br><span class="hint">Lets customers message you with one tap</span>`);
+  // Pre-fill with phone number — they're almost always the same in India
+  showSkippableInput('+91 98765 43210', async (val) => {
+    state.whatsapp = val;
+    userMsg(val || 'Skip for now');
+    clearArea();
+    await step3c_city();
+  }, state.phone);
+}
+
+async function step3c_city(){
+  await botMsg(`Which <strong>city</strong> are you based in?`);
+  showSkippableInput('e.g. Mumbai, Delhi, Bangalore…', async (val) => {
+    state.city = val;
+    userMsg(val || 'Skip for now');
+    clearArea();
+    await step3d_instagram();
+  });
+}
+
+async function step3d_instagram(){
+  await botMsg(`Any <strong>Instagram</strong> or social link to add?<br><span class="hint">Shows as a social icon on your site</span>`);
+  showSkippableInput('instagram.com/yourbusiness  or  @handle', async (val) => {
+    // Normalise: if @handle, expand to full URL
+    if(val && val.startsWith('@')) val = 'https://instagram.com/' + val.slice(1);
+    state.instagram = val;
+    userMsg(val || 'Skip for now');
     clearArea();
     await step4_theme();
   });
 }
 
 async function step4_theme(){
-  setStep(4);
+  setStep(5);
   const cfg = CAT_MAP[state.categorySlug] || DEFAULT_CONFIG;
   const catName = DB_CATS.find(c => c.slug === state.categorySlug)?.name.split(',')[0] || 'your business';
   await botMsg(`Here are themes designed for <strong>${esc(catName)}</strong>. Pick one you like:`);
@@ -479,7 +506,7 @@ async function step4_theme(){
 }
 
 async function step5_subdomain(){
-  setStep(5);
+  setStep(6);
   await botMsg(`Almost there! Choose a <strong>web address</strong> for your site.<br><span class="hint">You can change this later</span>`);
   showSubdomainPicker(slugify(state.name), async (sub) => {
     state.subdomain = sub;
@@ -488,12 +515,16 @@ async function step5_subdomain(){
 }
 
 async function step6_done(){
-  setStep(6);
+  setStep(7);
   clearArea();
-  await botMsg(`✨ <strong>Your site is being created!</strong><br><br>
-    📛 <strong>Name:</strong> ${esc(state.name)}<br>
-    🌐 <strong>URL:</strong> ${esc(BASE_DOMAIN)}/${esc(state.subdomain)}<br><br>
-    Taking you to the builder now… 🚀`);
+  const details = [
+    `📛 <strong>Name:</strong> ${esc(state.name)}`,
+    state.city     ? `📍 <strong>City:</strong> ${esc(state.city)}`                   : '',
+    state.phone    ? `📞 <strong>Phone:</strong> ${esc(state.phone)}`                  : '',
+    state.whatsapp ? `💬 <strong>WhatsApp:</strong> ${esc(state.whatsapp)}`            : '',
+    `🌐 <strong>URL:</strong> ${esc(BASE_DOMAIN)}/${esc(state.subdomain)}`
+  ].filter(Boolean).join('<br>');
+  await botMsg(`✨ <strong>Your site is being created!</strong><br><br>${details}<br><br>Taking you to the builder now… 🚀`);
   setTimeout(submitSite, 600);
 }
 
@@ -510,8 +541,10 @@ function submitSite(){
   document.getElementById('f_subdomain').value   = state.subdomain;
   document.getElementById('f_template_id').value = state.themeSlug;
   document.getElementById('f_bio').value         = state.bio;
-  document.getElementById('f_cta_text').value    = state.ctaText;
-  document.getElementById('f_cta_url').value     = state.ctaUrl;
+  document.getElementById('f_phone').value       = state.phone;
+  document.getElementById('f_whatsapp').value    = state.whatsapp;
+  document.getElementById('f_city').value        = state.city;
+  document.getElementById('f_instagram').value   = state.instagram;
   document.getElementById('f_category_id').value = state.categoryId || '';
   document.getElementById('aiForm').submit();
 }

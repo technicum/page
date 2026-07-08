@@ -76,7 +76,8 @@ exports.createAI = async (req, res) => {
   const user = req.session.user
   const {
     title, subdomain: rawSub, template_id,
-    bio, cta_text, cta_url, site_type, category_id
+    bio, phone, whatsapp, city, instagram,
+    site_type, category_id
   } = req.body
 
   const subdomain = (rawSub || '').toLowerCase().trim()
@@ -102,41 +103,70 @@ exports.createAI = async (req, res) => {
   const resolvedTheme = themeData.slug || template_id || 'biolink-creator'
 
   // Deep-clone default blocks
-  let blocks     = JSON.parse(JSON.stringify(themeData.default_blocks || []))
+  let blocks       = JSON.parse(JSON.stringify(themeData.default_blocks || []))
   const appearance = JSON.parse(JSON.stringify(themeData.default_appearance || {}))
 
-  // Inject name + bio into the avatar block
+  // ── Inject wizard answers into blocks ───────────────────────────────────────
+
+  // 1. Avatar: name + bio
   const avatarBlock = blocks.find(b => b.type === 'avatar')
   if (avatarBlock) {
     if (title) avatarBlock.name = title
     if (bio)   avatarBlock.bio  = bio
   }
 
-  // Inject primary CTA into the first link block
-  if (cta_text) {
-    const linkBlock = blocks.find(b => b.type === 'link')
-    if (linkBlock) {
-      linkBlock.title = cta_text
-      linkBlock.url   = cta_url || '#'
+  // 2. Contact block: phone, whatsapp, city
+  const contactBlock = blocks.find(b => b.type === 'contact')
+  if (contactBlock) {
+    if (phone)    contactBlock.phone    = phone
+    if (whatsapp) contactBlock.whatsapp = whatsapp
+    if (city)     contactBlock.city     = city
+  }
+
+  // 3. Socials block: instagram
+  const socialsBlock = blocks.find(b => b.type === 'socials')
+  if (socialsBlock && instagram) {
+    socialsBlock.instagram = instagram
+  }
+
+  // 4. Auto-derive primary CTA link from contact info
+  //    First link block → WhatsApp button (if provided), else Call button
+  const linkBlock = blocks.find(b => b.type === 'link')
+  if (linkBlock) {
+    if (whatsapp) {
+      const wa = whatsapp.replace(/\D/g, '')
+      linkBlock.title = '💬 WhatsApp Us'
+      linkBlock.url   = `https://wa.me/${wa}`
+    } else if (phone) {
+      linkBlock.title = '📞 Call Us'
+      linkBlock.url   = `tel:${phone}`
     }
   }
 
-  const settings = JSON.stringify({
+  const settingsObj = {
     template_id: resolvedTheme,
     site_type:   site_type || 'minisite',
+    city:        city     || '',
+    phone:       phone    || '',
+    whatsapp:    whatsapp || '',
     blocks,
     appearance
-  })
+  }
 
   const id = await db.lastId(
     'INSERT INTO ms_sites (account_id, title, subdomain, category, template_id, settings, is_published) VALUES (?, ?, ?, ?, ?, ?, 1)',
-    [user.id, title, subdomain, site_type || 'minisite', resolvedTheme, settings]
+    [user.id, title, subdomain, site_type || 'minisite', resolvedTheme, JSON.stringify(settingsObj)]
   )
 
-  // Save category FK if provided
+  // Save category FK + city geocode in background
   const catId = parseInt(category_id) || null
   if (catId) {
     await db.execute('UPDATE ms_sites SET category_id = ? WHERE id = ?', [catId, id])
+  }
+  if (city) {
+    geocodeCity(city).then(geo => {
+      if (geo) db.execute('UPDATE ms_sites SET lat=?, lng=?, state=? WHERE id=?', [geo.lat, geo.lng, geo.state, id])
+    }).catch(() => {})
   }
 
   res.redirect(`/dashboard/site/biolink-builder?id=${id}`)
