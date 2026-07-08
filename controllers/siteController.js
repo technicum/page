@@ -317,10 +317,11 @@ exports.biolinkPreview = async (req, res) => {
     seo:         newSettings.seo         !== undefined ? newSettings.seo         : (existing.seo || {})
   })
 
-  // Inject products so the products_grid block can render in preview
+  // Inject products so the products_grid block can render in preview.
+  // No status filter here — builder preview shows all products (active + draft).
   try {
     const siteProducts = await db.query(
-      "SELECT id, type, name, description, price, compare_price, image_url, duration, in_stock, collection FROM ms_products WHERE account_id = ? AND status = 1 ORDER BY sort_order ASC, id ASC",
+      "SELECT id, type, name, description, price, compare_price, image_url, duration, in_stock, collection FROM ms_products WHERE account_id = ? ORDER BY sort_order ASC, id ASC",
       [user.id]
     )
     const parseCollections = (val) => {
@@ -330,7 +331,10 @@ exports.biolinkPreview = async (req, res) => {
     }
     ;(siteProducts || []).forEach(p => { p._clist = parseCollections(p.collection) })
     merged._products = siteProducts || []
-  } catch(e) { merged._products = [] }
+  } catch(e) {
+    console.error('[biolinkPreview] products query failed:', e.message)
+    merged._products = []
+  }
 
   try {
     const html = await themeManager.render(actualTemplateId, site, merged)
