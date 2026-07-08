@@ -1393,4 +1393,113 @@ function closeAddModal(e){
   }
 }
 function filterModalBlocks(q){
-  q=q.toLowerCase().
+  q=q.toLowerCase();
+  var anyVisible=false;
+  ['Standard','Advanced'].forEach(function(cat){
+    var catKey=cat.toLowerCase();
+    var grid=document.getElementById('modal'+cat);
+    var label=document.getElementById('catLabel'+cat);
+    if(!grid) return;
+    var cards=grid.querySelectorAll('.modal-block-card');
+    var catVisible=false;
+    cards.forEach(function(card){
+      var matches=card.dataset.label.toLowerCase().includes(q)||card.dataset.desc.toLowerCase().includes(q);
+      card.style.display=matches?'':'none';
+      if(matches) catVisible=true;
+    });
+    if(label) label.style.display=catVisible?'':'none';
+    if(catVisible) anyVisible=true;
+  });
+  document.getElementById('modalNoResults').style.display=anyVisible?'none':'block';
+}
+
+/* ── Preview (debounced POST → iframe) ──────── */
+var _previewTimer=null;
+function debouncedPreview(){
+  clearTimeout(_previewTimer);
+  _previewTimer=setTimeout(doPreview, 400);
+}
+function doPreview(){
+  var frame=document.getElementById('previewFrame');
+  var loading=document.getElementById('previewLoading');
+  if(!frame) return;
+  if(loading) loading.classList.add('show');
+  fetch('/dashboard/biolink-preview',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({site_id:SITE_ID, settings:{blocks:BLOCKS, appearance:APP, seo:SEO}})
+  }).then(function(r){return r.text();}).then(function(html){
+    if(loading) loading.classList.remove('show');
+    var doc=frame.contentDocument||frame.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+  }).catch(function(){
+    if(loading) loading.classList.remove('show');
+  });
+}
+
+/* ── Save ───────────────────────────────────── */
+function saveBlocks(){
+  document.getElementById('saveDot').className='save-dot';
+  document.getElementById('saveLabel').textContent='Saving…';
+  fetch('/dashboard/biolink-save',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({site_id:SITE_ID, settings:{blocks:BLOCKS, appearance:APP, seo:SEO}})
+  }).then(function(r){return r.json();}).then(function(d){
+    isDirty=false;
+    document.getElementById('saveDot').className='save-dot';
+    document.getElementById('saveLabel').textContent='Saved';
+  }).catch(function(){
+    document.getElementById('saveLabel').textContent='Error';
+  });
+}
+
+/* ── Publish ─────────────────────────────────── */
+function publishSite(){
+  fetch('/dashboard/site/toggle-publish',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({site_id:SITE_ID, published:true})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.ok){ var btn=document.getElementById('publishBtn'); if(btn){btn.textContent='Published ✓'; btn.style.background='#059669'; setTimeout(function(){btn.textContent='Publish';btn.style.background='';},2000);} }
+  });
+}
+
+/* ── Populate add-block modal ────────────────── */
+function populateModal(){
+  ['Standard','Advanced'].forEach(function(cat){
+    var grid=document.getElementById('modal'+cat);
+    if(!grid) return;
+    grid.innerHTML='';
+    Object.keys(BLOCK_TYPES).forEach(function(type){
+      var bt=BLOCK_TYPES[type];
+      if(bt.cat!==cat.toLowerCase()) return;
+      var card=document.createElement('div');
+      card.className='modal-block-card';
+      card.dataset.label=bt.label;
+      card.dataset.desc=bt.desc||'';
+      card.innerHTML='<div class="modal-block-icon">'+bt.icon+'</div><div class="modal-block-label">'+bt.label+'</div><div class="modal-block-desc">'+(bt.desc||'')+'</div>';
+      card.onclick=function(){ addBlock(type); closeAddModal(); };
+      grid.appendChild(card);
+    });
+  });
+}
+
+/* ── Keyboard shortcuts ──────────────────────── */
+document.addEventListener('keydown',function(e){
+  if((e.metaKey||e.ctrlKey)&&e.key==='s'){e.preventDefault();saveBlocks();}
+});
+
+/* ── Refresh button ──────────────────────────── */
+function refreshPreview(){ doPreview(); }
+
+/* ── Init ────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded',function(){
+  syncAppUI();
+  renderBlocks();
+  populateModal();
+  debouncedPreview();
+});
+</script>
+</body>
+</html>
