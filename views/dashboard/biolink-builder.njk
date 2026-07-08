@@ -273,7 +273,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
       <div class="save-dot" id="saveDot"></div>
       <span id="saveLabel">Saved</span>
     </div>
-    <button class="btn-publish" id="saveBtn" onclick="saveAll()">Publish</button>
+    <button class="btn-publish" id="saveBtn" onclick="saveAll()">{% if site.is_published %}Save{% else %}Publish{% endif %}</button>
   </div>
 </div>
 
@@ -529,6 +529,7 @@ var SITE_ID      = {{ site.id }};
 var SITE_SUB     = '{{ site.subdomain }}';
 var BASE_DOMAIN  = '{{ baseDomain }}';
 var CURRENT_THEME= 'biolink-creator'; // always universal block renderer
+var IS_PUBLISHED = {{ site.is_published | int }} === 1;
 if(!BLOCKS) BLOCKS=[];
 if(!APP) APP={};
 if(!SEO) SEO={};
