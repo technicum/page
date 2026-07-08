@@ -57,14 +57,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .acc.open .acc-body{display:block;}
 
 /* ── Form fields ─────────────────────────────── */
-.fg{margin-bottom:12px;}
+.fg{margin-bottom:14px;}
 .fg:last-child{margin-bottom:0;}
-.fg-label{display:block;font-size:10px;font-weight:700;color:#9ca3af;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
-.fg-input{width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;color:#1f2937;background:#fff;outline:none;transition:border-color .15s;font-family:inherit;}
-.fg-input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.08);}
-.fg-textarea{min-height:68px;resize:vertical;line-height:1.5;}
-.fg-select{width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;color:#1f2937;background:#fff;outline:none;font-family:inherit;cursor:pointer;}
-.fg-select:focus{border-color:#6366f1;}
+.fg-label{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px;}
+.fg-label::before{content:'';display:inline-block;width:3px;height:10px;border-radius:2px;background:#e5e7eb;flex-shrink:0;}
+.fg-input{width:100%;padding:9px 11px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:13px;color:#111827;background:#f9fafb;outline:none;transition:border-color .15s,background .15s;font-family:inherit;}
+.fg-input:focus{border-color:#6366f1;background:#fff;box-shadow:0 0 0 3px rgba(99,102,241,.08);}
+.fg-textarea{min-height:72px;resize:vertical;line-height:1.55;}
+.fg-select{width:100%;padding:9px 11px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:13px;color:#111827;background:#f9fafb;outline:none;font-family:inherit;cursor:pointer;transition:border-color .15s;}
+.fg-select:focus{border-color:#6366f1;background:#fff;}
 
 /* ── URL badge display ───────────────────────── */
 .url-display{display:flex;align-items:center;gap:8px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:12px;color:#6366f1;margin-bottom:8px;}
@@ -145,12 +146,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .color-swatch input[type=color]{position:absolute;inset:-4px;opacity:0;cursor:pointer;width:calc(100%+8px);height:calc(100%+8px);}
 
 /* ── Image field ─────────────────────────────── */
-.img-row{display:flex;gap:8px;align-items:center;}
-.img-thumb{width:40px;height:40px;border-radius:8px;background:#f3f4f6;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;flex-shrink:0;}
+.img-row{display:flex;gap:10px;align-items:flex-start;}
+.img-thumb{width:52px;height:52px;border-radius:10px;background:#f3f4f6;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;flex-shrink:0;}
 .img-thumb img{width:100%;height:100%;object-fit:cover;}
-.img-inputs{flex:1;display:flex;flex-direction:column;gap:5px;}
-.btn-upload{padding:5px 9px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;font-size:11px;font-weight:600;color:#374151;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s;}
-.btn-upload:hover{background:#eef2ff;border-color:#c7d2fe;color:#6366f1;}
+.img-inputs{flex:1;display:flex;flex-direction:column;gap:6px;}
+.btn-upload{padding:7px 11px;background:#f5f5ff;border:1.5px solid #e0e7ff;border-radius:7px;font-size:11px;font-weight:600;color:#6366f1;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s;width:100%;text-align:center;}
+.btn-upload:hover{background:#eef2ff;border-color:#a5b4fc;}
 
 /* ── Blocks tab ──────────────────────────────── */
 .blocks-header{padding:12px 14px;border-bottom:1px solid #f0f0f3;flex-shrink:0;display:none;}
@@ -180,10 +181,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .blk-btn:hover{background:#f3f4f6;color:#374151;}
 .blk-btn.eye-off{color:#d1d5db;}
 .blk-btn.del:hover{background:#fee2e2;color:#ef4444;}
-.blk-body{padding:12px 12px 4px;border-top:1px solid #f0f0f3;display:none;}
+.blk-body{padding:14px 14px 8px;border-top:1px solid #ede9fe;background:#fafbff;display:none;}
 .blk-card.open .blk-body{display:block;}
-.blk-done{width:100%;margin-top:10px;padding:8px;background:#f3f4f6;border:none;border-radius:7px;font-size:12px;font-weight:600;color:#374151;cursor:pointer;font-family:inherit;transition:all .15s;}
-.blk-done:hover{background:#e5e7eb;}
+.blk-done{width:100%;margin-top:12px;padding:9px;background:#fff;border:1.5px solid #e0e7ff;border-radius:9px;font-size:12px;font-weight:600;color:#6366f1;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.blk-done:hover{background:#eef2ff;border-color:#a5b4fc;}
 
 /* ── Hours grid ──────────────────────────────── */
 .hours-grid{display:grid;grid-template-columns:auto 1fr 10px 1fr;gap:4px 6px;align-items:center;}
@@ -1104,8 +1105,8 @@ function buildBlockFields(block, container){
   _bsep.style.cssText='border-top:1.5px solid #f0f0f3;margin-top:14px;padding-top:10px;';
   // Toggle button
   var _advBtn=document.createElement('button'); _advBtn.type='button';
-  _advBtn.style.cssText='display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#9ca3af;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;width:100%;';
-  _advBtn.innerHTML='<span id="_advChevron" style="transition:transform .2s;display:inline-block;">▶</span><span>Advanced settings</span>';
+  _advBtn.style.cssText='display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#6b7280;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;cursor:pointer;font-family:inherit;padding:6px 10px;width:100%;';
+  _advBtn.innerHTML='<span id="_advChevron" style="transition:transform .2s;display:inline-block;font-size:9px;">▶</span><span>Advanced settings</span>';
   var _advBody=document.createElement('div');
   _advBody.style.cssText='display:none;padding-top:10px;';
   _advBtn.onclick=function(){
