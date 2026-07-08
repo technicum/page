@@ -25,25 +25,31 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 /* Collections list */
 .col-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:12px;transition:border-color .15s,box-shadow .15s;}
 .col-card:hover{border-color:#c7d2fe;box-shadow:0 2px 10px rgba(99,102,241,.08);}
-.col-card-row{display:flex;align-items:center;gap:14px;padding:16px 20px;}
+.col-card-row{display:flex;align-items:center;gap:14px;padding:16px 20px;flex-wrap:wrap;}
 .col-icon{width:40px;height:40px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 .col-info{flex:1;min-width:0;}
 .col-name{font-size:15px;font-weight:600;color:#111827;}
 .col-count{font-size:12px;color:#9ca3af;margin-top:2px;}
-.col-actions{display:flex;gap:8px;flex-shrink:0;}
+.col-actions{display:flex;gap:8px;flex-shrink:0;align-items:center;}
 .btn-view{padding:7px 14px;background:#f3f4f6;color:#374151;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;transition:background .15s;}
 .btn-view:hover{background:#e5e7eb;}
 .btn-del{padding:7px 10px;border:1.5px solid #fee2e2;background:#fff;color:#ef4444;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
 .btn-del:hover{background:#fef2f2;}
+
+/* Edit (rename) */
+.btn-edit{padding:7px 10px;border:1.5px solid #e5e7eb;background:#fff;color:#6b7280;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s;line-height:1;}
+.btn-edit:hover{border-color:#6366f1;color:#6366f1;}
+.col-name-edit{display:none;border:1.5px solid #6366f1;border-radius:6px;padding:4px 10px;font-size:14px;font-family:inherit;font-weight:600;color:#111827;outline:none;width:180px;box-shadow:0 0 0 3px rgba(99,102,241,.1);}
+.btn-save{padding:6px 12px;background:#6366f1;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:none;transition:opacity .15s;}
+.btn-save:hover{opacity:.85;}
+.btn-cancel-edit{padding:6px 10px;background:#f3f4f6;color:#6b7280;border:none;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;display:none;transition:background .15s;}
+.btn-cancel-edit:hover{background:#e5e7eb;}
 
 /* Empty */
 .empty{text-align:center;padding:60px 24px;background:#fff;border:2px dashed #e5e7eb;border-radius:14px;}
 .empty-icon{font-size:44px;margin-bottom:12px;}
 .empty h3{font-size:17px;font-weight:700;color:#111827;margin-bottom:6px;}
 .empty p{font-size:13px;color:#9ca3af;}
-
-/* Rename inline */
-.col-name-edit{display:none;border:1.5px solid #6366f1;border-radius:6px;padding:4px 10px;font-size:14px;font-family:inherit;font-weight:600;color:#111827;outline:none;width:200px;}
 </style>
 {% endblock %}
 
@@ -81,11 +87,16 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
                 <div class="col-icon">🗂</div>
                 <div class="col-info">
                   <div class="col-name" id="col-name-{{ c.id }}">{{ c.name }}</div>
-                  <div class="col-count">{{ c.product_count }} product{{ 's' if c.product_count != 1 else '' }}</div>
+                  <input class="col-name-edit" id="col-edit-{{ c.id }}" type="text" value="{{ c.name }}" maxlength="100"
+                         onkeydown="if(event.key==='Enter') saveCollection({{ c.id }}); if(event.key==='Escape') cancelEdit({{ c.id }})">
+                  <div class="col-count" id="col-count-{{ c.id }}">{{ c.product_count }} product{{ 's' if c.product_count != 1 else '' }}</div>
                 </div>
-                <div class="col-actions">
-                  <a class="btn-view" href="/dashboard/products?collection={{ c.name | urlencode }}">View products →</a>
-                  <button class="btn-del" onclick="deleteCollection({{ c.id }}, this)" title="Delete collection">🗑</button>
+                <div class="col-actions" id="col-actions-{{ c.id }}">
+                  <a class="btn-view" id="col-view-{{ c.id }}" href="/dashboard/products?collection={{ c.name | urlencode }}">View products →</a>
+                  <button class="btn-edit" id="col-btn-edit-{{ c.id }}" onclick="startEdit({{ c.id }})" title="Rename">✏️</button>
+                  <button class="btn-save" id="col-btn-save-{{ c.id }}" onclick="saveCollection({{ c.id }})">Save</button>
+                  <button class="btn-cancel-edit" id="col-btn-cancel-{{ c.id }}" onclick="cancelEdit({{ c.id }})">Cancel</button>
+                  <button class="btn-del" id="col-btn-del-{{ c.id }}" onclick="deleteCollection({{ c.id }}, this)" title="Delete collection">🗑</button>
                 </div>
               </div>
             </div>
@@ -123,31 +134,114 @@ function addCollection() {
     input.value = '';
     setTimeout(function(){ msg.textContent=''; }, 2000);
 
-    // Remove empty state if present
     var empty = document.getElementById('empty-state');
     if (empty) empty.remove();
 
-    // Prepend new card
+    var id = d.collection.id;
     var card = document.createElement('div');
     card.className = 'col-card';
-    card.id = 'col-card-' + d.collection.id;
-    card.dataset.id = d.collection.id;
+    card.id = 'col-card-' + id;
+    card.dataset.id = id;
     card.dataset.name = d.collection.name;
-    card.innerHTML = '<div class="col-card-row">' +
-      '<div class="col-icon">🗂</div>' +
-      '<div class="col-info">' +
-        '<div class="col-name" id="col-name-' + d.collection.id + '">' + escHtml(d.collection.name) + '</div>' +
-        '<div class="col-count">0 products</div>' +
-      '</div>' +
-      '<div class="col-actions">' +
-        '<a class="btn-view" href="/dashboard/products?collection=' + encodeURIComponent(d.collection.name) + '">View products →</a>' +
-        '<button class="btn-del" onclick="deleteCollection(' + d.collection.id + ',this)" title="Edit collection">🗑</button>' +
-        '<button class="btn-del" onclick="deleteCollection(' + d.collection.id + ',this)" title="Delete collection">🗑</button>' +
-      '</div>' +
-    '</div>';
+    card.innerHTML = buildCardInner(id, d.collection.name, '0 products');
     document.getElementById('col-list').appendChild(card);
   })
   .catch(function(){ msg.style.color='#ef4444'; msg.textContent='Network error.'; });
+}
+
+function buildCardInner(id, name, countText) {
+  return '<div class="col-card-row">' +
+    '<div class="col-icon">🗂</div>' +
+    '<div class="col-info">' +
+      '<div class="col-name" id="col-name-' + id + '">' + escHtml(name) + '</div>' +
+      '<input class="col-name-edit" id="col-edit-' + id + '" type="text" value="' + escAttr(name) + '" maxlength="100"' +
+        ' onkeydown="if(event.key===\'Enter\') saveCollection(' + id + '); if(event.key===\'Escape\') cancelEdit(' + id + ')">' +
+      '<div class="col-count" id="col-count-' + id + '">' + escHtml(countText) + '</div>' +
+    '</div>' +
+    '<div class="col-actions" id="col-actions-' + id + '">' +
+      '<a class="btn-view" id="col-view-' + id + '" href="/dashboard/products?collection=' + encodeURIComponent(name) + '">View products →</a>' +
+      '<button class="btn-edit" id="col-btn-edit-' + id + '" onclick="startEdit(' + id + ')" title="Rename">✏️</button>' +
+      '<button class="btn-save" id="col-btn-save-' + id + '" onclick="saveCollection(' + id + ')">Save</button>' +
+      '<button class="btn-cancel-edit" id="col-btn-cancel-' + id + '" onclick="cancelEdit(' + id + ')">Cancel</button>' +
+      '<button class="btn-del" id="col-btn-del-' + id + '" onclick="deleteCollection(' + id + ',this)" title="Delete collection">🗑</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function startEdit(id) {
+  var nameEl  = document.getElementById('col-name-' + id);
+  var input   = document.getElementById('col-edit-' + id);
+  var viewBtn = document.getElementById('col-view-' + id);
+  var editBtn = document.getElementById('col-btn-edit-' + id);
+  var saveBtn = document.getElementById('col-btn-save-' + id);
+  var cancelBtn = document.getElementById('col-btn-cancel-' + id);
+  var delBtn  = document.getElementById('col-btn-del-' + id);
+
+  nameEl.style.display  = 'none';
+  input.style.display   = 'block';
+  viewBtn.style.display = 'none';
+  editBtn.style.display = 'none';
+  delBtn.style.display  = 'none';
+  saveBtn.style.display = 'inline-flex';
+  cancelBtn.style.display = 'inline-flex';
+  input.focus();
+  input.select();
+}
+
+function cancelEdit(id) {
+  var nameEl  = document.getElementById('col-name-' + id);
+  var input   = document.getElementById('col-edit-' + id);
+  var viewBtn = document.getElementById('col-view-' + id);
+  var editBtn = document.getElementById('col-btn-edit-' + id);
+  var saveBtn = document.getElementById('col-btn-save-' + id);
+  var cancelBtn = document.getElementById('col-btn-cancel-' + id);
+  var delBtn  = document.getElementById('col-btn-del-' + id);
+
+  // Restore original value
+  input.value = nameEl.textContent;
+  nameEl.style.display  = '';
+  input.style.display   = 'none';
+  viewBtn.style.display = '';
+  editBtn.style.display = '';
+  delBtn.style.display  = '';
+  saveBtn.style.display = 'none';
+  cancelBtn.style.display = 'none';
+}
+
+function saveCollection(id) {
+  var input   = document.getElementById('col-edit-' + id);
+  var newName = input.value.trim();
+  if (!newName) { input.focus(); return; }
+
+  var saveBtn = document.getElementById('col-btn-save-' + id);
+  saveBtn.textContent = '…'; saveBtn.disabled = true;
+
+  fetch('/dashboard/products/collections/update', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ id: id, name: newName })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    saveBtn.textContent = 'Save'; saveBtn.disabled = false;
+    if (!d.ok) { alert(d.error || 'Could not rename.'); return; }
+
+    // Update displayed name
+    var nameEl  = document.getElementById('col-name-' + id);
+    var viewBtn = document.getElementById('col-view-' + id);
+    nameEl.textContent = d.name;
+    input.value = d.name;
+    viewBtn.href = '/dashboard/products?collection=' + encodeURIComponent(d.name);
+
+    // Update card dataset
+    var card = document.getElementById('col-card-' + id);
+    if (card) card.dataset.name = d.name;
+
+    cancelEdit(id);
+  })
+  .catch(function(){
+    saveBtn.textContent = 'Save'; saveBtn.disabled = false;
+    alert('Network error.');
+  });
 }
 
 function deleteCollection(id, btn) {
@@ -171,7 +265,10 @@ function deleteCollection(id, btn) {
 }
 
 function escHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(t) {
+  return String(t).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 document.getElementById('col-input').focus();

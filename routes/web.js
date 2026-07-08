@@ -138,6 +138,7 @@ router.post('/dashboard/products/delete',  requireAuth, product.destroy)
 router.post('/dashboard/products/reorder',             requireAuth, product.reorder)
 router.post('/dashboard/products/upload-image',        requireAuth, product.uploadImage)
 router.post('/dashboard/products/collections/create',  requireAuth, product.createCollection)
+router.post('/dashboard/products/collections/update',  requireAuth, product.updateCollection)
 router.post('/dashboard/products/collections/delete',  requireAuth, product.deleteCollection)
 
 // Dashboard

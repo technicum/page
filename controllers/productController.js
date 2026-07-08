@@ -92,6 +92,26 @@ exports.createCollection = async (req, res) => {
   }
 }
 
+/* POST /dashboard/products/collections/update */
+exports.updateCollection = async (req, res) => {
+  const user = req.session.user
+  const { id, name } = req.body
+  if (!name || !name.trim()) return res.json({ ok: false, error: 'Name is required.' })
+  try {
+    const existing = await db.first('SELECT name FROM ms_collections WHERE id = ? AND account_id = ?', [id, user.id])
+    if (!existing) return res.json({ ok: false, error: 'Collection not found.' })
+    const newName = name.trim()
+    if (newName === existing.name) return res.json({ ok: true, name: newName })
+    const dup = await db.first('SELECT id FROM ms_collections WHERE account_id = ? AND name = ? AND id != ?', [user.id, newName, id])
+    if (dup) return res.json({ ok: false, error: 'That name is already taken.' })
+    await db.execute('UPDATE ms_collections SET name = ? WHERE id = ? AND account_id = ?', [newName, id, user.id])
+    await db.execute('UPDATE ms_products SET collection = ? WHERE account_id = ? AND collection = ?', [newName, user.id, existing.name])
+    res.json({ ok: true, name: newName })
+  } catch(e) {
+    res.json({ ok: false, error: 'Could not update.' })
+  }
+}
+
 /* POST /dashboard/products/collections/delete */
 exports.deleteCollection = async (req, res) => {
   const user = req.session.user
