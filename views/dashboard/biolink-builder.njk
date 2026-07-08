@@ -102,7 +102,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .bg-tab-pane.active{display:block;}
 
 /* ── Style presets ───────────────────────────── */
-.preset-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
 .preset-btn:hover{transform:scale(1.03);}
 
 /* ── Animation chips ─────────────────────────── */
@@ -605,12 +605,18 @@ var BLOCK_TYPES = {
 };
 
 var PRESETS = [
-  {name:'Default',   emoji:'🟣', btnColor:'#6366f1', btnTextColor:'#ffffff', bgColor:'#ffffff',  textColor:'#1a1a1a', btnStyle:'filled',  btnRadius:'8',  bgType:'color', fontFamily:'inter'},
-  {name:'Dark',      emoji:'🌑', btnColor:'#f59e0b', btnTextColor:'#000000', bgColor:'#0f0f0f',  textColor:'#ffffff', btnStyle:'filled',  btnRadius:'50', bgType:'color', fontFamily:'inter'},
-  {name:'Minimal',   emoji:'⬜', btnColor:'#111111', btnTextColor:'#ffffff', bgColor:'#fafafa',  textColor:'#111111', btnStyle:'outline', btnRadius:'4',  bgType:'color', fontFamily:'inter'},
-  {name:'Neon',      emoji:'🔵', btnColor:'#06b6d4', btnTextColor:'#000000', bgColor:'#0f172a',  textColor:'#ffffff', btnStyle:'filled',  btnRadius:'8',  bgType:'color', fontFamily:'inter'},
-  {name:'Warm',      emoji:'🟠', btnColor:'#f97316', btnTextColor:'#ffffff', bgColor:'#fafaf8',  textColor:'#1a1a1a', btnStyle:'soft',    btnRadius:'12', bgType:'color', fontFamily:'inter'},
-  {name:'Forest',    emoji:'🟢', btnColor:'#059669', btnTextColor:'#ffffff', bgColor:'#f0fdf4',  textColor:'#166534', btnStyle:'soft',    btnRadius:'20', bgType:'color', fontFamily:'inter'}
+  {name:'Default',   btnColor:'#6366f1', btnTextColor:'#ffffff', bgColor:'#ffffff',  textColor:'#1a1a1a', btnStyle:'filled',  btnRadius:'8',  bgType:'color',    fontFamily:'inter',   bgGradient:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)'},
+  {name:'Dark',      btnColor:'#f59e0b', btnTextColor:'#000000', bgColor:'#0f0f0f',  textColor:'#ffffff', btnStyle:'filled',  btnRadius:'50', bgType:'color',    fontFamily:'inter',   bgGradient:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)'},
+  {name:'Minimal',   btnColor:'#111111', btnTextColor:'#ffffff', bgColor:'#fafafa',  textColor:'#111111', btnStyle:'outline', btnRadius:'4',  bgType:'color',    fontFamily:'inter',   bgGradient:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)'},
+  {name:'Neon',      btnColor:'#06b6d4', btnTextColor:'#000000', bgColor:'#0f172a',  textColor:'#e2e8f0', btnStyle:'filled',  btnRadius:'8',  bgType:'color',    fontFamily:'inter',   bgGradient:'linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%)'},
+  {name:'Warm',      btnColor:'#f97316', btnTextColor:'#ffffff', bgColor:'#fefce8',  textColor:'#78350f', btnStyle:'soft',    btnRadius:'12', bgType:'color',    fontFamily:'inter',   bgGradient:'linear-gradient(135deg,#fef3c7 0%,#fde68a 100%)'},
+  {name:'Forest',    btnColor:'#059669', btnTextColor:'#ffffff', bgColor:'#f0fdf4',  textColor:'#166534', btnStyle:'soft',    btnRadius:'20', bgType:'color',    fontFamily:'inter',   bgGradient:'linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)'},
+  {name:'Rose',      btnColor:'#e11d48', btnTextColor:'#ffffff', bgColor:'#fff1f2',  textColor:'#881337', btnStyle:'filled',  btnRadius:'50', bgType:'color',    fontFamily:'playfair', bgGradient:'linear-gradient(135deg,#fda4af 0%,#fb7185 100%)'},
+  {name:'Midnight',  btnColor:'#818cf8', btnTextColor:'#ffffff', bgColor:'#1e1b4b',  textColor:'#c7d2fe', btnStyle:'outline', btnRadius:'8',  bgType:'color',    fontFamily:'inter',   bgGradient:'linear-gradient(135deg,#1e1b4b 0%,#312e81 100%)'},
+  {name:'Sunset',    btnColor:'#7c3aed', btnTextColor:'#ffffff', bgColor:'#ffffff',  textColor:'#1a1a1a', btnStyle:'filled',  btnRadius:'12', bgType:'gradient', fontFamily:'inter',   bgGradient:'linear-gradient(135deg,#f093fb 0%,#f5576c 100%)'},
+  {name:'Ocean',     btnColor:'#0ea5e9', btnTextColor:'#ffffff', bgColor:'#ffffff',  textColor:'#0c4a6e', btnStyle:'filled',  btnRadius:'8',  bgType:'gradient', fontFamily:'inter',   bgGradient:'linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)'},
+  {name:'Slate',     btnColor:'#475569', btnTextColor:'#ffffff', bgColor:'#f8fafc',  textColor:'#0f172a', btnStyle:'shadow',  btnRadius:'6',  bgType:'color',    fontFamily:'inter',   bgGradient:'linear-gradient(135deg,#e2e8f0 0%,#cbd5e1 100%)'},
+  {name:'Gold',      btnColor:'#b45309', btnTextColor:'#ffffff', bgColor:'#1c1917',  textColor:'#fef3c7', btnStyle:'filled',  btnRadius:'4',  bgType:'color',    fontFamily:'playfair', bgGradient:'linear-gradient(135deg,#78350f 0%,#92400e 100%)'},
 ];
 
 var GRADIENTS = [
@@ -756,11 +762,30 @@ function buildSettingsUI(){
   if(pg){
     pg.innerHTML='';
     PRESETS.forEach(function(p){
+      var isGrad = p.bgType==='gradient';
+      var cardBg = isGrad ? p.bgGradient : p.bgColor;
       var btn=document.createElement('button');
       btn.className='preset-btn';
-      btn.style.cssText='background:'+p.bgColor+';color:'+p.textColor+';border:2px solid rgba(0,0,0,0.1);border-radius:10px;padding:10px 8px;cursor:pointer;text-align:center;font-family:inherit;transition:border-color .15s;';
-      btn.innerHTML='<div style="width:100%;height:28px;border-radius:6px;background:'+p.btnColor+';margin-bottom:5px;"></div><div style="font-size:11px;font-weight:600;">'+p.name+'</div>';
-      btn.onclick=function(){ applyPreset(p); document.querySelectorAll('.preset-btn').forEach(function(b){b.style.borderColor='rgba(0,0,0,0.1)';}); btn.style.borderColor=p.btnColor; };
+      btn.dataset.preset=p.name;
+      btn.style.cssText='background:'+cardBg+';color:'+p.textColor+';border:2.5px solid transparent;border-radius:10px;padding:10px 10px 8px;cursor:pointer;text-align:left;font-family:inherit;transition:border-color .15s,box-shadow .15s;width:100%;';
+      btn.innerHTML=
+        '<div style="width:100%;height:22px;border-radius:5px;background:'+p.btnColor+';margin-bottom:6px;"></div>'+
+        '<div style="font-size:11px;font-weight:700;color:'+p.textColor+';">'+p.name+'</div>'+
+        '<div style="font-size:10px;opacity:.6;margin-top:1px;color:'+p.textColor+';">Aa · '+p.btnStyle+'</div>';
+      // highlight if matches current APP
+      if(APP.btnColor===p.btnColor && APP.bgColor===p.bgColor){
+        btn.style.borderColor=p.btnColor;
+        btn.style.boxShadow='0 0 0 1px '+p.btnColor+'44';
+      }
+      btn.onclick=function(){
+        applyPreset(p);
+        document.querySelectorAll('.preset-btn').forEach(function(b){
+          b.style.borderColor='transparent';
+          b.style.boxShadow='none';
+        });
+        btn.style.borderColor=p.btnColor;
+        btn.style.boxShadow='0 0 0 1px '+p.btnColor+'44';
+      };
       pg.appendChild(btn);
     });
   }
