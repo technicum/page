@@ -203,7 +203,7 @@ self.addEventListener('fetch',function(e){});`)
     // Inject products so liquid templates can render products_grid blocks
     try {
       const siteProducts = await db.query(
-        "SELECT id, type, name, description, price, compare_price, image_url, duration, in_stock, collection FROM ms_products WHERE account_id = ? AND status = 1 AND type != 'job' ORDER BY sort_order ASC, id ASC",
+        "SELECT id, type, name, description, price, compare_price, image_url, duration, in_stock, collection FROM ms_products WHERE account_id = ? AND status = 1 ORDER BY sort_order ASC, id ASC",
         [site.account_id]
       )
       // Parse collection JSON into a real array (_clist) for where_includes filter
