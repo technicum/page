@@ -39,13 +39,51 @@ exports.index = async (req, res) => {
     'SELECT id, title, subdomain FROM ms_sites WHERE account_id = ? AND parent_site_id IS NULL ORDER BY id ASC',
     [user.id]
   )
+  let collections = []
+  try {
+    collections = await db.query(
+      'SELECT * FROM ms_collections WHERE account_id = ? ORDER BY sort_order ASC, name ASC',
+      [user.id]
+    ) || []
+  } catch(e) { /* table not yet created */ }
+
   res.render('dashboard/products.njk', {
     title: 'Products',
     user,
     activePage: 'products',
     products: products || [],
+    collections,
     sites: sites || []
   })
+}
+
+/* POST /dashboard/products/collections/create */
+exports.createCollection = async (req, res) => {
+  const user = req.session.user
+  const { name } = req.body
+  if (!name || !name.trim()) return res.json({ ok: false, error: 'Name is required.' })
+  try {
+    const id = await db.lastId(
+      'INSERT INTO ms_collections (account_id, name) VALUES (?, ?)',
+      [user.id, name.trim()]
+    )
+    res.json({ ok: true, collection: { id, name: name.trim() } })
+  } catch(e) {
+    res.json({ ok: false, error: 'Could not create collection.' })
+  }
+}
+
+/* POST /dashboard/products/collections/delete */
+exports.deleteCollection = async (req, res) => {
+  const user = req.session.user
+  const { id } = req.body
+  if (!id) return res.json({ ok: false, error: 'ID required.' })
+  try {
+    await db.execute('DELETE FROM ms_collections WHERE id = ? AND account_id = ?', [id, user.id])
+    res.json({ ok: true })
+  } catch(e) {
+    res.json({ ok: false, error: 'Could not delete.' })
+  }
 }
 
 /* POST /dashboard/products/create */

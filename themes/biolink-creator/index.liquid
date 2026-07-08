@@ -600,9 +600,14 @@ body{
 <div class="b-products-grid">
   {% if block.heading != blank %}<div class="pg-heading">{{ block.heading }}</div>{% endif %}
   {% assign _cols = block.columns | default: '2' %}
+  {% if block.collection != blank and block.collection != nil %}
+    {% assign _pg_items = settings._products | where: "collection", block.collection %}
+  {% else %}
+    {% assign _pg_items = settings._products %}
+  {% endif %}
   <div class="pg-grid pg-cols-{{ _cols }}">
-    {% if settings._products and settings._products.size > 0 %}
-      {% for p in settings._products %}
+    {% if _pg_items and _pg_items.size > 0 %}
+      {% for p in _pg_items %}
       <div class="pg-card">
         {% if p.image_url != blank and p.image_url != nil %}
           <div class="pg-img"><img src="{{ p.image_url }}" alt="{{ p.name }}"></div>
@@ -621,7 +626,9 @@ body{
       </div>
       {% endfor %}
     {% else %}
-      <div style="grid-column:1/-1;text-align:center;padding:32px;color:{{ _text_color }}55;font-size:14px;">No products added yet</div>
+      <div style="grid-column:1/-1;text-align:center;padding:32px;color:{{ _text_color }}55;font-size:14px;">
+        {% if block.collection != blank %}No products in "{{ block.collection }}"{% else %}No products added yet{% endif %}
+      </div>
     {% endif %}
   </div>
 </div>

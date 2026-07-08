@@ -154,6 +154,16 @@ exports.biolinkBuilder = async (req, res) => {
   const appearance = settings.appearance || {}
   const seo        = settings.seo        || {}
 
+  // Named collections for the products_grid block picker
+  let productCollections = []
+  try {
+    const colRows = await db.query(
+      'SELECT name FROM ms_collections WHERE account_id = ? ORDER BY sort_order ASC, name ASC',
+      [user.id]
+    )
+    productCollections = (colRows || []).map(r => r.name)
+  } catch(e) { /* ms_collections table may not exist yet */ }
+
   res.render('dashboard/biolink-builder.njk', {
     title: 'Bio Link Editor',
     user,
@@ -162,6 +172,7 @@ exports.biolinkBuilder = async (req, res) => {
     blocks,
     appearance,
     seo,
+    productCollections,
     baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
   })
 }

@@ -134,8 +134,10 @@ router.get ('/dashboard/products',         requireAuth, product.index)
 router.post('/dashboard/products/create',  requireAuth, product.create)
 router.post('/dashboard/products/update',  requireAuth, product.update)
 router.post('/dashboard/products/delete',  requireAuth, product.destroy)
-router.post('/dashboard/products/reorder',      requireAuth, product.reorder)
-router.post('/dashboard/products/upload-image', requireAuth, product.uploadImage)
+router.post('/dashboard/products/reorder',             requireAuth, product.reorder)
+router.post('/dashboard/products/upload-image',        requireAuth, product.uploadImage)
+router.post('/dashboard/products/collections/create',  requireAuth, product.createCollection)
+router.post('/dashboard/products/collections/delete',  requireAuth, product.deleteCollection)
 
 // Dashboard
 router.get ('/dashboard',          requireAuth, dash.index)
