@@ -76,7 +76,7 @@ exports.createAI = async (req, res) => {
   const user = req.session.user
   const {
     title, subdomain: rawSub, template_id,
-    bio, cta_text, cta_url, site_type
+    bio, cta_text, cta_url, site_type, category_id
   } = req.body
 
   const subdomain = (rawSub || '').toLowerCase().trim()
@@ -132,6 +132,12 @@ exports.createAI = async (req, res) => {
     'INSERT INTO ms_sites (account_id, title, subdomain, category, template_id, settings, is_published) VALUES (?, ?, ?, ?, ?, ?, 1)',
     [user.id, title, subdomain, site_type || 'minisite', resolvedTheme, settings]
   )
+
+  // Save category FK if provided
+  const catId = parseInt(category_id) || null
+  if (catId) {
+    await db.execute('UPDATE ms_sites SET category_id = ? WHERE id = ?', [catId, id])
+  }
 
   res.redirect(`/dashboard/site/biolink-builder?id=${id}`)
 }

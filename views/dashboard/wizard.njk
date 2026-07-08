@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Create your site — {{ app_name }}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -19,187 +19,107 @@
 html,body{height:100%;overflow:hidden;}
 body{font-family:'DM Sans',sans-serif;background:var(--off);color:var(--ink);display:flex;flex-direction:column;}
 
-/* ── NAV ── */
-nav{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;height:56px;background:var(--white);
-  border-bottom:1px solid var(--border);flex-shrink:0;
-}
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;}
 .logo{font-family:'DM Serif Display',serif;font-size:19px;text-decoration:none;color:var(--ink);}
 .logo em{font-style:italic;color:var(--blue);}
 .step-count{font-size:13px;color:var(--ink-faint);}
 .step-count span{color:var(--ink-muted);font-weight:500;}
 
-/* ── CHAT SHELL ── */
+/* CHAT SHELL */
 .chat-shell{flex:1;display:flex;flex-direction:column;max-width:680px;width:100%;margin:0 auto;overflow:hidden;}
-
-.chat-messages{
-  flex:1;overflow-y:auto;padding:24px 16px 8px;
-  display:flex;flex-direction:column;gap:0;
-  scroll-behavior:smooth;
-}
+.chat-messages{flex:1;overflow-y:auto;padding:20px 16px 4px;display:flex;flex-direction:column;scroll-behavior:smooth;}
 .chat-messages::-webkit-scrollbar{width:4px;}
 .chat-messages::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:4px;}
 
-/* ── MESSAGES ── */
-.msg{display:flex;gap:10px;margin-bottom:12px;animation:msgIn 0.3s ease both;}
-@keyframes msgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
+/* MESSAGES */
+.msg{display:flex;gap:10px;margin-bottom:10px;animation:msgIn 0.28s ease both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .msg-bot{align-items:flex-start;}
 .msg-user{align-items:flex-end;flex-direction:row-reverse;}
+.bot-avatar{width:32px;height:32px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-top:2px;}
+.bubble{max-width:84%;padding:11px 14px;border-radius:var(--radius-lg);font-size:14px;line-height:1.55;}
+.bubble-bot{background:var(--white);border:1px solid var(--border);border-top-left-radius:4px;color:var(--ink);}
+.bubble-user{background:var(--blue);color:#fff;border-top-right-radius:4px;}
+.bubble .hint{font-size:12px;color:var(--ink-faint);margin-top:5px;}
 
-.bot-avatar{
-  width:34px;height:34px;border-radius:50%;background:var(--ink);
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;flex-shrink:0;margin-top:2px;
-}
-.bubble{
-  max-width:82%;padding:12px 15px;border-radius:var(--radius-lg);
-  font-size:14.5px;line-height:1.55;
-}
-.bubble-bot{
-  background:var(--white);border:1px solid var(--border);
-  border-top-left-radius:4px;color:var(--ink);
-}
-.bubble-user{
-  background:var(--blue);color:#fff;
-  border-top-right-radius:4px;
-}
-.bubble strong{font-weight:600;}
-.bubble .hint{font-size:12.5px;color:var(--ink-faint);margin-top:6px;}
-
-/* typing indicator */
-.typing-dots{display:flex;gap:4px;align-items:center;padding:4px 2px;}
-.typing-dots span{
-  width:7px;height:7px;border-radius:50%;background:var(--ink-faint);
-  animation:dot 1.2s infinite ease-in-out;
-}
-.typing-dots span:nth-child(2){animation-delay:0.2s;}
-.typing-dots span:nth-child(3){animation-delay:0.4s;}
+/* TYPING */
+.typing-dots{display:flex;gap:4px;align-items:center;padding:3px 0;}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);animation:dot 1.2s infinite ease-in-out;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
 @keyframes dot{0%,80%,100%{transform:scale(0.7);opacity:0.5}40%{transform:scale(1);opacity:1}}
 
-/* ── QUICK REPLIES ── */
-.qr-row{
-  display:flex;flex-wrap:wrap;gap:8px;
-  padding:4px 16px 12px;
+/* CATEGORY GRID */
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 16px 12px;}
+@media(max-width:480px){.cat-grid{grid-template-columns:repeat(2,1fr);}}
+.cat-card{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:var(--radius);
+  border:1.5px solid var(--border-md);background:var(--white);
+  cursor:pointer;transition:all .15s;
 }
+.cat-card:hover{border-color:var(--blue);background:var(--blue-light);}
+.cat-card.selected{border-color:var(--blue);background:var(--blue-light);}
+.cat-icon{font-size:20px;flex-shrink:0;line-height:1;}
+.cat-name{font-size:12.5px;font-weight:500;color:var(--ink);line-height:1.3;}
+
+/* QUICK REPLIES */
+.qr-row{display:flex;flex-wrap:wrap;gap:7px;padding:4px 16px 12px;}
 .qr-btn{
   padding:8px 14px;border-radius:100px;border:1.5px solid var(--border-md);
-  background:var(--white);font-size:13.5px;color:var(--ink);cursor:pointer;
-  font-family:'DM Sans',sans-serif;transition:all 0.15s;font-weight:500;
-  white-space:nowrap;
+  background:var(--white);font-size:13px;color:var(--ink);cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all .15s;font-weight:500;white-space:nowrap;
 }
 .qr-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
 .qr-btn.selected{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
 
-/* ── THEME CARDS ── */
-.theme-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;
-  padding:4px 16px 16px;
-}
-.theme-card{
-  border:1.5px solid var(--border-md);border-radius:var(--radius);
-  background:var(--white);cursor:pointer;overflow:hidden;
-  transition:all 0.15s;
-}
-.theme-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 16px rgba(37,99,235,0.12);}
-.theme-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.15);}
-.tc-preview{
-  height:72px;display:flex;align-items:center;justify-content:center;
-  font-size:22px;border-bottom:1px solid var(--border);
-}
-.tc-body{padding:10px 12px;}
-.tc-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;}
-.tc-desc{font-size:11.5px;color:var(--ink-faint);line-height:1.4;}
-.tc-check{
-  width:18px;height:18px;border-radius:50%;background:var(--blue);
-  display:none;align-items:center;justify-content:center;float:right;margin-top:-2px;
-}
-.tc-check i{font-size:10px;color:#fff;}
+/* THEME CARDS */
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:9px;padding:4px 16px 14px;}
+.theme-card{border:1.5px solid var(--border-md);border-radius:var(--radius);background:var(--white);cursor:pointer;overflow:hidden;transition:all .15s;}
+.theme-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 14px rgba(37,99,235,.12);}
+.theme-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.14);}
+.tc-preview{height:68px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);}
+.tc-body{padding:9px 11px;}
+.tc-name{font-size:12.5px;font-weight:600;color:var(--ink);display:flex;align-items:center;justify-content:space-between;}
+.tc-desc{font-size:11px;color:var(--ink-faint);margin-top:2px;line-height:1.35;}
+.tc-check{width:16px;height:16px;border-radius:50%;background:var(--blue);display:none;align-items:center;justify-content:center;flex-shrink:0;}
+.tc-check i{font-size:9px;color:#fff;}
 .theme-card.selected .tc-check{display:flex;}
 
-/* ── SUBDOMAIN INPUT ── */
-.subdomain-row{
-  display:flex;align-items:center;gap:0;
-  background:var(--white);border:1.5px solid var(--border-md);border-radius:var(--radius);
-  overflow:hidden;margin:4px 16px 12px;
-  transition:border-color 0.15s;
-}
+/* SUBDOMAIN */
+.subdomain-row{display:flex;align-items:center;background:var(--white);border:1.5px solid var(--border-md);border-radius:var(--radius);overflow:hidden;margin:4px 16px 10px;transition:border-color .15s;}
 .subdomain-row:focus-within{border-color:var(--blue);}
-.subdomain-prefix{
-  padding:11px 12px 11px 14px;background:var(--paper);
-  font-size:13px;color:var(--ink-faint);border-right:1px solid var(--border);
-  white-space:nowrap;
-}
-.subdomain-input{
-  flex:1;padding:11px 14px;border:none;outline:none;
-  font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;
-}
-.subdomain-suffix{
-  padding:11px 14px;font-size:13px;color:var(--ink-faint);white-space:nowrap;
-}
-.sub-status{
-  font-size:12px;padding:4px 16px 10px;
-}
+.subdomain-prefix{padding:11px 10px 11px 13px;background:var(--paper);font-size:12.5px;color:var(--ink-faint);border-right:1px solid var(--border);white-space:nowrap;}
+.subdomain-input{flex:1;padding:11px 12px;border:none;outline:none;font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;}
+.subdomain-suffix{padding:11px 12px;font-size:12px;color:var(--ink-faint);}
+.sub-status{font-size:12px;padding:3px 16px 8px;}
 .sub-ok{color:var(--green);}
 .sub-err{color:#dc2626;}
 
-/* ── TEXT INPUT AREA ── */
-.input-area{
-  border-top:1px solid var(--border);background:var(--white);
-  padding:12px 16px;flex-shrink:0;
-}
+/* TEXT INPUT */
+.input-area{border-top:1px solid var(--border);background:var(--white);padding:11px 16px;flex-shrink:0;}
 .input-row{display:flex;gap:8px;align-items:flex-end;}
-.main-input{
-  flex:1;padding:11px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius);
-  font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;
-  resize:none;line-height:1.45;transition:border-color 0.15s;
-  background:var(--off);
-}
+.main-input{flex:1;padding:10px 13px;border:1.5px solid var(--border-md);border-radius:var(--radius);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;resize:none;line-height:1.45;transition:border-color .15s;background:var(--off);}
 .main-input:focus{border-color:var(--blue);background:var(--white);}
 .main-input::placeholder{color:var(--ink-faint);}
-.send-btn{
-  width:42px;height:42px;border-radius:var(--radius);background:var(--blue);
-  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;transition:background 0.15s;
-}
+.send-btn{width:40px;height:40px;border-radius:var(--radius);background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
 .send-btn:hover{background:var(--blue-d);}
-.send-btn i{font-size:18px;color:#fff;}
+.send-btn i{font-size:17px;color:#fff;}
 .send-btn:disabled{background:var(--ink-faint);cursor:default;}
 
-/* ── FINAL CREATE BUTTON ── */
-.create-btn{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  width:calc(100% - 32px);margin:4px 16px 16px;
-  padding:14px;border-radius:var(--radius-lg);
-  background:var(--blue);color:#fff;border:none;cursor:pointer;
-  font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;
-  transition:background 0.15s;
-}
+/* CREATE BUTTON */
+.create-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 32px);margin:4px 16px 14px;padding:13px;border-radius:var(--radius-lg);background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;transition:background .15s;}
 .create-btn:hover{background:var(--blue-d);}
-.create-btn i{font-size:20px;}
-.create-btn.loading{background:var(--ink-faint);pointer-events:none;}
+.create-btn:disabled{background:var(--ink-faint);cursor:default;}
 
-/* URL input row for CTA */
-.url-input-wrap{padding:0 16px 12px;}
-.url-input{
-  width:100%;padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius);
-  font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;
-  background:var(--off);transition:border-color 0.15s;
-}
+/* URL INPUT */
+.url-wrap{padding:0 16px 12px;}
+.url-input{width:100%;padding:10px 13px;border:1.5px solid var(--border-md);border-radius:var(--radius);font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;background:var(--off);transition:border-color .15s;}
 .url-input:focus{border-color:var(--blue);background:var(--white);}
 .url-input::placeholder{color:var(--ink-faint);}
-.url-note{font-size:12px;color:var(--ink-faint);margin-top:5px;}
-.url-skip{
-  font-size:12.5px;color:var(--ink-faint);text-decoration:underline;
-  cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;
-  margin-top:4px;display:block;
-}
-
-@media(max-width:480px){
-  .theme-grid{grid-template-columns:repeat(2,1fr);}
-  .bubble{max-width:90%;}
-}
+.url-note{font-size:11.5px;color:var(--ink-faint);margin-top:4px;}
+.url-skip{font-size:12px;color:var(--ink-faint);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;margin-top:4px;display:inline-block;}
 </style>
 </head>
 <body>
@@ -222,144 +142,119 @@ nav{
 
 <!-- Hidden submit form -->
 <form id="aiForm" method="POST" action="/dashboard/site/create-ai" style="display:none;">
-  <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+  <input type="hidden" name="_csrf"       value="{{ csrfToken }}">
   <input type="hidden" name="title"       id="f_title">
   <input type="hidden" name="subdomain"   id="f_subdomain">
   <input type="hidden" name="template_id" id="f_template_id">
   <input type="hidden" name="bio"         id="f_bio">
   <input type="hidden" name="cta_text"    id="f_cta_text">
   <input type="hidden" name="cta_url"     id="f_cta_url">
+  <input type="hidden" name="category_id" id="f_category_id">
   <input type="hidden" name="site_type"   value="minisite">
 </form>
 
 <script>
-// ── Data from server ──────────────────────────────────────────────────────────
-const ALL_THEMES = {{ themes | dump | safe }};
+// ── Server data ───────────────────────────────────────────────────────────────
+const ALL_THEMES  = {{ themes | dump | safe }};
+const DB_CATS     = {{ categories | dump | safe }};   // [{id,name,icon,slug}]
 const BASE_DOMAIN = '{{ baseDomain or "pagezapper.com" }}';
 
-// ── Business type config ──────────────────────────────────────────────────────
-const TYPES = {
-  salon:      {
-    label:'Salon & Beauty', emoji:'💅',
-    themes:['salon-rose-luxe','salon-sage-botanical','salon-midnight-noir'],
-    ctaOptions:['📅 Book Appointment','💬 WhatsApp Us','📸 View Services'],
-    bioHint:'e.g. Premium hair & beauty salon · Los Angeles · Open Mon–Sat'
-  },
-  finance:    {
-    label:'Finance & Loans', emoji:'💰',
-    themes:['finnest-wealth','loanbridge-dsa','tradevault-academy'],
-    ctaOptions:['📊 Book Consultation','🏦 Check Eligibility','💬 WhatsApp Us'],
-    bioHint:'e.g. SEBI RIA · CFP · 15 years experience · Helping you grow wealth'
-  },
-  jobs:       {
-    label:'Jobs & Recruitment', emoji:'💼',
-    themes:['jobs-light','jobs-dark','jobs-saffron'],
-    ctaOptions:['📋 Submit Your CV','🔎 Browse Jobs','💬 Contact Us'],
-    bioHint:'e.g. Placement agency · Mumbai · 2,400+ candidates placed Pan India'
-  },
-  shop:       {
-    label:'Online Shop', emoji:'🛍️',
-    themes:['biolink-shop'],
-    ctaOptions:['🛍️ Shop Now','💬 Order on WhatsApp','📦 View All Products'],
-    bioHint:'e.g. Handmade candles & skincare · Fast delivery 🚀'
-  },
-  service:    {
-    label:'Service Provider', emoji:'🔧',
-    themes:['biolink-service'],
-    ctaOptions:['📅 Book Appointment','💬 WhatsApp Us','📞 Call Us Now'],
-    bioHint:'e.g. Professional plumber · 10 years experience · Available 24/7'
-  },
-  freelancer: {
-    label:'Freelancer', emoji:'🎨',
-    themes:['biolink-freelancer'],
-    ctaOptions:['🤝 Hire Me','🎨 View Portfolio','📧 Email Me'],
-    bioHint:'e.g. UI Designer & Developer · 5+ years · Available for projects ✅'
-  },
-  realty:     {
-    label:'Real Estate', emoji:'🏠',
-    themes:['biolink-realty'],
-    ctaOptions:['🏠 Schedule a Site Visit','💬 WhatsApp Me','📋 View Listings'],
-    bioHint:'e.g. Real estate broker · 10+ years · Finding your perfect home'
-  },
-  creator:    {
-    label:'Content Creator', emoji:'🎬',
-    themes:['biolink-creator'],
-    ctaOptions:['▶️ Subscribe to Channel','🛍️ Shop My Products','🤝 Book a Collab'],
-    bioHint:'e.g. Travel vlogger · 200k subscribers · New video every Friday 🎥'
-  }
+// ── Category slug → theme config ──────────────────────────────────────────────
+// Maps every ms_categories slug to themes + CTA options + bio hint
+const CAT_MAP = {
+  'beauty':         { themes:['salon-rose-luxe','salon-sage-botanical','salon-midnight-noir'], cta:['📅 Book Appointment','💬 WhatsApp Us','📸 View Services'], hint:'e.g. Premium hair & beauty salon · Mumbai · Open Mon–Sat' },
+  'recruitment':    { themes:['jobs-light','jobs-dark','jobs-saffron'],                        cta:['📋 Submit Your CV','🔎 Browse Jobs','💬 Contact Us'],       hint:'e.g. Pan India placement agency · 2,400+ candidates placed' },
+  'finance':        { themes:['finnest-wealth','loanbridge-dsa','tradevault-academy'],         cta:['📊 Book Consultation','🏦 Check Eligibility','💬 WhatsApp Us'], hint:'e.g. SEBI RIA · CFP · 15 years experience · Helping you grow wealth' },
+  'retail':         { themes:['biolink-shop'],                                                 cta:['🛍️ Shop Now','💬 Order on WhatsApp','📦 View All Products'], hint:'e.g. Handmade products & skincare · Fast delivery across India 🚀' },
+  'freelancer':     { themes:['biolink-freelancer'],                                           cta:['🤝 Hire Me','🎨 View Portfolio','📧 Contact Me'],             hint:'e.g. UI Designer & Developer · 5+ years · Available for projects ✅' },
+  'real-estate':    { themes:['biolink-realty'],                                               cta:['🏠 Schedule a Site Visit','💬 WhatsApp Me','📋 View Listings'], hint:'e.g. Real estate broker · 10+ years · Residential & commercial' },
+  'creative':       { themes:['biolink-freelancer'],                                           cta:['🤝 Hire Me','🎨 View Portfolio','📧 Contact Me'],             hint:'e.g. Graphic designer & video editor · Brand identity specialist' },
+  'technology':     { themes:['biolink-freelancer'],                                           cta:['💻 Hire Me','🔗 View Portfolio','📧 Contact Me'],             hint:'e.g. Full-stack developer · React & Node.js · 7+ years experience' },
+  'education':      { themes:['biolink-service'],                                              cta:['📅 Book Demo Class','💬 WhatsApp Us','📞 Call Now'],          hint:'e.g. JEE/NEET coaching · 15+ years experience · 95% success rate' },
+  'healthcare':     { themes:['biolink-service'],                                              cta:['📅 Book Appointment','📞 Call Now','💬 WhatsApp Us'],         hint:'e.g. MBBS, MD · 10+ years experience · Appointments available' },
+  'fitness':        { themes:['biolink-service'],                                              cta:['📅 Book Trial Class','💬 WhatsApp Us','📞 Call Now'],         hint:'e.g. Certified trainer · Yoga & strength training · All levels welcome' },
+  'events':         { themes:['biolink-service'],                                              cta:['📅 Book Now','💬 WhatsApp Us','📞 Get Quote'],                hint:'e.g. Full-service event planner · Weddings & corporate events' },
+  'travel':         { themes:['biolink-service'],                                              cta:['✈️ Get a Quote','📅 Book Now','💬 WhatsApp Us'],              hint:'e.g. Domestic & international tour operator · Char Dham specialist' },
+  'restaurant':     { themes:['biolink-shop','biolink-service'],                               cta:['🍽️ View Menu','📞 Order Now','💬 WhatsApp Order'],           hint:'e.g. Authentic North Indian food · Home delivery · Open 11am–11pm' },
+  'home-services':  { themes:['biolink-service'],                                              cta:['📞 Call Now','💬 WhatsApp Us','📅 Book Service'],             hint:'e.g. Licensed plumber & electrician · Same-day service available' },
+  'automobile':     { themes:['biolink-service'],                                              cta:['📞 Book Service','💬 WhatsApp Us','📅 Schedule Visit'],       hint:'e.g. Multi-brand car service centre · All repairs & servicing' },
+  'astrology':      { themes:['biolink-service'],                                              cta:['📅 Book Consultation','💬 WhatsApp Us','📞 Call Now'],        hint:'e.g. Vedic astrologer · 20+ years experience · Kundali & predictions' },
+  'pharmacy':       { themes:['biolink-shop'],                                                 cta:['📞 Call Now','💬 WhatsApp Us','🛍️ Order Online'],            hint:'e.g. 24-hour medical store · All medicines · Home delivery available' },
+  'transport':      { themes:['biolink-service'],                                              cta:['📞 Get Quote','💬 WhatsApp Us','📅 Book Now'],                hint:'e.g. Packers & movers · Pan India service · Safe & on-time delivery' },
+  'tailor':         { themes:['biolink-shop','biolink-service'],                               cta:['📅 Book Appointment','💬 WhatsApp Us','📸 View Work'],        hint:'e.g. Custom stitching & alterations · All fabrics · Ready in 3 days' },
+  'jewellery':      { themes:['biolink-shop'],                                                 cta:['🛍️ Shop Now','📞 Call Now','💬 WhatsApp Us'],                hint:'e.g. Gold, silver & diamond jewellery · BIS hallmarked · Since 1990' },
+  'electronics':    { themes:['biolink-shop','biolink-service'],                               cta:['📞 Book Repair','💬 WhatsApp Us','🛍️ Shop Now'],             hint:'e.g. Mobile & laptop repair · All brands · 90-day warranty' },
+  'wedding':        { themes:['biolink-service'],                                              cta:['📅 Book Consultation','💬 WhatsApp Us','📞 Get Quote'],       hint:'e.g. Full wedding planning & décor · 200+ weddings delivered' },
+  'pet-care':       { themes:['biolink-service'],                                              cta:['📅 Book Appointment','💬 WhatsApp Us','📞 Call Now'],         hint:'e.g. Veterinary clinic · All pets · Grooming & boarding available' },
+  'interior-design':{ themes:['biolink-freelancer','biolink-service'],                         cta:['📅 Book Consultation','💬 WhatsApp Us','🏠 View Portfolio'],  hint:'e.g. Interior designer · Residential & commercial · 3D design free' },
+  'printing':       { themes:['biolink-service'],                                              cta:['📞 Get Quote','💬 WhatsApp Us','🛍️ Order Now'],              hint:'e.g. Visiting cards, banners & brochures · Same-day delivery' },
+  'agriculture':    { themes:['biolink-service'],                                              cta:['📞 Call Now','💬 WhatsApp Us','🌾 View Products'],            hint:'e.g. Quality seeds, fertilizers & farm equipment · Pan India supply' },
+  'marriage-bureau':{ themes:['biolink-service'],                                              cta:['📅 Book Consultation','💬 WhatsApp Us','📞 Call Now'],        hint:'e.g. Trusted matchmaking · All communities · 500+ successful matches' },
+  'security':       { themes:['biolink-service'],                                              cta:['📞 Get Quote','💬 WhatsApp Us','📅 Book Now'],                hint:'e.g. Licensed security agency · Guards, CCTV & fire safety solutions' },
+  'nonprofit':      { themes:['biolink-creator','biolink-service'],                            cta:['❤️ Donate Now','🤝 Volunteer','💬 Contact Us'],               hint:'e.g. Registered NGO · Working for child education & rural development' },
+  'other':          { themes:['biolink-service','biolink-creator'],                            cta:['💬 Contact Us','📞 Call Now','📅 Book Appointment'],          hint:'e.g. Tell us what you do and who you serve' }
 };
+
+// Fallback config
+const DEFAULT_CONFIG = { themes:['biolink-service'], cta:['💬 Contact Us','📞 Call Now','📅 Book Appointment'], hint:'e.g. Tell us what you do and where you are' };
 
 // ── State ─────────────────────────────────────────────────────────────────────
-const state = {
-  step: 0,
-  businessType: null,
-  name: '',
-  bio: '',
-  ctaText: '',
-  ctaUrl: '',
-  themeSlug: '',
-  subdomain: ''
-};
+const state = { step:0, categoryId:null, categorySlug:null, name:'', bio:'', ctaText:'', ctaUrl:'', themeSlug:'', subdomain:'' };
 
-// ── DOM helpers ───────────────────────────────────────────────────────────────
-const $msgs   = document.getElementById('chatMessages');
-const $area   = document.getElementById('dynamicArea');
-const $iArea  = document.getElementById('inputArea');
-const $input  = document.getElementById('mainInput');
-const $sendBtn= document.getElementById('sendBtn');
-const $step   = document.getElementById('stepLabel');
+// ── DOM ───────────────────────────────────────────────────────────────────────
+const $msgs  = document.getElementById('chatMessages');
+const $area  = document.getElementById('dynamicArea');
+const $iArea = document.getElementById('inputArea');
+const $input = document.getElementById('mainInput');
+const $send  = document.getElementById('sendBtn');
+const $step  = document.getElementById('stepLabel');
 
-function scrollBottom() {
-  setTimeout(() => $msgs.scrollTop = $msgs.scrollHeight, 50);
+function scrollBottom(){ setTimeout(() => $msgs.scrollTop = $msgs.scrollHeight, 60); }
+function setStep(n){ state.step = n; $step.textContent = Math.min(n+1,6); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function clearArea(){
+  $area.innerHTML = '';
+  $iArea.style.display = 'none';
+  $input.value = '';
+  $send.disabled = true;
 }
 
-function setStep(n) {
-  state.step = n;
-  $step.textContent = Math.min(n + 1, 6);
-}
-
-// Add a bot message (with optional typing delay)
-function botMsg(html, delay = 0) {
+// Bot message with typing animation
+function botMsg(html, delay=700){
   return new Promise(resolve => {
-    // Show typing indicator
-    const typing = document.createElement('div');
-    typing.className = 'msg msg-bot';
-    typing.innerHTML = `
-      <div class="bot-avatar">✨</div>
-      <div class="bubble bubble-bot"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
-    $msgs.appendChild(typing);
+    const el = document.createElement('div');
+    el.className = 'msg msg-bot';
+    el.innerHTML = `<div class="bot-avatar">✨</div><div class="bubble bubble-bot"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+    $msgs.appendChild(el);
     scrollBottom();
-
-    setTimeout(() => {
-      typing.querySelector('.bubble').innerHTML = html;
-      scrollBottom();
-      resolve();
-    }, delay || 700);
+    setTimeout(() => { el.querySelector('.bubble').innerHTML = html; scrollBottom(); resolve(); }, delay);
   });
 }
 
-// Add a user message bubble
-function userMsg(text) {
+function userMsg(text){
   const el = document.createElement('div');
   el.className = 'msg msg-user';
-  el.innerHTML = `<div class="bubble bubble-user">${escHtml(text)}</div>`;
+  el.innerHTML = `<div class="bubble bubble-user">${esc(text)}</div>`;
   $msgs.appendChild(el);
   scrollBottom();
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+// Show text input
+function showTextInput(placeholder, onSubmit){
+  clearArea();
+  $iArea.style.display = 'block';
+  $input.placeholder = placeholder;
+  $input.focus();
+  $input.oninput = () => { $send.disabled = !$input.value.trim(); autoResize(); };
+  $input.onkeydown = e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); doSend(); } };
+  $send.onclick = doSend;
+  function doSend(){ const v=$input.value.trim(); if(v) onSubmit(v); }
+  function autoResize(){ $input.style.height='auto'; $input.style.height=Math.min($input.scrollHeight,110)+'px'; }
 }
 
-function clearArea() {
-  $area.innerHTML = '';
-  $iArea.style.display = 'none';
-  $input.value = '';
-  $sendBtn.disabled = true;
-}
-
-// Show quick reply buttons
-function showQuickReplies(options, onSelect) {
+// Show quick-reply chips
+function showQuickReplies(options, onSelect){
   clearArea();
   const row = document.createElement('div');
   row.className = 'qr-row';
@@ -378,200 +273,156 @@ function showQuickReplies(options, onSelect) {
   scrollBottom();
 }
 
-// Show text input
-function showTextInput(placeholder, onSubmit, hint = '') {
+// Show category grid from DB
+function showCategoryGrid(onSelect){
   clearArea();
-  $iArea.style.display = 'block';
-  $input.placeholder = placeholder;
-  $input.focus();
+  const grid = document.createElement('div');
+  grid.className = 'cat-grid';
+  DB_CATS.forEach(cat => {
+    const card = document.createElement('div');
+    card.className = 'cat-card';
+    // Shorten long names: take text before first comma
+    const shortName = cat.name.split(',')[0].trim();
+    card.innerHTML = `<span class="cat-icon">${esc(cat.icon)}</span><span class="cat-name">${esc(shortName)}</span>`;
+    card.onclick = () => {
+      grid.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      setTimeout(() => onSelect(cat), 150);
+    };
+    grid.appendChild(card);
+  });
+  $area.appendChild(grid);
+  scrollBottom();
+}
 
-  $input.oninput = () => {
-    $sendBtn.disabled = $input.value.trim().length === 0;
-    autoResize();
-  };
-  $input.onkeydown = e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); }
-  };
-  $sendBtn.onclick = doSend;
+// Show theme picker
+function showThemePicker(themeKeys, onSelect){
+  clearArea();
+  const grid = document.createElement('div');
+  grid.className = 'theme-grid';
+  const available = ALL_THEMES.filter(t => themeKeys.includes(t.slug));
+  available.forEach(theme => {
+    const bg  = (theme.default_appearance && theme.default_appearance.bgColor)  || '#ffffff';
+    const btn = (theme.default_appearance && theme.default_appearance.btnColor) || '#2563eb';
+    const card = document.createElement('div');
+    card.className = 'theme-card';
+    card.innerHTML = `
+      <div class="tc-preview" style="background:${esc(bg)}">
+        <svg width="88" height="46" viewBox="0 0 88 46">
+          <circle cx="44" cy="16" r="10" fill="${esc(btn)}" opacity=".45"/>
+          <rect x="26" y="30" width="36" height="8" rx="4" fill="${esc(btn)}"/>
+        </svg>
+      </div>
+      <div class="tc-body">
+        <div class="tc-name">${esc(theme.name)}<div class="tc-check"><i class="ti ti-check"></i></div></div>
+        <div class="tc-desc">${esc((theme.description||'').substring(0,52))}…</div>
+      </div>`;
+    card.onclick = () => {
+      grid.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      setTimeout(() => onSelect(theme.slug, theme.name), 180);
+    };
+    grid.appendChild(card);
+  });
+  $area.appendChild(grid);
+  scrollBottom();
+}
 
-  function doSend() {
-    const val = $input.value.trim();
-    if (!val) return;
-    onSubmit(val);
-  }
-
-  function autoResize() {
-    $input.style.height = 'auto';
-    $input.style.height = Math.min($input.scrollHeight, 120) + 'px';
-  }
+// Show URL input with skip
+function showUrlInput(placeholder, onConfirm){
+  const wrap = document.createElement('div');
+  wrap.className = 'url-wrap';
+  wrap.innerHTML = `
+    <input class="url-input" id="urlIn" type="url" placeholder="${esc(placeholder)}">
+    <div class="url-note">Leave blank if you don't have one yet</div>
+    <button class="url-skip" id="urlSkip">Skip for now →</button>`;
+  $area.appendChild(wrap);
+  const urlIn  = document.getElementById('urlIn');
+  const skipBtn= document.getElementById('urlSkip');
+  urlIn.onkeydown = e => { if(e.key==='Enter'){ e.preventDefault(); onConfirm(urlIn.value.trim()); } };
+  skipBtn.onclick = () => onConfirm('');
+  urlIn.focus();
+  scrollBottom();
 }
 
 // Show subdomain picker
-function showSubdomainPicker(suggestion, onConfirm) {
+function showSubdomainPicker(suggestion, onConfirm){
   clearArea();
   const wrap = document.createElement('div');
   wrap.innerHTML = `
     <div class="subdomain-row">
-      <span class="subdomain-prefix">${escHtml(BASE_DOMAIN)}/</span>
-      <input class="subdomain-input" id="subInput" type="text" value="${escHtml(suggestion)}" spellcheck="false" autocomplete="off">
+      <span class="subdomain-prefix">${esc(BASE_DOMAIN)}/</span>
+      <input class="subdomain-input" id="subIn" type="text" value="${esc(suggestion)}" spellcheck="false" autocomplete="off">
     </div>
     <div class="sub-status" id="subStatus"></div>
-    <button class="create-btn" id="confirmSubBtn" disabled>
+    <button class="create-btn" id="createBtn" disabled>
       <i class="ti ti-rocket"></i> Create My Site
     </button>`;
   $area.appendChild(wrap);
 
-  const subInput = document.getElementById('subInput');
-  const subStatus = document.getElementById('subStatus');
-  const confirmBtn = document.getElementById('confirmSubBtn');
+  const subIn    = document.getElementById('subIn');
+  const subStatus= document.getElementById('subStatus');
+  const createBtn= document.getElementById('createBtn');
+  let timer = null;
 
-  let checkTimer = null;
-
-  subInput.oninput = () => {
-    const val = slugify(subInput.value);
-    subInput.value = val;
+  subIn.oninput = () => {
+    subIn.value = slugify(subIn.value);
     subStatus.textContent = '';
     subStatus.className = 'sub-status';
-    confirmBtn.disabled = true;
-    if (!val) return;
-
-    clearTimeout(checkTimer);
-    checkTimer = setTimeout(() => checkSub(val), 500);
+    createBtn.disabled = true;
+    clearTimeout(timer);
+    if(subIn.value) timer = setTimeout(() => checkSub(subIn.value), 480);
   };
 
-  subInput.value = slugify(suggestion);
-  setTimeout(() => checkSub(subInput.value), 300);
+  subIn.value = slugify(suggestion);
+  setTimeout(() => checkSub(subIn.value), 350);
 
-  async function checkSub(val) {
-    if (val.length < 2) {
-      subStatus.textContent = 'Too short — minimum 2 characters.';
-      subStatus.className = 'sub-status sub-err';
-      confirmBtn.disabled = true;
-      return;
-    }
-    if (!/^[a-z0-9-]+$/.test(val)) {
-      subStatus.textContent = 'Only lowercase letters, numbers, hyphens.';
-      subStatus.className = 'sub-status sub-err';
-      confirmBtn.disabled = true;
-      return;
-    }
-    subStatus.textContent = 'Checking…';
-    subStatus.className = 'sub-status';
+  async function checkSub(val){
+    if(val.length < 2){ setStatus('Too short — minimum 2 characters.', false); return; }
+    if(!/^[a-z0-9-]+$/.test(val)){ setStatus('Only lowercase letters, numbers, hyphens.', false); return; }
+    subStatus.textContent = 'Checking…'; subStatus.className = 'sub-status';
     try {
-      const res = await fetch('/dashboard/site/check-subdomain?sub=' + encodeURIComponent(val));
-      const data = await res.json();
-      if (data.available) {
-        subStatus.textContent = '✓ ' + val + ' is available!';
-        subStatus.className = 'sub-status sub-ok';
-        confirmBtn.disabled = false;
-        state.subdomain = val;
-      } else {
-        subStatus.textContent = 'That subdomain is already taken. Try another.';
-        subStatus.className = 'sub-status sub-err';
-        confirmBtn.disabled = true;
-      }
-    } catch(e) {
-      // If check fails, allow submit anyway
-      subStatus.textContent = '';
-      confirmBtn.disabled = false;
-      state.subdomain = val;
-    }
+      const r = await fetch('/dashboard/site/check-subdomain?sub='+encodeURIComponent(val));
+      const d = await r.json();
+      if(d.available){ setStatus('✓ '+val+' is available!', true); state.subdomain = val; }
+      else setStatus('Already taken — try another name.', false);
+    } catch(e){ setStatus('✓ '+val+' looks good!', true); state.subdomain = val; }
   }
 
-  confirmBtn.onclick = () => {
-    if (!state.subdomain) return;
-    confirmBtn.classList.add('loading');
-    confirmBtn.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i> Creating your site…';
+  function setStatus(msg, ok){
+    subStatus.textContent = msg;
+    subStatus.className = 'sub-status '+(ok ? 'sub-ok' : 'sub-err');
+    createBtn.disabled = !ok;
+  }
+
+  createBtn.onclick = () => {
+    if(!state.subdomain) return;
+    createBtn.disabled = true;
+    createBtn.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i> Creating your site…';
     onConfirm(state.subdomain);
   };
 
   scrollBottom();
 }
 
-// Show theme picker
-function showThemePicker(themeKeys, onSelect) {
-  clearArea();
-  const grid = document.createElement('div');
-  grid.className = 'theme-grid';
+// ── Conversation flow ─────────────────────────────────────────────────────────
 
-  const available = ALL_THEMES.filter(t => themeKeys.includes(t.slug));
-  available.forEach(theme => {
-    const bg = (theme.default_appearance && theme.default_appearance.bgColor) || '#ffffff';
-    const btn = (theme.default_appearance && theme.default_appearance.btnColor) || '#2563eb';
-    const card = document.createElement('div');
-    card.className = 'theme-card';
-    card.dataset.slug = theme.slug;
-    card.innerHTML = `
-      <div class="tc-preview" style="background:${escHtml(bg)};">
-        <svg width="90" height="48" viewBox="0 0 90 48">
-          <rect x="30" y="4" width="30" height="30" rx="15" fill="${escHtml(btn)}" opacity="0.25"/>
-          <circle cx="45" cy="19" r="10" fill="${escHtml(btn)}" opacity="0.5"/>
-          <rect x="18" y="35" width="54" height="7" rx="3.5" fill="${escHtml(btn)}"/>
-        </svg>
-      </div>
-      <div class="tc-body">
-        <div class="tc-name">
-          <div class="tc-check"><i class="ti ti-check"></i></div>
-          ${escHtml(theme.name)}
-        </div>
-        <div class="tc-desc">${escHtml((theme.description||'').substring(0,55))}…</div>
-      </div>`;
-    card.onclick = () => {
-      grid.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      setTimeout(() => onSelect(theme.slug, theme.name), 200);
-    };
-    grid.appendChild(card);
-  });
-
-  $area.appendChild(grid);
-  scrollBottom();
-}
-
-// Show URL input with skip
-function showUrlInput(placeholder, onConfirm) {
-  const wrap = document.createElement('div');
-  wrap.className = 'url-input-wrap';
-  wrap.innerHTML = `
-    <input class="url-input" id="urlIn" type="url" placeholder="${escHtml(placeholder)}">
-    <div class="url-note">Leave blank if you don't have one yet</div>
-    <button class="url-skip" id="urlSkip">Skip for now →</button>`;
-  $area.appendChild(wrap);
-
-  const urlIn = document.getElementById('urlIn');
-  const skipBtn = document.getElementById('urlSkip');
-
-  urlIn.onkeydown = e => {
-    if (e.key === 'Enter') { e.preventDefault(); onConfirm(urlIn.value.trim()); }
-  };
-  skipBtn.onclick = () => onConfirm('');
-  urlIn.focus();
-  scrollBottom();
-}
-
-// ── Conversation steps ────────────────────────────────────────────────────────
-
-async function step0_welcome() {
+async function step0_category(){
   setStep(0);
-  await botMsg(`👋 Hey! I'm your site assistant.<br>Let's build your minisite in <strong>under 2 minutes</strong>!<br><br>What best describes your business?`, 400);
-  showQuickReplies(
-    Object.entries(TYPES).map(([k,v]) => `${v.emoji} ${v.label}`),
-    async (choice) => {
-      // Map label back to key
-      const key = Object.entries(TYPES).find(([,v]) => choice.includes(v.label))?.[0];
-      if (!key) return;
-      state.businessType = key;
-      userMsg(choice);
-      clearArea();
-      await step1_name();
-    }
-  );
+  await botMsg(`👋 Hey there! I'll help you build your minisite in <strong>under 2 minutes</strong>.<br><br>First — what type of business do you have?`, 400);
+  showCategoryGrid(async (cat) => {
+    state.categoryId   = cat.id;
+    state.categorySlug = cat.slug;
+    userMsg(cat.icon + ' ' + cat.name.split(',')[0].trim());
+    clearArea();
+    await step1_name();
+  });
 }
 
-async function step1_name() {
+async function step1_name(){
   setStep(1);
-  const t = TYPES[state.businessType];
-  await botMsg(`Nice choice! 🎉<br><br>What's the <strong>name</strong> of your ${t.label.toLowerCase()}?`);
+  const label = DB_CATS.find(c => c.slug === state.categorySlug)?.name.split(',')[0] || 'business';
+  await botMsg(`Great choice! 🎉<br><br>What's the <strong>name</strong> of your ${label.toLowerCase()}?`);
   showTextInput('e.g. Bloom Studio', async (val) => {
     state.name = val;
     userMsg(val);
@@ -580,10 +431,10 @@ async function step1_name() {
   });
 }
 
-async function step2_bio() {
+async function step2_bio(){
   setStep(2);
-  const t = TYPES[state.businessType];
-  await botMsg(`Great name! Now write a short <strong>description</strong> — what you do, where you are, what makes you special.<br><span class="hint">${t.bioHint}</span>`);
+  const cfg = CAT_MAP[state.categorySlug] || DEFAULT_CONFIG;
+  await botMsg(`Nice! Now write a short <strong>description</strong> — what you do, where you are, what makes you special.<br><span class="hint">${cfg.hint}</span>`);
   showTextInput('Your short bio (1–2 sentences)', async (val) => {
     state.bio = val;
     userMsg(val);
@@ -592,33 +443,34 @@ async function step2_bio() {
   });
 }
 
-async function step3_cta() {
+async function step3_cta(){
   setStep(3);
+  const cfg = CAT_MAP[state.categorySlug] || DEFAULT_CONFIG;
   await botMsg(`What's the <strong>main action</strong> you want visitors to take? This becomes your top button.`);
-  const t = TYPES[state.businessType];
-  showQuickReplies(t.ctaOptions, async (choice) => {
+  showQuickReplies(cfg.cta, async (choice) => {
     state.ctaText = choice;
     userMsg(choice);
     clearArea();
-    await step3b_ctaUrl();
+    await step3b_url();
   });
 }
 
-async function step3b_ctaUrl() {
-  await botMsg(`Got it! Do you have a URL for <strong>${escHtml(state.ctaText)}</strong>?<br><span class="hint">You can add this later in the builder if not</span>`);
+async function step3b_url(){
+  await botMsg(`Got it! Do you have a URL for <strong>${esc(state.ctaText)}</strong>?<br><span class="hint">You can add this later in the builder</span>`);
   showUrlInput('https://wa.me/…  or  https://cal.com/…', async (url) => {
-    state.ctaUrl = url || '';
-    userMsg(url ? url : 'I\'ll add the link later');
+    state.ctaUrl = url;
+    userMsg(url || 'I'll add the link later');
     clearArea();
     await step4_theme();
   });
 }
 
-async function step4_theme() {
+async function step4_theme(){
   setStep(4);
-  const t = TYPES[state.businessType];
-  await botMsg(`Here are themes designed for ${t.label}. <strong>Pick one you like:</strong>`);
-  showThemePicker(t.themes, async (slug, name) => {
+  const cfg = CAT_MAP[state.categorySlug] || DEFAULT_CONFIG;
+  const catName = DB_CATS.find(c => c.slug === state.categorySlug)?.name.split(',')[0] || 'your business';
+  await botMsg(`Here are themes designed for <strong>${esc(catName)}</strong>. Pick one you like:`);
+  showThemePicker(cfg.themes, async (slug, name) => {
     state.themeSlug = slug;
     userMsg('I like ' + name);
     clearArea();
@@ -626,50 +478,46 @@ async function step4_theme() {
   });
 }
 
-async function step5_subdomain() {
+async function step5_subdomain(){
   setStep(5);
-  const suggestion = slugify(state.name);
-  await botMsg(`Last step! Choose a <strong>web address</strong> for your site.<br><span class="hint">You can change it later</span>`);
-  showSubdomainPicker(suggestion, async (sub) => {
+  await botMsg(`Almost there! Choose a <strong>web address</strong> for your site.<br><span class="hint">You can change this later</span>`);
+  showSubdomainPicker(slugify(state.name), async (sub) => {
     state.subdomain = sub;
     await step6_done();
   });
 }
 
-async function step6_done() {
+async function step6_done(){
   setStep(6);
   clearArea();
-  await botMsg(`✨ <strong>Perfect!</strong> Here's a summary of your site:<br><br>
-    📛 <strong>Name:</strong> ${escHtml(state.name)}<br>
-    🎨 <strong>Theme:</strong> ${escHtml(state.themeSlug)}<br>
-    🌐 <strong>URL:</strong> ${escHtml(BASE_DOMAIN)}/${escHtml(state.subdomain)}<br><br>
-    I'm filling in your content right now — one click and you're live! 🚀`);
-
-  setTimeout(() => submitSite(), 600);
+  await botMsg(`✨ <strong>Your site is being created!</strong><br><br>
+    📛 <strong>Name:</strong> ${esc(state.name)}<br>
+    🌐 <strong>URL:</strong> ${esc(BASE_DOMAIN)}/${esc(state.subdomain)}<br><br>
+    Taking you to the builder now… 🚀`);
+  setTimeout(submitSite, 600);
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function slugify(str) {
-  return str.toLowerCase()
+function slugify(s){
+  return String(s).toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g,'')
-    .replace(/[^a-z0-9\s-]/g,'')
-    .trim().replace(/\s+/g,'-')
-    .replace(/-+/g,'-')
-    .substring(0, 40);
+    .replace(/[^a-z0-9\s-]/g,'').trim()
+    .replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,40);
 }
 
-function submitSite() {
+function submitSite(){
   document.getElementById('f_title').value       = state.name;
   document.getElementById('f_subdomain').value   = state.subdomain;
   document.getElementById('f_template_id').value = state.themeSlug;
   document.getElementById('f_bio').value         = state.bio;
   document.getElementById('f_cta_text').value    = state.ctaText;
   document.getElementById('f_cta_url').value     = state.ctaUrl;
+  document.getElementById('f_category_id').value = state.categoryId || '';
   document.getElementById('aiForm').submit();
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
-step0_welcome();
+// Boot
+step0_category();
 </script>
 </body>
 </html>

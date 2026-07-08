@@ -55,7 +55,7 @@ exports.wizard = async (req, res) => {
     order:              t.order       || 99,
     default_appearance: t.default_appearance || {}
   }))
-  const categories = await db.query('SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC')
+  const categories = await db.query('SELECT id, name, icon, slug FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC')
   res.render('dashboard/wizard.njk', { title: 'Create your site', user: req.session.user, themes, categories: categories || [], baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com' })
 }
 
