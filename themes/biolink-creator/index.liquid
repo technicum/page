@@ -375,7 +375,7 @@ body{
 /* ── Form link block ─────────────────────────── */
 .b-form-link{text-align:center;}
 .fl-heading{font-size:16px;font-weight:600;margin-bottom:10px;}
-.fl-btn{display:inline-flex;align-items:center;justify-content:center;width:100%;padding:14px 20px;border-radius:{{ _btn_radius }}px;font-size:15px;font-weight:600;text-decoration:none;background:{{ _btn_color }};color:{{ _btn_text_color }};transition:opacity .15s;}
+.fl-btn{display:inline-flex;align-items:center;justify-content:center;width:100%;padding:14px 20px;border-radius:{{ _btn_radius }}px;font-size:15px;font-weight:600;text-decoration:none;background:{{ _btn_color }};color:{{ _btn_text_color }};transition:opacity .15s;border:none;cursor:pointer;font-family:inherit;box-sizing:border-box;}
 .fl-btn:hover{opacity:.85;}
 
 /* ── Booking block ───────────────────────────── */
@@ -406,6 +406,19 @@ body{
 .bk-go[data-bk-anim="zoom"]{animation:bk-zoom var(--bk-dur,.45s) cubic-bezier(.34,1.08,.64,1) both;}
 .bk-go[data-bk-anim="bounce"]{animation:bk-bounce var(--bk-dur,.65s) cubic-bezier(.34,1.56,.64,1) both;}
 .bk-go[data-bk-anim="flip"]{animation:bk-flip var(--bk-dur,.5s) ease both;}
+
+/* ── Form popup modal (bottom-sheet) ─────────── */
+.form-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:flex-end;justify-content:center;box-sizing:border-box;}
+.form-modal-overlay.open{display:flex;animation:fmo-in .2s ease;}
+@keyframes fmo-in{from{opacity:0}to{opacity:1}}
+.form-modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:560px;height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,0.18);animation:fmb-in .25s cubic-bezier(.32,1,.25,1);}
+@keyframes fmb-in{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.form-modal-drag{width:36px;height:4px;background:#d1d5db;border-radius:99px;margin:10px auto 0;flex-shrink:0;}
+.form-modal-body{flex:1;overflow:hidden;}
+.form-modal-body iframe{width:100%;height:100%;border:none;display:block;}
+.form-modal-actions{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 16px;flex-shrink:0;background:#fff;}
+.form-modal-fab{width:42px;height:42px;border-radius:50%;background:#f3f4f6;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;transition:background .15s;}
+.form-modal-fab:hover{background:#e5e7eb;}
 </style>
 </head>
 <body data-bk-stagger="{{ _anim_stagger }}" style="--bk-dur:{{ _anim_dur }}">
@@ -900,8 +913,9 @@ body{
 {% when 'form' %}
 <div class="b-form-link">
   {% if block.heading != blank %}<div class="fl-heading">{{ block.heading }}</div>{% endif %}
-  {% if block.form_url != blank and block.form_url != nil %}
-    <a class="fl-btn" href="{{ block.form_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Fill the form' }}</a>
+  {% assign _fid = block.form_id | default: block.form_url %}
+  {% if _fid != blank and _fid != nil %}
+    <button class="fl-btn" onclick="openFormPopup('{{ _fid }}')">{{ block.btn_text | default: 'Fill the form' }}</button>
   {% endif %}
 </div>
 
@@ -1001,6 +1015,44 @@ function pzContact(e, siteId, blockId) {
   var io=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){var el=entry.target;var idx=parseInt(el.dataset.bkIdx||'0');var delay=el.dataset.bkDelay!==undefined?parseInt(el.dataset.bkDelay):idx*stagger;trigger(el,delay);io.unobserve(el);}});},{threshold:0.08,rootMargin:'0px 0px -10px 0px'});
   els.forEach(function(el,i){el.dataset.bkIdx=String(i);io.observe(el);});
 })();
+
+/* ── Form popup ───────────────────────────────── */
+function openFormPopup(formId){
+  var overlay=document.getElementById('formModalOverlay');
+  var iframe=document.getElementById('formModalIframe');
+  if(!overlay||!iframe) return;
+  var url = isNaN(formId) ? formId : '/f/'+formId;
+  iframe.src=url;
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeFormPopup(){
+  var overlay=document.getElementById('formModalOverlay');
+  var iframe=document.getElementById('formModalIframe');
+  if(overlay) overlay.classList.remove('open');
+  if(iframe) iframe.src='about:blank';
+  document.body.style.overflow='';
+}
+function shareFormUrl(){
+  var iframe=document.getElementById('formModalIframe');
+  var url=iframe?iframe.src:'';
+  if(url&&url!=='about:blank'&&navigator.share){navigator.share({url:url});}
+  else if(url&&url!=='about:blank'){navigator.clipboard&&navigator.clipboard.writeText(url);}
+}
 </script>
+
+<!-- Form popup modal (bottom-sheet) -->
+<div class="form-modal-overlay" id="formModalOverlay" onclick="if(event.target===this)closeFormPopup()">
+  <div class="form-modal-box">
+    <div class="form-modal-drag"></div>
+    <div class="form-modal-body">
+      <iframe id="formModalIframe" src="about:blank" title="Form"></iframe>
+    </div>
+    <div class="form-modal-actions">
+      <button class="form-modal-fab" onclick="shareFormUrl()" title="Share">&#x2197;</button>
+      <button class="form-modal-fab" onclick="closeFormPopup()" title="Close">&#x2715;</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

@@ -227,12 +227,25 @@ body{font-family:'{{ _font }}',Georgia,serif;color:{{ _text_color }};min-height:
 /* ── Form link block ───────────────────────────────────────────────── */
 .b-form-link{margin-bottom:8px;}
 .fl-heading{font-size:15px;font-weight:600;margin-bottom:8px;}
-.fl-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;}
+.fl-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;border:none;cursor:pointer;font-family:inherit;box-sizing:border-box;background:{{ _btn_color }};color:{{ _btn_text_color }};border-radius:{{ _btn_radius }}px;}
 /* ── Booking block ─────────────────────────────────────────────────── */
 .b-booking{margin-bottom:8px;}
 .bk-heading{font-size:15px;font-weight:600;margin-bottom:6px;}
 .bk-sub{font-size:13px;opacity:.7;margin-bottom:10px;}
 .bk-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;}
+
+/* ── Form popup modal (bottom-sheet) ─────────── */
+.form-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:flex-end;justify-content:center;box-sizing:border-box;}
+.form-modal-overlay.open{display:flex;animation:fmo-in .2s ease;}
+@keyframes fmo-in{from{opacity:0}to{opacity:1}}
+.form-modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:560px;height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,0.18);animation:fmb-in .25s cubic-bezier(.32,1,.25,1);}
+@keyframes fmb-in{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.form-modal-drag{width:36px;height:4px;background:#d1d5db;border-radius:99px;margin:10px auto 0;flex-shrink:0;}
+.form-modal-body{flex:1;overflow:hidden;}
+.form-modal-body iframe{width:100%;height:100%;border:none;display:block;}
+.form-modal-actions{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 16px;flex-shrink:0;background:#fff;}
+.form-modal-fab{width:42px;height:42px;border-radius:50%;background:#f3f4f6;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;transition:background .15s;}
+.form-modal-fab:hover{background:#e5e7eb;}
 </style>
 </head>
 <body data-bk-stagger="{{ _anim_stagger }}" style="--bk-dur:{{ _anim_dur }}">
@@ -478,8 +491,9 @@ body{font-family:'{{ _font }}',Georgia,serif;color:{{ _text_color }};min-height:
 {% when 'form' %}
 <div class="b-form-link">
   {% if block.heading != blank %}<div class="fl-heading">{{ block.heading }}</div>{% endif %}
-  {% if block.form_url != blank and block.form_url != nil %}
-    <a class="fl-btn" href="{{ block.form_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Fill the form' }}</a>
+  {% assign _fid = block.form_id | default: block.form_url %}
+  {% if _fid != blank and _fid != nil %}
+    <button class="fl-btn" onclick="openFormPopup('{{ _fid }}')">{{ block.btn_text | default: 'Fill the form' }}</button>
   {% endif %}
 </div>
 
@@ -523,6 +537,44 @@ function faqToggle(btn){var list=btn.closest('.faq-list');var body=btn.nextEleme
 function pzCollect(e,type,blockId,siteId){e.preventDefault();var input=e.target.querySelector('input');var msgEl=document.getElementById('col-'+blockId);var payload={};if(type==='email')payload.email=input.value.trim();else payload.phone=input.value.trim();fetch('/api/biolink-lead/'+siteId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(d){if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Thank you!';}e.target.reset();}).catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}});return false;}
 function pzContact(e,siteId,blockId){e.preventDefault();var fd=new FormData(e.target);var data={};fd.forEach(function(v,k){if(v.trim())data[k]=v.trim();});var form=e.target;var btn=form.querySelector('button');var msgEl=document.getElementById('con-'+blockId);if(btn)btn.disabled=true;fetch('/api/biolink-lead/'+siteId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();}).then(function(d){if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Message sent!';}form.reset();if(btn)btn.disabled=false;}).catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}if(btn)btn.disabled=false;});return false;}
 (function(){var stagger=parseInt(document.body.dataset.bkStagger||'100');var els=document.querySelectorAll('.bk-init[data-bk-anim]');if(!els.length)return;function trigger(el,delay){el.style.animationDelay=delay+'ms';el.classList.add('bk-go');}if(!('IntersectionObserver' in window)){els.forEach(function(el,i){trigger(el,el.dataset.bkDelay!==undefined?parseInt(el.dataset.bkDelay):i*stagger);});return;}var io=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){var el=entry.target;var idx=parseInt(el.dataset.bkIdx||'0');var delay=el.dataset.bkDelay!==undefined?parseInt(el.dataset.bkDelay):idx*stagger;trigger(el,delay);io.unobserve(el);}});},{threshold:0.08,rootMargin:'0px 0px -10px 0px'});els.forEach(function(el,i){el.dataset.bkIdx=String(i);io.observe(el);});})();
+
+/* ── Form popup ───────────────────────────────── */
+function openFormPopup(formId){
+  var overlay=document.getElementById('formModalOverlay');
+  var iframe=document.getElementById('formModalIframe');
+  if(!overlay||!iframe) return;
+  var url = isNaN(formId) ? formId : '/f/'+formId;
+  iframe.src=url;
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeFormPopup(){
+  var overlay=document.getElementById('formModalOverlay');
+  var iframe=document.getElementById('formModalIframe');
+  if(overlay) overlay.classList.remove('open');
+  if(iframe) iframe.src='about:blank';
+  document.body.style.overflow='';
+}
+function shareFormUrl(){
+  var iframe=document.getElementById('formModalIframe');
+  var url=iframe?iframe.src:'';
+  if(url&&url!=='about:blank'&&navigator.share){navigator.share({url:url});}
+  else if(url&&url!=='about:blank'){navigator.clipboard&&navigator.clipboard.writeText(url);}
+}
 </script>
+
+<!-- Form popup modal (bottom-sheet) -->
+<div class="form-modal-overlay" id="formModalOverlay" onclick="if(event.target===this)closeFormPopup()">
+  <div class="form-modal-box">
+    <div class="form-modal-drag"></div>
+    <div class="form-modal-body">
+      <iframe id="formModalIframe" src="about:blank" title="Form"></iframe>
+    </div>
+    <div class="form-modal-actions">
+      <button class="form-modal-fab" onclick="shareFormUrl()" title="Share">&#x2197;</button>
+      <button class="form-modal-fab" onclick="closeFormPopup()" title="Close">&#x2715;</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

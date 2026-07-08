@@ -164,6 +164,15 @@ exports.biolinkBuilder = async (req, res) => {
     productCollections = (colRows || []).map(r => r.name)
   } catch(e) { /* ms_collections table may not exist yet */ }
 
+  // User's forms for the form block dropdown
+  let userForms = []
+  try {
+    userForms = await db.query(
+      'SELECT id, name FROM ms_forms WHERE account_id = ? ORDER BY name ASC',
+      [user.id]
+    ) || []
+  } catch(e) { /* ignore */ }
+
   res.render('dashboard/biolink-builder.njk', {
     title: 'Bio Link Editor',
     user,
@@ -173,6 +182,7 @@ exports.biolinkBuilder = async (req, res) => {
     appearance,
     seo,
     productCollections,
+    userForms,
     baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
   })
 }
