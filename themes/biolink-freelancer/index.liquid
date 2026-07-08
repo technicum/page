@@ -947,7 +947,11 @@ function openFormPopup(formId){
   var overlay=document.getElementById('formModalOverlay');
   var iframe=document.getElementById('formModalIframe');
   if(!overlay||!iframe) return;
-  var url = isNaN(formId) ? formId : '/f/'+formId;
+  // Minisite runs on subdomain — build absolute URL to main app domain
+  var parts=window.location.hostname.split('.');
+  var appHost=parts.length>2 ? parts.slice(1).join('.') : window.location.hostname;
+  var base=window.location.protocol+'//'+appHost;
+  var url = isNaN(formId)||formId==='' ? formId : base+'/f/'+formId;
   iframe.src=url;
   overlay.classList.add('open');
   document.body.style.overflow='hidden';
