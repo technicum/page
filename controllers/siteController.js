@@ -623,7 +623,7 @@ exports.aiGenerate = async (req, res) => {
       max_tokens: 1500,
       messages:   [{ role: 'user', content: aiPrompt }]
     }, {
-      headers: {
+      headers:  {
         'x-api-key':         apiKey,
         'anthropic-version': '2023-06-01',
         'Content-Type':      'application/json'
