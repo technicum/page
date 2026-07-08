@@ -1447,9 +1447,7 @@ function doPreview(){
 
 /* ── Save ───────────────────────────────────── */
 function saveBlocks(){
-  document.getElementById('saveDot').className='save-dot';
-  document.getElementById('saveLabel').textContent='Saving…';
-  fetch('/dashboard/site/biolink-save',{
+  return fetch('/dashboard/site/biolink-save',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({site_id:SITE_ID, settings:{blocks:BLOCKS, appearance:APP, seo:SEO}})
@@ -1457,6 +1455,7 @@ function saveBlocks(){
     isDirty=false;
     document.getElementById('saveDot').className='save-dot';
     document.getElementById('saveLabel').textContent='Saved';
+    return d;
   }).catch(function(){
     document.getElementById('saveLabel').textContent='Error';
   });
@@ -1464,19 +1463,48 @@ function saveBlocks(){
 
 /* ── Publish ─────────────────────────────────── */
 function publishSite(){
-  fetch('/dashboard/site/toggle-publish',{
+  return fetch('/dashboard/site/toggle-publish',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({site_id:SITE_ID, published:true})
-  }).then(function(r){return r.json();}).then(function(d){
-    if(d.ok){ var btn=document.getElementById('publishBtn'); if(btn){btn.textContent='Published ✓'; btn.style.background='#059669'; setTimeout(function(){btn.textContent='Publish';btn.style.background='';},2000);} }
-  });
+  }).then(function(r){return r.json();});
+}
+
+/* ── Save All (unified button handler) ───────── */
+function saveAll(){
+  var btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  document.getElementById('saveDot').className='save-dot saving';
+  document.getElementById('saveLabel').textContent='Saving…';
+
+  if(IS_PUBLISHED){
+    // Already published — just save
+    saveBlocks().then(function(){
+      btn.disabled=false;
+      btn.textContent='Save';
+    });
+  } else {
+    // First publish: save then publish
+    saveBlocks().then(function(){
+      return publishSite();
+    }).then(function(d){
+      if(d && d.ok){
+        IS_PUBLISHED = true;
+        btn.textContent='Save';
+        btn.style.background='#059669';
+        setTimeout(function(){ btn.style.background=''; },1800);
+      }
+      btn.disabled=false;
+    }).catch(function(){
+      btn.disabled=false;
+    });
+  }
 }
 
 
 /* ── Keyboard shortcuts ──────────────────────── */
 document.addEventListener('keydown',function(e){
-  if((e.metaKey||e.ctrlKey)&&e.key==='s'){e.preventDefault();saveBlocks();}
+  if((e.metaKey||e.ctrlKey)&&e.key==='s'){e.preventDefault();saveAll();}
 });
 
 /* ── Refresh button ──────────────────────────── */
