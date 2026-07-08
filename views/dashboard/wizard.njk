@@ -460,9 +460,8 @@ async function step0_category(){
 
 async function step1_name(){
   setStep(1);
-  const label = DB_CATS.find(c => c.slug === state.categorySlug)?.name.split(',')[0] || 'business';
-  await botMsg(`Great choice! 🎉<br><br>What's the <strong>name</strong> of your ${label.toLowerCase()}?`);
-  showTextInput('e.g. Bloom Studio', async (val) => {
+  await botMsg(`Great choice! 🎉<br><br>What's the <strong>name</strong> for your site?<br><span class="hint">Your business name, your own name, or your brand — whatever you want people to see</span>`);
+  showTextInput('e.g. Rahul Mehta · Bloom Studio · Design by Priya · Sharma & Sons', async (val) => {
     state.name = val;
     userMsg(val);
     clearArea();
