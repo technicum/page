@@ -230,6 +230,30 @@ body{
 .pg-dur{font-size:12px;opacity:.55;display:block;}
 .pg-buy{margin-top:6px;display:block;padding:7px 13px;background:{{ _btn_color }};color:{{ _btn_text_color }};border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;border:none;cursor:pointer;font-family:inherit;}
 .pg-oos{margin-top:6px;display:block;padding:7px 13px;border-radius:6px;font-size:13px;font-weight:600;text-align:center;opacity:.45;background:rgba(128,128,128,0.15);}
+/* Layout: grid (2-col) */
+.pg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.pg-gc{background:rgba(128,128,128,0.12);border-radius:10px;overflow:hidden;}
+.pg-gi{width:100%;aspect-ratio:1;background:rgba(128,128,128,0.15);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;}
+.pg-gi img{width:100%;height:100%;object-fit:cover;display:block;}
+.pg-gb{padding:8px 10px 10px;}
+.pg-gn{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:4px;}
+.pg-gp{font-size:14px;font-weight:700;color:{{ _btn_color }};display:block;}
+.pg-gcp{font-size:10px;opacity:.45;text-decoration:line-through;display:block;}
+.pg-gbtn{display:block;width:100%;margin-top:6px;padding:6px 0;background:{{ _btn_color }};color:{{ _btn_text_color }};border-radius:6px;font-size:12px;font-weight:600;text-align:center;border:none;cursor:pointer;font-family:inherit;}
+.pg-goos{display:block;width:100%;margin-top:6px;padding:6px 0;border-radius:6px;font-size:12px;font-weight:600;text-align:center;opacity:.45;background:rgba(128,128,128,0.15);}
+/* Layout: cards (full-width) */
+.pg-cards{display:flex;flex-direction:column;gap:8px;}
+.pg-card{background:rgba(128,128,128,0.12);border-radius:10px;overflow:hidden;}
+.pg-ci{width:100%;height:130px;background:rgba(128,128,128,0.15);display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden;}
+.pg-ci img{width:100%;height:100%;object-fit:cover;display:block;}
+.pg-cb{padding:10px 12px 12px;}
+.pg-cn{font-size:16px;font-weight:700;margin-bottom:4px;}
+.pg-cd{font-size:13px;opacity:.65;line-height:1.4;margin-bottom:8px;}
+.pg-cf{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.pg-cp{font-size:16px;font-weight:700;color:{{ _btn_color }};}
+.pg-ccp{font-size:11px;opacity:.45;text-decoration:line-through;display:block;}
+.pg-cbtn{padding:8px 16px;background:{{ _btn_color }};color:{{ _btn_text_color }};border-radius:6px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.pg-coos{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;text-align:center;opacity:.45;background:rgba(128,128,128,0.15);white-space:nowrap;}
 /* ── Form link block ───────────────────────────────────────────────── */
 .b-form-link{margin-bottom:8px;}
 .fl-heading{font-size:15px;font-weight:600;margin-bottom:8px;}
@@ -517,6 +541,7 @@ body{
 {% else %}
   {% assign _pg_items = settings._products %}
 {% endif %}
+{% assign _pg_layout = block.layout | default: 'list' %}
 <div class="b-products-grid" id="pg-{{ block.id }}">
   <div class="pg-acc-head" onclick="pgToggle('{{ block.id }}')">
     <span class="pg-acc-title">{{ block.heading | default: 'Products' }}</span>
@@ -527,15 +552,44 @@ body{
   </div>
   <div class="pg-acc-body" id="pg-body-{{ block.id }}">
     {% if _pg_items and _pg_items.size > 0 %}
+    {% if _pg_layout == 'grid' %}
+    <div class="pg-grid">
+      {% for p in _pg_items %}
+      <div class="pg-gc">
+        <div class="pg-gi">{% if p.image_url != blank and p.image_url != nil %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% elsif p.type == 'digital' %}&#128190;{% elsif p.type == 'service' %}&#128296;{% else %}&#128230;{% endif %}</div>
+        <div class="pg-gb">
+          <div class="pg-gn">{{ p.name }}</div>
+          {% if p.price != blank and p.price != nil %}<span class="pg-gp">&#8377;{{ p.price | floor }}</span>{% endif %}
+          {% if p.compare_price != blank and p.compare_price > p.price %}<span class="pg-gcp">&#8377;{{ p.compare_price | floor }}</span>{% endif %}
+          {% if p.in_stock == false or p.in_stock == 0 %}<span class="pg-goos">Sold out</span>{% else %}<button class="pg-gbtn">Buy</button>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% elsif _pg_layout == 'cards' %}
+    <div class="pg-cards">
+      {% for p in _pg_items %}
+      <div class="pg-card">
+        <div class="pg-ci">{% if p.image_url != blank and p.image_url != nil %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% elsif p.type == 'digital' %}&#128190;{% elsif p.type == 'service' %}&#128296;{% else %}&#128230;{% endif %}</div>
+        <div class="pg-cb">
+          <div class="pg-cn">{{ p.name }}</div>
+          {% if p.description != blank %}<div class="pg-cd">{{ p.description | truncate: 100 }}</div>{% endif %}
+          <div class="pg-cf">
+            <div>{% if p.price != blank and p.price != nil %}<span class="pg-cp">&#8377;{{ p.price | floor }}</span>{% endif %}{% if p.compare_price != blank and p.compare_price > p.price %}<span class="pg-ccp">&#8377;{{ p.compare_price | floor }}</span>{% endif %}</div>
+            {% if p.in_stock == false or p.in_stock == 0 %}<span class="pg-coos">Sold out</span>{% else %}<button class="pg-cbtn">Buy</button>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
     <div class="pg-list">
       {% for p in _pg_items %}
       <div class="pg-row">
-        <div class="pg-thumb">
-          {% if p.image_url != blank and p.image_url != nil %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% elsif p.type == 'digital' %}&#128190;{% elsif p.type == 'service' %}&#128296;{% else %}&#128230;{% endif %}
-        </div>
+        <div class="pg-thumb">{% if p.image_url != blank and p.image_url != nil %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% elsif p.type == 'digital' %}&#128190;{% elsif p.type == 'service' %}&#128296;{% else %}&#128230;{% endif %}</div>
         <div class="pg-info">
           <div class="pg-name">{{ p.name }}</div>
-          {% if p.description != blank %}<div class="pg-desc">{{ p.description | truncate: 80 }}</div>{% endif %}
+          {% if p.description != blank %}<div class="pg-desc">{{ p.description | truncate: 60 }}</div>{% endif %}
           {% if p.type == 'service' and p.duration != blank %}<div class="pg-dur">&#9201; {{ p.duration }}</div>{% endif %}
         </div>
         <div class="pg-right">
@@ -546,6 +600,7 @@ body{
       </div>
       {% endfor %}
     </div>
+    {% endif %}
     {% else %}
     <div style="text-align:center;padding:24px 16px;opacity:.45;font-size:13px;">
       {% if block.collection != blank %}No products in "{{ block.collection }}"{% else %}No products added yet{% endif %}
