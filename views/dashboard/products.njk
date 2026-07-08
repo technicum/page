@@ -476,7 +476,7 @@ var searchQuery = '';
 document.addEventListener('DOMContentLoaded', function(){
   updateCounts();
   buildCollectionChips('all');
-  rebuildCollectionSelect();
+  rebuildCollectionChecks([]);
   renderCollectionsList();
   // Auto-filter by collection if ?collection= param present
   var urlCol = new URLSearchParams(window.location.search).get('collection');

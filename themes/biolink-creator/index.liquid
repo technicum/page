@@ -612,7 +612,7 @@ body{
         {% if p.image_url != blank and p.image_url != nil %}
           <div class="pg-img"><img src="{{ p.image_url }}" alt="{{ p.name }}"></div>
         {% else %}
-          <div class="pg-img pg-img-ph">{{ '📦' if p.type == 'physical' else ('💾' if p.type == 'digital' else '🛠') }}</div>
+          <div class="pg-img pg-img-ph">{% if p.type == 'physical' %}📦{% elsif p.type == 'digital' %}💾{% else %}🛠{% endif %}</div>
         {% endif %}
         <div class="pg-body">
           <div class="pg-name">{{ p.name }}</div>
