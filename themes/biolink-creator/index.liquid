@@ -283,7 +283,7 @@ body{
 .pg-thumb{width:58px;height:58px;border-radius:9px;overflow:hidden;flex-shrink:0;background:rgba(128,128,128,0.15);display:flex;align-items:center;justify-content:center;font-size:24px;}
 .pg-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
 .pg-info{flex:1;min-width:0;}
-.pg-name{font-size:15px;font-weight:600;line-height:1.3;margin-bottom:3px;}
+.pg-name{font-size:16px;font-weight:600;line-height:1.3;margin-bottom:3px;}
 .pg-desc{font-size:13px;opacity:.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
 .pg-right{flex-shrink:0;text-align:right;}
 .pg-price{font-size:15px;font-weight:700;display:block;color:{{ _btn_color }};}
@@ -758,63 +758,4 @@ function pzCollect(e, type, blockId, siteId) {
   }).then(function(r) { return r.json(); }).then(function(d) {
     if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = d.message || 'Thank you!'; }
     e.target.reset();
-  }).catch(function() {
-    if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Something went wrong.'; }
-  });
-  return false;
-}
-function pzContact(e, siteId, blockId) {
-  e.preventDefault();
-  var fd = new FormData(e.target);
-  var data = {};
-  fd.forEach(function(v, k) { if (v.trim()) data[k] = v.trim(); });
-  var form = e.target;
-  var btn = form.querySelector('button');
-  var msgEl = document.getElementById('con-' + blockId);
-  if (btn) btn.disabled = true;
-  fetch('/api/biolink-lead/' + siteId, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  }).then(function(r) { return r.json(); }).then(function(d) {
-    if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = d.message || 'Message sent!'; }
-    form.reset();
-    if (btn) btn.disabled = false;
-  }).catch(function() {
-    if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Something went wrong.'; }
-    if (btn) btn.disabled = false;
-  });
-  return false;
-}
-
-// ── Block entrance animations (IntersectionObserver) ──────────────────
-(function(){
-  var stagger=parseInt(document.body.dataset.bkStagger||'100');
-  var els=document.querySelectorAll('.bk-init[data-bk-anim]');
-  if(!els.length) return;
-  function trigger(el,delay){
-    el.style.animationDelay=delay+'ms';
-    el.classList.add('bk-go');
-  }
-  if(!('IntersectionObserver' in window)){
-    els.forEach(function(el,i){ trigger(el, el.dataset.bkDelay!==undefined ? parseInt(el.dataset.bkDelay) : i*stagger); });
-    return;
-  }
-  var io=new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        var el=entry.target;
-        var idx=parseInt(el.dataset.bkIdx||'0');
-        var delay=el.dataset.bkDelay!==undefined ? parseInt(el.dataset.bkDelay) : idx*stagger;
-        trigger(el,delay);
-        io.unobserve(el);
-      }
-    });
-  },{threshold:0.08,rootMargin:'0px 0px -10px 0px'});
-  els.forEach(function(el,i){
-    el.dataset.bkIdx=String(i);
-    io.observe(el);
-  });
-})();
-</script>
-</body>
-</html>
+  })
