@@ -317,6 +317,21 @@ exports.biolinkPreview = async (req, res) => {
     seo:         newSettings.seo         !== undefined ? newSettings.seo         : (existing.seo || {})
   })
 
+  // Inject products so the products_grid block can render in preview
+  try {
+    const siteProducts = await db.query(
+      "SELECT id, type, name, description, price, compare_price, image_url, duration, in_stock, collection FROM ms_products WHERE account_id = ? AND status = 1 AND type != 'job' ORDER BY sort_order ASC, id ASC",
+      [user.id]
+    )
+    const parseCollections = (val) => {
+      if (!val) return []
+      try { const c = JSON.parse(val); return Array.isArray(c) ? c : (c ? [String(c)] : []) }
+      catch(e) { return val.trim() ? [val.trim()] : [] }
+    }
+    ;(siteProducts || []).forEach(p => { p._clist = parseCollections(p.collection) })
+    merged._products = siteProducts || []
+  } catch(e) { merged._products = [] }
+
   try {
     const html = await themeManager.render(actualTemplateId, site, merged)
     res.send(html)
