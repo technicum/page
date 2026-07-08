@@ -1424,7 +1424,7 @@ function doPreview(){
   var loading=document.getElementById('previewLoading');
   if(!frame) return;
   if(loading) loading.classList.add('show');
-  fetch('/dashboard/biolink-preview',{
+  fetch('/dashboard/site/biolink-preview',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({site_id:SITE_ID, settings:{blocks:BLOCKS, appearance:APP, seo:SEO}})
@@ -1441,7 +1441,7 @@ function doPreview(){
 function saveBlocks(){
   document.getElementById('saveDot').className='save-dot';
   document.getElementById('saveLabel').textContent='Saving…';
-  fetch('/dashboard/biolink-save',{
+  fetch('/dashboard/site/biolink-save',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({site_id:SITE_ID, settings:{blocks:BLOCKS, appearance:APP, seo:SEO}})
