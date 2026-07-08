@@ -544,12 +544,12 @@ var BLOCK_TYPES = {
     fields:[{id:'url',label:'Image',type:'image'},{id:'caption',label:'Caption',type:'text',ph:'Optional caption'},{id:'link_url',label:'Link URL',type:'text',ph:'https://'}]},
   socials:{label:'Socials',icon:'📱',cat:'standard',desc:'Social media icons',defaults:{},
     fields:[{id:'instagram',label:'Instagram',type:'text',ph:'https://instagram.com/...'},{id:'twitter',label:'X / Twitter',type:'text',ph:'https://x.com/...'},{id:'youtube',label:'YouTube',type:'text',ph:'https://youtube.com/...'},{id:'tiktok',label:'TikTok',type:'text',ph:'https://tiktok.com/...'},{id:'linkedin',label:'LinkedIn',type:'text',ph:'https://linkedin.com/...'},{id:'facebook',label:'Facebook',type:'text',ph:'https://facebook.com/...'},{id:'github',label:'GitHub',type:'text',ph:'https://github.com/...'},{id:'whatsapp',label:'WhatsApp',type:'text',ph:'+1234567890'},{id:'telegram',label:'Telegram',type:'text',ph:'https://t.me/...'},{id:'spotify',label:'Spotify',type:'text',ph:'https://open.spotify.com/...'}]},
-  email_collector:{label:'Email Collector',icon:'✉️',cat:'advanced',desc:'Collect email signups',defaults:{heading:'Stay in touch',placeholder:'Enter your email',btn_text:'Subscribe'},
-    fields:[{id:'heading',label:'Heading',type:'text',ph:'Stay in touch'},{id:'placeholder',label:'Placeholder',type:'text',ph:'Enter your email'},{id:'btn_text',label:'Button text',type:'text',ph:'Subscribe'}]},
-  phone_collector:{label:'Phone Collector',icon:'📞',cat:'advanced',desc:'Collect phone numbers',defaults:{heading:'',placeholder:'Enter your phone',btn_text:'Submit'},
-    fields:[{id:'heading',label:'Heading',type:'text',ph:''},{id:'placeholder',label:'Placeholder',type:'text',ph:'Enter your phone'},{id:'btn_text',label:'Button text',type:'text',ph:'Submit'}]},
-  contact_form:{label:'Contact Form',icon:'📋',cat:'advanced',desc:'A contact form',defaults:{heading:'Contact me',show_name:true,show_email:true,show_phone:false,show_message:true,btn_text:'Send message'},
-    fields:[{id:'heading',label:'Heading',type:'text',ph:'Contact me'},{id:'show_name',label:'Name field',type:'toggle'},{id:'show_email',label:'Email field',type:'toggle'},{id:'show_phone',label:'Phone field',type:'toggle'},{id:'show_message',label:'Message field',type:'toggle'},{id:'btn_text',label:'Button text',type:'text',ph:'Send message'}]},
+  form:{label:'Form',icon:'📋',cat:'advanced',desc:'Link to one of your forms',defaults:{heading:'',form_url:'',btn_text:'Fill the form'},
+    fields:[{id:'heading',label:'Heading (optional)',type:'text',ph:'Get in touch'},{id:'form_url',label:'Form URL',type:'text',ph:'Paste link from your Forms page'},{id:'btn_text',label:'Button text',type:'text',ph:'Fill the form'}]},
+  booking:{label:'Booking',icon:'📅',cat:'advanced',desc:'Let visitors book an appointment',defaults:{heading:'Book an appointment',subtext:'Schedule a call with us',btn_text:'Book now'},
+    fields:[{id:'heading',label:'Heading',type:'text',ph:'Book an appointment'},{id:'subtext',label:'Subtext',type:'text',ph:'Schedule a call or meeting'},{id:'btn_text',label:'Button text',type:'text',ph:'Book now'}]},
+  products_grid:{label:'Products',icon:'📦',cat:'advanced',desc:'Show your products catalogue',defaults:{heading:'Our Products',columns:'2'},
+    fields:[{id:'heading',label:'Section heading',type:'text',ph:'Our Products'},{id:'columns',label:'Columns',type:'select',opts:[{v:'1',l:'1 column'},{v:'2',l:'2 columns'},{v:'3',l:'3 columns'}]}]},
   business_hours:{label:'Business Hours',icon:'🕐',cat:'advanced',desc:'Opening hours',defaults:{heading:'Business Hours',mon_open:'9:00 AM',mon_close:'6:00 PM',tue_open:'9:00 AM',tue_close:'6:00 PM',wed_open:'9:00 AM',wed_close:'6:00 PM',thu_open:'9:00 AM',thu_close:'6:00 PM',fri_open:'9:00 AM',fri_close:'6:00 PM',sat_open:'',sat_close:'',sun_open:'',sun_close:''},
     fields:[{id:'heading',label:'Heading',type:'text',ph:'Business Hours'},{id:'_hours',label:'Hours',type:'hours'}]},
 
@@ -1093,14 +1093,25 @@ function buildBlockFields(block, container){
     container.appendChild(hfg);
   }
 
-  // ── Per-block settings ────────────────────────
+  // ── Per-block settings (collapsed under Advanced) ────
   var _bsep=document.createElement('div');
-  _bsep.style.cssText='border-top:1.5px solid #f0f0f3;margin-top:14px;padding-top:12px;';
-  var _bsHead=document.createElement('div');
-  _bsHead.style.cssText='font-size:10px;font-weight:700;color:#c4c9d4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:4px;';
-  _bsHead.innerHTML='<span>⚙</span><span>Block Settings</span>';
-  _bsep.appendChild(_bsHead);
+  _bsep.style.cssText='border-top:1.5px solid #f0f0f3;margin-top:14px;padding-top:10px;';
+  // Toggle button
+  var _advBtn=document.createElement('button'); _advBtn.type='button';
+  _advBtn.style.cssText='display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#9ca3af;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;width:100%;';
+  _advBtn.innerHTML='<span id="_advChevron" style="transition:transform .2s;display:inline-block;">▶</span><span>Advanced settings</span>';
+  var _advBody=document.createElement('div');
+  _advBody.style.cssText='display:none;padding-top:10px;';
+  _advBtn.onclick=function(){
+    var open=_advBody.style.display!=='none';
+    _advBody.style.display=open?'none':'block';
+    document.getElementById('_advChevron').style.transform=open?'':'rotate(90deg)';
+  };
+  _bsep.appendChild(_advBtn);
+  _bsep.appendChild(_advBody);
   container.appendChild(_bsep);
+  // Alias so all settings append into _advBody
+  var _adv=_advBody;
 
   // Helper: make pill chip
   function _mkChip(label,active){
@@ -1143,7 +1154,7 @@ function buildBlockFields(block, container){
     _agrid.appendChild(c);
   });
   _afg.appendChild(_agrid);
-  container.appendChild(_afg);
+  _adv.appendChild(_afg);
 
   // Delay — pill chips
   var _dfg=document.createElement('div'); _dfg.className='fg';
@@ -1158,7 +1169,7 @@ function buildBlockFields(block, container){
     _drow.appendChild(c);
   });
   _dfg.appendChild(_drow);
-  container.appendChild(_dfg);
+  _adv.appendChild(_dfg);
 
   // Spacing — pill chips
   var _sfg=document.createElement('div'); _sfg.className='fg';
@@ -1173,7 +1184,7 @@ function buildBlockFields(block, container){
     _srow.appendChild(c);
   });
   _sfg.appendChild(_srow);
-  container.appendChild(_sfg);
+  _adv.appendChild(_sfg);
 
   // Card style — pill chips with icons
   var _cfg=document.createElement('div'); _cfg.className='fg';
@@ -1193,7 +1204,7 @@ function buildBlockFields(block, container){
     _crow.appendChild(c);
   });
   _cfg.appendChild(_crow);
-  container.appendChild(_cfg);
+  _adv.appendChild(_cfg);
 
   // Card custom color
   var _ccfg=document.createElement('div'); _ccfg.className='fg';
@@ -1211,7 +1222,7 @@ function buildBlockFields(block, container){
   })(_ccsw,_ccnat,_cchex,block);
   _ccpair.appendChild(_ccsw); _ccpair.appendChild(_cchex);
   _ccfg.appendChild(_cclbl); _ccfg.appendChild(_ccpair);
-  container.appendChild(_ccfg);
+  _adv.appendChild(_ccfg);
 
   // Done button
   var done=document.createElement('button'); done.className='blk-done'; done.textContent='Done ✓';

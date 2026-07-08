@@ -1,4 +1,32 @@
-const { db } = require('../config/db')
+const { db }   = require('../config/db')
+const multer   = require('multer')
+const path     = require('path')
+const fs       = require('fs')
+
+// ── Product image uploader ────────────────────────────────────────────────────
+function productUploadDir(accountId) {
+  return path.join(__dirname, '../public/media/products', String(accountId))
+}
+function ensureDir(dir) { if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }) }
+
+function productUploader(accountId) {
+  const dir = productUploadDir(accountId)
+  ensureDir(dir)
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, dir),
+    filename:    (req, file, cb) => {
+      const ext  = path.extname(file.originalname).toLowerCase()
+      const base = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 40)
+      cb(null, `${base}-${Date.now()}${ext}`)
+    }
+  })
+  const fileFilter = (req, file, cb) => {
+    const ok = ['.jpg','.jpeg','.png','.gif','.webp','.avif']
+    if (ok.includes(path.extname(file.originalname).toLowerCase())) cb(null, true)
+    else cb(new Error('Only image files allowed'), false)
+  }
+  return multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } })
+}
 
 /* GET /dashboard/products */
 exports.index = async (req, res) => {
@@ -101,4 +129,16 @@ exports.reorder = async (req, res) => {
     await db.execute('UPDATE ms_products SET sort_order=? WHERE id=? AND account_id=?', [i, ids[i], user.id])
   }
   res.json({ ok: true })
+}
+
+/* POST /dashboard/products/upload-image */
+exports.uploadImage = async (req, res) => {
+  const user = req.session.user
+  const uploader = productUploader(user.id)
+  uploader.single('image')(req, res, async (err) => {
+    if (err) return res.status(400).json({ ok: false, error: err.message })
+    if (!req.file) return res.status(400).json({ ok: false, error: 'No file uploaded' })
+    const url = `/media/products/${user.id}/${req.file.filename}`
+    res.json({ ok: true, url })
+  })
 }

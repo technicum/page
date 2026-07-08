@@ -93,6 +93,11 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .conditional{display:none;}
 .conditional.show{display:block;}
 
+/* image upload */
+.img-upload-wrap{width:100%;height:140px;border:2px dashed #e5e7eb;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s,background .15s;overflow:hidden;position:relative;}
+.img-upload-wrap:hover{border-color:#6366f1;background:#f5f3ff;}
+.img-upload-wrap.has-img{border-style:solid;border-color:#e5e7eb;}
+
 .btn-save{background:#111827;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .2s;}
 .btn-save:hover{opacity:.85;}
 .btn-save:disabled{opacity:.5;cursor:not-allowed;}
@@ -238,8 +243,17 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
         </div>
       </div>
       <div class="field">
-        <label>Image URL</label>
-        <input type="url" id="p-image" placeholder="https://example.com/image.jpg">
+        <label>Product Image</label>
+        <div class="img-upload-wrap" id="img-upload-wrap" onclick="document.getElementById('p-img-file').click()">
+          <img id="p-img-preview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:8px;">
+          <div id="p-img-placeholder">
+            <div style="font-size:28px;margin-bottom:6px;">📷</div>
+            <div style="font-size:12px;color:#9ca3af;">Click to upload image</div>
+          </div>
+        </div>
+        <input type="file" id="p-img-file" accept="image/*" style="display:none;" onchange="uploadProductImage(this)">
+        <input type="hidden" id="p-image" value="">
+        <div id="p-img-status" style="font-size:11px;color:#9ca3af;margin-top:4px;display:none;"></div>
       </div>
 
       <!-- Digital only: file URL -->
@@ -268,16 +282,6 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
         <input type="text" id="p-collection" placeholder="e.g. Skincare, Bestsellers">
         <div class="field-hint">Optional label to group products.</div>
       </div>
-
-      {% if sites.length %}
-      <div class="field">
-        <label>Linked site (optional)</label>
-        <select id="p-site">
-          <option value="">— Not linked to a site —</option>
-          {% for s in sites %}<option value="{{ s.id }}">{{ s.title }}</option>{% endfor %}
-        </select>
-      </div>
-      {% endif %}
 
       <div class="field conditional show" id="field-status">
         <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-weight:500;font-size:13px;color:#374151;cursor:pointer;">
@@ -357,7 +361,7 @@ function openEditModal(id) {
   document.getElementById('p-description').value = p.description || '';
   document.getElementById('p-price').value = p.price || '';
   document.getElementById('p-compare').value = p.compare_price || '';
-  document.getElementById('p-image').value = p.image_url || '';
+  setImagePreview(p.image_url || '');
   document.getElementById('p-file').value = p.file_url || '';
   document.getElementById('p-duration').value = p.duration || '';
   document.getElementById('p-collection').value = p.collection || '';
@@ -382,8 +386,45 @@ function clearForm(){
   });
   document.getElementById('p-in-stock').checked = true;
   document.getElementById('p-status').checked = true;
-  var siteEl = document.getElementById('p-site');
-  if (siteEl) siteEl.value = '';
+  setImagePreview('');
+}
+
+function setImagePreview(url) {
+  var preview = document.getElementById('p-img-preview');
+  var placeholder = document.getElementById('p-img-placeholder');
+  var wrap = document.getElementById('img-upload-wrap');
+  document.getElementById('p-image').value = url;
+  if (url) {
+    preview.src = url;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+    wrap.classList.add('has-img');
+  } else {
+    preview.src = '';
+    preview.style.display = 'none';
+    placeholder.style.display = 'flex';
+    placeholder.style.flexDirection = 'column';
+    placeholder.style.alignItems = 'center';
+    wrap.classList.remove('has-img');
+  }
+  document.getElementById('p-img-file').value = '';
+}
+
+function uploadProductImage(input) {
+  if (!input.files || !input.files[0]) return;
+  var status = document.getElementById('p-img-status');
+  status.textContent = 'Uploading…'; status.style.display = 'block'; status.style.color = '#9ca3af';
+  var fd = new FormData();
+  fd.append('image', input.files[0]);
+  fetch('/dashboard/products/upload-image', { method: 'POST', body: fd })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d.ok) { status.textContent = d.error || 'Upload failed'; status.style.color = '#ef4444'; return; }
+      setImagePreview(d.url);
+      status.textContent = '✓ Uploaded'; status.style.color = '#16a34a';
+      setTimeout(function(){ status.style.display = 'none'; }, 2000);
+    })
+    .catch(function(){ status.textContent = 'Upload failed'; status.style.color = '#ef4444'; });
 }
 
 /* ── Save ── */

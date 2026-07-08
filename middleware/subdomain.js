@@ -200,6 +200,14 @@ self.addEventListener('fetch',function(e){});`)
     // If site is unpublished, only block from search but still serve
     let siteForms = {}
     try { siteForms = await loadFormsForAccount(site.account_id) } catch(e) { /* table may not exist yet */ }
+    // Inject products so liquid templates can render products_grid blocks
+    try {
+      const siteProducts = await db.query(
+        'SELECT id, type, name, description, price, compare_price, image_url, duration, in_stock FROM ms_products WHERE account_id = ? AND status = 1 ORDER BY sort_order ASC, id ASC',
+        [site.account_id]
+      )
+      settings._products = siteProducts || []
+    } catch(e) { settings._products = [] }
     let html = await themeManager.render(slug, site, settings, pageId, siteForms)
 
     // ── Inject chat widget ────────────────────────────────────────────────────
