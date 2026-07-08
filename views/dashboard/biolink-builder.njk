@@ -159,20 +159,24 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .btn-add-block:hover{background:#374151;}
 
 #blockList{padding:8px 10px 60px;}
-.blk-card{background:#fafafa;border:1.5px solid #e5e7eb;border-radius:10px;margin-bottom:6px;overflow:hidden;transition:border-color .15s;}
-.blk-card:hover{border-color:#d1d5db;}
-.blk-card.open{border-color:#6366f1;background:#fff;}
-.blk-card.disabled{opacity:.55;}
-.blk-card.dragging{opacity:.35;}
-.blk-card.drag-over{border:2px dashed #6366f1;background:#f5f5ff;}
-.blk-head{display:flex;align-items:center;gap:7px;padding:10px 10px;cursor:pointer;}
-.blk-drag{font-size:13px;color:#d1d5db;cursor:grab;flex-shrink:0;padding:0 2px;user-select:none;touch-action:none;}
-.blk-type-icon{font-size:16px;flex-shrink:0;width:22px;text-align:center;}
-.blk-label{font-size:12px;font-weight:600;color:#374151;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.blk-sublabel{font-size:11px;color:#9ca3af;font-weight:400;}
+/* ── Option A block cards ─────────────────────── */
+.blk-card{background:#fff;border:1px solid #e5e7eb;border-left:3px solid #d1d5db;border-radius:10px;margin-bottom:6px;overflow:hidden;transition:border-color .15s,box-shadow .15s;}
+.blk-card:hover{border-color:#d1d5db;border-left-color:inherit;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.blk-card.open{border-color:#c7d2fe;border-left-color:inherit;background:#fafbff;}
+.blk-card.disabled{opacity:.5;}
+.blk-card.dragging{opacity:.3;}
+.blk-card.drag-over{border:2px dashed #a5b4fc;background:#f5f5ff;}
+.blk-head{display:flex;align-items:center;gap:9px;padding:9px 10px;cursor:pointer;}
+.blk-drag{font-size:12px;color:#d1d5db;cursor:grab;flex-shrink:0;user-select:none;touch-action:none;padding:0 1px;}
+.blk-drag:hover{color:#9ca3af;}
+.blk-icon-wrap{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.blk-text{flex:1;min-width:0;}
+.blk-type-label{font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:#9ca3af;line-height:1;margin-bottom:2px;}
+.blk-name{font-size:12px;font-weight:500;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
 .blk-actions{display:flex;align-items:center;gap:2px;flex-shrink:0;}
 .blk-btn{width:26px;height:26px;border:none;background:transparent;cursor:pointer;border-radius:6px;font-size:13px;display:flex;align-items:center;justify-content:center;transition:background .15s;color:#9ca3af;font-family:inherit;}
 .blk-btn:hover{background:#f3f4f6;color:#374151;}
+.blk-btn.eye-off{color:#d1d5db;}
 .blk-btn.del:hover{background:#fee2e2;color:#ef4444;}
 .blk-body{padding:12px 12px 4px;border-top:1px solid #f0f0f3;display:none;}
 .blk-card.open .blk-body{display:block;}
@@ -1233,6 +1237,33 @@ function buildBlockFields(block, container){
 /* ── Render block list ───────────────────────── */
 var _dragSrcIdx=null;
 
+/* ── Block type accent colors (border + icon bg) ── */
+var BLOCK_COLORS={
+  avatar:      {border:'#6366f1',bg:'#eef2ff'},
+  link:        {border:'#0ea5e9',bg:'#e0f2fe'},
+  heading:     {border:'#f59e0b',bg:'#fef3c7'},
+  paragraph:   {border:'#f59e0b',bg:'#fef3c7'},
+  divider:     {border:'#9ca3af',bg:'#f3f4f6'},
+  image:       {border:'#f97316',bg:'#fff7ed'},
+  video:       {border:'#f97316',bg:'#fff7ed'},
+  socials:     {border:'#ec4899',bg:'#fce7f3'},
+  products_grid:{border:'#10b981',bg:'#d1fae5'},
+  product:     {border:'#10b981',bg:'#d1fae5'},
+  service:     {border:'#14b8a6',bg:'#ccfbf1'},
+  form:        {border:'#7c3aed',bg:'#ede9fe'},
+  email_collector:{border:'#7c3aed',bg:'#ede9fe'},
+  phone_collector:{border:'#7c3aed',bg:'#ede9fe'},
+  contact_form:{border:'#7c3aed',bg:'#ede9fe'},
+  booking:     {border:'#3b82f6',bg:'#dbeafe'},
+  business_hours:{border:'#64748b',bg:'#f1f5f9'},
+  banner:      {border:'#f59e0b',bg:'#fef3c7'},
+  testimonial: {border:'#f43f5e',bg:'#fff1f2'},
+  faq:         {border:'#f43f5e',bg:'#fff1f2'},
+  reviews:     {border:'#f43f5e',bg:'#fff1f2'},
+  map:         {border:'#22c55e',bg:'#f0fdf4'},
+  html:        {border:'#6b7280',bg:'#f9fafb'}
+};
+
 function renderBlocks(){
   var list=document.getElementById('blockList');
   var empty=document.getElementById('blocksEmpty');
@@ -1241,8 +1272,10 @@ function renderBlocks(){
 
   BLOCKS.forEach(function(block,idx){
     var bt=BLOCK_TYPES[block.type]||{label:block.type,icon:'⚙️'};
+    var bc=BLOCK_COLORS[block.type]||{border:'#d1d5db',bg:'#f3f4f6'};
     var card=document.createElement('div');
     card.className='blk-card'+(block.enabled===false?' disabled':'');
+    card.style.borderLeftColor=bc.border;
 
     // Head
     var head=document.createElement('div'); head.className='blk-head';
@@ -1251,27 +1284,35 @@ function renderBlocks(){
     var drag=document.createElement('span'); drag.className='blk-drag'; drag.textContent='⠿';
     drag.title='Drag to reorder';
 
-    // Type icon
-    var ico=document.createElement('span'); ico.className='blk-type-icon'; ico.textContent=bt.icon;
+    // Icon square
+    var ico=document.createElement('div');
+    ico.className='blk-icon-wrap';
+    ico.style.background=bc.bg;
+    ico.textContent=bt.icon;
 
-    // Label
-    var lbl=document.createElement('span'); lbl.className='blk-label';
-    var summary=getBlockSummary(block);
-    lbl.innerHTML='<span style="font-size:10px;color:#9ca3af;font-weight:500;">'+bt.label+'</span><br>'+escHtml(summary);
+    // Text: type label + block name
+    var txt=document.createElement('div'); txt.className='blk-text';
+    var typeLbl=document.createElement('div'); typeLbl.className='blk-type-label'; typeLbl.textContent=bt.label;
+    var nameLbl=document.createElement('div'); nameLbl.className='blk-name'; nameLbl.textContent=getBlockSummary(block);
+    txt.appendChild(typeLbl); txt.appendChild(nameLbl);
 
     // Actions
     var acts=document.createElement('div'); acts.className='blk-actions';
 
-    var eyeBtn=document.createElement('button'); eyeBtn.className='blk-btn';
-    eyeBtn.textContent=block.enabled!==false?'👁':'🚫';
-    eyeBtn.title=block.enabled!==false?'Hide block':'Show block';
+    var eyeBtn=document.createElement('button');
+    var isOn=block.enabled!==false;
+    eyeBtn.className='blk-btn'+(isOn?'':' eye-off');
+    eyeBtn.innerHTML=isOn?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+    eyeBtn.title=isOn?'Hide block':'Show block';
     (function(bid,btn){eyeBtn.onclick=function(e){e.stopPropagation();toggleBlock(bid,btn);};})(block.id,eyeBtn);
 
-    var delBtn=document.createElement('button'); delBtn.className='blk-btn del'; delBtn.textContent='✕'; delBtn.title='Delete block';
+    var delBtn=document.createElement('button'); delBtn.className='blk-btn del';
+    delBtn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    delBtn.title='Delete block';
     (function(bid){delBtn.onclick=function(e){e.stopPropagation();if(confirm('Delete this block?'))deleteBlock(bid);};})(block.id);
 
     acts.appendChild(eyeBtn); acts.appendChild(delBtn);
-    head.appendChild(drag); head.appendChild(ico); head.appendChild(lbl); head.appendChild(acts);
+    head.appendChild(drag); head.appendChild(ico); head.appendChild(txt); head.appendChild(acts);
 
     // Body (edit fields)
     var body=document.createElement('div'); body.className='blk-body';
