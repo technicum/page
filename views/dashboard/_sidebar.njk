@@ -31,10 +31,12 @@
   <nav class="sidebar-nav">
     <a class="nav-item {% if activePage == 'dashboard' %}active{% endif %}" href="/dashboard">🏠 Dashboard</a>
     <a class="nav-item {% if activePage == 'wizard' %}active{% endif %}" href="/dashboard/wizard">✨ New Site</a>
-    <a class="nav-item {% if activePage == 'products' or activePage == 'collections' %}active{% endif %}" href="/dashboard/products">📦 Products</a>
+    <a class="nav-item {% if activePage == 'products' or activePage == 'collections' %}active{% endif %}" href="/dashboard/products">📦 Catalogue</a>
     {% if activePage == 'products' or activePage == 'collections' %}
     <div class="nav-sub">
-      <a class="nav-item {% if activePage == 'products' %}active{% endif %}" href="/dashboard/products">All Products</a>
+      <a class="nav-item {% if activePage == 'products' and activeTab == 'product' %}active{% endif %}" href="/dashboard/products?tab=product">🛍 Products</a>
+      <a class="nav-item {% if activePage == 'products' and activeTab == 'service' %}active{% endif %}" href="/dashboard/products?tab=service">🛠 Services</a>
+      <a class="nav-item {% if activePage == 'products' and activeTab == 'job' %}active{% endif %}" href="/dashboard/products?tab=job">💼 Jobs</a>
       <a class="nav-item {% if activePage == 'collections' %}active{% endif %}" href="/dashboard/products/collections">🗂 Collections</a>
     </div>
     {% endif %}

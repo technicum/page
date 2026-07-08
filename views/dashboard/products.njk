@@ -478,6 +478,12 @@ document.addEventListener('DOMContentLoaded', function(){
   buildCollectionChips('all');
   rebuildCollectionChecks([]);
   renderCollectionsList();
+  // Auto-filter by type if ?tab= param present
+  var urlTab = new URLSearchParams(window.location.search).get('tab');
+  if (urlTab) {
+    var tabBtn = document.querySelector('.type-tab[data-filter="' + urlTab + '"]');
+    if (tabBtn) filterType(urlTab, tabBtn);
+  }
   // Auto-filter by collection if ?collection= param present
   var urlCol = new URLSearchParams(window.location.search).get('collection');
   if (urlCol) {

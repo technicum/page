@@ -63,6 +63,7 @@ exports.index = async (req, res) => {
     title: 'Products',
     user,
     activePage: 'products',
+    activeTab: req.query.tab || '',
     products: products || [],
     collections,
     sites: sites || []
