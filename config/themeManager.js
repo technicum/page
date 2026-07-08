@@ -179,6 +179,7 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}, ext
   const engine = new Liquid({ strictFilters: false, strictVariables: false })
   engine.registerFilter('wa',  (phone)     => (phone || '').replace(/\D/g, ''))
   engine.registerFilter('hex', (colorSlug) => colorMap[colorSlug] || accentColor)
+  engine.registerFilter('where_includes', (arr, key, val) => Array.isArray(arr) ? arr.filter(item => Array.isArray(item[key]) && item[key].includes(val)) : [])
 
   // ── Pre-render plugin sections ──────────────────────────────────────────────
   const plugins        = loadGlobalSections()
@@ -447,6 +448,7 @@ async function renderBlog(slug, site, settings, posts) {
   const engine = new Liquid({ strictFilters: false, strictVariables: false })
   engine.registerFilter('wa',  (phone) => (phone || '').replace(/\D/g, ''))
   engine.registerFilter('hex', (colorSlug) => colorMap[colorSlug] || accentColor)
+  engine.registerFilter('where_includes', (arr, key, val) => Array.isArray(arr) ? arr.filter(item => Array.isArray(item[key]) && item[key].includes(val)) : [])
 
   const ctx = {
     site: { title: site.title, subdomain: site.subdomain, url: `https://${site.subdomain}.${process.env.BASE_DOMAIN || 'pagezapper.com'}` },
@@ -491,6 +493,7 @@ async function renderPost(slug, site, settings, post) {
   const engine = new Liquid({ strictFilters: false, strictVariables: false })
   engine.registerFilter('wa',  (phone) => (phone || '').replace(/\D/g, ''))
   engine.registerFilter('hex', (colorSlug) => colorMap[colorSlug] || accentColor)
+  engine.registerFilter('where_includes', (arr, key, val) => Array.isArray(arr) ? arr.filter(item => Array.isArray(item[key]) && item[key].includes(val)) : [])
 
   const postDate = post.created_at
     ? new Date(post.created_at).toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' })

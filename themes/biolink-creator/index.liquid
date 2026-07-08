@@ -601,7 +601,7 @@ body{
   {% if block.heading != blank %}<div class="pg-heading">{{ block.heading }}</div>{% endif %}
   {% assign _cols = block.columns | default: '2' %}
   {% if block.collection != blank and block.collection != nil %}
-    {% assign _pg_items = settings._products | where: "collection", block.collection %}
+    {% assign _pg_items = settings._products | where_includes: "_clist", block.collection %}
   {% else %}
     {% assign _pg_items = settings._products %}
   {% endif %}

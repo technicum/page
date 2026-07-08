@@ -139,6 +139,15 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .btn-cancel{background:none;border:1.5px solid #e5e7eb;color:#6b7280;padding:10px 18px;border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;}
 .btn-cancel:hover{border-color:#374151;color:#374151;}
 
+/* ── Collection checkboxes ── */
+.col-check-list{max-height:130px;overflow-y:auto;border:1.5px solid #e5e7eb;border-radius:8px;padding:4px 0;background:#fff;}
+.col-check-list:focus-within{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.08);}
+.col-check-item{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;transition:background .1s;}
+.col-check-item:hover{background:#f5f3ff;}
+.col-check-item input[type=checkbox]{width:14px;height:14px;accent-color:#6366f1;cursor:pointer;flex-shrink:0;}
+.col-check-item label{font-size:13px;color:#374151;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;}
+.col-check-empty{font-size:12px;color:#9ca3af;padding:8px 12px;font-style:italic;}
+
 /* ── Search ── */
 .search-wrap{flex:1;max-width:280px;position:relative;}
 .search-input{width:100%;padding:8px 12px 8px 34px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:#111827;background:#f9fafb;transition:border-color .15s,background .15s;}
@@ -235,7 +244,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
           <div class="pc-body">
             <div class="pc-name">{{ p.name }}</div>
             {% if p.description %}<div class="pc-desc">{{ p.description | truncate(80) }}</div>{% endif %}
-            {% if p.collection %}<span class="pc-collection">{{ p.collection }}</span>{% endif %}
+            {% if p.collections and p.collections.length %}<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;">{% for col in p.collections %}<span class="pc-collection">{{ col }}</span>{% endfor %}</div>{% endif %}
             <div class="pc-price-row">
               {% if p.price %}
               <span class="pc-price">₹{{ p.price | int }}</span>
@@ -396,12 +405,13 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
       <!-- Collection (hidden for jobs — location used instead) -->
       <div class="field" id="field-collection">
         <label style="display:flex;align-items:center;justify-content:space-between;">
-          <span>Collection</span>
+          <span>Collections</span>
           <button type="button" onclick="openCollectionsModal()" style="background:none;border:none;font-size:11px;color:#6366f1;cursor:pointer;font-family:inherit;font-weight:600;padding:0;">+ Manage</button>
         </label>
-        <select id="p-collection">
-          <option value="">— No collection —</option>
-        </select>
+        <div class="col-check-list" id="p-collection-list">
+          <div class="col-check-empty" id="p-collection-empty">No collections yet — click + Manage to add one.</div>
+        </div>
+        <div class="field-hint">Select one or more collections</div>
       </div>
 
       <!-- Status -->
@@ -498,13 +508,14 @@ function applyFilters() {
     var matchCol = true;
     if (activeCollection !== 'all' && card.dataset.type !== 'job') {
       var p = ALL_PRODUCTS.find(function(x){ return String(x.id) === String(card.dataset.id); });
-      matchCol = p && p.collection && p.collection.trim() === activeCollection;
+      matchCol = p && parseCollections(p.collection).indexOf(activeCollection) !== -1;
     }
     var matchSearch = true;
     if (searchQuery) {
       var p = ALL_PRODUCTS.find(function(x){ return String(x.id) === String(card.dataset.id); });
       if (p) {
-        var haystack = ((p.name || '') + ' ' + (p.description || '') + ' ' + (p.collection || '')).toLowerCase();
+        var colStr = parseCollections(p.collection).join(' ');
+        var haystack = ((p.name || '') + ' ' + (p.description || '') + ' ' + colStr).toLowerCase();
         matchSearch = haystack.indexOf(searchQuery) !== -1;
       } else {
         matchSearch = false;
@@ -532,8 +543,8 @@ function buildCollectionChips(typeFilter) {
   if (typeFilter === 'job') { container.style.display = 'none'; return; }
   var cols = new Set();
   ALL_PRODUCTS.forEach(function(p) {
-    if ((typeFilter === 'all' || p.type === typeFilter) && p.type !== 'job' && p.collection && p.collection.trim()) {
-      cols.add(p.collection.trim());
+    if ((typeFilter === 'all' || p.type === typeFilter) && p.type !== 'job') {
+      parseCollections(p.collection).forEach(function(c){ if (c) cols.add(c); });
     }
   });
   if (cols.size === 0) { container.style.display = 'none'; return; }
@@ -605,6 +616,7 @@ function openAddModal() {
   document.getElementById('modal-save-btn').textContent = 'Add';
   document.getElementById('type-selector-wrap').style.display = '';
   clearForm();
+  rebuildCollectionChecks([]);
   // Pre-select type based on active tab
   var preType = (activeFilter === 'all' || !activeFilter) ? 'physical' : activeFilter;
   selectType(preType);
@@ -652,7 +664,9 @@ function openEditModal(id) {
     document.getElementById('p-compare').value = p.compare_price || '';
     document.getElementById('p-file').value = p.file_url || '';
     document.getElementById('p-duration').value = p.duration || '';
-    document.getElementById('p-collection').value = p.collection || '';
+    // Parse existing collection JSON and pre-check matching boxes
+    var existingCols = parseCollections(p.collection);
+    rebuildCollectionChecks(existingCols);
   }
 
   setImagePreview(p.image_url || '');
@@ -667,12 +681,14 @@ function closeModal(){ document.getElementById('product-modal').classList.remove
 document.getElementById('product-modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 
 function clearForm(){
-  ['p-id','p-name','p-description','p-price','p-compare','p-image','p-file','p-duration','p-collection','p-apply','p-location'].forEach(function(id){
+  ['p-id','p-name','p-description','p-price','p-compare','p-image','p-file','p-duration','p-apply','p-location'].forEach(function(id){
     document.getElementById(id).value = '';
   });
   document.getElementById('p-jobtype').value = '';
   document.getElementById('p-in-stock').checked = true;
   document.getElementById('p-status').checked = true;
+  // Uncheck all collection checkboxes
+  document.querySelectorAll('#p-collection-list input[type=checkbox]').forEach(function(b){ b.checked = false; });
   setImagePreview('');
 }
 
@@ -750,7 +766,8 @@ function saveProduct() {
     payload.compare_price = document.getElementById('p-compare').value;
     payload.file_url     = document.getElementById('p-file').value;
     payload.duration     = document.getElementById('p-duration').value;
-    payload.collection   = document.getElementById('p-collection').value;
+    var selectedCols     = getSelectedCollections();
+    payload.collection   = selectedCols.length ? JSON.stringify(selectedCols) : '';
     payload.in_stock     = document.getElementById('p-in-stock').checked ? '1' : '0';
   }
 
@@ -795,20 +812,46 @@ function deleteProduct(id, btn) {
   .catch(function(){ btn.textContent = '🗑'; btn.disabled = false; });
 }
 
-/* ── Collections: rebuild select in product modal ── */
-function rebuildCollectionSelect() {
-  var sel = document.getElementById('p-collection');
-  var prev = sel.value;
-  sel.innerHTML = '<option value="">— No collection —</option>';
-  ALL_COLLECTIONS.forEach(function(c) {
-    var opt = document.createElement('option');
-    opt.value = c.name;
-    opt.textContent = c.name;
-    sel.appendChild(opt);
-  });
-  // Restore previously selected value if still exists
-  if (prev) sel.value = prev;
+// Parse a collection value (JSON array string or legacy plain string) into an array
+function parseCollections(val) {
+  if (!val) return [];
+  try { var c = JSON.parse(val); return Array.isArray(c) ? c : (c ? [String(c)] : []); }
+  catch(e) { return val.trim() ? [val.trim()] : []; }
 }
+
+/* ── Collections: rebuild checkbox list in product modal ── */
+function rebuildCollectionChecks(checkedNames) {
+  var list    = document.getElementById('p-collection-list');
+  var emptyEl = document.getElementById('p-collection-empty');
+  var checked = checkedNames || [];
+
+  if (ALL_COLLECTIONS.length === 0) {
+    list.innerHTML = '<div class="col-check-empty" id="p-collection-empty">No collections yet — click + Manage to add one.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  ALL_COLLECTIONS.forEach(function(c, i) {
+    var item = document.createElement('div');
+    item.className = 'col-check-item';
+    var uid = 'pcc-' + c.id;
+    var isChecked = checked.indexOf(c.name) !== -1;
+    item.innerHTML = '<input type="checkbox" id="' + uid + '" value="' + escHtmlAttr(c.name) + '"' + (isChecked ? ' checked' : '') + '>' +
+      '<label for="' + uid + '">' + escHtml(c.name) + '</label>';
+    list.appendChild(item);
+  });
+}
+
+function getSelectedCollections() {
+  var boxes = document.querySelectorAll('#p-collection-list input[type=checkbox]:checked');
+  return Array.prototype.map.call(boxes, function(b){ return b.value; });
+}
+
+function escHtml(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escHtmlAttr(t) { return String(t).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// Legacy alias kept for addCollection/removeCollection callers
+function rebuildCollectionSelect() { rebuildCollectionChecks(getSelectedCollections()); }
 
 /* ── Collections modal ── */
 function openCollectionsModal() {
@@ -835,7 +878,7 @@ function renderCollectionsList() {
     var li = document.createElement('li');
     li.className = 'col-mgr-item';
     // count how many products use this collection
-    var count = ALL_PRODUCTS.filter(function(p){ return p.collection === c.name; }).length;
+    var count = ALL_PRODUCTS.filter(function(p){ return parseCollections(p.collection).indexOf(c.name) !== -1; }).length;
     li.innerHTML = '<span class="col-mgr-name">' + c.name + ' <span class="col-mgr-count">(' + count + ' product' + (count===1?'':'s') + ')</span></span>' +
       '<button class="col-mgr-del" onclick="removeCollection(' + c.id + ',this)" title="Delete">✕</button>';
     list.appendChild(li);

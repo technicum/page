@@ -203,9 +203,16 @@ self.addEventListener('fetch',function(e){});`)
     // Inject products so liquid templates can render products_grid blocks
     try {
       const siteProducts = await db.query(
-        "SELECT id, type, name, description, price, compare_price, image_url, duration, in_stock FROM ms_products WHERE account_id = ? AND status = 1 AND type != 'job' ORDER BY sort_order ASC, id ASC",
+        "SELECT id, type, name, description, price, compare_price, image_url, duration, in_stock, collection FROM ms_products WHERE account_id = ? AND status = 1 AND type != 'job' ORDER BY sort_order ASC, id ASC",
         [site.account_id]
       )
+      // Parse collection JSON into a real array (_clist) for where_includes filter
+      const parseCollections = (val) => {
+        if (!val) return []
+        try { const c = JSON.parse(val); return Array.isArray(c) ? c : (c ? [String(c)] : []) }
+        catch(e) { return val.trim() ? [val.trim()] : [] }
+      }
+      ;(siteProducts || []).forEach(p => { p._clist = parseCollections(p.collection) })
       settings._products = siteProducts || []
     } catch(e) { settings._products = [] }
     let html = await themeManager.render(slug, site, settings, pageId, siteForms)

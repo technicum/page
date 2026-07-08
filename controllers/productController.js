@@ -28,13 +28,25 @@ function productUploader(accountId) {
   return multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } })
 }
 
+// Parse a product's collection JSON field into an array (handles legacy plain strings)
+function parseCollections(val) {
+  if (!val) return []
+  try { const c = JSON.parse(val); return Array.isArray(c) ? c : (c ? [String(c)] : []) }
+  catch(e) { return val.trim() ? [val.trim()] : [] }
+}
+
 /* GET /dashboard/products */
 exports.index = async (req, res) => {
   const user = req.session.user
-  const products = await db.query(
+  const rawProducts = await db.query(
     'SELECT * FROM ms_products WHERE account_id = ? ORDER BY sort_order ASC, created_at DESC',
     [user.id]
   )
+  // Enrich each product with a parsed collections array for the template
+  const products = (rawProducts || []).map(p => ({
+    ...p,
+    collections: parseCollections(p.collection)
+  }))
   const sites = await db.query(
     'SELECT id, title, subdomain FROM ms_sites WHERE account_id = ? AND parent_site_id IS NULL ORDER BY id ASC',
     [user.id]
@@ -62,8 +74,19 @@ exports.collectionsPage = async (req, res) => {
   const user = req.session.user
   let collections = []
   try {
+    // JSON_CONTAINS handles both new JSON-array format and legacy plain-string format
     collections = await db.query(
-      'SELECT c.*, COUNT(p.id) AS product_count FROM ms_collections c LEFT JOIN ms_products p ON p.collection = c.name AND p.account_id = c.account_id WHERE c.account_id = ? GROUP BY c.id ORDER BY c.sort_order ASC, c.name ASC',
+      `SELECT c.*, COUNT(p.id) AS product_count
+       FROM ms_collections c
+       LEFT JOIN ms_products p
+         ON p.account_id = c.account_id
+         AND (
+           JSON_CONTAINS(p.collection, JSON_QUOTE(c.name))
+           OR (JSON_VALID(p.collection) = 0 AND p.collection = c.name)
+         )
+       WHERE c.account_id = ?
+       GROUP BY c.id
+       ORDER BY c.sort_order ASC, c.name ASC`,
       [user.id]
     ) || []
   } catch(e) { /* table not yet created */ }
@@ -105,7 +128,16 @@ exports.updateCollection = async (req, res) => {
     const dup = await db.first('SELECT id FROM ms_collections WHERE account_id = ? AND name = ? AND id != ?', [user.id, newName, id])
     if (dup) return res.json({ ok: false, error: 'That name is already taken.' })
     await db.execute('UPDATE ms_collections SET name = ? WHERE id = ? AND account_id = ?', [newName, id, user.id])
-    await db.execute('UPDATE ms_products SET collection = ? WHERE account_id = ? AND collection = ?', [newName, user.id, existing.name])
+    // Rename collection in all products (handles both JSON array and legacy plain-string formats)
+    const allProds = await db.query('SELECT id, collection FROM ms_products WHERE account_id = ?', [user.id])
+    for (const p of (allProds || [])) {
+      const cols = parseCollections(p.collection)
+      const idx  = cols.indexOf(existing.name)
+      if (idx !== -1) {
+        cols[idx] = newName
+        await db.execute('UPDATE ms_products SET collection = ? WHERE id = ?', [JSON.stringify(cols), p.id])
+      }
+    }
     res.json({ ok: true, name: newName })
   } catch(e) {
     res.json({ ok: false, error: 'Could not update.' })
