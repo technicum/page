@@ -449,7 +449,7 @@ async function step2_bio(){
 
 async function step3_phone(){
   setStep(3);
-  await botMsg(`What's your <strong>phone number</strong>?<br><span class="hint">Displayed as a call button on your site</span>`);
+  await botMsg(`What's your <strong>phone number</strong>?<br><span class="hint">We'll add a "Call Now" button on your site — customers can reach you in one tap</span>`);
   showSkippableInput('+91 98765 43210', async (val) => {
     state.phone = val;
     userMsg(val || 'Skip for now');
@@ -460,14 +460,60 @@ async function step3_phone(){
 
 async function step3b_whatsapp(){
   setStep(4);
-  await botMsg(`Your <strong>WhatsApp</strong> number?<br><span class="hint">Lets customers message you with one tap</span>`);
-  // Pre-fill with phone number — they're almost always the same in India
-  showSkippableInput('+91 98765 43210', async (val) => {
-    state.whatsapp = val;
-    userMsg(val || 'Skip for now');
-    clearArea();
-    await step3c_city();
-  }, state.phone);
+  await botMsg(`What's your <strong>WhatsApp</strong> number?<br><span class="hint">Customers can message you directly — most people use the same number for calls & WhatsApp</span>`);
+  clearArea();
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'padding:0 16px 12px;';
+
+  // "Same as phone" chip — shown when phone was entered
+  if(state.phone){
+    const chip = document.createElement('button');
+    chip.className = 'qr-btn';
+    chip.style.cssText = 'margin-bottom:10px;display:flex;align-items:center;gap:6px;';
+    chip.innerHTML = '✅ <strong>Same as phone</strong> &nbsp;' + esc(state.phone);
+    chip.onclick = () => {
+      state.whatsapp = state.phone;
+      wrap.remove();
+      userMsg('Same as phone (' + state.phone + ')');
+      step3c_city();
+    };
+    wrap.appendChild(chip);
+
+    const orDiv = document.createElement('div');
+    orDiv.style.cssText = 'font-size:12px;color:var(--ink-faint);margin-bottom:8px;';
+    orDiv.textContent = 'or enter a different number:';
+    wrap.appendChild(orDiv);
+  }
+
+  // Text input for different number
+  const inp = document.createElement('input');
+  inp.className = 'url-input';
+  inp.type = 'text';
+  inp.placeholder = '+91 98765 43210';
+  inp.autocomplete = 'off';
+
+  const skip = document.createElement('button');
+  skip.className = 'url-skip';
+  skip.textContent = 'Skip →';
+
+  const confirm = (v) => {
+    state.whatsapp = v;
+    wrap.remove();
+    userMsg(v || 'Skip for now');
+    step3c_city();
+  };
+  inp.onkeydown = e => { if(e.key==='Enter'){ e.preventDefault(); confirm(inp.value.trim()); } };
+  skip.onclick = () => confirm('');
+
+  wrap.appendChild(inp);
+  const br = document.createElement('br');
+  wrap.appendChild(br);
+  wrap.appendChild(skip);
+  $area.appendChild(wrap);
+
+  if(!state.phone) inp.focus();
+  scrollBottom();
 }
 
 async function step3c_city(){
