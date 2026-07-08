@@ -239,14 +239,14 @@ body{
 .form-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:flex-end;justify-content:center;box-sizing:border-box;}
 .form-modal-overlay.open{display:flex;animation:fmo-in .2s ease;}
 @keyframes fmo-in{from{opacity:0}to{opacity:1}}
-.form-modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:560px;height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,0.18);animation:fmb-in .25s cubic-bezier(.32,1,.25,1);}
+.form-modal-box{background:{{ _bg_color | default: '#ffffff' }};border-radius:{{ _btn_radius }}px {{ _btn_radius }}px 0 0;width:100%;max-width:560px;height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,0.18);animation:fmb-in .25s cubic-bezier(.32,1,.25,1);}
 @keyframes fmb-in{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.form-modal-drag{width:36px;height:4px;background:#d1d5db;border-radius:99px;margin:10px auto 0;flex-shrink:0;}
+.form-modal-drag{width:36px;height:4px;background:{{ _btn_color }}44;border-radius:99px;margin:10px auto 0;flex-shrink:0;}
 .form-modal-body{flex:1;overflow:hidden;}
 .form-modal-body iframe{width:100%;height:100%;border:none;display:block;}
-.form-modal-actions{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 16px;flex-shrink:0;background:#fff;}
-.form-modal-fab{width:42px;height:42px;border-radius:50%;background:#f3f4f6;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#374151;transition:background .15s;}
-.form-modal-fab:hover{background:#e5e7eb;}
+.form-modal-actions{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 16px;flex-shrink:0;background:{{ _bg_color | default: '#ffffff' }};}
+.form-modal-fab{width:42px;height:42px;border-radius:50%;background:{{ _btn_color }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:{{ _btn_text_color }};transition:opacity .15s;}
+.form-modal-fab:hover{opacity:.85;}
 </style>
 </head>
 <body>
@@ -764,8 +764,16 @@ function openFormPopup(formId){
   var parts=window.location.hostname.split('.');
   var appHost=parts.length>2 ? parts.slice(1).join('.') : window.location.hostname;
   var base=window.location.protocol+'//'+appHost;
-  var url = isNaN(formId)||formId==='' ? formId : base+'/f/'+formId;
-  iframe.src=url;
+  if(isNaN(formId)||formId===''){iframe.src=formId; overlay.classList.add('open'); document.body.style.overflow='hidden'; return;}
+  // Pass theme colors so the form matches the preset
+  var params=new URLSearchParams({
+    btnColor:'{{ _btn_color | default: "#6366f1" }}',
+    btnTextColor:'{{ _btn_text_color | default: "#ffffff" }}',
+    btnRadius:'{{ _btn_radius | default: "8" }}',
+    bgColor:'{{ _bg_color | default: "#ffffff" }}',
+    textColor:'{{ _text_color | default: "#1a1a1a" }}'
+  });
+  iframe.src=base+'/f/'+formId+'?'+params.toString();
   overlay.classList.add('open');
   document.body.style.overflow='hidden';
 }
