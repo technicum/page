@@ -331,32 +331,65 @@ body{font-family:'{{ _font }}',Georgia,serif;color:{{ _text_color }};min-height:
 
 {% when 'services_grid' %}
 {% assign _sv_items = settings._products | where: "type", "service" %}
-<div class="b-services-grid" id="sv-{{ block.id }}">
-  <div class="sv-acc-head" onclick="svToggle('{{ block.id }}')">
-    <span class="sv-acc-title">{{ block.heading | default: 'Our Services' }}</span>
-    <span class="sv-acc-meta">
-      {% if _sv_items and _sv_items.size > 0 %}<span class="sv-acc-count">{{ _sv_items.size }} services</span>{% endif %}
-      <span class="sv-acc-chevron" id="sv-chv-{{ block.id }}">&#9660;</span>
+{% assign _sv_layout = block.layout | default: 'list' %}
+<div class="b-products-grid" id="sv-{{ block.id }}">
+  <div class="pg-acc-head" onclick="svToggle('{{ block.id }}')">
+    <span class="pg-acc-title">{{ block.heading | default: 'Our Services' }}</span>
+    <span class="pg-acc-meta">
+      {% if _sv_items and _sv_items.size > 0 %}<span class="pg-acc-count">{{ _sv_items.size }} services</span>{% endif %}
+      <span class="pg-acc-chevron" id="sv-chv-{{ block.id }}">&#9660;</span>
     </span>
   </div>
-  <div class="sv-acc-body" id="sv-body-{{ block.id }}">
+  <div class="pg-acc-body" id="sv-body-{{ block.id }}">
     {% if _sv_items and _sv_items.size > 0 %}
-    <div class="sv-list">
-      {% for s in _sv_items %}
-      <div class="sv-row">
-        <div class="sv-thumb">{% if s.image_url != blank and s.image_url != nil %}<img src="{{ s.image_url }}" alt="{{ s.name }}">{% else %}&#128296;{% endif %}</div>
-        <div class="sv-info">
-          <div class="sv-name">{{ s.name }}</div>
-          {% if s.description != blank %}<div class="sv-desc">{{ s.description | truncate: 80 }}</div>{% endif %}
-          {% if s.duration != blank %}<span class="sv-dur">&#9201; {{ s.duration }}</span>{% endif %}
-        </div>
-        <div class="sv-right">
-          {% if s.price != blank and s.price != nil %}<span class="sv-price">&#8377;{{ s.price | floor }}</span>{% endif %}
-          <button class="sv-book">{{ block.btn_text | default: 'Book' }}</button>
+    {% if _sv_layout == 'grid' %}
+    <div class="pg-grid">
+      {% for p in _sv_items %}
+      <div class="pg-gc">
+        <div class="pg-gi">{% if p.image_url != blank and p.image_url != nil %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% else %}&#128296;{% endif %}</div>
+        <div class="pg-gb">
+          <div class="pg-gn">{{ p.name }}</div>
+          {% if p.price != blank and p.price != nil %}<span class="pg-gp">&#8377;{{ p.price | floor }}</span>{% endif %}
+          {% if p.duration != blank %}<span class="pg-gcp">{{ p.duration }}</span>{% endif %}
+          <button class="pg-gbtn">{{ block.btn_text | default: 'Book' }}</button>
         </div>
       </div>
       {% endfor %}
     </div>
+    {% elsif _sv_layout == 'cards' %}
+    <div class="pg-cards">
+      {% for p in _sv_items %}
+      <div class="pg-card">
+        <div class="pg-ci">{% if p.image_url != blank and p.image_url != nil %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% else %}&#128296;{% endif %}</div>
+        <div class="pg-cb">
+          <div class="pg-cn">{{ p.name }}</div>
+          {% if p.description != blank %}<div class="pg-cd">{{ p.description | truncate: 100 }}</div>{% endif %}
+          <div class="pg-cf">
+            <div>{% if p.price != blank and p.price != nil %}<span class="pg-cp">&#8377;{{ p.price | floor }}</span>{% endif %}{% if p.duration != blank %}<span class="pg-ccp">{{ p.duration }}</span>{% endif %}</div>
+            <button class="pg-cbtn">{{ block.btn_text | default: 'Book' }}</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="pg-list">
+      {% for p in _sv_items %}
+      <div class="pg-row">
+        <div class="pg-thumb">{% if p.image_url != blank and p.image_url != nil %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% else %}&#128296;{% endif %}</div>
+        <div class="pg-info">
+          <div class="pg-name">{{ p.name }}</div>
+          {% if p.description != blank %}<div class="pg-desc">{{ p.description | truncate: 60 }}</div>{% endif %}
+          {% if p.duration != blank %}<div class="pg-dur">&#9201; {{ p.duration }}</div>{% endif %}
+        </div>
+        <div class="pg-right">
+          {% if p.price != blank and p.price != nil %}<span class="pg-price">&#8377;{{ p.price | floor }}</span>{% endif %}
+          <button class="pg-buy">{{ block.btn_text | default: 'Book' }}</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
     {% else %}
     <div style="text-align:center;padding:24px 16px;opacity:.45;font-size:13px;">No services added yet</div>
     {% endif %}
@@ -365,34 +398,65 @@ body{font-family:'{{ _font }}',Georgia,serif;color:{{ _text_color }};min-height:
 
 {% when 'jobs_grid' %}
 {% assign _jb_items = settings._products | where: "type", "job" %}
-<div class="b-jobs-grid" id="jb-{{ block.id }}">
-  <div class="jb-acc-head" onclick="jbToggle('{{ block.id }}')">
-    <span class="jb-acc-title">{{ block.heading | default: 'Open Positions' }}</span>
-    <span class="jb-acc-meta">
-      {% if _jb_items and _jb_items.size > 0 %}<span class="jb-acc-count">{{ _jb_items.size }} positions</span>{% endif %}
-      <span class="jb-acc-chevron" id="jb-chv-{{ block.id }}">&#9660;</span>
+{% assign _jb_layout = block.layout | default: 'list' %}
+<div class="b-products-grid" id="jb-{{ block.id }}">
+  <div class="pg-acc-head" onclick="jbToggle('{{ block.id }}')">
+    <span class="pg-acc-title">{{ block.heading | default: 'Open Positions' }}</span>
+    <span class="pg-acc-meta">
+      {% if _jb_items and _jb_items.size > 0 %}<span class="pg-acc-count">{{ _jb_items.size }} positions</span>{% endif %}
+      <span class="pg-acc-chevron" id="jb-chv-{{ block.id }}">&#9660;</span>
     </span>
   </div>
-  <div class="jb-acc-body" id="jb-body-{{ block.id }}">
+  <div class="pg-acc-body" id="jb-body-{{ block.id }}">
     {% if _jb_items and _jb_items.size > 0 %}
-    <div class="jb-list">
-      {% for j in _jb_items %}
-      <div class="jb-card">
-        <div class="jb-top">
-          <div class="jb-logo">{% if j.image_url != blank and j.image_url != nil %}<img src="{{ j.image_url }}" alt="{{ j.name }}">{% else %}&#128188;{% endif %}</div>
-          <div class="jb-head">
-            <div class="jb-title">{{ j.name }}</div>
-            {% if j.description != blank %}<div class="jb-sub">{{ j.description | truncate: 60 }}</div>{% endif %}
-          </div>
+    {% if _jb_layout == 'grid' %}
+    <div class="pg-grid">
+      {% for p in _jb_items %}
+      <div class="pg-gc">
+        <div class="pg-gi">{% if p.image_url != blank and p.image_url != nil %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% else %}&#128188;{% endif %}</div>
+        <div class="pg-gb">
+          <div class="pg-gn">{{ p.name }}</div>
+          {% if p.price != blank and p.price != nil %}<span class="pg-gp">&#8377;{{ p.price | floor }}/mo</span>{% endif %}
+          {% if p.duration != blank %}<span class="pg-gcp">{{ p.duration }}</span>{% endif %}
+          <button class="pg-gbtn">{{ block.btn_text | default: 'Apply' }}</button>
         </div>
-        {% if j.duration != blank and j.duration != nil %}
-        <div class="jb-tags"><span class="jb-tag">{{ j.duration }}</span></div>
-        {% endif %}
-        {% if j.price != blank and j.price != nil %}<span class="jb-salary">&#8377;{{ j.price | floor }} / month</span>{% endif %}
-        <button class="jb-apply">{{ block.btn_text | default: 'Apply Now' }}</button>
       </div>
       {% endfor %}
     </div>
+    {% elsif _jb_layout == 'cards' %}
+    <div class="pg-cards">
+      {% for p in _jb_items %}
+      <div class="pg-card">
+        <div class="pg-ci">{% if p.image_url != blank and p.image_url != nil %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% else %}&#128188;{% endif %}</div>
+        <div class="pg-cb">
+          <div class="pg-cn">{{ p.name }}</div>
+          {% if p.description != blank %}<div class="pg-cd">{{ p.description | truncate: 100 }}</div>{% endif %}
+          <div class="pg-cf">
+            <div>{% if p.price != blank and p.price != nil %}<span class="pg-cp">&#8377;{{ p.price | floor }}/mo</span>{% endif %}{% if p.duration != blank %}<span class="pg-ccp">{{ p.duration }}</span>{% endif %}</div>
+            <button class="pg-cbtn">{{ block.btn_text | default: 'Apply' }}</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="pg-list">
+      {% for p in _jb_items %}
+      <div class="pg-row">
+        <div class="pg-thumb">{% if p.image_url != blank and p.image_url != nil %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% else %}&#128188;{% endif %}</div>
+        <div class="pg-info">
+          <div class="pg-name">{{ p.name }}</div>
+          {% if p.description != blank %}<div class="pg-desc">{{ p.description | truncate: 60 }}</div>{% endif %}
+          {% if p.duration != blank %}<div class="pg-dur">{{ p.duration }}</div>{% endif %}
+        </div>
+        <div class="pg-right">
+          {% if p.price != blank and p.price != nil %}<span class="pg-price">&#8377;{{ p.price | floor }}/mo</span>{% endif %}
+          <button class="pg-buy">{{ block.btn_text | default: 'Apply' }}</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
     {% else %}
     <div style="text-align:center;padding:24px 16px;opacity:.45;font-size:13px;">No positions available</div>
     {% endif %}
