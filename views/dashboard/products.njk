@@ -15,12 +15,18 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .page{max-width:960px;margin:0 auto;padding:32px 24px 60px;width:100%;}
 
 /* ── Type tabs ── */
-.type-tabs{display:flex;gap:6px;margin-bottom:28px;flex-wrap:wrap;}
+.type-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
 .type-tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;color:#6b7280;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;transition:all .15s;font-family:inherit;}
 .type-tab:hover{border-color:#6366f1;color:#6366f1;}
 .type-tab.active{background:#6366f1;color:#fff;border-color:#6366f1;}
 .type-tab .count{display:inline-block;background:rgba(255,255,255,.25);padding:1px 7px;border-radius:20px;font-size:11px;margin-left:4px;}
 .type-tab:not(.active) .count{background:#f3f4f6;color:#9ca3af;}
+
+/* ── Collection chips ── */
+.collection-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.col-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;color:#6b7280;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;transition:all .15s;font-family:inherit;}
+.col-chip:hover{border-color:#6366f1;color:#6366f1;}
+.col-chip.active{background:#f5f3ff;color:#6366f1;border-color:#c4b5fd;}
 
 /* ── Product grid ── */
 .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
@@ -37,6 +43,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .pc-type.physical{background:#fff7ed;color:#c2410c;}
 .pc-type.digital{background:#eff6ff;color:#1d4ed8;}
 .pc-type.service{background:#f0fdf4;color:#15803d;}
+.pc-type.job{background:#faf5ff;color:#7c3aed;}
 
 .pc-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:4px;}
 .pc-name{font-size:14px;font-weight:600;color:#111827;line-height:1.3;}
@@ -46,6 +53,12 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .pc-compare{font-size:12px;color:#9ca3af;text-decoration:line-through;}
 .pc-duration{font-size:11px;color:#6b7280;background:#f3f4f6;padding:2px 8px;border-radius:12px;}
 .pc-stock{font-size:11px;font-weight:600;color:#ef4444;margin-top:2px;}
+
+/* job card specific */
+.job-badge{display:inline-block;font-size:11px;font-weight:600;background:#f3e8ff;color:#7c3aed;padding:2px 9px;border-radius:12px;margin-top:3px;}
+.pc-location{font-size:12px;color:#6b7280;margin-top:3px;}
+.pc-apply-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:1.5px solid #6366f1;color:#6366f1;border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;margin-top:8px;align-self:flex-start;}
+.pc-apply-btn:hover{background:#6366f1;color:#fff;}
 
 .pc-actions{display:flex;gap:8px;padding:12px 16px;border-top:1px solid #f3f4f6;}
 .btn-edit-sm{flex:1;padding:7px 12px;background:#f3f4f6;color:#374151;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;}
@@ -74,7 +87,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .modal-msg.err{color:#ef4444;}
 
 /* type selector */
-.type-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.type-selector{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;}
 .type-opt{border:2px solid #e5e7eb;border-radius:10px;padding:12px 10px;text-align:center;cursor:pointer;transition:all .15s;}
 .type-opt:hover{border-color:#6366f1;}
 .type-opt.selected{border-color:#6366f1;background:#eef2ff;}
@@ -107,7 +120,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 @media(max-width:640px){
   .product-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
   .field-row{grid-template-columns:1fr;}
-  .type-selector{grid-template-columns:1fr 1fr 1fr;}
+  .type-selector{grid-template-columns:1fr 1fr;}
   .page{padding:20px 14px 50px;}
 }
 </style>
@@ -121,7 +134,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
     <!-- Topbar -->
     <div class="topbar">
       <div class="topbar-title">Products</div>
-      <button class="btn-primary" onclick="openAddModal()">+ Add product</button>
+      <button class="btn-primary" onclick="openAddModal()">+ Add</button>
     </div>
 
     <div class="page">
@@ -140,13 +153,38 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
         <button class="type-tab" data-filter="service" onclick="filterType('service',this)">
           🛠 Service <span class="count" id="cnt-service">0</span>
         </button>
+        <button class="type-tab" data-filter="job" onclick="filterType('job',this)">
+          💼 Jobs <span class="count" id="cnt-job">0</span>
+        </button>
       </div>
+
+      <!-- Collection filter chips (shown for non-job tabs) -->
+      <div class="collection-tabs" id="collection-tabs" style="display:none;"></div>
 
       <!-- Product grid -->
       {% if products.length %}
       <div class="product-grid" id="product-grid">
         {% for p in products %}
         <div class="product-card {% if not p.status %}inactive{% endif %}" data-type="{{ p.type }}" data-id="{{ p.id }}">
+
+          {% if p.type == 'job' %}
+          <!-- Job card -->
+          <div class="pc-img" style="background:#faf5ff;">
+            {% if p.image_url %}
+            <img src="{{ p.image_url }}" alt="{{ p.name }}" onerror="this.style.display='none';this.parentNode.textContent='💼'">
+            {% else %}💼{% endif %}
+          </div>
+          <span class="pc-type job">Job</span>
+          <div class="pc-body">
+            <div class="pc-name">{{ p.name }}</div>
+            {% if p.duration %}<span class="job-badge">{{ p.duration }}</span>{% endif %}
+            {% if p.collection %}<div class="pc-location">📍 {{ p.collection }}</div>{% endif %}
+            {% if p.description %}<div class="pc-desc">{{ p.description | truncate(80) }}</div>{% endif %}
+            {% if p.file_url %}<a href="{{ p.file_url }}" target="_blank" class="pc-apply-btn">Apply →</a>{% endif %}
+          </div>
+
+          {% else %}
+          <!-- Product card -->
           <div class="pc-img">
             {% if p.image_url %}
             <img src="{{ p.image_url }}" alt="{{ p.name }}" onerror="this.style.display='none';this.parentNode.textContent='{{ '📦' if p.type=='physical' else ('💾' if p.type=='digital' else '🛠') }}'">
@@ -171,6 +209,8 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
             </div>
             {% if p.type == 'physical' and not p.in_stock %}<div class="pc-stock">Out of stock</div>{% endif %}
           </div>
+          {% endif %}
+
           <div class="pc-actions">
             <button class="btn-edit-sm" onclick="openEditModal({{ p.id }})">Edit</button>
             <button class="btn-del-sm" onclick="deleteProduct({{ p.id }}, this)">🗑</button>
@@ -181,9 +221,9 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
       {% else %}
       <div class="empty-state" id="empty-state">
         <div class="empty-icon">📦</div>
-        <h3>No products yet</h3>
-        <p>Add physical products, digital downloads, or services to showcase on your site.</p>
-        <button class="btn-primary" onclick="openAddModal()">+ Add your first product</button>
+        <h3>Nothing here yet</h3>
+        <p>Add physical products, digital downloads, services, or job listings.</p>
+        <button class="btn-primary" onclick="openAddModal()">+ Add your first item</button>
       </div>
       {% endif %}
 
@@ -201,9 +241,9 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
     <div class="modal-body">
       <input type="hidden" id="p-id">
 
-      <!-- Type selector (only shown when adding) -->
+      <!-- Type selector -->
       <div id="type-selector-wrap">
-        <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Product type</div>
+        <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Type</div>
         <div class="type-selector">
           <div class="type-opt selected" data-type="physical" onclick="selectType('physical')">
             <div class="type-opt-icon">📦</div>
@@ -220,19 +260,29 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
             <div class="type-opt-label">Service</div>
             <div class="type-opt-sub">Consultation, work</div>
           </div>
+          <div class="type-opt" data-type="job" onclick="selectType('job')">
+            <div class="type-opt-icon">💼</div>
+            <div class="type-opt-label">Job</div>
+            <div class="type-opt-sub">Hiring listing</div>
+          </div>
         </div>
       </div>
       <input type="hidden" id="p-type" value="physical">
 
+      <!-- Name -->
       <div class="field">
-        <label>Name *</label>
+        <label id="p-name-label">Name *</label>
         <input type="text" id="p-name" placeholder="e.g. Handmade Candle Set">
       </div>
+
+      <!-- Description -->
       <div class="field">
-        <label>Description</label>
+        <label id="p-desc-label">Description</label>
         <textarea id="p-description" rows="2" placeholder="Short description..." style="resize:vertical;"></textarea>
       </div>
-      <div class="field-row">
+
+      <!-- Price row (hidden for jobs) -->
+      <div class="field-row" id="price-row-wrap">
         <div class="field">
           <label>Price (₹)</label>
           <input type="number" id="p-price" placeholder="499" min="0" step="0.01">
@@ -242,8 +292,10 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
           <input type="number" id="p-compare" placeholder="999 (crossed out)" min="0" step="0.01">
         </div>
       </div>
+
+      <!-- Image upload -->
       <div class="field">
-        <label>Product Image</label>
+        <label id="p-image-label">Product Image</label>
         <div class="img-upload-wrap" id="img-upload-wrap" onclick="document.getElementById('p-img-file').click()">
           <img id="p-img-preview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:8px;">
           <div id="p-img-placeholder">
@@ -260,7 +312,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
       <div class="field conditional" id="field-file">
         <label>Download link / File URL</label>
         <input type="url" id="p-file" placeholder="https://example.com/product.pdf">
-        <div class="field-hint">Customers will receive this link after purchase.</div>
+        <div class="field-hint">Customers receive this link after purchase.</div>
       </div>
 
       <!-- Service only: duration -->
@@ -277,12 +329,40 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
         </label>
       </div>
 
-      <div class="field">
+      <!-- Job only: job type -->
+      <div class="field conditional" id="field-jobtype">
+        <label>Job Type</label>
+        <select id="p-jobtype">
+          <option value="">Select type...</option>
+          <option value="Full-time">Full-time</option>
+          <option value="Part-time">Part-time</option>
+          <option value="Remote">Remote</option>
+          <option value="Contract">Contract</option>
+          <option value="Internship">Internship</option>
+        </select>
+      </div>
+
+      <!-- Job only: location -->
+      <div class="field conditional" id="field-location">
+        <label>Location</label>
+        <input type="text" id="p-location" placeholder="e.g. Mumbai, Bangalore, Remote">
+      </div>
+
+      <!-- Job only: apply URL -->
+      <div class="field conditional" id="field-apply">
+        <label>Apply URL</label>
+        <input type="url" id="p-apply" placeholder="https://forms.google.com/... or mailto:hr@company.com">
+        <div class="field-hint">Link or email where candidates can apply.</div>
+      </div>
+
+      <!-- Collection / Group (hidden for jobs — location used instead) -->
+      <div class="field" id="field-collection">
         <label>Collection / Group</label>
         <input type="text" id="p-collection" placeholder="e.g. Skincare, Bestsellers">
         <div class="field-hint">Optional label to group products.</div>
       </div>
 
+      <!-- Status -->
       <div class="field conditional show" id="field-status">
         <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-weight:500;font-size:13px;color:#374151;cursor:pointer;">
           <input type="checkbox" id="p-status" checked style="width:auto;accent-color:#6366f1;">
@@ -303,24 +383,73 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 var ALL_PRODUCTS = JSON.parse(document.getElementById('pz-products-json').textContent || '[]');
 var editingId = null;
 var currentType = 'physical';
+var activeFilter = 'all';
+var activeCollection = 'all';
 
-// Init counts
-document.addEventListener('DOMContentLoaded', function(){ updateCounts(); });
+document.addEventListener('DOMContentLoaded', function(){ updateCounts(); buildCollectionChips('all'); });
 
 /* ── Type filter ── */
 function filterType(type, btn) {
+  activeFilter = type;
+  activeCollection = 'all';
   document.querySelectorAll('.type-tab').forEach(function(t){ t.classList.remove('active'); });
   btn.classList.add('active');
   document.querySelectorAll('.product-card').forEach(function(card){
     card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
   });
+  buildCollectionChips(type);
+  checkEmpty();
+}
+
+/* ── Collection chips ── */
+function buildCollectionChips(typeFilter) {
+  var container = document.getElementById('collection-tabs');
+  // Don't show chips for job tab or if no non-job products
+  if (typeFilter === 'job') { container.style.display = 'none'; return; }
+  var cols = new Set();
+  ALL_PRODUCTS.forEach(function(p) {
+    if ((typeFilter === 'all' || p.type === typeFilter) && p.type !== 'job' && p.collection && p.collection.trim()) {
+      cols.add(p.collection.trim());
+    }
+  });
+  if (cols.size === 0) { container.style.display = 'none'; return; }
+  container.innerHTML = '';
+  container.style.display = 'flex';
+  var allChip = document.createElement('button');
+  allChip.className = 'col-chip active';
+  allChip.textContent = 'All collections';
+  allChip.onclick = function() { filterCollection('all', this); };
+  container.appendChild(allChip);
+  cols.forEach(function(col) {
+    var chip = document.createElement('button');
+    chip.className = 'col-chip';
+    chip.textContent = col;
+    chip.onclick = function() { filterCollection(col, this); };
+    container.appendChild(chip);
+  });
+}
+
+function filterCollection(col, btn) {
+  activeCollection = col;
+  document.querySelectorAll('.col-chip').forEach(function(c){ c.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.product-card').forEach(function(card){
+    if (card.dataset.type === 'job') return; // never filter jobs by collection
+    var hidden = (activeFilter !== 'all' && card.dataset.type !== activeFilter);
+    if (hidden) { card.style.display = 'none'; return; }
+    if (col === 'all') { card.style.display = ''; return; }
+    var p = ALL_PRODUCTS.find(function(x){ return String(x.id) === String(card.dataset.id); });
+    card.style.display = (p && p.collection && p.collection.trim() === col) ? '' : 'none';
+  });
+  checkEmpty();
+}
+
+function checkEmpty() {
   var emptyState = document.getElementById('empty-state');
-  if (emptyState) {
-    var visible = document.querySelectorAll('.product-card[style=""], .product-card:not([style])');
-    var shown = 0;
-    document.querySelectorAll('.product-card').forEach(function(c){ if(c.style.display !== 'none') shown++; });
-    emptyState.style.display = shown === 0 ? 'block' : 'none';
-  }
+  if (!emptyState) return;
+  var shown = 0;
+  document.querySelectorAll('.product-card').forEach(function(c){ if(c.style.display !== 'none') shown++; });
+  emptyState.style.display = shown === 0 ? 'block' : 'none';
 }
 
 /* ── Type select in modal ── */
@@ -328,19 +457,41 @@ function selectType(type) {
   currentType = type;
   document.getElementById('p-type').value = type;
   document.querySelectorAll('.type-opt').forEach(function(o){ o.classList.toggle('selected', o.dataset.type === type); });
+
+  var isJob = type === 'job';
+
+  // product-type conditionals
   document.getElementById('field-file').classList.toggle('show', type === 'digital');
   document.getElementById('field-duration').classList.toggle('show', type === 'service');
   document.getElementById('field-stock').classList.toggle('show', type === 'physical');
+
+  // job-type conditionals
+  document.getElementById('field-jobtype').classList.toggle('show', isJob);
+  document.getElementById('field-location').classList.toggle('show', isJob);
+  document.getElementById('field-apply').classList.toggle('show', isJob);
+
+  // shared fields: hide for job
+  document.getElementById('field-collection').style.display = isJob ? 'none' : '';
+  document.getElementById('price-row-wrap').style.display = isJob ? 'none' : '';
+
+  // dynamic labels
+  document.getElementById('p-name-label').textContent = isJob ? 'Job Title *' : 'Name *';
+  document.getElementById('p-desc-label').textContent = isJob ? 'Job Description / Requirements' : 'Description';
+  document.getElementById('p-image-label').textContent = isJob ? 'Company Logo (optional)' : 'Product Image';
+  document.getElementById('p-name').placeholder = isJob ? 'e.g. Sales Manager' : 'e.g. Handmade Candle Set';
+  document.getElementById('p-description').placeholder = isJob ? 'What we\'re looking for...' : 'Short description...';
 }
 
 /* ── Open add modal ── */
 function openAddModal() {
   editingId = null;
-  document.getElementById('modal-title-text').textContent = 'Add product';
-  document.getElementById('modal-save-btn').textContent = 'Add product';
+  document.getElementById('modal-title-text').textContent = 'Add item';
+  document.getElementById('modal-save-btn').textContent = 'Add';
   document.getElementById('type-selector-wrap').style.display = '';
   clearForm();
-  selectType('physical');
+  // Pre-select type based on active tab
+  var preType = (activeFilter === 'all' || !activeFilter) ? 'physical' : activeFilter;
+  selectType(preType);
   document.getElementById('field-status').classList.remove('show');
   document.getElementById('modal-msg').textContent = '';
   document.getElementById('product-modal').classList.add('open');
@@ -352,26 +503,45 @@ function openEditModal(id) {
   var p = ALL_PRODUCTS.find(function(x){ return x.id === id; });
   if (!p) return;
   editingId = id;
-  document.getElementById('modal-title-text').textContent = 'Edit product';
+  var isJob = p.type === 'job';
+  document.getElementById('modal-title-text').textContent = isJob ? 'Edit job' : 'Edit product';
   document.getElementById('modal-save-btn').textContent = 'Save changes';
-  document.getElementById('type-selector-wrap').style.display = 'none'; // hide type selector when editing
+  document.getElementById('type-selector-wrap').style.display = 'none';
   document.getElementById('p-type').value = p.type;
   document.getElementById('p-id').value = p.id;
   document.getElementById('p-name').value = p.name || '';
   document.getElementById('p-description').value = p.description || '';
-  document.getElementById('p-price').value = p.price || '';
-  document.getElementById('p-compare').value = p.compare_price || '';
-  setImagePreview(p.image_url || '');
-  document.getElementById('p-file').value = p.file_url || '';
-  document.getElementById('p-duration').value = p.duration || '';
-  document.getElementById('p-collection').value = p.collection || '';
-  var siteEl = document.getElementById('p-site');
-  if (siteEl) siteEl.value = p.site_id || '';
-  document.getElementById('p-in-stock').checked = p.in_stock != '0';
-  document.getElementById('p-status').checked = p.status != '0';
+
+  // Set labels
+  document.getElementById('p-name-label').textContent = isJob ? 'Job Title *' : 'Name *';
+  document.getElementById('p-desc-label').textContent = isJob ? 'Job Description / Requirements' : 'Description';
+  document.getElementById('p-image-label').textContent = isJob ? 'Company Logo (optional)' : 'Product Image';
+
+  // Show/hide sections
+  document.getElementById('price-row-wrap').style.display = isJob ? 'none' : '';
+  document.getElementById('field-collection').style.display = isJob ? 'none' : '';
   document.getElementById('field-file').classList.toggle('show', p.type === 'digital');
   document.getElementById('field-duration').classList.toggle('show', p.type === 'service');
   document.getElementById('field-stock').classList.toggle('show', p.type === 'physical');
+  document.getElementById('field-jobtype').classList.toggle('show', isJob);
+  document.getElementById('field-location').classList.toggle('show', isJob);
+  document.getElementById('field-apply').classList.toggle('show', isJob);
+
+  if (isJob) {
+    document.getElementById('p-jobtype').value = p.duration || '';
+    document.getElementById('p-location').value = p.collection || '';
+    document.getElementById('p-apply').value = p.file_url || '';
+  } else {
+    document.getElementById('p-price').value = p.price || '';
+    document.getElementById('p-compare').value = p.compare_price || '';
+    document.getElementById('p-file').value = p.file_url || '';
+    document.getElementById('p-duration').value = p.duration || '';
+    document.getElementById('p-collection').value = p.collection || '';
+  }
+
+  setImagePreview(p.image_url || '');
+  document.getElementById('p-in-stock').checked = p.in_stock != '0';
+  document.getElementById('p-status').checked = p.status != '0';
   document.getElementById('field-status').classList.add('show');
   document.getElementById('modal-msg').textContent = '';
   document.getElementById('product-modal').classList.add('open');
@@ -381,9 +551,10 @@ function closeModal(){ document.getElementById('product-modal').classList.remove
 document.getElementById('product-modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 
 function clearForm(){
-  ['p-id','p-name','p-description','p-price','p-compare','p-image','p-file','p-duration','p-collection'].forEach(function(id){
+  ['p-id','p-name','p-description','p-price','p-compare','p-image','p-file','p-duration','p-collection','p-apply','p-location'].forEach(function(id){
     document.getElementById(id).value = '';
   });
+  document.getElementById('p-jobtype').value = '';
   document.getElementById('p-in-stock').checked = true;
   document.getElementById('p-status').checked = true;
   setImagePreview('');
@@ -432,29 +603,40 @@ function saveProduct() {
   var btn = document.getElementById('modal-save-btn');
   var msg = document.getElementById('modal-msg');
   var name = document.getElementById('p-name').value.trim();
-  if (!name) { msg.textContent = 'Name is required.'; msg.className = 'modal-msg err'; return; }
+  if (!name) { msg.textContent = 'Title / name is required.'; msg.className = 'modal-msg err'; return; }
 
   btn.disabled = true;
-  btn.textContent = editingId ? 'Saving…' : 'Adding…';
+  btn.textContent = 'Saving…';
   msg.textContent = '';
 
   var url = editingId ? '/dashboard/products/update' : '/dashboard/products/create';
-  var siteEl = document.getElementById('p-site');
+  var type = document.getElementById('p-type').value;
+  var isJob = type === 'job';
+
   var payload = {
     id: editingId || undefined,
-    type: document.getElementById('p-type').value,
+    type: type,
     name: name,
     description: document.getElementById('p-description').value,
-    price: document.getElementById('p-price').value,
-    compare_price: document.getElementById('p-compare').value,
     image_url: document.getElementById('p-image').value,
-    file_url: document.getElementById('p-file').value,
-    duration: document.getElementById('p-duration').value,
-    collection: document.getElementById('p-collection').value,
-    site_id: siteEl ? siteEl.value : '',
-    in_stock: document.getElementById('p-in-stock').checked ? '1' : '0',
     status: document.getElementById('p-status').checked ? '1' : '0'
   };
+
+  if (isJob) {
+    payload.duration   = document.getElementById('p-jobtype').value;
+    payload.collection = document.getElementById('p-location').value;
+    payload.file_url   = document.getElementById('p-apply').value;
+    payload.price      = '';
+    payload.compare_price = '';
+    payload.in_stock   = '1';
+  } else {
+    payload.price        = document.getElementById('p-price').value;
+    payload.compare_price = document.getElementById('p-compare').value;
+    payload.file_url     = document.getElementById('p-file').value;
+    payload.duration     = document.getElementById('p-duration').value;
+    payload.collection   = document.getElementById('p-collection').value;
+    payload.in_stock     = document.getElementById('p-in-stock').checked ? '1' : '0';
+  }
 
   fetch(url, {
     method: 'POST',
@@ -464,21 +646,20 @@ function saveProduct() {
   .then(function(r){ return r.json(); })
   .then(function(d){
     btn.disabled = false;
-    btn.textContent = editingId ? 'Save changes' : 'Add product';
+    btn.textContent = editingId ? 'Save changes' : 'Add';
     if (!d.ok) { msg.textContent = d.error || 'Error saving.'; msg.className = 'modal-msg err'; return; }
-    // Reload page to reflect changes
     window.location.reload();
   })
   .catch(function(){
     btn.disabled = false;
-    btn.textContent = editingId ? 'Save changes' : 'Add product';
+    btn.textContent = editingId ? 'Save changes' : 'Add';
     msg.textContent = 'Network error.'; msg.className = 'modal-msg err';
   });
 }
 
 /* ── Delete ── */
 function deleteProduct(id, btn) {
-  if (!confirm('Delete this product?')) return;
+  if (!confirm('Delete this item?')) return;
   btn.textContent = '…'; btn.disabled = true;
   fetch('/dashboard/products/delete', {
     method: 'POST',
@@ -492,17 +673,19 @@ function deleteProduct(id, btn) {
     if (card) card.remove();
     ALL_PRODUCTS = ALL_PRODUCTS.filter(function(p){ return p.id !== id; });
     updateCounts();
+    buildCollectionChips(activeFilter);
+    checkEmpty();
   })
   .catch(function(){ btn.textContent = '🗑'; btn.disabled = false; });
 }
 
 /* ── Update counts ── */
 function updateCounts() {
-  var types = ['physical','digital','service'];
-  var all = document.querySelectorAll('.product-card').length;
-  document.getElementById('cnt-all').textContent = all;
+  var types = ['physical','digital','service','job'];
+  document.getElementById('cnt-all').textContent = document.querySelectorAll('.product-card').length;
   types.forEach(function(t){
-    document.getElementById('cnt-' + t).textContent = document.querySelectorAll('.product-card[data-type="' + t + '"]').length;
+    var el = document.getElementById('cnt-' + t);
+    if (el) el.textContent = document.querySelectorAll('.product-card[data-type="' + t + '"]').length;
   });
 }
 </script>
