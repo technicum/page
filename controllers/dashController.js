@@ -44,18 +44,19 @@ exports.wizard = async (req, res) => {
   const allThemes = themeManager.loadAll()
   // Send a simplified list: slug, name, for[], previewUrl, hasPreview
   const themes = Object.values(allThemes).map(t => ({
-    slug:        t.slug,
-    name:        t.name,
-    for:         t.for || ['all'],
-    previewUrl:  t.previewUrl,
-    hasPreview:  t.hasPreview,
-    description: t.description || '',
-    categories:  t.categories  || ['other'],
-    tags:        t.tags        || [],
-    order:       t.order       || 99
+    slug:               t.slug,
+    name:               t.name,
+    for:                t.for || ['all'],
+    previewUrl:         t.previewUrl,
+    hasPreview:         t.hasPreview,
+    description:        t.description || '',
+    categories:         t.categories  || ['other'],
+    tags:               t.tags        || [],
+    order:              t.order       || 99,
+    default_appearance: t.default_appearance || {}
   }))
   const categories = await db.query('SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC')
-  res.render('dashboard/wizard.njk', { title: 'Create your site', user: req.session.user, themes, categories: categories || [] })
+  res.render('dashboard/wizard.njk', { title: 'Create your site', user: req.session.user, themes, categories: categories || [], baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com' })
 }
 
 exports.templates = async (req, res) => {

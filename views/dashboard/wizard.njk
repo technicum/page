@@ -5,583 +5,671 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Create your site — {{ app_name }}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#1a1a18;--ink-muted:#6b6b66;--ink-faint:#b0afa8;--white:#fff;--off:#f8f7f4;--paper:#f2f0eb;
-  --border:rgba(26,26,24,0.1);--border-md:rgba(26,26,24,0.18);
-  --blue:#2563eb;--blue-light:#eff4ff;--blue-mid:#c7d9fd;
-  --green:#16a34a;--green-light:#f0fdf4;
-  --red:#dc2626;--red-light:#fef2f2;
-  --radius:10px;--radius-lg:16px;--radius-xl:24px;
+  --ink:#1a1a18;--ink-muted:#6b6b66;--ink-faint:#b0afa8;
+  --white:#fff;--off:#f5f4f1;--paper:#ededea;
+  --border:rgba(26,26,24,0.09);--border-md:rgba(26,26,24,0.15);
+  --blue:#2563eb;--blue-d:#1d4ed8;--blue-light:#eff4ff;
+  --green:#16a34a;--radius:12px;--radius-lg:18px;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--off);color:var(--ink);min-height:100vh;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--off);color:var(--ink);display:flex;flex-direction:column;}
 
-nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:58px;background:var(--white);border-bottom:1px solid var(--border);}
-.logo{font-family:'DM Serif Display',serif;font-size:20px;text-decoration:none;color:var(--ink);}
+/* ── NAV ── */
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:56px;background:var(--white);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.logo{font-family:'DM Serif Display',serif;font-size:19px;text-decoration:none;color:var(--ink);}
 .logo em{font-style:italic;color:var(--blue);}
-.nav-user{font-size:13px;color:var(--ink-muted);}
-.nav-user a{color:var(--ink-faint);text-decoration:none;}
+.step-count{font-size:13px;color:var(--ink-faint);}
+.step-count span{color:var(--ink-muted);font-weight:500;}
 
-.progress-wrap{padding:32px 40px 0;max-width:720px;margin:0 auto;}
-.steps-bar{display:flex;align-items:center;gap:0;margin-bottom:8px;}
-.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;transition:all 0.3s;}
-.step-dot.done{background:var(--ink);color:var(--white);}
-.step-dot.active{background:var(--blue);color:var(--white);}
-.step-dot.pending{background:var(--paper);color:var(--ink-faint);border:1px solid var(--border);}
-.step-line{flex:1;height:1px;background:var(--border);}
-.step-line.done{background:var(--ink);}
-.steps-labels{display:flex;justify-content:space-between;margin-top:8px;}
-.steps-labels span{font-size:12px;color:var(--ink-faint);text-align:center;flex:1;}
-.steps-labels span.active{color:var(--blue);font-weight:500;}
-.steps-labels span.done{color:var(--ink-muted);}
+/* ── CHAT SHELL ── */
+.chat-shell{flex:1;display:flex;flex-direction:column;max-width:680px;width:100%;margin:0 auto;overflow:hidden;}
 
-.main{max-width:720px;margin:32px auto;padding:0 40px 80px;}
+.chat-messages{
+  flex:1;overflow-y:auto;padding:24px 16px 8px;
+  display:flex;flex-direction:column;gap:0;
+  scroll-behavior:smooth;
+}
+.chat-messages::-webkit-scrollbar{width:4px;}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:4px;}
 
-.step-panel{display:none;}
-.step-panel.active{display:block;animation:fadeUp 0.35s ease both;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+/* ── MESSAGES ── */
+.msg{display:flex;gap:10px;margin-bottom:12px;animation:msgIn 0.3s ease both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-.step-heading{font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;letter-spacing:-0.5px;margin-bottom:6px;}
-.step-sub{font-size:15px;color:var(--ink-muted);margin-bottom:32px;}
+.msg-bot{align-items:flex-start;}
+.msg-user{align-items:flex-end;flex-direction:row-reverse;}
 
-/* Single type card */
-.single-type{background:var(--blue-light);border:2px solid var(--blue);border-radius:var(--radius-lg);padding:24px 22px;display:flex;align-items:center;gap:18px;margin-bottom:24px;}
-.st-icon{width:52px;height:52px;border-radius:12px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.st-icon i{font-size:24px;color:#fff;}
-.st-text{}
-.st-name{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:3px;}
-.st-desc{font-size:13px;color:var(--ink-muted);}
-.st-check{margin-left:auto;width:24px;height:24px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.st-check i{font-size:13px;color:#fff;}
+.bot-avatar{
+  width:34px;height:34px;border-radius:50%;background:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;margin-top:2px;
+}
+.bubble{
+  max-width:82%;padding:12px 15px;border-radius:var(--radius-lg);
+  font-size:14.5px;line-height:1.55;
+}
+.bubble-bot{
+  background:var(--white);border:1px solid var(--border);
+  border-top-left-radius:4px;color:var(--ink);
+}
+.bubble-user{
+  background:var(--blue);color:#fff;
+  border-top-right-radius:4px;
+}
+.bubble strong{font-weight:600;}
+.bubble .hint{font-size:12.5px;color:var(--ink-faint);margin-top:6px;}
 
-.info-strip{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--white);border:1px solid var(--border-md);border-radius:var(--radius);font-size:13px;color:var(--ink-muted);margin-bottom:28px;}
-.info-strip i{color:var(--blue);font-size:16px;flex-shrink:0;}
+/* typing indicator */
+.typing-dots{display:flex;gap:4px;align-items:center;padding:4px 2px;}
+.typing-dots span{
+  width:7px;height:7px;border-radius:50%;background:var(--ink-faint);
+  animation:dot 1.2s infinite ease-in-out;
+}
+.typing-dots span:nth-child(2){animation-delay:0.2s;}
+.typing-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes dot{0%,80%,100%{transform:scale(0.7);opacity:0.5}40%{transform:scale(1);opacity:1}}
 
-/* Fields */
-.field{margin-bottom:20px;}
-.field label{display:block;font-size:13px;font-weight:500;color:var(--ink-muted);margin-bottom:7px;}
-.field input,.field textarea,.field select{width:100%;padding:11px 14px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
-.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
-.field textarea{resize:vertical;min-height:80px;}
-.field-hint{font-size:12px;color:var(--ink-faint);margin-top:5px;}
+/* ── QUICK REPLIES ── */
+.qr-row{
+  display:flex;flex-wrap:wrap;gap:8px;
+  padding:4px 16px 12px;
+}
+.qr-btn{
+  padding:8px 14px;border-radius:100px;border:1.5px solid var(--border-md);
+  background:var(--white);font-size:13.5px;color:var(--ink);cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all 0.15s;font-weight:500;
+  white-space:nowrap;
+}
+.qr-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+.qr-btn.selected{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
 
-.subdomain-wrap{display:flex;align-items:center;border:1px solid var(--border-md);border-radius:var(--radius);overflow:hidden;background:var(--white);}
-.subdomain-suffix{padding:11px 14px;background:var(--paper);font-size:14px;color:var(--ink-muted);border-left:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
-.subdomain-wrap input{border:none;outline:none;padding:11px 14px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink);flex:1;background:transparent;}
-.subdomain-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
+/* ── THEME CARDS ── */
+.theme-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;
+  padding:4px 16px 16px;
+}
+.theme-card{
+  border:1.5px solid var(--border-md);border-radius:var(--radius);
+  background:var(--white);cursor:pointer;overflow:hidden;
+  transition:all 0.15s;
+}
+.theme-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 16px rgba(37,99,235,0.12);}
+.theme-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.15);}
+.tc-preview{
+  height:72px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;border-bottom:1px solid var(--border);
+}
+.tc-body{padding:10px 12px;}
+.tc-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.tc-desc{font-size:11.5px;color:var(--ink-faint);line-height:1.4;}
+.tc-check{
+  width:18px;height:18px;border-radius:50%;background:var(--blue);
+  display:none;align-items:center;justify-content:center;float:right;margin-top:-2px;
+}
+.tc-check i{font-size:10px;color:#fff;}
+.theme-card.selected .tc-check{display:flex;}
 
-/* ── Embedded theme marketplace (mirrors templates.njk exactly) ─────────── */
-.tm-search-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.tm-search-row input{flex:1;height:40px;border:1px solid var(--border-md);border-radius:var(--radius);background:var(--white);color:var(--ink);padding:0 14px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
-.tm-search-row input:focus{border-color:var(--blue);}
-.tm-search-row input::placeholder{color:var(--ink-faint);}
-.tm-search-row select{height:40px;border:1px solid var(--border-md);border-radius:var(--radius);background:var(--white);color:var(--ink);padding:0 12px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;min-width:140px;outline:none;}
-.tm-filter-bar{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:8px;}
-.tm-filter-bar::-webkit-scrollbar{display:none;}
-.tm-filter-label{font-size:12px;color:var(--ink-faint);margin-right:4px;white-space:nowrap;flex-shrink:0;}
-.tm-tag{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border-md);background:transparent;color:var(--ink-muted);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0;transition:all 0.15s;}
-.tm-tag:hover{border-color:var(--ink);color:var(--ink);}
-.tm-tag.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
-.tm-main{display:flex;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;max-height:500px;}
-.tm-sidebar{width:180px;min-width:180px;border-right:1px solid var(--border);background:var(--white);padding:16px 12px;overflow-y:auto;}
-.tm-sidebar-section{margin-bottom:20px;}
-.tm-sidebar-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px;padding:0 6px;}
-.tm-sidebar-item{display:flex;align-items:center;justify-content:space-between;padding:7px 8px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--ink-muted);margin-bottom:2px;user-select:none;}
-.tm-sidebar-item:hover{background:var(--off);color:var(--ink);}
-.tm-sidebar-item.active{background:var(--blue-light);color:var(--blue);font-weight:500;}
-.tm-count{font-size:11px;color:var(--ink-faint);background:var(--off);border-radius:10px;padding:1px 7px;min-width:22px;text-align:center;}
-.tm-sidebar-item.active .tm-count{background:rgba(37,99,235,0.12);color:var(--blue);}
-.tm-content{flex:1;padding:16px;min-width:0;overflow-y:auto;background:var(--off);}
-.tm-result-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.tm-result-count{font-size:13px;color:var(--ink-muted);}
-.tm-sort-row{display:flex;align-items:center;gap:8px;}
-.tm-sort-row label{font-size:12px;color:var(--ink-faint);}
-.tm-sort-row select{font-size:13px;border:1px solid var(--border-md);border-radius:var(--radius);background:var(--white);color:var(--ink);padding:5px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;outline:none;}
-.tm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;}
-.tm-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s;position:relative;}
-.tm-card:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(37,99,235,0.1);}
-.tm-card.tm-selected{border-color:var(--blue);}
-.tm-selected-badge{position:absolute;top:10px;right:10px;background:var(--blue);color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;z-index:5;}
-.tm-thumb{height:140px;background:var(--off);position:relative;overflow:hidden;}
-.tm-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-.tm-thumb iframe{width:200%;height:200%;transform:scale(0.5);transform-origin:top left;pointer-events:none;border:none;background:#fff;}
-.tm-thumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background 0.2s;opacity:0;}
-.tm-card:hover .tm-thumb-overlay{background:rgba(0,0,0,0.35);opacity:1;}
-.tm-preview-btn{padding:7px 18px;background:var(--white);color:var(--ink);border:none;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
-.tm-card-body{padding:12px 14px 8px;}
-.tm-card-name{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:3px;}
-.tm-card-desc{font-size:12px;color:var(--ink-muted);line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.tm-card-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
-.tm-card-tag{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--off);color:var(--ink-faint);}
-.tm-card-footer{padding:0 14px 12px;display:flex;gap:6px;}
-.tm-card-preview{flex:1;font-size:12px;padding:6px 0;border-radius:var(--radius);border:1px solid var(--border-md);background:transparent;color:var(--ink-muted);cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;}
-.tm-card-preview:hover{border-color:var(--ink);color:var(--ink);}
-.tm-card-select{flex:1;font-size:12px;padding:6px 0;border-radius:var(--radius);border:none;background:var(--ink);color:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;font-weight:500;}
-.tm-card-select:hover{opacity:0.85;}
-.tm-card.tm-selected .tm-card-select{background:var(--blue);}
-.tm-empty{display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;}
-.tm-empty-icon{font-size:40px;margin-bottom:12px;opacity:0.4;}
-.tm-empty-title{font-size:16px;font-weight:500;color:var(--ink);margin-bottom:6px;}
-.tm-empty-sub{font-size:13px;color:var(--ink-muted);}
-.tm-empty-reset{margin-top:16px;font-size:13px;padding:8px 18px;border:1px solid var(--border-md);border-radius:var(--radius);background:transparent;color:var(--ink-muted);cursor:pointer;font-family:'DM Sans',sans-serif;}
-.tm-empty-reset:hover{border-color:var(--ink);color:var(--ink);}
+/* ── SUBDOMAIN INPUT ── */
+.subdomain-row{
+  display:flex;align-items:center;gap:0;
+  background:var(--white);border:1.5px solid var(--border-md);border-radius:var(--radius);
+  overflow:hidden;margin:4px 16px 12px;
+  transition:border-color 0.15s;
+}
+.subdomain-row:focus-within{border-color:var(--blue);}
+.subdomain-prefix{
+  padding:11px 12px 11px 14px;background:var(--paper);
+  font-size:13px;color:var(--ink-faint);border-right:1px solid var(--border);
+  white-space:nowrap;
+}
+.subdomain-input{
+  flex:1;padding:11px 14px;border:none;outline:none;
+  font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);background:transparent;
+}
+.subdomain-suffix{
+  padding:11px 14px;font-size:13px;color:var(--ink-faint);white-space:nowrap;
+}
+.sub-status{
+  font-size:12px;padding:4px 16px 10px;
+}
+.sub-ok{color:var(--green);}
+.sub-err{color:#dc2626;}
 
-/* Buttons */
-.btn-row{display:flex;gap:12px;margin-top:32px;}
-.btn{padding:13px 28px;border-radius:var(--radius);font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;border:none;}
-.btn-primary{background:var(--ink);color:var(--white);}
-.btn-primary:hover{opacity:0.85;}
-.btn-secondary{background:var(--white);color:var(--ink);border:1px solid var(--border-md);}
-.btn-secondary:hover{background:var(--paper);}
-.btn-success{background:var(--green);color:var(--white);}
-.btn-success:hover{opacity:0.9;}
-.btn-success:disabled{opacity:0.6;cursor:not-allowed;}
+/* ── TEXT INPUT AREA ── */
+.input-area{
+  border-top:1px solid var(--border);background:var(--white);
+  padding:12px 16px;flex-shrink:0;
+}
+.input-row{display:flex;gap:8px;align-items:flex-end;}
+.main-input{
+  flex:1;padding:11px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius);
+  font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;
+  resize:none;line-height:1.45;transition:border-color 0.15s;
+  background:var(--off);
+}
+.main-input:focus{border-color:var(--blue);background:var(--white);}
+.main-input::placeholder{color:var(--ink-faint);}
+.send-btn{
+  width:42px;height:42px;border-radius:var(--radius);background:var(--blue);
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:background 0.15s;
+}
+.send-btn:hover{background:var(--blue-d);}
+.send-btn i{font-size:18px;color:#fff;}
+.send-btn:disabled{background:var(--ink-faint);cursor:default;}
 
-.errors-box{background:var(--red-light);border:1px solid rgba(220,38,38,0.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:24px;}
-.errors-box p{font-size:14px;color:var(--red);line-height:1.6;}
+/* ── FINAL CREATE BUTTON ── */
+.create-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:calc(100% - 32px);margin:4px 16px 16px;
+  padding:14px;border-radius:var(--radius-lg);
+  background:var(--blue);color:#fff;border:none;cursor:pointer;
+  font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;
+  transition:background 0.15s;
+}
+.create-btn:hover{background:var(--blue-d);}
+.create-btn i{font-size:20px;}
+.create-btn.loading{background:var(--ink-faint);pointer-events:none;}
 
-@media(max-width:640px){
-  nav{padding:0 20px;}
-  .progress-wrap,.main{padding-left:20px;padding-right:20px;}
-  .tm-sidebar{display:none;}
-  .tm-filter-bar{display:none;}
-  .tm-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
-  .tm-thumb{height:100px;}
+/* URL input row for CTA */
+.url-input-wrap{padding:0 16px 12px;}
+.url-input{
+  width:100%;padding:10px 14px;border:1.5px solid var(--border-md);border-radius:var(--radius);
+  font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;
+  background:var(--off);transition:border-color 0.15s;
+}
+.url-input:focus{border-color:var(--blue);background:var(--white);}
+.url-input::placeholder{color:var(--ink-faint);}
+.url-note{font-size:12px;color:var(--ink-faint);margin-top:5px;}
+.url-skip{
+  font-size:12.5px;color:var(--ink-faint);text-decoration:underline;
+  cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;
+  margin-top:4px;display:block;
+}
+
+@media(max-width:480px){
+  .theme-grid{grid-template-columns:repeat(2,1fr);}
+  .bubble{max-width:90%;}
 }
 </style>
 </head>
 <body>
 
 <nav>
-  <a class="logo" href="/">{{ app_name | lower }}<em>.</em></a>
-  <span class="nav-user">Hi, {{ user.name }} &nbsp;·&nbsp; <a href="/logout">Logout</a></span>
+  <a class="logo" href="/dashboard">Page<em>.</em></a>
+  <span class="step-count">Step <span id="stepLabel">1</span> of 6</span>
 </nav>
 
-<div class="progress-wrap">
-  <div class="steps-bar">
-    <div class="step-dot active" id="dot1">1</div>
-    <div class="step-line" id="line1"></div>
-    <div class="step-dot pending" id="dot2">2</div>
-    <div class="step-line" id="line2"></div>
-    <div class="step-dot pending" id="dot3">3</div>
-  </div>
-  <div class="steps-labels">
-    <span class="active" id="label1">Choose type</span>
-    <span id="label2">Add details</span>
-    <span id="label3">Go live</span>
+<div class="chat-shell">
+  <div class="chat-messages" id="chatMessages"></div>
+  <div id="dynamicArea"></div>
+  <div class="input-area" id="inputArea" style="display:none;">
+    <div class="input-row">
+      <textarea class="main-input" id="mainInput" rows="1" placeholder="Type here…"></textarea>
+      <button class="send-btn" id="sendBtn" disabled><i class="ti ti-arrow-up"></i></button>
+    </div>
   </div>
 </div>
 
-<div class="main">
-
-  {% if flash_errors and flash_errors.length %}
-  <div class="errors-box" id="flash-errors">
-    {% for e in flash_errors %}
-    <p>{{ e }}</p>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  <form method="POST" action="/dashboard/site/create" id="wizard-form">
-    <input type="hidden" name="site_type" value="minisite">
-    <input type="hidden" name="template_id" id="template_id" value="minimal">
-
-    <!-- STEP 1: Type -->
-    <div class="step-panel active" id="step1">
-      <div class="step-heading">What are you building?</div>
-      <div class="step-sub">Your personal page with all your links and info.</div>
-
-      <div class="single-type">
-        <div class="st-icon"><i class="ti ti-link"></i></div>
-        <div class="st-text">
-          <div class="st-name">Biolink / Mini site</div>
-          <div class="st-desc">Your links, services, social, and more — all in one page</div>
-        </div>
-        <div class="st-check"><i class="ti ti-check"></i></div>
-      </div>
-
-      <div class="info-strip">
-        <i class="ti ti-arrow-right"></i>
-        After setup you'll land in the <strong style="color:var(--ink);margin-left:4px;">Biolink builder</strong> to customise your page
-      </div>
-
-      <div class="btn-row">
-        <button type="button" class="btn btn-primary" onclick="goStep(2)">Continue →</button>
-      </div>
-    </div>
-
-    <!-- STEP 2: Details -->
-    <div class="step-panel" id="step2">
-      <div class="step-heading">Tell us about yourself</div>
-      <div class="step-sub">A few details to get your page started.</div>
-
-      <div class="field">
-        <label>Your business name</label>
-        <input type="text" name="title" id="title-input" placeholder="e.g. Abhi Singh" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Business bio</label>
-        <textarea name="bio" placeholder="Creator · Photographer · Based in India"></textarea>
-      </div>
-      <div class="field">
-        <label>Short description <span style="font-weight:400;color:var(--ink-faint)">(optional)</span></label>
-        <textarea name="description" placeholder="Tell visitors what you do in 1–2 sentences..." style="min-height:70px;"></textarea>
-      </div>
-
-      <div class="btn-row">
-        <button type="button" class="btn btn-secondary" onclick="goStep(1)">← Back</button>
-        <button type="button" class="btn btn-primary" onclick="goStep(3)">Continue →</button>
-      </div>
-    </div>
-
-    <!-- STEP 3: Theme + subdomain -->
-    <div class="step-panel" id="step3">
-      <div class="step-heading">Almost there!</div>
-      <div class="step-sub">Pick your theme and web address.</div>
-
-      <div class="field">
-        <label>Choose a theme</label>
-        <!-- Search row -->
-        <div class="tm-search-row">
-          <input type="text" id="tm-search" placeholder="Search themes…">
-          <select id="tm-cat-select">
-            <option value="all">All categories</option>
-          </select>
-        </div>
-        <!-- Tag filter bar -->
-        <div class="tm-filter-bar" id="tm-filter-bar">
-          <span class="tm-filter-label">Filter:</span>
-          <button type="button" class="tm-tag active" data-tag="all" onclick="filterByTag('all',this)">All</button>
-        </div>
-        <!-- Marketplace layout: sidebar + content -->
-        <div class="tm-main">
-          <aside class="tm-sidebar">
-            <div class="tm-sidebar-section" id="tm-cat-sidebar">
-              <div class="tm-sidebar-label">Category</div>
-              <div class="tm-sidebar-item active" data-cat="all" onclick="filterByCategory('all',this)">
-                All themes <span class="tm-count" id="count-all">0</span>
-              </div>
-            </div>
-            <div class="tm-sidebar-section" id="tm-tag-sidebar">
-              <div class="tm-sidebar-label">Style</div>
-            </div>
-          </aside>
-          <main class="tm-content">
-            <div class="tm-result-row">
-              <span class="tm-result-count" id="tm-result-count">Loading…</span>
-              <div class="tm-sort-row">
-                <label>Sort:</label>
-                <select id="tm-sort" onchange="sortThemes(this.value)">
-                  <option value="default">Default order</option>
-                  <option value="name">Name A–Z</option>
-                </select>
-              </div>
-            </div>
-            <div class="tm-grid" id="tm-grid"></div>
-            <div id="tm-empty" class="tm-empty">
-              <div class="tm-empty-icon">🎨</div>
-              <div class="tm-empty-title">No themes found</div>
-              <div class="tm-empty-sub">Try a different category or clear the filter.</div>
-              <button type="button" class="tm-empty-reset" onclick="resetFilters()">Clear filters</button>
-            </div>
-          </main>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Your web address</label>
-        <div class="subdomain-wrap">
-          <input type="text" name="subdomain" id="subdomain-input" placeholder="yourname" autocomplete="off">
-          <span class="subdomain-suffix">.{{ base_domain }}</span>
-        </div>
-        <div class="field-hint">Lowercase letters, numbers, hyphens only.</div>
-      </div>
-
-      <div class="btn-row">
-        <button type="button" class="btn btn-secondary" onclick="goStep(2)">← Back</button>
-        <button type="submit" class="btn btn-success" id="launch-btn">🚀 Launch my site</button>
-      </div>
-    </div>
-
-  </form>
-</div>
+<!-- Hidden submit form -->
+<form id="aiForm" method="POST" action="/dashboard/site/create-ai" style="display:none;">
+  <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+  <input type="hidden" name="title"       id="f_title">
+  <input type="hidden" name="subdomain"   id="f_subdomain">
+  <input type="hidden" name="template_id" id="f_template_id">
+  <input type="hidden" name="bio"         id="f_bio">
+  <input type="hidden" name="cta_text"    id="f_cta_text">
+  <input type="hidden" name="cta_url"     id="f_cta_url">
+  <input type="hidden" name="site_type"   value="minisite">
+</form>
 
 <script>
-var currentStep = 1;
-var ALL_THEMES = {{ themes | dump | safe }};
+// ── Data from server ──────────────────────────────────────────────────────────
+const ALL_THEMES = {{ themes | dump | safe }};
+const BASE_DOMAIN = '{{ baseDomain or "pagezapper.com" }}';
 
-// ── Theme marketplace (mirrors templates.njk JS, adapted for wizard) ────────
-var allCards      = [];
-var activeCategory = 'all';
-var activeTag      = 'all';
-var searchQuery    = '';
-
-function cap(s) {
-  return s.replace(/-/g,' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
-}
-
-function updateResultCount() {
-  var visible = allCards.filter(function(c){ return c.style.display !== 'none'; }).length;
-  var el = document.getElementById('tm-result-count');
-  if (el) el.textContent = visible === allCards.length
-    ? 'Showing all ' + allCards.length + ' theme' + (allCards.length !== 1 ? 's' : '')
-    : 'Showing ' + visible + ' of ' + allCards.length + ' themes';
-  var emptyEl = document.getElementById('tm-empty');
-  if (emptyEl) emptyEl.style.display = visible === 0 ? 'flex' : 'none';
-}
-
-function applyFilters() {
-  var q = searchQuery.toLowerCase().trim();
-  allCards.forEach(function(card) {
-    var catVals = (card.dataset.cats || '').split(',');
-    var tagVals = (card.dataset.tags || '').split(',');
-    var name    = card.dataset.name || '';
-    var catMatch = activeCategory === 'all' || catVals.indexOf(activeCategory) > -1;
-    var tagMatch = activeTag === 'all' || tagVals.indexOf(activeTag) > -1;
-    var qMatch   = !q || name.indexOf(q) > -1 || (card.dataset.tags||'').indexOf(q) > -1;
-    card.style.display = (catMatch && tagMatch && qMatch) ? '' : 'none';
-  });
-  updateResultCount();
-}
-
-function filterByCategory(cat, el) {
-  activeCategory = cat;
-  var cs = document.getElementById('tm-cat-select');
-  if (cs) cs.value = cat;
-  document.querySelectorAll('.tm-sidebar-item[data-cat]').forEach(function(s){ s.classList.remove('active'); });
-  var target = (el && el.dataset && el.dataset.cat) ? el : document.querySelector('.tm-sidebar-item[data-cat="'+cat+'"]');
-  if (target) target.classList.add('active');
-  applyFilters();
-}
-
-function filterByTag(tag, el) {
-  activeTag = tag;
-  document.querySelectorAll('.tm-tag').forEach(function(t){ t.classList.remove('active'); });
-  document.querySelectorAll('.tm-tag[data-tag="'+tag+'"]').forEach(function(t){ t.classList.add('active'); });
-  document.querySelectorAll('.tm-sidebar-item[data-tag]').forEach(function(s){ s.classList.remove('active'); });
-  var sItem = document.querySelector('.tm-sidebar-item[data-tag="'+tag+'"]');
-  if (sItem) sItem.classList.add('active');
-  applyFilters();
-}
-
-function sortThemes(val) {
-  var grid = document.getElementById('tm-grid');
-  var cards = Array.from(grid.querySelectorAll('.tm-card'));
-  if (val === 'name') {
-    cards.sort(function(a,b){ return (a.dataset.name||'').localeCompare(b.dataset.name||''); });
-  } else {
-    cards.sort(function(a,b){ return (parseInt(a.dataset.order||99))-(parseInt(b.dataset.order||99)); });
+// ── Business type config ──────────────────────────────────────────────────────
+const TYPES = {
+  salon:      {
+    label:'Salon & Beauty', emoji:'💅',
+    themes:['salon-rose-luxe','salon-sage-botanical','salon-midnight-noir'],
+    ctaOptions:['📅 Book Appointment','💬 WhatsApp Us','📸 View Services'],
+    bioHint:'e.g. Premium hair & beauty salon · Los Angeles · Open Mon–Sat'
+  },
+  finance:    {
+    label:'Finance & Loans', emoji:'💰',
+    themes:['finnest-wealth','loanbridge-dsa','tradevault-academy'],
+    ctaOptions:['📊 Book Consultation','🏦 Check Eligibility','💬 WhatsApp Us'],
+    bioHint:'e.g. SEBI RIA · CFP · 15 years experience · Helping you grow wealth'
+  },
+  jobs:       {
+    label:'Jobs & Recruitment', emoji:'💼',
+    themes:['jobs-light','jobs-dark','jobs-saffron'],
+    ctaOptions:['📋 Submit Your CV','🔎 Browse Jobs','💬 Contact Us'],
+    bioHint:'e.g. Placement agency · Mumbai · 2,400+ candidates placed Pan India'
+  },
+  shop:       {
+    label:'Online Shop', emoji:'🛍️',
+    themes:['biolink-shop'],
+    ctaOptions:['🛍️ Shop Now','💬 Order on WhatsApp','📦 View All Products'],
+    bioHint:'e.g. Handmade candles & skincare · Fast delivery 🚀'
+  },
+  service:    {
+    label:'Service Provider', emoji:'🔧',
+    themes:['biolink-service'],
+    ctaOptions:['📅 Book Appointment','💬 WhatsApp Us','📞 Call Us Now'],
+    bioHint:'e.g. Professional plumber · 10 years experience · Available 24/7'
+  },
+  freelancer: {
+    label:'Freelancer', emoji:'🎨',
+    themes:['biolink-freelancer'],
+    ctaOptions:['🤝 Hire Me','🎨 View Portfolio','📧 Email Me'],
+    bioHint:'e.g. UI Designer & Developer · 5+ years · Available for projects ✅'
+  },
+  realty:     {
+    label:'Real Estate', emoji:'🏠',
+    themes:['biolink-realty'],
+    ctaOptions:['🏠 Schedule a Site Visit','💬 WhatsApp Me','📋 View Listings'],
+    bioHint:'e.g. Real estate broker · 10+ years · Finding your perfect home'
+  },
+  creator:    {
+    label:'Content Creator', emoji:'🎬',
+    themes:['biolink-creator'],
+    ctaOptions:['▶️ Subscribe to Channel','🛍️ Shop My Products','🤝 Book a Collab'],
+    bioHint:'e.g. Travel vlogger · 200k subscribers · New video every Friday 🎥'
   }
-  cards.forEach(function(c){ grid.appendChild(c); });
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+const state = {
+  step: 0,
+  businessType: null,
+  name: '',
+  bio: '',
+  ctaText: '',
+  ctaUrl: '',
+  themeSlug: '',
+  subdomain: ''
+};
+
+// ── DOM helpers ───────────────────────────────────────────────────────────────
+const $msgs   = document.getElementById('chatMessages');
+const $area   = document.getElementById('dynamicArea');
+const $iArea  = document.getElementById('inputArea');
+const $input  = document.getElementById('mainInput');
+const $sendBtn= document.getElementById('sendBtn');
+const $step   = document.getElementById('stepLabel');
+
+function scrollBottom() {
+  setTimeout(() => $msgs.scrollTop = $msgs.scrollHeight, 50);
 }
 
-function resetFilters() {
-  activeCategory = 'all';
-  activeTag = 'all';
-  searchQuery = '';
-  var srch = document.getElementById('tm-search');
-  if (srch) srch.value = '';
-  var cs = document.getElementById('tm-cat-select');
-  if (cs) cs.value = 'all';
-  document.querySelectorAll('.tm-sidebar-item').forEach(function(s){ s.classList.remove('active'); });
-  var allCat = document.querySelector('.tm-sidebar-item[data-cat="all"]');
-  if (allCat) allCat.classList.add('active');
-  document.querySelectorAll('.tm-tag').forEach(function(t){ t.classList.remove('active'); });
-  var allTag = document.querySelector('.tm-tag[data-tag="all"]');
-  if (allTag) allTag.classList.add('active');
-  applyFilters();
+function setStep(n) {
+  state.step = n;
+  $step.textContent = Math.min(n + 1, 6);
 }
 
-function selectTemplate(slug, name) {
-  allCards.forEach(function(c) {
-    c.classList.remove('tm-selected');
-    var badge = c.querySelector('.tm-selected-badge');
-    if (badge) badge.remove();
+// Add a bot message (with optional typing delay)
+function botMsg(html, delay = 0) {
+  return new Promise(resolve => {
+    // Show typing indicator
+    const typing = document.createElement('div');
+    typing.className = 'msg msg-bot';
+    typing.innerHTML = `
+      <div class="bot-avatar">✨</div>
+      <div class="bubble bubble-bot"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+    $msgs.appendChild(typing);
+    scrollBottom();
+
+    setTimeout(() => {
+      typing.querySelector('.bubble').innerHTML = html;
+      scrollBottom();
+      resolve();
+    }, delay || 700);
   });
-  var card = document.querySelector('.tm-card[data-slug="'+slug+'"]');
-  if (card) {
-    card.classList.add('tm-selected');
-    card.insertAdjacentHTML('afterbegin','<div class="tm-selected-badge">✓ Selected</div>');
+}
+
+// Add a user message bubble
+function userMsg(text) {
+  const el = document.createElement('div');
+  el.className = 'msg msg-user';
+  el.innerHTML = `<div class="bubble bubble-user">${escHtml(text)}</div>`;
+  $msgs.appendChild(el);
+  scrollBottom();
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function clearArea() {
+  $area.innerHTML = '';
+  $iArea.style.display = 'none';
+  $input.value = '';
+  $sendBtn.disabled = true;
+}
+
+// Show quick reply buttons
+function showQuickReplies(options, onSelect) {
+  clearArea();
+  const row = document.createElement('div');
+  row.className = 'qr-row';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'qr-btn';
+    btn.textContent = opt;
+    btn.onclick = () => {
+      row.querySelectorAll('.qr-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      setTimeout(() => onSelect(opt), 120);
+    };
+    row.appendChild(btn);
+  });
+  $area.appendChild(row);
+  scrollBottom();
+}
+
+// Show text input
+function showTextInput(placeholder, onSubmit, hint = '') {
+  clearArea();
+  $iArea.style.display = 'block';
+  $input.placeholder = placeholder;
+  $input.focus();
+
+  $input.oninput = () => {
+    $sendBtn.disabled = $input.value.trim().length === 0;
+    autoResize();
+  };
+  $input.onkeydown = e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); }
+  };
+  $sendBtn.onclick = doSend;
+
+  function doSend() {
+    const val = $input.value.trim();
+    if (!val) return;
+    onSubmit(val);
   }
-  document.getElementById('template_id').value = slug;
+
+  function autoResize() {
+    $input.style.height = 'auto';
+    $input.style.height = Math.min($input.scrollHeight, 120) + 'px';
+  }
 }
 
-function previewTheme(e, slug) {
-  e.stopPropagation();
-  window.open('/template-preview-frame?id=' + slug, '_blank', 'width=520,height=860,noopener');
+// Show subdomain picker
+function showSubdomainPicker(suggestion, onConfirm) {
+  clearArea();
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <div class="subdomain-row">
+      <span class="subdomain-prefix">${escHtml(BASE_DOMAIN)}/</span>
+      <input class="subdomain-input" id="subInput" type="text" value="${escHtml(suggestion)}" spellcheck="false" autocomplete="off">
+    </div>
+    <div class="sub-status" id="subStatus"></div>
+    <button class="create-btn" id="confirmSubBtn" disabled>
+      <i class="ti ti-rocket"></i> Create My Site
+    </button>`;
+  $area.appendChild(wrap);
+
+  const subInput = document.getElementById('subInput');
+  const subStatus = document.getElementById('subStatus');
+  const confirmBtn = document.getElementById('confirmSubBtn');
+
+  let checkTimer = null;
+
+  subInput.oninput = () => {
+    const val = slugify(subInput.value);
+    subInput.value = val;
+    subStatus.textContent = '';
+    subStatus.className = 'sub-status';
+    confirmBtn.disabled = true;
+    if (!val) return;
+
+    clearTimeout(checkTimer);
+    checkTimer = setTimeout(() => checkSub(val), 500);
+  };
+
+  subInput.value = slugify(suggestion);
+  setTimeout(() => checkSub(subInput.value), 300);
+
+  async function checkSub(val) {
+    if (val.length < 2) {
+      subStatus.textContent = 'Too short — minimum 2 characters.';
+      subStatus.className = 'sub-status sub-err';
+      confirmBtn.disabled = true;
+      return;
+    }
+    if (!/^[a-z0-9-]+$/.test(val)) {
+      subStatus.textContent = 'Only lowercase letters, numbers, hyphens.';
+      subStatus.className = 'sub-status sub-err';
+      confirmBtn.disabled = true;
+      return;
+    }
+    subStatus.textContent = 'Checking…';
+    subStatus.className = 'sub-status';
+    try {
+      const res = await fetch('/dashboard/site/check-subdomain?sub=' + encodeURIComponent(val));
+      const data = await res.json();
+      if (data.available) {
+        subStatus.textContent = '✓ ' + val + ' is available!';
+        subStatus.className = 'sub-status sub-ok';
+        confirmBtn.disabled = false;
+        state.subdomain = val;
+      } else {
+        subStatus.textContent = 'That subdomain is already taken. Try another.';
+        subStatus.className = 'sub-status sub-err';
+        confirmBtn.disabled = true;
+      }
+    } catch(e) {
+      // If check fails, allow submit anyway
+      subStatus.textContent = '';
+      confirmBtn.disabled = false;
+      state.subdomain = val;
+    }
+  }
+
+  confirmBtn.onclick = () => {
+    if (!state.subdomain) return;
+    confirmBtn.classList.add('loading');
+    confirmBtn.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i> Creating your site…';
+    onConfirm(state.subdomain);
+  };
+
+  scrollBottom();
 }
 
-function renderTemplatePicker() {
-  var grid       = document.getElementById('tm-grid');
-  var catSidebar = document.getElementById('tm-cat-sidebar');
-  var tagSidebar = document.getElementById('tm-tag-sidebar');
-  var filterBar  = document.getElementById('tm-filter-bar');
-  var catSelect  = document.getElementById('tm-cat-select');
-  grid.innerHTML = '';
+// Show theme picker
+function showThemePicker(themeKeys, onSelect) {
+  clearArea();
+  const grid = document.createElement('div');
+  grid.className = 'theme-grid';
 
-  var themes = ALL_THEMES.slice().sort(function(a,b){ return (a.order||99)-(b.order||99); });
-
-  // Count categories + tags
-  var catCounts = {};
-  var tagCounts = {};
-  themes.forEach(function(t) {
-    (t.categories||['other']).forEach(function(c){ catCounts[c]=(catCounts[c]||0)+1; });
-    (t.tags||[]).forEach(function(g){ tagCounts[g]=(tagCounts[g]||0)+1; });
-  });
-
-  // All themes count
-  document.getElementById('count-all').textContent = themes.length;
-
-  // Category sidebar + dropdown
-  Object.keys(catCounts)
-    .sort(function(a,b){ return catCounts[b]-catCounts[a]; })
-    .forEach(function(cat) {
-      var opt = document.createElement('option');
-      opt.value = cat; opt.textContent = cap(cat);
-      catSelect.appendChild(opt);
-      var item = document.createElement('div');
-      item.className = 'tm-sidebar-item';
-      item.dataset.cat = cat;
-      item.innerHTML = cap(cat) + ' <span class="tm-count">' + catCounts[cat] + '</span>';
-      item.onclick = (function(c,el){ return function(){ filterByCategory(c,el); }; })(cat,item);
-      catSidebar.appendChild(item);
-    });
-
-  // Tag pills (filter bar) + Style sidebar
-  Object.keys(tagCounts)
-    .sort(function(a,b){ return tagCounts[b]-tagCounts[a]; })
-    .forEach(function(tag) {
-      var pill = document.createElement('button');
-      pill.type = 'button'; pill.className = 'tm-tag';
-      pill.dataset.tag = tag; pill.textContent = cap(tag);
-      pill.onclick = (function(g,el){ return function(){ filterByTag(g,el); }; })(tag,pill);
-      filterBar.appendChild(pill);
-      var item = document.createElement('div');
-      item.className = 'tm-sidebar-item';
-      item.dataset.tag = tag;
-      item.innerHTML = cap(tag) + ' <span class="tm-count">' + tagCounts[tag] + '</span>';
-      item.onclick = (function(g,el){ return function(){ filterByTag(g,el); }; })(tag,item);
-      tagSidebar.appendChild(item);
-    });
-
-  // Build cards with iframe previews (same as marketplace)
-  themes.forEach(function(t, idx) {
-    var slug = t.slug;
-    var name = t.name || t.slug;
-    var card = document.createElement('div');
-    card.className = 'tm-card' + (idx === 0 ? ' tm-selected' : '');
-    card.dataset.slug  = slug;
-    card.dataset.name  = name.toLowerCase();
-    card.dataset.cats  = (t.categories||['other']).join(',');
-    card.dataset.tags  = (t.tags||[]).join(',');
-    card.dataset.order = t.order || 99;
-    card.onclick = (function(s,n){ return function(){ selectTemplate(s,n); }; })(slug,name);
-
-    var thumbHtml = t.hasPreview
-      ? '<img src="'+t.previewUrl+'" alt="'+name+'" loading="lazy">'
-      : '<iframe src="/template-preview?id='+slug+'" loading="lazy" scrolling="no" title="'+name+' preview"></iframe>';
-
-    var tags = (t.tags||[]).slice(0,3).map(function(tag){ return '<span class="tm-card-tag">'+tag+'</span>'; }).join('');
-    var safeName = name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-
-    card.innerHTML =
-      (idx===0 ? '<div class="tm-selected-badge">✓ Selected</div>' : '') +
-      '<div class="tm-thumb">' +
-        thumbHtml +
-        '<div class="tm-thumb-overlay">' +
-          '<button type="button" class="tm-preview-btn" onclick="previewTheme(event,\''+slug+'\')">Preview</button>' +
-        '</div>' +
-      '</div>' +
-      '<div class="tm-card-body">' +
-        '<div class="tm-card-name">'+name+'</div>' +
-        (t.description ? '<div class="tm-card-desc">'+t.description+'</div>' : '') +
-        (tags ? '<div class="tm-card-tags">'+tags+'</div>' : '') +
-      '</div>' +
-      '<div class="tm-card-footer">' +
-        '<button type="button" class="tm-card-preview" onclick="previewTheme(event,\''+slug+'\')">Preview</button>' +
-        '<button type="button" class="tm-card-select" onclick="selectTemplate(\''+slug+'\',\''+safeName+'\')">Select</button>' +
-      '</div>';
-
+  const available = ALL_THEMES.filter(t => themeKeys.includes(t.slug));
+  available.forEach(theme => {
+    const bg = (theme.default_appearance && theme.default_appearance.bgColor) || '#ffffff';
+    const btn = (theme.default_appearance && theme.default_appearance.btnColor) || '#2563eb';
+    const card = document.createElement('div');
+    card.className = 'theme-card';
+    card.dataset.slug = theme.slug;
+    card.innerHTML = `
+      <div class="tc-preview" style="background:${escHtml(bg)};">
+        <svg width="90" height="48" viewBox="0 0 90 48">
+          <rect x="30" y="4" width="30" height="30" rx="15" fill="${escHtml(btn)}" opacity="0.25"/>
+          <circle cx="45" cy="19" r="10" fill="${escHtml(btn)}" opacity="0.5"/>
+          <rect x="18" y="35" width="54" height="7" rx="3.5" fill="${escHtml(btn)}"/>
+        </svg>
+      </div>
+      <div class="tc-body">
+        <div class="tc-name">
+          <div class="tc-check"><i class="ti ti-check"></i></div>
+          ${escHtml(theme.name)}
+        </div>
+        <div class="tc-desc">${escHtml((theme.description||'').substring(0,55))}…</div>
+      </div>`;
+    card.onclick = () => {
+      grid.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      setTimeout(() => onSelect(theme.slug, theme.name), 200);
+    };
     grid.appendChild(card);
   });
 
-  allCards = Array.from(grid.querySelectorAll('.tm-card'));
-
-  // Set default selection
-  if (themes.length) {
-    document.getElementById('template_id').value = themes[0].slug;
-  }
-
-  // Wire search + cat dropdown
-  document.getElementById('tm-search').addEventListener('input', function(){ searchQuery = this.value; applyFilters(); });
-  document.getElementById('tm-cat-select').addEventListener('change', function(){ filterByCategory(this.value); });
-
-  updateResultCount();
+  $area.appendChild(grid);
+  scrollBottom();
 }
 
-// ── Step navigation ───────────────────────────────────────────────────────
-function goStep(n) {
-  if (n === 3) {
-    var title = document.getElementById('title-input').value.trim();
-    if (!title) {
-      document.getElementById('title-input').focus();
-      document.getElementById('title-input').style.borderColor = '#dc2626';
-      return;
-    }
-    // Auto-suggest subdomain from name
-    var suggestion = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    var subInput = document.getElementById('subdomain-input');
-    if (!subInput.value && suggestion) subInput.value = suggestion;
+// Show URL input with skip
+function showUrlInput(placeholder, onConfirm) {
+  const wrap = document.createElement('div');
+  wrap.className = 'url-input-wrap';
+  wrap.innerHTML = `
+    <input class="url-input" id="urlIn" type="url" placeholder="${escHtml(placeholder)}">
+    <div class="url-note">Leave blank if you don't have one yet</div>
+    <button class="url-skip" id="urlSkip">Skip for now →</button>`;
+  $area.appendChild(wrap);
 
-    // Render themes once
-    if (!document.querySelector('.tm-card')) {
-      renderTemplatePicker();
-    }
-  }
+  const urlIn = document.getElementById('urlIn');
+  const skipBtn = document.getElementById('urlSkip');
 
-  document.querySelectorAll('.step-panel').forEach(function(p){ p.classList.remove('active'); });
-  document.getElementById('step' + n).classList.add('active');
-  currentStep = n;
-
-  for (var i = 1; i <= 3; i++) {
-    var dot   = document.getElementById('dot' + i);
-    var label = document.getElementById('label' + i);
-    dot.className   = 'step-dot ' + (i < n ? 'done' : i === n ? 'active' : 'pending');
-    label.className = i < n ? 'done' : i === n ? 'active' : '';
-    if (i < 3) {
-      document.getElementById('line' + i).className = 'step-line' + (i < n ? ' done' : '');
-    }
-  }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  urlIn.onkeydown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); onConfirm(urlIn.value.trim()); }
+  };
+  skipBtn.onclick = () => onConfirm('');
+  urlIn.focus();
+  scrollBottom();
 }
 
-// Sanitize subdomain
-document.getElementById('subdomain-input').addEventListener('input', function() {
-  this.value = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
-});
+// ── Conversation steps ────────────────────────────────────────────────────────
 
-// Clear red border on title focus
-document.getElementById('title-input').addEventListener('input', function() {
-  this.style.borderColor = '';
-});
+async function step0_welcome() {
+  setStep(0);
+  await botMsg(`👋 Hey! I'm your site assistant.<br>Let's build your minisite in <strong>under 2 minutes</strong>!<br><br>What best describes your business?`, 400);
+  showQuickReplies(
+    Object.entries(TYPES).map(([k,v]) => `${v.emoji} ${v.label}`),
+    async (choice) => {
+      // Map label back to key
+      const key = Object.entries(TYPES).find(([,v]) => choice.includes(v.label))?.[0];
+      if (!key) return;
+      state.businessType = key;
+      userMsg(choice);
+      clearArea();
+      await step1_name();
+    }
+  );
+}
 
-// Prevent double-submit
-document.getElementById('wizard-form').addEventListener('submit', function() {
-  var btn = document.getElementById('launch-btn');
-  btn.disabled = true;
-  btn.textContent = 'Launching…';
-});
+async function step1_name() {
+  setStep(1);
+  const t = TYPES[state.businessType];
+  await botMsg(`Nice choice! 🎉<br><br>What's the <strong>name</strong> of your ${t.label.toLowerCase()}?`);
+  showTextInput('e.g. Bloom Studio', async (val) => {
+    state.name = val;
+    userMsg(val);
+    clearArea();
+    await step2_bio();
+  });
+}
 
-{% if flash_errors and flash_errors.length %}
-window.addEventListener('DOMContentLoaded', function() {
-  var el = document.getElementById('flash-errors');
-  if (el) el.scrollIntoView({ behavior: 'smooth' });
-});
-{% endif %}
+async function step2_bio() {
+  setStep(2);
+  const t = TYPES[state.businessType];
+  await botMsg(`Great name! Now write a short <strong>description</strong> — what you do, where you are, what makes you special.<br><span class="hint">${t.bioHint}</span>`);
+  showTextInput('Your short bio (1–2 sentences)', async (val) => {
+    state.bio = val;
+    userMsg(val);
+    clearArea();
+    await step3_cta();
+  });
+}
+
+async function step3_cta() {
+  setStep(3);
+  await botMsg(`What's the <strong>main action</strong> you want visitors to take? This becomes your top button.`);
+  const t = TYPES[state.businessType];
+  showQuickReplies(t.ctaOptions, async (choice) => {
+    state.ctaText = choice;
+    userMsg(choice);
+    clearArea();
+    await step3b_ctaUrl();
+  });
+}
+
+async function step3b_ctaUrl() {
+  await botMsg(`Got it! Do you have a URL for <strong>${escHtml(state.ctaText)}</strong>?<br><span class="hint">You can add this later in the builder if not</span>`);
+  showUrlInput('https://wa.me/…  or  https://cal.com/…', async (url) => {
+    state.ctaUrl = url || '';
+    userMsg(url ? url : 'I\'ll add the link later');
+    clearArea();
+    await step4_theme();
+  });
+}
+
+async function step4_theme() {
+  setStep(4);
+  const t = TYPES[state.businessType];
+  await botMsg(`Here are themes designed for ${t.label}. <strong>Pick one you like:</strong>`);
+  showThemePicker(t.themes, async (slug, name) => {
+    state.themeSlug = slug;
+    userMsg('I like ' + name);
+    clearArea();
+    await step5_subdomain();
+  });
+}
+
+async function step5_subdomain() {
+  setStep(5);
+  const suggestion = slugify(state.name);
+  await botMsg(`Last step! Choose a <strong>web address</strong> for your site.<br><span class="hint">You can change it later</span>`);
+  showSubdomainPicker(suggestion, async (sub) => {
+    state.subdomain = sub;
+    await step6_done();
+  });
+}
+
+async function step6_done() {
+  setStep(6);
+  clearArea();
+  await botMsg(`✨ <strong>Perfect!</strong> Here's a summary of your site:<br><br>
+    📛 <strong>Name:</strong> ${escHtml(state.name)}<br>
+    🎨 <strong>Theme:</strong> ${escHtml(state.themeSlug)}<br>
+    🌐 <strong>URL:</strong> ${escHtml(BASE_DOMAIN)}/${escHtml(state.subdomain)}<br><br>
+    I'm filling in your content right now — one click and you're live! 🚀`);
+
+  setTimeout(() => submitSite(), 600);
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function slugify(str) {
+  return str.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9\s-]/g,'')
+    .trim().replace(/\s+/g,'-')
+    .replace(/-+/g,'-')
+    .substring(0, 40);
+}
+
+function submitSite() {
+  document.getElementById('f_title').value       = state.name;
+  document.getElementById('f_subdomain').value   = state.subdomain;
+  document.getElementById('f_template_id').value = state.themeSlug;
+  document.getElementById('f_bio').value         = state.bio;
+  document.getElementById('f_cta_text').value    = state.ctaText;
+  document.getElementById('f_cta_url').value     = state.ctaUrl;
+  document.getElementById('aiForm').submit();
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+step0_welcome();
 </script>
 </body>
 </html>

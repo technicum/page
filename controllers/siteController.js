@@ -61,6 +61,81 @@ exports.store = async (req, res) => {
   res.redirect(`/dashboard/site/biolink-builder?id=${id}`)
 }
 
+// ── Check subdomain availability (AJAX) ──────────────────────────────────────
+exports.checkSubdomain = async (req, res) => {
+  const sub = (req.query.sub || '').toLowerCase().trim()
+  if (!sub || !/^[a-z0-9-]+$/.test(sub) || sub.length < 2) {
+    return res.json({ available: false })
+  }
+  const exists = await db.first('SELECT id FROM ms_sites WHERE subdomain = ?', [sub])
+  res.json({ available: !exists })
+}
+
+// ── AI wizard site creation ───────────────────────────────────────────────────
+exports.createAI = async (req, res) => {
+  const user = req.session.user
+  const {
+    title, subdomain: rawSub, template_id,
+    bio, cta_text, cta_url, site_type
+  } = req.body
+
+  const subdomain = (rawSub || '').toLowerCase().trim()
+  const errors    = []
+
+  if (!title)     errors.push('Business name is required.')
+  if (!subdomain) errors.push('Subdomain is required.')
+  if (!/^[a-z0-9-]+$/.test(subdomain)) errors.push('Only lowercase letters, numbers, hyphens allowed.')
+
+  if (!errors.length) {
+    const exists = await db.first('SELECT id FROM ms_sites WHERE subdomain = ?', [subdomain])
+    if (exists) errors.push('That subdomain is already taken. Please go back and choose another.')
+  }
+
+  if (errors.length) {
+    req.flash('errors', errors)
+    return res.redirect('/dashboard/wizard')
+  }
+
+  // Load theme defaults and inject wizard content into blocks
+  const allThemes = themeManager.loadAll()
+  const themeData = allThemes[template_id] || allThemes['biolink-creator'] || {}
+  const resolvedTheme = themeData.slug || template_id || 'biolink-creator'
+
+  // Deep-clone default blocks
+  let blocks     = JSON.parse(JSON.stringify(themeData.default_blocks || []))
+  const appearance = JSON.parse(JSON.stringify(themeData.default_appearance || {}))
+
+  // Inject name + bio into the avatar block
+  const avatarBlock = blocks.find(b => b.type === 'avatar')
+  if (avatarBlock) {
+    if (title) avatarBlock.name = title
+    if (bio)   avatarBlock.bio  = bio
+  }
+
+  // Inject primary CTA into the first link block
+  if (cta_text) {
+    const linkBlock = blocks.find(b => b.type === 'link')
+    if (linkBlock) {
+      linkBlock.title = cta_text
+      linkBlock.url   = cta_url || '#'
+    }
+  }
+
+  const settings = JSON.stringify({
+    template_id: resolvedTheme,
+    site_type:   site_type || 'minisite',
+    blocks,
+    appearance
+  })
+
+  const id = await db.lastId(
+    'INSERT INTO ms_sites (account_id, title, subdomain, category, template_id, settings, is_published) VALUES (?, ?, ?, ?, ?, ?, 1)',
+    [user.id, title, subdomain, site_type || 'minisite', resolvedTheme, settings]
+  )
+
+  res.redirect(`/dashboard/site/biolink-builder?id=${id}`)
+}
+
 exports.setTemplate = async (req, res) => {
   const user     = req.session.user
   const { site_id, template_id, importDemo } = req.body

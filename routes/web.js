@@ -135,8 +135,10 @@ router.get ('/dashboard/settings', requireAuth, dash.settings)
 router.post('/dashboard/settings', requireAuth, dash.updateSettings)
 
 // Site
-router.post('/dashboard/site/create',        requireAuth, site.store)
-router.get ('/dashboard/site/templates',     requireAuth, dash.templates)
+router.post('/dashboard/site/create',           requireAuth, site.store)
+router.post('/dashboard/site/create-ai',        requireAuth, site.createAI)
+router.get ('/dashboard/site/check-subdomain',  requireAuth, site.checkSubdomain)
+router.get ('/dashboard/site/templates',        requireAuth, dash.templates)
 router.post('/dashboard/site/set-template',  requireAuth, site.setTemplate)
 router.get ('/dashboard/site/builder',          requireAuth, dash.builder)
 router.get ('/dashboard/site/biolink-builder', requireAuth, dash.biolinkBuilder)
