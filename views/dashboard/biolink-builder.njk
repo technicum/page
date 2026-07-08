@@ -60,7 +60,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .fg{margin-bottom:14px;}
 .fg:last-child{margin-bottom:0;}
 .fg-label{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px;}
-.fg-label::before{content:'';display:inline-block;width:3px;height:10px;border-radius:2px;background:#e5e7eb;flex-shrink:0;}
+.fg-label::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#6366f1;flex-shrink:0;}
 .fg-input{width:100%;padding:9px 11px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:13px;color:#111827;background:#f9fafb;outline:none;transition:border-color .15s,background .15s;font-family:inherit;}
 .fg-input:focus{border-color:#6366f1;background:#fff;box-shadow:0 0 0 3px rgba(99,102,241,.08);}
 .fg-textarea{min-height:72px;resize:vertical;line-height:1.55;}
@@ -181,10 +181,16 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .blk-btn:hover{background:#f3f4f6;color:#374151;}
 .blk-btn.eye-off{color:#d1d5db;}
 .blk-btn.del:hover{background:#fee2e2;color:#ef4444;}
-.blk-body{padding:14px 14px 8px;border-top:1px solid #ede9fe;background:#fafbff;display:none;}
+.blk-body{padding:12px;border-top:1px solid #f0f0f3;background:#f9fafb;display:none;}
 .blk-card.open .blk-body{display:block;}
-.blk-done{width:100%;margin-top:12px;padding:9px;background:#fff;border:1.5px solid #e0e7ff;border-radius:9px;font-size:12px;font-weight:600;color:#6366f1;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
-.blk-done:hover{background:#eef2ff;border-color:#a5b4fc;}
+.blk-inner-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin-bottom:10px;}
+.blk-adv-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin-bottom:10px;display:none;}
+.blk-footer{display:flex;gap:8px;}
+.blk-adv-btn{flex:1;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;color:#6b7280;font-size:12px;font-weight:600;padding:9px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.blk-adv-btn:hover{background:#e9eaeb;}
+.blk-adv-btn.active{background:#eef2ff;border-color:#a5b4fc;color:#6366f1;}
+.blk-done{flex:2;padding:9px;background:#111827;border:none;border-radius:8px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.blk-done:hover{background:#374151;}
 
 /* ── Hours grid ──────────────────────────────── */
 .hours-grid{display:grid;grid-template-columns:auto 1fr 10px 1fr;gap:4px 6px;align-items:center;}
@@ -934,6 +940,10 @@ function buildBlockFields(block, container){
   var bt=BLOCK_TYPES[block.type];
   if(!bt) return;
 
+  // Inner white card holds all regular fields
+  var innerCard=document.createElement('div'); innerCard.className='blk-inner-card';
+  container.appendChild(innerCard);
+
   // Hours grid type needs special handling
   var fields=bt.fields.filter(function(f){return f.type!=='hours';});
   var hasHours=bt.fields.some(function(f){return f.type==='hours';});
@@ -1069,15 +1079,15 @@ function buildBlockFields(block, container){
       iheadrow.appendChild(ilbl2); iheadrow.appendChild(iAddBtn);
       fg.appendChild(iheadrow); fg.appendChild(iList);
       iListWrap.appendChild(fg);
-      container.appendChild(iListWrap);
-      return; // forEach: skip the container.appendChild(fg) at the bottom
+      innerCard.appendChild(iListWrap);
+      return; // forEach: skip the innerCard.appendChild(fg) at the bottom
     } else {
       var inp=document.createElement('input'); inp.className='fg-input';
       inp.type='text'; inp.placeholder=f.ph||''; inp.value=block[f.id]||'';
       inp.addEventListener('input',function(){block[f.id]=this.value; markDirty(); debouncedPreview();});
       fg.appendChild(inp);
     }
-    container.appendChild(fg);
+    innerCard.appendChild(fg);
   });
 
   // Hours grid
@@ -1097,26 +1107,12 @@ function buildBlockFields(block, container){
       hgrid.appendChild(dayEl); hgrid.appendChild(inpO); hgrid.appendChild(sep); hgrid.appendChild(inpC);
     });
     hfg.appendChild(hgrid);
-    container.appendChild(hfg);
+    innerCard.appendChild(hfg);
   }
 
-  // ── Per-block settings (collapsed under Advanced) ────
-  var _bsep=document.createElement('div');
-  _bsep.style.cssText='border-top:1.5px solid #f0f0f3;margin-top:14px;padding-top:10px;';
-  // Toggle button
-  var _advBtn=document.createElement('button'); _advBtn.type='button';
-  _advBtn.style.cssText='display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#6b7280;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;cursor:pointer;font-family:inherit;padding:6px 10px;width:100%;';
-  _advBtn.innerHTML='<span id="_advChevron" style="transition:transform .2s;display:inline-block;font-size:9px;">▶</span><span>Advanced settings</span>';
-  var _advBody=document.createElement('div');
-  _advBody.style.cssText='display:none;padding-top:10px;';
-  _advBtn.onclick=function(){
-    var open=_advBody.style.display!=='none';
-    _advBody.style.display=open?'none':'block';
-    document.getElementById('_advChevron').style.transform=open?'':'rotate(90deg)';
-  };
-  _bsep.appendChild(_advBtn);
-  _bsep.appendChild(_advBody);
-  container.appendChild(_bsep);
+  // ── Advanced settings card (hidden until toggled) ────
+  var _advBody=document.createElement('div'); _advBody.className='blk-adv-card';
+  container.appendChild(_advBody);
   // Alias so all settings append into _advBody
   var _adv=_advBody;
 
@@ -1231,10 +1227,25 @@ function buildBlockFields(block, container){
   _ccfg.appendChild(_cclbl); _ccfg.appendChild(_ccpair);
   _adv.appendChild(_ccfg);
 
-  // Done button
+  // ── Split footer: Advanced toggle + Done ────────────
+  var _chevron=document.createElement('span');
+  _chevron.style.cssText='font-size:9px;display:inline-block;transition:transform .2s;';
+  _chevron.textContent='▶';
+  var _advBtn=document.createElement('button'); _advBtn.type='button'; _advBtn.className='blk-adv-btn';
+  _advBtn.appendChild(_chevron);
+  var _advLbl=document.createElement('span'); _advLbl.textContent=' Advanced';
+  _advBtn.appendChild(_advLbl);
+  _advBtn.onclick=function(){
+    var open=_advBody.style.display!=='none';
+    _advBody.style.display=open?'none':'block';
+    _chevron.style.transform=open?'':'rotate(90deg)';
+    _advBtn.classList.toggle('active',!open);
+  };
   var done=document.createElement('button'); done.className='blk-done'; done.textContent='Done ✓';
   done.onclick=function(){done.closest('.blk-card').classList.remove('open');};
-  container.appendChild(done);
+  var _footer=document.createElement('div'); _footer.className='blk-footer';
+  _footer.appendChild(_advBtn); _footer.appendChild(done);
+  container.appendChild(_footer);
 }
 
 /* ── Render block list ───────────────────────── */
