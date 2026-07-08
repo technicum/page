@@ -139,6 +139,14 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .btn-cancel{background:none;border:1.5px solid #e5e7eb;color:#6b7280;padding:10px 18px;border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;}
 .btn-cancel:hover{border-color:#374151;color:#374151;}
 
+/* ── Search ── */
+.search-wrap{flex:1;max-width:280px;position:relative;}
+.search-input{width:100%;padding:8px 12px 8px 34px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:#111827;background:#f9fafb;transition:border-color .15s,background .15s;}
+.search-input:focus{border-color:#6366f1;background:#fff;box-shadow:0 0 0 3px rgba(99,102,241,.08);}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:#9ca3af;pointer-events:none;}
+.search-clear{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:14px;color:#9ca3af;cursor:pointer;display:none;line-height:1;background:none;border:none;padding:0;}
+.search-clear:hover{color:#374151;}
+
 @media(max-width:640px){
   .product-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
   .field-row{grid-template-columns:1fr;}
@@ -156,6 +164,12 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
     <!-- Topbar -->
     <div class="topbar">
       <div class="topbar-title">Products</div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="search" class="search-input" id="product-search" placeholder="Search products…"
+               oninput="searchProducts(this.value)" onsearch="searchProducts(this.value)">
+        <button class="search-clear" id="search-clear" onclick="clearSearch()" title="Clear">✕</button>
+      </div>
       <button class="btn-collections" onclick="openCollectionsModal()" title="Manage Collections">🗂 Collections</button>
       <button class="btn-primary" onclick="openAddModal()">+ Add</button>
     </div>
@@ -447,6 +461,7 @@ var editingId = null;
 var currentType = 'physical';
 var activeFilter = 'all';
 var activeCollection = 'all';
+var searchQuery = '';
 
 document.addEventListener('DOMContentLoaded', function(){
   updateCounts();
@@ -466,17 +481,48 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 
+/* ── Search ── */
+function searchProducts(q) {
+  searchQuery = (q || '').trim().toLowerCase();
+  document.getElementById('search-clear').style.display = searchQuery ? 'block' : 'none';
+  applyFilters();
+}
+function clearSearch() {
+  document.getElementById('product-search').value = '';
+  searchProducts('');
+}
+
+function applyFilters() {
+  document.querySelectorAll('.product-card').forEach(function(card){
+    var matchType = (activeFilter === 'all' || card.dataset.type === activeFilter);
+    var matchCol = true;
+    if (activeCollection !== 'all' && card.dataset.type !== 'job') {
+      var p = ALL_PRODUCTS.find(function(x){ return String(x.id) === String(card.dataset.id); });
+      matchCol = p && p.collection && p.collection.trim() === activeCollection;
+    }
+    var matchSearch = true;
+    if (searchQuery) {
+      var p = ALL_PRODUCTS.find(function(x){ return String(x.id) === String(card.dataset.id); });
+      if (p) {
+        var haystack = ((p.name || '') + ' ' + (p.description || '') + ' ' + (p.collection || '')).toLowerCase();
+        matchSearch = haystack.indexOf(searchQuery) !== -1;
+      } else {
+        matchSearch = false;
+      }
+    }
+    card.style.display = (matchType && matchCol && matchSearch) ? '' : 'none';
+  });
+  checkEmpty();
+}
+
 /* ── Type filter ── */
 function filterType(type, btn) {
   activeFilter = type;
   activeCollection = 'all';
   document.querySelectorAll('.type-tab').forEach(function(t){ t.classList.remove('active'); });
   btn.classList.add('active');
-  document.querySelectorAll('.product-card').forEach(function(card){
-    card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
-  });
   buildCollectionChips(type);
-  checkEmpty();
+  applyFilters();
 }
 
 /* ── Collection chips ── */
@@ -511,15 +557,7 @@ function filterCollection(col, btn) {
   activeCollection = col;
   document.querySelectorAll('.col-chip').forEach(function(c){ c.classList.remove('active'); });
   btn.classList.add('active');
-  document.querySelectorAll('.product-card').forEach(function(card){
-    if (card.dataset.type === 'job') return; // never filter jobs by collection
-    var hidden = (activeFilter !== 'all' && card.dataset.type !== activeFilter);
-    if (hidden) { card.style.display = 'none'; return; }
-    if (col === 'all') { card.style.display = ''; return; }
-    var p = ALL_PRODUCTS.find(function(x){ return String(x.id) === String(card.dataset.id); });
-    card.style.display = (p && p.collection && p.collection.trim() === col) ? '' : 'none';
-  });
-  checkEmpty();
+  applyFilters();
 }
 
 function checkEmpty() {
