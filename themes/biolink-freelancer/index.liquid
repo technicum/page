@@ -652,6 +652,14 @@ body{
 
 <script>
 // ── FAQ accordion ─────────────────────────────────────────────────────────────
+function pgToggle(blockId) {
+  var body = document.getElementById('pg-body-' + blockId);
+  var chv  = document.getElementById('pg-chv-' + blockId);
+  if (!body) return;
+  var open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  if (chv) chv.classList.toggle('open', !open);
+}
 function faqToggle(btn) {
   var list  = btn.closest('.faq-list');
   var body  = btn.nextElementSibling;

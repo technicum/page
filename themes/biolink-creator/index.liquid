@@ -726,37 +726,6 @@ body{
 {% endif %}
 {% endfor %}
 
-{% else %}
-<!-- ── Legacy format fallback (old sites without blocks[]) ── -->
-{% if settings.profile %}
-<div class="b-avatar">
-  {% if settings.profile.avatar != blank and settings.profile.avatar != nil %}
-    <img class="av-img" src="{{ settings.profile.avatar }}" alt="{{ settings.profile.name }}">
-  {% else %}
-    <div class="av-ph">{{ settings.profile.name | slice: 0, 1 | upcase | default: '?' }}</div>
-  {% endif %}
-  {% if settings.profile.name != blank %}<h1>{{ settings.profile.name }}</h1>{% endif %}
-  {% if settings.profile.bio != blank %}<p class="av-bio">{{ settings.profile.bio }}</p>{% endif %}
-</div>
-{% endif %}
-{% if settings.links and settings.links.items %}
-{% for lk in settings.links.items %}
-<div class="block b-link">
-  <a href="{{ lk.url | default: '#' }}" target="_blank">
-    {% if lk.emoji != blank %}{{ lk.emoji }} {% endif %}{{ lk.label | default: lk.title }}
-  </a>
-</div>
-{% endfor %}
-{% endif %}
-{% if settings.socials %}
-<div class="block b-socials"><div class="soc-row">
-  {% if settings.socials.instagram %}<a href="{{ settings.socials.instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>{% endif %}
-  {% if settings.socials.twitter %}<a href="{{ settings.socials.twitter }}" target="_blank"><i class="fab fa-x-twitter"></i></a>{% endif %}
-  {% if settings.socials.youtube %}<a href="{{ settings.socials.youtube }}" target="_blank"><i class="fab fa-youtube"></i></a>{% endif %}
-  {% if settings.socials.tiktok %}<a href="{{ settings.socials.tiktok }}" target="_blank"><i class="fab fa-tiktok"></i></a>{% endif %}
-  {% if settings.socials.facebook %}<a href="{{ settings.socials.facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>{% endif %}
-</div></div>
-{% endif %}
 {% endif %}
 
 </div><!-- .page-wrap -->
@@ -777,24 +746,17 @@ function faqToggle(btn) {
   var list  = btn.closest('.faq-list');
   var body  = btn.nextElementSibling;
   var isOpen = body.classList.contains('open');
-  // Close all items in this FAQ block
   list.querySelectorAll('.faq-body').forEach(function(b){ b.classList.remove('open'); });
   list.querySelectorAll('.faq-q').forEach(function(b){ b.classList.remove('open'); });
-  // If it was closed, open it
   if (!isOpen) { body.classList.add('open'); btn.classList.add('open'); }
 }
 
-// Convert watch URLs to embed URLs for video blocks
 (function(){
   document.querySelectorAll('.vid-wrap iframe').forEach(function(iframe){
     var src=iframe.src||'';
-    // YouTube: watch?v=ID → embed/ID
     src=src.replace(/youtube\.com\/watch\?v=([^&]+)/,'youtube.com/embed/$1');
-    // YouTube short: youtu.be/ID → youtube.com/embed/ID
     src=src.replace(/youtu\.be\/([^?]+)/,'youtube.com/embed/$1');
-    // Vimeo: vimeo.com/ID → player.vimeo.com/video/ID
     src=src.replace(/(?:www\.)?vimeo\.com\/(\d+)/,'player.vimeo.com/video/$1');
-    // TikTok: tiktok.com/@user/video/ID → not easily embeddable, leave as-is
     iframe.src=src;
   });
 })();
@@ -806,10 +768,32 @@ function pzCollect(e, type, blockId, siteId) {
   var payload = {};
   if (type === 'email') payload.email = input.value.trim();
   else payload.phone = input.value.trim();
-  fetch('/api/biolink-lead/' + siteId, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).then(function(r) { return r.json(); }).then(function(d) {
-    if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = d.message || 'Thank you!'; }
-    e.target.reset();
-  })
+  fetch('/api/biolink-lead/' + siteId, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json();}).then(function(d){if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Thank you!';}e.target.reset();})
+    .catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}});
+  return false;
+}
+
+function pzContact(e, siteId, blockId) {
+  e.preventDefault();
+  var fd=new FormData(e.target);var data={};fd.forEach(function(v,k){if(v.trim())data[k]=v.trim();});
+  var form=e.target;var btn=form.querySelector('button');var msgEl=document.getElementById('con-'+blockId);
+  if(btn)btn.disabled=true;
+  fetch('/api/biolink-lead/'+siteId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+    .then(function(r){return r.json();}).then(function(d){if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Message sent!';}form.reset();if(btn)btn.disabled=false;})
+    .catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}if(btn)btn.disabled=false;});
+  return false;
+}
+
+(function(){
+  var stagger=parseInt(document.body.dataset.bkStagger||'100');
+  var els=document.querySelectorAll('.bk-init[data-bk-anim]');
+  if(!els.length) return;
+  function trigger(el,delay){el.style.animationDelay=delay+'ms';el.classList.add('bk-go');}
+  if(!('IntersectionObserver' in window)){els.forEach(function(el,i){trigger(el,el.dataset.bkDelay!==undefined?parseInt(el.dataset.bkDelay):i*stagger);});return;}
+  var io=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){var el=entry.target;var idx=parseInt(el.dataset.bkIdx||'0');var delay=el.dataset.bkDelay!==undefined?parseInt(el.dataset.bkDelay):idx*stagger;trigger(el,delay);io.unobserve(el);}});},{threshold:0.08,rootMargin:'0px 0px -10px 0px'});
+  els.forEach(function(el,i){el.dataset.bkIdx=String(i);io.observe(el);});
+})();
+</script>
+</body>
+</html>

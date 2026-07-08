@@ -357,6 +357,14 @@ body{font-family:'{{ _font }}',system-ui,sans-serif;color:{{ _text_color }};min-
 </div>{% endif %}{% endfor %}{% endif %}
 </div>
 <script>
+function pgToggle(blockId) {
+  var body = document.getElementById('pg-body-' + blockId);
+  var chv  = document.getElementById('pg-chv-' + blockId);
+  if (!body) return;
+  var open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  if (chv) chv.classList.toggle('open', !open);
+}
 function faqToggle(btn){var list=btn.closest('.faq-list');var body=btn.nextElementSibling;var isOpen=body.classList.contains('open');list.querySelectorAll('.faq-body').forEach(function(b){b.classList.remove('open');});list.querySelectorAll('.faq-q').forEach(function(b){b.classList.remove('open');});if(!isOpen){body.classList.add('open');btn.classList.add('open');}}
 (function(){document.querySelectorAll('.vid-wrap iframe').forEach(function(iframe){var src=iframe.src||'';src=src.replace(/youtube\.com\/watch\?v=([^&]+)/,'youtube.com/embed/$1');src=src.replace(/youtu\.be\/([^?]+)/,'youtube.com/embed/$1');src=src.replace(/(?:www\.)?vimeo\.com\/(\d+)/,'player.vimeo.com/video/$1');iframe.src=src;});})();
 function pzCollect(e,type,blockId,siteId){e.preventDefault();var input=e.target.querySelector('input');var msgEl=document.getElementById('col-'+blockId);var payload={};if(type==='email')payload.email=input.value.trim();else payload.phone=input.value.trim();fetch('/api/biolink-lead/'+siteId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(d){if(msgEl){msgEl.style.display='block';msgEl.textContent=d.message||'Thank you!';}e.target.reset();}).catch(function(){if(msgEl){msgEl.style.display='block';msgEl.textContent='Something went wrong.';}});return false;}
