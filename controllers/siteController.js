@@ -308,10 +308,16 @@ exports.biolinkPreview = async (req, res) => {
   if (!site) return res.status(404).send('<h1>Not found</h1>')
 
   const existing = JSON.parse(site.settings || '{}')
-  const actualTemplateId = existing.template_id || 'biolink-creator'
+  const storedTemplateId = existing.template_id || 'biolink-creator'
+  // Apply same normalization as subdomain.js: all biolink/minisite-category sites
+  // always render through the universal biolink-creator block renderer.
+  const isMiniSite = storedTemplateId.startsWith('biolink-') ||
+                     site.category === 'minisite' || site.category === 'linktree'
+  const renderSlug = isMiniSite ? 'biolink-creator' : storedTemplateId
+
   // Always deep-merge blocks/appearance/seo from the new payload
   const merged = Object.assign({}, existing, newSettings, {
-    template_id: actualTemplateId,
+    template_id: storedTemplateId,
     blocks:      newSettings.blocks      !== undefined ? newSettings.blocks      : (existing.blocks || []),
     appearance:  newSettings.appearance  !== undefined ? newSettings.appearance  : (existing.appearance || {}),
     seo:         newSettings.seo         !== undefined ? newSettings.seo         : (existing.seo || {})
@@ -337,7 +343,7 @@ exports.biolinkPreview = async (req, res) => {
   }
 
   try {
-    const html = await themeManager.render(actualTemplateId, site, merged)
+    const html = await themeManager.render(renderSlug, site, merged)
     res.send(html)
   } catch (e) {
     res.status(500).send('<p style="font-family:sans-serif;padding:20px;color:#dc2626">Preview error: ' + e.message + '</p>')

@@ -120,6 +120,34 @@ body{font-family:'{{ _font }}',Georgia,serif;color:{{ _text_color }};min-height:
 @keyframes bk-fade{from{opacity:0}to{opacity:1}}@keyframes bk-slide-up{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}@keyframes bk-slide-down{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:translateY(0)}}@keyframes bk-slide-left{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}@keyframes bk-slide-right{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:translateX(0)}}@keyframes bk-zoom{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}@keyframes bk-bounce{0%{opacity:0;transform:scale(.55)}55%{opacity:1;transform:scale(1.07)}78%{transform:scale(.96)}100%{transform:scale(1)}}@keyframes bk-flip{from{opacity:0;transform:perspective(500px) rotateX(22deg)}to{opacity:1;transform:perspective(500px) rotateX(0)}}
 .bk-init{opacity:0;}.bk-init[data-bk-anim="none"]{opacity:1 !important;}
 .bk-go[data-bk-anim="fade"]{animation:bk-fade var(--bk-dur,.5s) ease both;}.bk-go[data-bk-anim="slide-up"]{animation:bk-slide-up var(--bk-dur,.5s) ease both;}.bk-go[data-bk-anim="slide-down"]{animation:bk-slide-down var(--bk-dur,.5s) ease both;}.bk-go[data-bk-anim="slide-left"]{animation:bk-slide-left var(--bk-dur,.45s) ease both;}.bk-go[data-bk-anim="slide-right"]{animation:bk-slide-right var(--bk-dur,.45s) ease both;}.bk-go[data-bk-anim="zoom"]{animation:bk-zoom var(--bk-dur,.45s) cubic-bezier(.34,1.08,.64,1) both;}.bk-go[data-bk-anim="bounce"]{animation:bk-bounce var(--bk-dur,.65s) cubic-bezier(.34,1.56,.64,1) both;}.bk-go[data-bk-anim="flip"]{animation:bk-flip var(--bk-dur,.5s) ease both;}
+
+/* ── Products Grid block ───────────────────────────────────────────── */
+.b-products-grid{margin-bottom:8px;}
+.pg-heading{font-size:16px;font-weight:700;margin-bottom:12px;}
+.pg-grid{display:grid;gap:12px;}
+.pg-cols-1{grid-template-columns:1fr;}
+.pg-cols-2{grid-template-columns:1fr 1fr;}
+.pg-cols-3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:480px){.pg-cols-2,.pg-cols-3{grid-template-columns:1fr 1fr;}}
+.pg-card{border:1px solid rgba(128,128,128,0.2);border-radius:12px;overflow:hidden;background:rgba(128,128,128,0.06);}
+.pg-img img{width:100%;height:140px;object-fit:cover;display:block;}
+.pg-img-ph{height:100px;display:flex;align-items:center;justify-content:center;font-size:32px;}
+.pg-body{padding:10px 12px;}
+.pg-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+.pg-desc{font-size:12px;opacity:.65;line-height:1.4;margin-bottom:6px;}
+.pg-foot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.pg-price{font-size:14px;font-weight:700;}
+.pg-compare{font-size:12px;opacity:.5;text-decoration:line-through;}
+.pg-dur{font-size:11px;opacity:.6;background:rgba(128,128,128,0.15);padding:2px 6px;border-radius:4px;}
+/* ── Form link block ───────────────────────────────────────────────── */
+.b-form-link{margin-bottom:8px;}
+.fl-heading{font-size:15px;font-weight:600;margin-bottom:8px;}
+.fl-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;}
+/* ── Booking block ─────────────────────────────────────────────────── */
+.b-booking{margin-bottom:8px;}
+.bk-heading{font-size:15px;font-weight:600;margin-bottom:6px;}
+.bk-sub{font-size:13px;opacity:.7;margin-bottom:10px;}
+.bk-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;}
 </style>
 </head>
 <body data-bk-stagger="{{ _anim_stagger }}" style="--bk-dur:{{ _anim_dur }}">
@@ -151,6 +179,59 @@ body{font-family:'{{ _font }}',Georgia,serif;color:{{ _text_color }};min-height:
 {% when 'map' %}<div class="b-map">{% if block.embed_url != blank and block.embed_url != nil %}<div class="map-wrap"><iframe src="{{ block.embed_url }}" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>{% endif %}{% if block.caption != blank and block.caption != nil %}<div class="map-caption">{{ block.caption }}</div>{% endif %}</div>
 {% when 'reviews' %}<div class="b-reviews">{% if block.heading != blank and block.heading != nil %}<div class="rev-heading">{{ block.heading }}</div>{% endif %}{% if block.items and block.items.size > 0 %}<div class="rev-list">{% for item in block.items %}<div class="rev-item">{% assign _stars = item.rating | default: '5' | times: 1 %}<div class="rev-stars">{% for i in (1.._stars) %}★{% endfor %}</div>{% if item.review != blank and item.review != nil %}<div class="rev-text">{{ item.review }}</div>{% endif %}{% if item.name != blank and item.name != nil %}<div class="rev-name">— {{ item.name }}</div>{% endif %}</div>{% endfor %}</div>{% endif %}</div>
 {% when 'html' %}<div class="b-html">{{ block.code }}</div>
+
+{% when 'products_grid' %}
+<div class="b-products-grid">
+  {% if block.heading != blank %}<div class="pg-heading">{{ block.heading }}</div>{% endif %}
+  {% assign _cols = block.columns | default: '2' %}
+  {% if block.collection != blank and block.collection != nil %}
+    {% assign _pg_items = settings._products | where_includes: "_clist", block.collection %}
+  {% else %}
+    {% assign _pg_items = settings._products %}
+  {% endif %}
+  <div class="pg-grid pg-cols-{{ _cols }}">
+    {% if _pg_items and _pg_items.size > 0 %}
+      {% for p in _pg_items %}
+      <div class="pg-card">
+        {% if p.image_url != blank and p.image_url != nil %}
+          <div class="pg-img"><img src="{{ p.image_url }}" alt="{{ p.name }}"></div>
+        {% else %}
+          <div class="pg-img pg-img-ph">{% if p.type == 'physical' %}&#128230;{% elsif p.type == 'digital' %}&#128190;{% else %}&#128296;{% endif %}</div>
+        {% endif %}
+        <div class="pg-body">
+          <div class="pg-name">{{ p.name }}</div>
+          {% if p.description != blank %}<div class="pg-desc">{{ p.description | truncate: 60 }}</div>{% endif %}
+          <div class="pg-foot">
+            {% if p.price != blank and p.price != nil %}<span class="pg-price">&#8377;{{ p.price | floor }}</span>{% endif %}
+            {% if p.compare_price != blank and p.compare_price > p.price %}<span class="pg-compare">&#8377;{{ p.compare_price | floor }}</span>{% endif %}
+            {% if p.type == 'service' and p.duration != blank %}<span class="pg-dur">{{ p.duration }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="grid-column:1/-1;text-align:center;padding:32px;font-size:14px;opacity:.6;">
+        {% if block.collection != blank %}No products in "{{ block.collection }}"{% else %}No products added yet{% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% when 'form' %}
+<div class="b-form-link">
+  {% if block.heading != blank %}<div class="fl-heading">{{ block.heading }}</div>{% endif %}
+  {% if block.form_url != blank and block.form_url != nil %}
+    <a class="fl-btn" href="{{ block.form_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Fill the form' }}</a>
+  {% endif %}
+</div>
+
+{% when 'booking' %}
+<div class="b-booking">
+  {% if block.heading != blank %}<div class="bk-heading">{{ block.heading }}</div>{% endif %}
+  {% if block.subtext != blank %}<div class="bk-sub">{{ block.subtext }}</div>{% endif %}
+  <a class="bk-btn" href="/book" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>
+</div>
+
 {% endcase %}
 </div>{% endif %}{% endfor %}{% endif %}
 </div>

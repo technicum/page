@@ -196,6 +196,34 @@ body{
 
 /* ── Custom HTML ─────────────────────────────── */
 .b-html{border-radius:12px;overflow:hidden;}
+
+/* ── Products Grid block ───────────────────────────────────────────── */
+.b-products-grid{margin-bottom:8px;}
+.pg-heading{font-size:16px;font-weight:700;margin-bottom:12px;}
+.pg-grid{display:grid;gap:12px;}
+.pg-cols-1{grid-template-columns:1fr;}
+.pg-cols-2{grid-template-columns:1fr 1fr;}
+.pg-cols-3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:480px){.pg-cols-2,.pg-cols-3{grid-template-columns:1fr 1fr;}}
+.pg-card{border:1px solid rgba(128,128,128,0.2);border-radius:12px;overflow:hidden;background:rgba(128,128,128,0.06);}
+.pg-img img{width:100%;height:140px;object-fit:cover;display:block;}
+.pg-img-ph{height:100px;display:flex;align-items:center;justify-content:center;font-size:32px;}
+.pg-body{padding:10px 12px;}
+.pg-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+.pg-desc{font-size:12px;opacity:.65;line-height:1.4;margin-bottom:6px;}
+.pg-foot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.pg-price{font-size:14px;font-weight:700;}
+.pg-compare{font-size:12px;opacity:.5;text-decoration:line-through;}
+.pg-dur{font-size:11px;opacity:.6;background:rgba(128,128,128,0.15);padding:2px 6px;border-radius:4px;}
+/* ── Form link block ───────────────────────────────────────────────── */
+.b-form-link{margin-bottom:8px;}
+.fl-heading{font-size:15px;font-weight:600;margin-bottom:8px;}
+.fl-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;}
+/* ── Booking block ─────────────────────────────────────────────────── */
+.b-booking{margin-bottom:8px;}
+.bk-heading{font-size:15px;font-weight:600;margin-bottom:6px;}
+.bk-sub{font-size:13px;opacity:.7;margin-bottom:10px;}
+.bk-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;}
 </style>
 </head>
 <body>
@@ -462,6 +490,59 @@ body{
 
 {% when 'html' %}
 <div class="b-html">{{ block.code }}</div>
+
+
+{% when 'products_grid' %}
+<div class="b-products-grid">
+  {% if block.heading != blank %}<div class="pg-heading">{{ block.heading }}</div>{% endif %}
+  {% assign _cols = block.columns | default: '2' %}
+  {% if block.collection != blank and block.collection != nil %}
+    {% assign _pg_items = settings._products | where_includes: "_clist", block.collection %}
+  {% else %}
+    {% assign _pg_items = settings._products %}
+  {% endif %}
+  <div class="pg-grid pg-cols-{{ _cols }}">
+    {% if _pg_items and _pg_items.size > 0 %}
+      {% for p in _pg_items %}
+      <div class="pg-card">
+        {% if p.image_url != blank and p.image_url != nil %}
+          <div class="pg-img"><img src="{{ p.image_url }}" alt="{{ p.name }}"></div>
+        {% else %}
+          <div class="pg-img pg-img-ph">{% if p.type == 'physical' %}&#128230;{% elsif p.type == 'digital' %}&#128190;{% else %}&#128296;{% endif %}</div>
+        {% endif %}
+        <div class="pg-body">
+          <div class="pg-name">{{ p.name }}</div>
+          {% if p.description != blank %}<div class="pg-desc">{{ p.description | truncate: 60 }}</div>{% endif %}
+          <div class="pg-foot">
+            {% if p.price != blank and p.price != nil %}<span class="pg-price">&#8377;{{ p.price | floor }}</span>{% endif %}
+            {% if p.compare_price != blank and p.compare_price > p.price %}<span class="pg-compare">&#8377;{{ p.compare_price | floor }}</span>{% endif %}
+            {% if p.type == 'service' and p.duration != blank %}<span class="pg-dur">{{ p.duration }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="grid-column:1/-1;text-align:center;padding:32px;font-size:14px;opacity:.6;">
+        {% if block.collection != blank %}No products in "{{ block.collection }}"{% else %}No products added yet{% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% when 'form' %}
+<div class="b-form-link">
+  {% if block.heading != blank %}<div class="fl-heading">{{ block.heading }}</div>{% endif %}
+  {% if block.form_url != blank and block.form_url != nil %}
+    <a class="fl-btn" href="{{ block.form_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Fill the form' }}</a>
+  {% endif %}
+</div>
+
+{% when 'booking' %}
+<div class="b-booking">
+  {% if block.heading != blank %}<div class="bk-heading">{{ block.heading }}</div>{% endif %}
+  {% if block.subtext != blank %}<div class="bk-sub">{{ block.subtext }}</div>{% endif %}
+  <a class="bk-btn" href="/book" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>
+</div>
 
 {% endcase %}
 </div>
