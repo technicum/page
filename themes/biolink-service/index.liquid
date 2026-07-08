@@ -643,6 +643,7 @@ body{
 
 {% when 'services_grid' %}
 {% assign _sv_items = settings._products | where: "type", "service" %}
+{% if block.collection and block.collection != '' %}{% assign _sv_items = _sv_items | where: "collection", block.collection %}{% endif %}
 {% assign _sv_layout = block.layout | default: 'list' %}
 <div class="b-products-grid" id="sv-{{ block.id }}">
   <div class="pg-acc-head" onclick="svToggle('{{ block.id }}')">
@@ -710,6 +711,7 @@ body{
 
 {% when 'jobs_grid' %}
 {% assign _jb_items = settings._products | where: "type", "job" %}
+{% if block.collection and block.collection != '' %}{% assign _jb_items = _jb_items | where: "collection", block.collection %}{% endif %}
 {% assign _jb_layout = block.layout | default: 'list' %}
 <div class="b-products-grid" id="jb-{{ block.id }}">
   <div class="pg-acc-head" onclick="jbToggle('{{ block.id }}')">
