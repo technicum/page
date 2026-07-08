@@ -157,8 +157,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .tab-content.active .blocks-header{display:block;}
 .btn-add-block{width:100%;padding:10px;background:#111827;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:6px;}
 .btn-add-block:hover{background:#374151;}
+.btn-add-block-bottom{width:100%;padding:9px;border:1.5px dashed #d1d5db;border-radius:9px;background:transparent;color:#9ca3af;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.btn-add-block-bottom:hover{border-color:#6366f1;color:#6366f1;background:#f5f5ff;}
 
-#blockList{padding:8px 10px 60px;}
+#blockList{padding:8px 10px 4px;}
 /* ── Option A block cards ─────────────────────── */
 .blk-card{background:#fff;border:1px solid #e5e7eb;border-left:3px solid #d1d5db;border-radius:10px;margin-bottom:6px;overflow:hidden;transition:border-color .15s,box-shadow .15s;}
 .blk-card:hover{border-color:#d1d5db;border-left-color:inherit;box-shadow:0 1px 4px rgba(0,0,0,.06);}
@@ -465,13 +467,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 
   <!-- BLOCKS TAB -->
   <div class="tab-content active" id="tabBlocks">
-    <div style="padding:12px 12px 8px;">
-      <button class="btn-add-block" onclick="openAddModal()">+ Add block</button>
-    </div>
     <div id="blockList"></div>
     <div class="blocks-empty" id="blocksEmpty" style="display:none;">
       <div class="blocks-empty-icon">📦</div>
-      <div class="blocks-empty-text">No blocks yet.<br>Click "Add block" to start building.</div>
+      <div class="blocks-empty-text">No blocks yet.<br>Add your first block below.</div>
+    </div>
+    <div style="padding:6px 10px 20px;">
+      <button class="btn-add-block-bottom" onclick="openAddModal()">+ Add block</button>
     </div>
   </div>
 
