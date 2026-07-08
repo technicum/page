@@ -127,13 +127,13 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
           All <span class="count" id="cnt-all">{{ products.length }}</span>
         </button>
         <button class="type-tab" data-filter="physical" onclick="filterType('physical',this)">
-          📦 Physical <span class="count" id="cnt-physical">{{ products | selectattr('type','equalto','physical') | list | length }}</span>
+          📦 Physical <span class="count" id="cnt-physical">0</span>
         </button>
         <button class="type-tab" data-filter="digital" onclick="filterType('digital',this)">
-          💾 Digital <span class="count" id="cnt-digital">{{ products | selectattr('type','equalto','digital') | list | length }}</span>
+          💾 Digital <span class="count" id="cnt-digital">0</span>
         </button>
         <button class="type-tab" data-filter="service" onclick="filterType('service',this)">
-          🛠 Service <span class="count" id="cnt-service">{{ products | selectattr('type','equalto','service') | list | length }}</span>
+          🛠 Service <span class="count" id="cnt-service">0</span>
         </button>
       </div>
 
@@ -300,6 +300,9 @@ var ALL_PRODUCTS = JSON.parse(document.getElementById('pz-products-json').textCo
 var editingId = null;
 var currentType = 'physical';
 
+// Init counts
+document.addEventListener('DOMContentLoaded', function(){ updateCounts(); });
+
 /* ── Type filter ── */
 function filterType(type, btn) {
   document.querySelectorAll('.type-tab').forEach(function(t){ t.classList.remove('active'); });
@@ -455,7 +458,8 @@ function deleteProduct(id, btn) {
 /* ── Update counts ── */
 function updateCounts() {
   var types = ['physical','digital','service'];
-  document.getElementById('cnt-all').textContent = document.querySelectorAll('.product-card').length;
+  var all = document.querySelectorAll('.product-card').length;
+  document.getElementById('cnt-all').textContent = all;
   types.forEach(function(t){
     document.getElementById('cnt-' + t).textContent = document.querySelectorAll('.product-card[data-type="' + t + '"]').length;
   });
