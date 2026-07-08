@@ -217,6 +217,7 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 function clearArea(){
   $area.innerHTML = '';
+  $area.style.cssText = '';   // reset any step-specific layout
   $iArea.style.display = 'none';
   $input.value = '';
   $send.disabled = true;
@@ -279,16 +280,23 @@ function showQuickReplies(options, onSelect){
 function showCategoryGrid(onSelect){
   clearArea();
 
-  // Search bar
+  // Make $area fill all remaining vertical space so search bar never moves
+  $area.style.cssText = 'flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;';
+
+  // Search bar — pinned at top, never scrolls
   const searchWrap = document.createElement('div');
-  searchWrap.style.cssText = 'padding:8px 16px 6px;position:sticky;top:0;z-index:10;background:var(--off);';
+  searchWrap.style.cssText = 'padding:8px 16px 6px;flex-shrink:0;background:var(--off);';
   searchWrap.innerHTML = `
     <div style="display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border-md);border-radius:var(--radius);padding:8px 12px;">
       <i class="ti ti-search" style="font-size:15px;color:var(--ink-faint);flex-shrink:0;"></i>
       <input id="catSearch" type="text" placeholder="Search category…" autocomplete="off" spellcheck="false"
         style="border:none;outline:none;flex:1;font-size:13.5px;font-family:inherit;color:var(--ink);background:transparent;">
     </div>`;
-  $area.appendChild(searchWrap);
+
+  // Grid wrapper — scrollable, fills remaining space
+  const gridWrapper = document.createElement('div');
+  gridWrapper.style.cssText = 'flex:1;overflow-y:auto;padding:4px 16px 12px;min-height:0;';
+  gridWrapper.classList.add('chat-messages'); // reuse scrollbar style
 
   const grid = document.createElement('div');
   grid.className = 'cat-grid';
@@ -304,8 +312,8 @@ function showCategoryGrid(onSelect){
     list.forEach(cat => {
       const card = document.createElement('div');
       card.className = 'cat-card';
-      const shortName = cat.name.split(',')[0].trim();
-      card.innerHTML = `<span class="cat-icon">${esc(cat.icon)}</span><span class="cat-name">${esc(shortName)}</span>`;
+      const displayName = cat.name.replace(/,\s*/g, ' · ');
+      card.innerHTML = `<span class="cat-icon">${esc(cat.icon)}</span><span class="cat-name">${esc(displayName)}</span>`;
       card.onclick = () => {
         grid.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
@@ -316,12 +324,13 @@ function showCategoryGrid(onSelect){
   }
 
   buildCards('');
-  $area.appendChild(grid);
+  gridWrapper.appendChild(grid);
+  $area.appendChild(searchWrap);
+  $area.appendChild(gridWrapper);
 
   const searchInput = document.getElementById('catSearch');
   searchInput.oninput = () => buildCards(searchInput.value);
   setTimeout(() => searchInput.focus(), 80);
-  scrollBottom();
 }
 
 // Show theme picker
