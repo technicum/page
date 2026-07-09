@@ -358,8 +358,9 @@ textarea.field-input{resize:vertical;min-height:52px;}
       <textarea class="field-input" id="ci_address" placeholder="Street, City, State, PIN" rows="2" oninput="saveContactInfo()" style="width:100%;box-sizing:border-box;resize:vertical;"></textarea>
     </div>
 
-    <div style="padding:9px 11px;background:#f0fdf4;border-radius:8px;font-size:11px;color:#166534;display:flex;align-items:center;gap:6px;">
-      <span>✓</span><span>Saved automatically with your site</span>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+      <button onclick="saveContactInfoNow()" style="flex:1;padding:10px 16px;background:var(--blue,#6366f1);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;" id="ciSaveBtn">💾 Save Info</button>
+      <span id="ciSaveMsg" style="font-size:12px;color:#166534;display:none;">✓ Saved</span>
     </div>
   </div>
 
@@ -1571,13 +1572,9 @@ function saveBlocks(){
     isDirty=false;
     document.getElementById('saveDot').className='save-dot';
     document.getElementById('saveLabel').textContent='Saved';
-    return d;
-  }).catch(function(){
-    document.getElementById('saveLabel').textContent='Error';
-  });
+  }).catch(function(){ alert('Save failed'); });
 }
 
-/* ── Publish ─────────────────────────────────── */
 function publishSite(){
   return fetch('/dashboard/site/toggle-publish',{
     method:'POST',
@@ -1594,13 +1591,11 @@ function saveAll(){
   document.getElementById('saveLabel').textContent='Saving…';
 
   if(IS_PUBLISHED){
-    // Already published — just save
     saveBlocks().then(function(){
       btn.disabled=false;
       btn.textContent='Save';
     });
   } else {
-    // First publish: save then publish
     saveBlocks().then(function(){
       return publishSite();
     }).then(function(d){
@@ -1616,7 +1611,6 @@ function saveAll(){
     });
   }
 }
-
 
 /* ── Keyboard shortcuts ──────────────────────── */
 document.addEventListener('keydown',function(e){
@@ -1641,19 +1635,24 @@ function saveContactInfo(){
   });
   markDirty();
 }
+function saveContactInfoNow(){
+  saveContactInfo();
+  var btn = document.getElementById('ciSaveBtn');
+  var msg = document.getElementById('ciSaveMsg');
+  if(btn) btn.disabled = true;
+  saveBlocks().then(function(){
+    if(msg){ msg.style.display='inline'; setTimeout(function(){ msg.style.display='none'; },2000); }
+    if(btn) btn.disabled = false;
+  }).catch(function(){
+    if(btn) btn.disabled = false;
+  });
+}
 
 /* ── Init ────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function(){
   buildSettingsUI();
   renderBlocks();
   loadContactInfo();
-  debouncedPreview();
-});
-
-/* ── Init ────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded',function(){
-  buildSettingsUI();
-  renderBlocks();
   debouncedPreview();
 });
 </script>

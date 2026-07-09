@@ -786,6 +786,27 @@ function shareFormUrl(){
   else if(url&&url!=='about:blank'){navigator.clipboard&&navigator.clipboard.writeText(url);}
 }
 
+
+// ── Save to Contact (vCard) ────────────────────────────────────────────────
+function pzSaveContact(){
+  var c = {% if settings.contact %}{{ settings.contact | tojson }}{% else %}{}{% endif %};
+  var lines = ['BEGIN:VCARD','VERSION:3.0'];
+  if(c.name) lines.push('FN:'+c.name);
+  if(c.company) lines.push('ORG:'+c.company);
+  if(c.title) lines.push('TITLE:'+c.title);
+  if(c.phone) lines.push('TEL;TYPE=CELL:'+c.phone);
+  if(c.whatsapp && c.whatsapp !== c.phone) lines.push('TEL;TYPE=WORK:'+c.whatsapp);
+  if(c.email) lines.push('EMAIL:'+c.email);
+  if(c.website) lines.push('URL:'+c.website);
+  if(c.address) lines.push('ADR:;;'+c.address.replace(/\n/g,', ')+';;;;');
+  lines.push('END:VCARD');
+  var blob = new Blob([lines.join('\r\n')], {type:'text/vcard'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (c.name || 'contact').replace(/[^a-z0-9]/gi,'_')+'.vcf';
+  a.click();
+}
+
 /* ── Analytics tracking ──────────────────────────────────────────────────────── */
 (function(){
   var SITE_ID = '{{ site.id }}';
@@ -820,6 +841,13 @@ function shareFormUrl(){
 })();
 </script>
 
+{% if settings.contact and settings.contact.phone and settings.contact.phone != blank %}
+<div class="b-link">
+  <a href="#" onclick="pzSaveContact();return false;">
+    📇 Save to Contact
+  </a>
+</div>
+{% endif %}
 <!-- Form popup modal (bottom-sheet) -->
 <div class="form-modal-overlay" id="formModalOverlay" onclick="if(event.target===this)closeFormPopup()">
   <div class="form-modal-box">
