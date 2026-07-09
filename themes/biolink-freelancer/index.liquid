@@ -332,13 +332,6 @@ body{
 .b-form-link{margin-bottom:8px;}
 .fl-heading{font-size:15px;font-weight:600;margin-bottom:8px;}
 .fl-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;border:none;cursor:pointer;font-family:inherit;box-sizing:border-box;background:{{ _btn_color }};color:{{ _btn_text_color }};border-radius:{{ _btn_radius }}px;}
-/* ── Booking block ─────────────────────────────────────────────────── */
-.b-booking-btn{background:rgba(0,0,0,0.04);border-radius:12px;padding:14px 16px;}
-.b-booking-btn .bk-heading{font-size:14px;font-weight:600;margin-bottom:10px;}
-.bk-controls{display:flex;gap:8px;flex-wrap:wrap;}
-.bk-select{flex:1;min-width:0;padding:9px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.15);background:rgba(255,255,255,0.7);font-size:13px;color:inherit;cursor:pointer;outline:none;}
-.bk-go-btn{flex-shrink:0;padding:9px 18px;border-radius:{{ _btn_radius }}px;background:{{ _btn_color }};color:{{ _btn_text_color }};font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;transition:opacity .15s;}
-.bk-go-btn:hover{opacity:.85;}
 
 /* ── Form popup modal (bottom-sheet) ─────────── */
 .form-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:flex-end;justify-content:center;box-sizing:border-box;}
@@ -811,20 +804,10 @@ body{
 </div>
 
 {% when 'booking' %}
-<div class="b-booking-btn" id="bk-{{ block.id }}">
-  {% if block.heading != blank %}<div class="bk-heading">{{ block.heading }}</div>{% endif %}
-  {% if block.event_id != blank and block.event_id != nil %}
-  <div class="bk-controls">
-    <a class="bk-go-btn" href="/book?event={{ block.event_id }}" target="_blank" rel="noopener">Book now</a>
-  </div>
-  {% else %}
-  <div class="bk-controls">
-    <select class="bk-select" data-bk-sel="{{ block.id }}">
-      <option value="">Loading…</option>
-    </select>
-    <a class="bk-go-btn" data-bk-btn="{{ block.id }}" href="/book" target="_blank" rel="noopener">Book now</a>
-  </div>
-  {% endif %}
+<div class="b-link">
+  <a href="/book{% if block.event_id != blank and block.event_id != nil %}?event={{ block.event_id }}{% endif %}" target="_blank" rel="noopener">
+    📅 {{ block.heading | default: 'Book an appointment' }}
+  </a>
 </div>
 {% endcase %}
 </div>
@@ -877,39 +860,6 @@ function pgToggle(blockId) {
   if (chv) chv.classList.toggle('open', !open);
 }
 
-// ── Booking event list ─────────────────────────────────────────────────────
-(function(){
-  var sels = document.querySelectorAll('[data-bk-sel]');
-  if(!sels.length) return;
-  var parts = window.location.hostname.split('.');
-  var sub = parts[0];
-  var appHost = parts.length > 2 ? parts.slice(1).join('.') : window.location.hostname;
-  var BASE = window.location.protocol + '//' + appHost;
-  sels.forEach(function(sel){
-    var blockId = sel.dataset.bkSel;
-    var btn = document.querySelector('[data-bk-btn="' + blockId + '"]');
-    fetch(BASE + '/api/booking/' + sub + '/events')
-      .then(function(r){ return r.json(); })
-      .then(function(events){
-        if(!events || !events.length){
-          sel.innerHTML = '<option value="">No events yet</option>';
-          return;
-        }
-        sel.innerHTML = events.map(function(ev){
-          return '<option value="' + ev.id + '">' + ev.name + (ev.duration ? ' · ' + ev.duration + ' min' : '') + '</option>';
-        }).join('');
-        if(btn){
-          btn.href = BASE + '/book?event=' + events[0].id;
-          sel.addEventListener('change', function(){
-            if(this.value) btn.href = BASE + '/book?event=' + this.value;
-          });
-        }
-      })
-      .catch(function(){
-        sel.innerHTML = '<option value="">Book an appointment</option>';
-      });
-  });
-})();
 function svToggle(blockId) {
   var body=document.getElementById('sv-body-'+blockId);
   var chv=document.getElementById('sv-chv-'+blockId);
