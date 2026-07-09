@@ -229,6 +229,7 @@ exports.updateSettings = async (req, res) => {
   // Re-geocode if city changed
   const { city: newCity } = req.body
   if (newCity) {
+
     const site = await db.first('SELECT id FROM ms_sites WHERE account_id = ? LIMIT 1', [user.id])
     if (site) {
       geocodeCity(newCity).then(geo => {

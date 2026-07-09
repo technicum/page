@@ -624,10 +624,8 @@ function pzSaveContact(){
 </script>
 
 {% if settings.contact and settings.contact.phone and settings.contact.phone != blank %}
-<div class="b-link">
-  <a href="#" onclick="pzSaveContact();return false;">
-    📇 Save to Contact
-  </a>
+<div style="text-align:center;margin:4px 0 8px;">
+  <a href="#" onclick="pzSaveContact();return false;" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:5px 14px;border-radius:99px;border:1.5px solid currentColor;opacity:.65;text-decoration:none;color:inherit;cursor:pointer;">📇 Save to Contact</a>
 </div>
 {% endif %}
 <!-- Form popup modal (bottom-sheet) -->
