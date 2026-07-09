@@ -1,5 +1,13 @@
-{% extends "dashboard/_layout.njk" %}
-{% block content %}
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+body{background:var(--off);}
+.main-content{flex:1;min-width:0;overflow:hidden;}
+</style>
+{% endblock %}
+{% block body %}
+{% set activePage = 'analytics' %}
+<div class="layout">
 {% include "dashboard/_sidebar.njk" %}
 <div class="main-content">
 <style>
@@ -157,4 +165,6 @@
 })();
 {% endif %}
 </script>
+</div>{# /.main-content #}
+</div>{# /.layout #}
 {% endblock %}
