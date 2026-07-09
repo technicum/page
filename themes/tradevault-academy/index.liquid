@@ -259,7 +259,54 @@ body{font-family:'{{ _font }}',system-ui,sans-serif;color:{{ _text_color }};min-
 {% when 'email_collector' %}<div class="b-collector">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}<form onsubmit="return pzCollect(event,'email','{{ block.id }}','{{ site.id }}')"><input type="email" placeholder="{{ block.placeholder | default: 'Enter your email' }}" required><button type="submit">{{ block.btn_text | default: 'Subscribe' }}</button></form><div class="col-msg" id="col-{{ block.id }}"></div></div>
 {% when 'phone_collector' %}<div class="b-collector">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}<form onsubmit="return pzCollect(event,'phone','{{ block.id }}','{{ site.id }}')"><input type="tel" placeholder="{{ block.placeholder | default: 'Enter your phone number' }}" required><button type="submit">{{ block.btn_text | default: 'Submit' }}</button></form><div class="col-msg" id="col-{{ block.id }}"></div></div>
 {% when 'contact_form' %}<div class="b-contact">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% endif %}<form onsubmit="return pzContact(event,'{{ site.id }}','{{ block.id }}')">{% if block.show_name %}<input type="text" name="name" placeholder="Your name">{% endif %}{% if block.show_email %}<input type="email" name="email" placeholder="Your email">{% endif %}{% if block.show_phone %}<input type="tel" name="phone" placeholder="Your phone">{% endif %}{% if block.show_message %}<textarea name="message" placeholder="Your message"></textarea>{% endif %}<button type="submit">{{ block.btn_text | default: 'Send message' }}</button></form><div class="con-msg" id="con-{{ block.id }}"></div></div>
-{% when 'business_hours' %}<div class="b-hours">{% if block.heading != blank and block.heading != nil %}<h3>{{ block.heading }}</h3>{% else %}<h3>Business Hours</h3>{% endif %}{% assign _bh_days = 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday' | split: ',' %}{% assign _bh_keys = 'mon,tue,wed,thu,fri,sat,sun' | split: ',' %}{% for _bk in _bh_keys %}{% assign _bopen_key = _bk | append: '_open' %}{% assign _bclose_key = _bk | append: '_close' %}{% assign _bopen = block[_bopen_key] %}{% assign _bclose = block[_bclose_key] %}{% if _bopen != blank and _bopen != nil %}<div class="day-row"><span class="day-name">{{ _bh_days[forloop.index0] }}</span><span class="day-time">{{ _bopen }}{% if _bclose != blank and _bclose != nil %} – {{ _bclose }}{% endif %}</span></div>{% endif %}{% endfor %}</div>
+{% when 'business_hours' %}
+{% assign _bh_days = 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday' | split: ',' %}
+{% assign _bh_keys = 'mon,tue,wed,thu,fri,sat,sun' | split: ',' %}
+<div class="b-hours" id="bh-{{ block.id }}">
+  <div class="b-hours-head" onclick="bhToggle('{{ block.id }}')">
+    <div class="b-hours-hl">
+      <span class="b-hours-icon">🕐</span>
+      <span class="b-hours-title">{% if block.heading != blank and block.heading != nil %}{{ block.heading }}{% else %}Business Hours{% endif %}</span>
+    </div>
+    <div class="b-hours-hr">
+      <span class="bh-badge" id="bh-badge-{{ block.id }}">Closed</span>
+      <span class="b-hours-chevron open" id="bh-chv-{{ block.id }}">▼</span>
+    </div>
+  </div>
+  <div class="b-hours-body open" id="bh-body-{{ block.id }}">
+    <div class="b-hours-rows">
+    {% for _bk in _bh_keys %}
+      {% assign _bopen_key = _bk | append: '_open' %}
+      {% assign _bclose_key = _bk | append: '_close' %}
+      {% assign _bopen = block[_bopen_key] %}
+      {% assign _bclose = block[_bclose_key] %}
+      <div class="day-row" data-bhday="{{ forloop.index0 }}">
+        <span class="day-name">{{ _bh_days[forloop.index0] }}</span>
+        {% if _bopen != blank and _bopen != nil %}
+        <span class="day-time">{{ _bopen }}{% if _bclose != blank and _bclose != nil %} – {{ _bclose }}{% endif %}</span>
+        {% else %}
+        <span class="day-closed">Closed</span>
+        {% endif %}
+      </div>
+    {% endfor %}
+    </div>
+  </div>
+</div>
+<script>(function(){
+  var jd=new Date().getDay(),map=[6,0,1,2,3,4,5];
+  var rows=document.querySelectorAll('#bh-{{ block.id }} .day-row');
+  var badge=document.getElementById('bh-badge-{{ block.id }}');
+  if(rows[map[jd]]) rows[map[jd]].classList.add('bh-today');
+  var tr=rows[map[jd]];
+  if(tr&&badge&&!tr.querySelector('.day-closed')){
+    var tel=tr.querySelector('.day-time');
+    if(tel){var now=new Date(),cur=now.getHours()*60+now.getMinutes();
+      function pt(t){var m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return -1;var h=+m[1],mn=+m[2],ap=m[3].toUpperCase();if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return h*60+mn;}
+      var p=tel.textContent.split('–').map(function(s){return s.trim();});
+      if(pt(p[0])>=0&&pt(p[1]||'')>0&&cur>=pt(p[0])&&cur<pt(p[1])){badge.textContent='Open now';badge.classList.add('bh-open');}
+    }
+  }
+})();</script>
 {% when 'video' %}<div class="b-video">{% if block.url != blank and block.url != nil %}<div class="vid-wrap" id="vw-{{ block.id }}"><iframe src="{{ block.url }}" allowfullscreen allow="autoplay; encrypted-media" loading="lazy"></iframe></div>{% endif %}{% if block.caption != blank and block.caption != nil %}<div class="vid-caption">{{ block.caption }}</div>{% endif %}</div>
 {% when 'divider' %}<div class="b-divider" style="padding:{{ block.spacing | default: '16' }}px 0;">{% if block.style == 'dots' %}<div class="d-dots">· · ·</div>{% elsif block.style == 'gradient' %}<div class="d-gradient"></div>{% elsif block.style == 'space' %}{% else %}<hr class="d-line">{% endif %}</div>
 {% when 'product' %}<div class="b-product">{% if block.image != blank and block.image != nil %}<img src="{{ block.image }}" alt="{{ block.title | default: '' }}">{% endif %}<div class="prod-body">{% if block.title != blank and block.title != nil %}<div class="prod-title">{{ block.title }}</div>{% endif %}{% if block.description != blank and block.description != nil %}<div class="prod-desc">{{ block.description }}</div>{% endif %}<div class="prod-foot">{% if block.price != blank and block.price != nil %}<div class="prod-price">{{ block.price }}</div>{% endif %}{% if block.btn_url != blank and block.btn_url != nil %}<a class="prod-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Buy now' }}</a>{% endif %}</div></div></div>
@@ -499,6 +546,11 @@ body{font-family:'{{ _font }}',system-ui,sans-serif;color:{{ _text_color }};min-
 </div>{% endif %}{% endfor %}{% endif %}
 </div>
 <script>
+function bhToggle(id){
+  var b=document.getElementById('bh-body-'+id),c=document.getElementById('bh-chv-'+id);
+  if(!b)return;var o=b.classList.contains('open');
+  b.classList.toggle('open',!o);if(c)c.classList.toggle('open',!o);
+}
 function pgToggle(blockId) {
   var body = document.getElementById('pg-body-' + blockId);
   var chv  = document.getElementById('pg-chv-' + blockId);
