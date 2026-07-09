@@ -229,14 +229,12 @@ body{font-family:'{{ _font }}',Georgia,serif;color:{{ _text_color }};min-height:
 .fl-heading{font-size:15px;font-weight:600;margin-bottom:8px;}
 .fl-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;border:none;cursor:pointer;font-family:inherit;box-sizing:border-box;background:{{ _btn_color }};color:{{ _btn_text_color }};border-radius:{{ _btn_radius }}px;}
 /* ── Booking block ─────────────────────────────────────────────────── */
-.bk-list-items{display:flex;flex-direction:column;gap:6px;padding:4px 2px;}
-.bk-list-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,0.04);border-radius:10px;text-decoration:none;color:inherit;transition:opacity .15s;}
-.bk-list-item:hover{opacity:.8;}
-.bk-list-dot{width:10px;height:10px;border-radius:50%;background:{{ _btn_color }};flex-shrink:0;}
-.bk-list-name{font-size:13px;font-weight:500;flex:1;}
-.bk-list-dur{font-size:11px;opacity:.55;margin-right:4px;}
-.bk-list-arr{font-size:16px;color:{{ _btn_color }};font-weight:700;}
-.bk-list-loading{font-size:13px;opacity:.45;padding:8px 4px;}
+.b-booking-btn{background:rgba(0,0,0,0.04);border-radius:12px;padding:14px 16px;}
+.b-booking-btn .bk-heading{font-size:14px;font-weight:600;margin-bottom:10px;}
+.bk-controls{display:flex;gap:8px;flex-wrap:wrap;}
+.bk-select{flex:1;min-width:0;padding:9px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.15);background:rgba(255,255,255,0.7);font-size:13px;color:inherit;cursor:pointer;outline:none;}
+.bk-go-btn{flex-shrink:0;padding:9px 18px;border-radius:{{ _btn_radius }}px;background:{{ _btn_color }};color:{{ _btn_text_color }};font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;transition:opacity .15s;}
+.bk-go-btn:hover{opacity:.85;}
 
 /* ── Form popup modal (bottom-sheet) ─────────── */
 .form-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:flex-end;justify-content:center;box-sizing:border-box;}
@@ -501,18 +499,20 @@ body{font-family:'{{ _font }}',Georgia,serif;color:{{ _text_color }};min-height:
 </div>
 
 {% when 'booking' %}
-<div class="b-products-grid" id="pg-{{ block.id }}">
-  <div class="pg-acc-head" onclick="pgToggle('{{ block.id }}')">
-    <span class="pg-acc-title">{{ block.heading | default: 'Book an appointment' }}</span>
-    <span class="pg-acc-meta">
-      <span class="pg-acc-chevron" id="pg-chv-{{ block.id }}">▼</span>
-    </span>
+<div class="b-booking-btn" id="bk-{{ block.id }}">
+  {% if block.heading != blank %}<div class="bk-heading">{{ block.heading }}</div>{% endif %}
+  {% if block.event_id != blank and block.event_id != nil %}
+  <div class="bk-controls">
+    <a class="bk-go-btn" href="/book?event={{ block.event_id }}" target="_blank" rel="noopener">Book now</a>
   </div>
-  <div class="pg-acc-body" id="pg-body-{{ block.id }}">
-    <div class="bk-list-items" data-bk="{{ block.id }}">
-      <div class="bk-list-loading">Loading…</div>
-    </div>
+  {% else %}
+  <div class="bk-controls">
+    <select class="bk-select" data-bk-sel="{{ block.id }}">
+      <option value="">Loading…</option>
+    </select>
+    <a class="bk-go-btn" data-bk-btn="{{ block.id }}" href="/book" target="_blank" rel="noopener">Book now</a>
   </div>
+  {% endif %}
 </div>
 {% endcase %}
 </div>{% endif %}{% endfor %}{% endif %}
@@ -529,34 +529,34 @@ function pgToggle(blockId) {
 
 // ── Booking event list ─────────────────────────────────────────────────────
 (function(){
-  var lists = document.querySelectorAll('[data-bk]');
-  if(!lists.length) return;
+  var sels = document.querySelectorAll('[data-bk-sel]');
+  if(!sels.length) return;
   var parts = window.location.hostname.split('.');
   var sub = parts[0];
   var appHost = parts.length > 2 ? parts.slice(1).join('.') : window.location.hostname;
   var BASE = window.location.protocol + '//' + appHost;
-  var dotColor = '{{ _btn_color }}';
-  lists.forEach(function(el){
+  sels.forEach(function(sel){
+    var blockId = sel.dataset.bkSel;
+    var btn = document.querySelector('[data-bk-btn="' + blockId + '"]');
     fetch(BASE + '/api/booking/' + sub + '/events')
       .then(function(r){ return r.json(); })
       .then(function(events){
         if(!events || !events.length){
-          el.innerHTML = '<a class="bk-list-item" href="' + BASE + '/book" target="_blank" rel="noopener">'
-            + '<div class="bk-list-dot"></div><div class="bk-list-name">Book an appointment</div><div class="bk-list-arr">›</div></a>';
+          sel.innerHTML = '<option value="">No events yet</option>';
           return;
         }
-        el.innerHTML = events.map(function(ev){
-          return '<a class="bk-list-item" href="' + BASE + '/book?event=' + ev.id + '" target="_blank" rel="noopener">'
-            + '<div class="bk-list-dot" style="background:' + (ev.color || dotColor) + '"></div>'
-            + '<div class="bk-list-name">' + ev.name + '</div>'
-            + (ev.duration ? '<div class="bk-list-dur">' + ev.duration + ' min</div>' : '')
-            + '<div class="bk-list-arr">›</div>'
-            + '</a>';
+        sel.innerHTML = events.map(function(ev){
+          return '<option value="' + ev.id + '">' + ev.name + (ev.duration ? ' · ' + ev.duration + ' min' : '') + '</option>';
         }).join('');
+        if(btn){
+          btn.href = BASE + '/book?event=' + events[0].id;
+          sel.addEventListener('change', function(){
+            if(this.value) btn.href = BASE + '/book?event=' + this.value;
+          });
+        }
       })
       .catch(function(){
-        el.innerHTML = '<a class="bk-list-item" href="' + BASE + '/book" target="_blank" rel="noopener">'
-          + '<div class="bk-list-dot"></div><div class="bk-list-name">Book an appointment</div><div class="bk-list-arr">›</div></a>';
+        sel.innerHTML = '<option value="">Book an appointment</option>';
       });
   });
 })();

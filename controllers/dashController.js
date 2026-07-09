@@ -173,6 +173,15 @@ exports.biolinkBuilder = async (req, res) => {
     ) || []
   } catch(e) { /* ignore */ }
 
+  // Booking events for the booking block picker
+  let userBookingEvents = []
+  try {
+    userBookingEvents = await db.query(
+      'SELECT id, name, duration, event_type FROM ms_booking_events WHERE site_id = ? AND is_active = 1 ORDER BY created_at ASC',
+      [siteId]
+    ) || []
+  } catch(e) { /* ignore */ }
+
   res.render('dashboard/biolink-builder.njk', {
     title: 'Bio Link Editor',
     user,
@@ -183,6 +192,7 @@ exports.biolinkBuilder = async (req, res) => {
     seo,
     productCollections,
     userForms,
+    userBookingEvents,
     baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
   })
 }
