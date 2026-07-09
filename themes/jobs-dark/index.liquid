@@ -321,10 +321,14 @@ body{
 .fl-heading{font-size:15px;font-weight:600;margin-bottom:8px;}
 .fl-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;border:none;cursor:pointer;font-family:inherit;box-sizing:border-box;background:{{ _btn_color }};color:{{ _btn_text_color }};border-radius:{{ _btn_radius }}px;}
 /* ── Booking block ─────────────────────────────────────────────────── */
-.b-booking{margin-bottom:8px;}
-.bk-heading{font-size:15px;font-weight:600;margin-bottom:6px;}
-.bk-sub{font-size:13px;opacity:.7;margin-bottom:10px;}
-.bk-btn{display:block;text-align:center;padding:12px 20px;border-radius:10px;border:1px solid rgba(128,128,128,0.35);color:inherit;text-decoration:none;font-weight:600;font-size:14px;}
+.bk-list-items{display:flex;flex-direction:column;gap:6px;padding:4px 2px;}
+.bk-list-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,0.04);border-radius:10px;text-decoration:none;color:inherit;transition:opacity .15s;}
+.bk-list-item:hover{opacity:.8;}
+.bk-list-dot{width:10px;height:10px;border-radius:50%;background:{{ _btn_color }};flex-shrink:0;}
+.bk-list-name{font-size:13px;font-weight:500;flex:1;}
+.bk-list-dur{font-size:11px;opacity:.55;margin-right:4px;}
+.bk-list-arr{font-size:16px;color:{{ _btn_color }};font-weight:700;}
+.bk-list-loading{font-size:13px;opacity:.45;padding:8px 4px;}
 
 /* ── Form popup modal (bottom-sheet) ─────────── */
 .form-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:flex-end;justify-content:center;box-sizing:border-box;}
@@ -798,13 +802,19 @@ body{
 </div>
 
 {% when 'booking' %}
-{% assign _bk_layout = block.layout | default: 'card' %}
-{% if _bk_layout == 'horizontal' %}
-<div class="b-booking bk-horiz">
-  <div class="bk-inner">
-    <div class="bk-icon">📅</div>
-    <div class="bk-info">
-      {% if block.heading != blank %}<div class="bk-heading">{{ block.heading }}</div>{% endif %}
+<div class="b-products-grid" id="pg-{{ block.id }}">
+  <div class="pg-acc-head" onclick="pgToggle('{{ block.id }}')">
+    <span class="pg-acc-title">{{ block.heading | default: 'Book an appointment' }}</span>
+    <span class="pg-acc-meta">
+      <span class="pg-acc-chevron" id="pg-chv-{{ block.id }}">▼</span>
+    </span>
+  </div>
+  <div class="pg-acc-body" id="pg-body-{{ block.id }}">
+    <div class="bk-list-items" data-bk="{{ block.id }}">
+      <div class="bk-list-loading">Loading…</div>
+    </div>
+  </div>
+</div>
       {% if block.subtext != blank %}<div class="bk-sub">{{ block.subtext }}</div>{% endif %}
     </div>
     <a class="bk-btn" href="/book" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>
@@ -849,6 +859,40 @@ function pgToggle(blockId) {
   body.classList.toggle('open', !open);
   if (chv) chv.classList.toggle('open', !open);
 }
+
+// ── Booking event list ─────────────────────────────────────────────────────
+(function(){
+  var lists = document.querySelectorAll('[data-bk]');
+  if(!lists.length) return;
+  var parts = window.location.hostname.split('.');
+  var sub = parts[0];
+  var appHost = parts.length > 2 ? parts.slice(1).join('.') : window.location.hostname;
+  var BASE = window.location.protocol + '//' + appHost;
+  var dotColor = '{{ _btn_color }}';
+  lists.forEach(function(el){
+    fetch(BASE + '/api/booking/' + sub + '/events')
+      .then(function(r){ return r.json(); })
+      .then(function(events){
+        if(!events || !events.length){
+          el.innerHTML = '<a class="bk-list-item" href="' + BASE + '/book" target="_blank" rel="noopener">'
+            + '<div class="bk-list-dot"></div><div class="bk-list-name">Book an appointment</div><div class="bk-list-arr">›</div></a>';
+          return;
+        }
+        el.innerHTML = events.map(function(ev){
+          return '<a class="bk-list-item" href="' + BASE + '/book?event=' + ev.id + '" target="_blank" rel="noopener">'
+            + '<div class="bk-list-dot" style="background:' + (ev.color || dotColor) + '"></div>'
+            + '<div class="bk-list-name">' + ev.name + '</div>'
+            + (ev.duration ? '<div class="bk-list-dur">' + ev.duration + ' min</div>' : '')
+            + '<div class="bk-list-arr">›</div>'
+            + '</a>';
+        }).join('');
+      })
+      .catch(function(){
+        el.innerHTML = '<a class="bk-list-item" href="' + BASE + '/book" target="_blank" rel="noopener">'
+          + '<div class="bk-list-dot"></div><div class="bk-list-name">Book an appointment</div><div class="bk-list-arr">›</div></a>';
+      });
+  });
+})();
 function svToggle(blockId) {
   var body=document.getElementById('sv-body-'+blockId);
   var chv=document.getElementById('sv-chv-'+blockId);
