@@ -297,17 +297,59 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
   </div>
 
   <!-- CONTACT INFO TAB (static, undeletable) -->
-  <div class="tab-content" id="tabContact" style="display:none;padding:12px;">
-    <div style="font-size:12px;color:var(--ink-muted);margin-bottom:14px;line-height:1.5;">This info powers your vCard, action bar, and form autofill. Always visible on your card.</div>
-    <div class="field-row" style="margin-bottom:10px;"><label class="field-label">Full Name</label><input class="field-input" type="text" id="ci_name" placeholder="Your full name" oninput="saveContactInfo()"></div>
-    <div class="field-row" style="margin-bottom:10px;"><label class="field-label">Job Title</label><input class="field-input" type="text" id="ci_title" placeholder="e.g. Founder & CEO" oninput="saveContactInfo()"></div>
-    <div class="field-row" style="margin-bottom:10px;"><label class="field-label">Company</label><input class="field-input" type="text" id="ci_company" placeholder="Company or brand name" oninput="saveContactInfo()"></div>
-    <div class="field-row" style="margin-bottom:10px;"><label class="field-label">Phone</label><input class="field-input" type="tel" id="ci_phone" placeholder="+91 98765 43210" oninput="saveContactInfo()"></div>
-    <div class="field-row" style="margin-bottom:10px;"><label class="field-label">Email</label><input class="field-input" type="email" id="ci_email" placeholder="you@email.com" oninput="saveContactInfo()"></div>
-    <div class="field-row" style="margin-bottom:10px;"><label class="field-label">Website</label><input class="field-input" type="url" id="ci_website" placeholder="https://yoursite.com" oninput="saveContactInfo()"></div>
-    <div class="field-row" style="margin-bottom:10px;"><label class="field-label">Address</label><textarea class="field-input" id="ci_address" placeholder="Street, City, State, PIN" rows="2" oninput="saveContactInfo()" style="resize:vertical;"></textarea></div>
-    <div class="field-row" style="margin-bottom:10px;"><label class="field-label">WhatsApp</label><input class="field-input" type="tel" id="ci_whatsapp" placeholder="+91 98765 43210" oninput="saveContactInfo()"></div>
-    <div style="margin-top:14px;padding:10px 12px;background:#f0fdf4;border-radius:8px;font-size:12px;color:#166534;">✓ Saved automatically with your site</div>
+  <div class="tab-content" id="tabContact" style="display:none;padding:14px 12px;">
+
+    <!-- Identity group -->
+    <div style="background:var(--off,#f8f8f8);border-radius:10px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--ink-faint,#aaa);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Identity</div>
+      <div style="margin-bottom:8px;">
+        <div style="font-size:11px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">Full Name</div>
+        <input class="field-input" type="text" id="ci_name" placeholder="Your full name" oninput="saveContactInfo()" style="width:100%;box-sizing:border-box;">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">Job Title</div>
+          <input class="field-input" type="text" id="ci_title" placeholder="e.g. Founder & CEO" oninput="saveContactInfo()" style="width:100%;box-sizing:border-box;">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">Company</div>
+          <input class="field-input" type="text" id="ci_company" placeholder="Company name" oninput="saveContactInfo()" style="width:100%;box-sizing:border-box;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact group -->
+    <div style="background:var(--off,#f8f8f8);border-radius:10px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--ink-faint,#aaa);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Contact</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">📞 Phone</div>
+          <input class="field-input" type="tel" id="ci_phone" placeholder="+91 98765 43210" oninput="saveContactInfo()" style="width:100%;box-sizing:border-box;">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">💬 WhatsApp</div>
+          <input class="field-input" type="tel" id="ci_whatsapp" placeholder="+91 98765 43210" oninput="saveContactInfo()" style="width:100%;box-sizing:border-box;">
+        </div>
+      </div>
+      <div style="margin-bottom:8px;">
+        <div style="font-size:11px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">✉️ Email</div>
+        <input class="field-input" type="email" id="ci_email" placeholder="you@email.com" oninput="saveContactInfo()" style="width:100%;box-sizing:border-box;">
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">🌐 Website</div>
+        <input class="field-input" type="url" id="ci_website" placeholder="https://yoursite.com" oninput="saveContactInfo()" style="width:100%;box-sizing:border-box;">
+      </div>
+    </div>
+
+    <!-- Location group -->
+    <div style="background:var(--off,#f8f8f8);border-radius:10px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--ink-faint,#aaa);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📍 Address</div>
+      <textarea class="field-input" id="ci_address" placeholder="Street, City, State, PIN" rows="2" oninput="saveContactInfo()" style="width:100%;box-sizing:border-box;resize:vertical;"></textarea>
+    </div>
+
+    <div style="padding:9px 11px;background:#f0fdf4;border-radius:8px;font-size:11px;color:#166534;display:flex;align-items:center;gap:6px;">
+      <span>✓</span><span>Saved automatically with your site</span>
+    </div>
   </div>
 
   <!-- SETTINGS TAB -->
