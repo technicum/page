@@ -122,7 +122,10 @@ body{
 .b-contact .con-msg{font-size:13px;margin-top:8px;text-align:center;display:none;}
 
 /* ── Business hours ──────────────────────────── */
-.b-hours{border-radius:{{ _btn_radius | default: '12' }}px;overflow:hidden;}
+.b-hours{border-radius:{{ _btn_radius | default: '12' }}px;overflow:hidden;
+  {% if _btn_style == 'outline' %}background:transparent;border:2px solid {{ _btn_color }};
+  {% elsif _btn_style == 'soft' %}background:{{ _btn_color }}18;border:none;
+  {% else %}background:{{ _btn_color }}18;border:none;{% endif %}}
 .b-hours-body{display:none;border-top:1px solid rgba(0,0,0,0.07);}
 .b-hours-body.open{display:block;}
 .b-hours-rows{padding:4px 0 6px;background:#f8fcff1c;}
@@ -214,15 +217,16 @@ body{
   {% elsif _btn_style == 'soft' %}background:{{ _btn_color }}18;border:none;
   {% else %}background:{{ _btn_color }}18;border:none;{% endif %}}
 .pg-acc-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;-webkit-user-select:none;
-  {% if _btn_style == 'outline' %}background:{{ _btn_color }};color:{{ _btn_text_color }};
-  {% elsif _btn_style == 'soft' %}background:{{ _btn_color }}30;color:{{ _btn_color }};
+  {% if _btn_style == 'outline' %}background:transparent;color:{{ _btn_color }};
+  {% elsif _btn_style == 'soft' %}background:{{ _btn_color }}22;color:{{ _btn_color }};
   {% elsif _btn_style == 'shadow' %}background:{{ _btn_color }};color:{{ _btn_text_color }};box-shadow:0 4px 14px {{ _btn_color }}44;
   {% else %}background:{{ _btn_color }};color:{{ _btn_text_color }};{% endif %}}
 .pg-acc-head:active{opacity:.85;}
-.pg-acc-title{font-size:15px;font-weight:600;color:#000000;}
+.pg-acc-title{font-size:15px;font-weight:600;
+  {% if _btn_style == 'outline' or _btn_style == 'soft' %}color:{{ _btn_color }};{% else %}color:{{ _btn_text_color }};{% endif %}}
 .pg-acc-meta{display:flex;align-items:center;gap:8px;}
 .pg-acc-count{font-size:11px;font-weight:500;opacity:.75;
-  {% if _btn_style == 'soft' %}color:{{ _btn_color }};{% else %}color:{{ _btn_text_color }};{% endif %}}
+  {% if _btn_style == 'outline' or _btn_style == 'soft' %}color:{{ _btn_color }};{% else %}color:{{ _btn_text_color }};{% endif %}}
 .pg-acc-chevron{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .25s ease;flex-shrink:0;}
 .pg-acc-chevron::after{content:'';display:block;width:7px;height:7px;border-right:1.5px solid;border-bottom:1.5px solid;transform:rotate(45deg);margin-top:-3px;
   {% if _btn_style == 'soft' %}color:{{ _btn_color }};{% else %}color:{{ _btn_text_color }};{% endif %}}
