@@ -1059,10 +1059,114 @@ function applyAnimToAll(){
   markDirty(); debouncedPreview(); renderBlocks();
 }
 
+/* ── Socials block: chips UI ─────────────────── */
+var SOCIAL_PLATFORMS=[
+  {id:'instagram', label:'Instagram', emoji:'📸', ph:'https://instagram.com/...'},
+  {id:'twitter',   label:'X / Twitter', emoji:'✖', ph:'https://x.com/...'},
+  {id:'youtube',   label:'YouTube',   emoji:'▶',  ph:'https://youtube.com/...'},
+  {id:'tiktok',    label:'TikTok',    emoji:'🎵', ph:'https://tiktok.com/...'},
+  {id:'linkedin',  label:'LinkedIn',  emoji:'in', ph:'https://linkedin.com/...'},
+  {id:'facebook',  label:'Facebook',  emoji:'f',  ph:'https://facebook.com/...'},
+  {id:'whatsapp',  label:'WhatsApp',  emoji:'💬', ph:'+1234567890'},
+  {id:'telegram',  label:'Telegram',  emoji:'✈',  ph:'https://t.me/...'},
+  {id:'github',    label:'GitHub',    emoji:'🐙', ph:'https://github.com/...'},
+  {id:'spotify',   label:'Spotify',   emoji:'🎧', ph:'https://open.spotify.com/...'}
+];
+function buildSocialsUI(block, container){
+  var wrap=document.createElement('div');
+  wrap.style.cssText='padding:12px;';
+
+  function render(){
+    wrap.innerHTML='';
+
+    // Active chips
+    var hasAny=false;
+    SOCIAL_PLATFORMS.forEach(function(p){
+      if(!block[p.id]) return;
+      hasAny=true;
+      var chip=document.createElement('div');
+      chip.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;margin-bottom:6px;';
+      chip.innerHTML='<span style="font-size:14px;">'+p.emoji+'</span>'
+        +'<span style="font-size:12px;font-weight:600;color:#4338ca;min-width:60px;">'+p.label+'</span>';
+      var val=document.createElement('input');
+      val.className='fg-input';
+      val.style.cssText='flex:1;font-size:12px;margin:0;padding:4px 8px;';
+      val.value=block[p.id]||'';
+      val.placeholder=p.ph;
+      (function(pid){ val.addEventListener('input',function(){block[pid]=this.value;markDirty();debouncedPreview();}); })(p.id);
+      var rm=document.createElement('button');
+      rm.innerHTML='✕';
+      rm.style.cssText='background:none;border:none;color:#6366f1;cursor:pointer;font-size:12px;padding:0 2px;opacity:.7;';
+      (function(pid){ rm.onclick=function(){delete block[pid];markDirty();debouncedPreview();render();}; })(p.id);
+      chip.appendChild(val); chip.appendChild(rm);
+      wrap.appendChild(chip);
+    });
+
+    if(!hasAny){
+      var empty=document.createElement('div');
+      empty.style.cssText='font-size:12px;color:#aaa;text-align:center;padding:8px 0 12px;';
+      empty.textContent='No platforms added yet';
+      wrap.appendChild(empty);
+    }
+
+    // Platform picker toggle
+    var addBtn=document.createElement('button');
+    addBtn.style.cssText='width:100%;padding:8px;border:1px dashed #d1d5db;border-radius:8px;background:transparent;font-size:12px;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;';
+    addBtn.innerHTML='<span>+</span><span>Add platform</span>';
+    wrap.appendChild(addBtn);
+
+    // Picker grid (hidden by default)
+    var picker=document.createElement('div');
+    picker.style.cssText='display:none;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid #f3f4f6;';
+    SOCIAL_PLATFORMS.forEach(function(p){
+      if(block[p.id]) return; // already added
+      var item=document.createElement('button');
+      item.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:8px;border:1px solid #e5e7eb;background:#fafafa;cursor:pointer;';
+      item.innerHTML='<span style="font-size:16px;">'+p.emoji+'</span><span style="font-size:9px;color:#6b7280;font-weight:500;">'+p.label.split(' ')[0]+'</span>';
+      (function(pid){
+        item.onclick=function(){
+          block[pid]='';
+          markDirty(); debouncedPreview(); render();
+          // Focus the newly added input
+          setTimeout(function(){
+            var inputs=wrap.querySelectorAll('input');
+            for(var i=inputs.length-1;i>=0;i--){ inputs[i].focus(); break; }
+          },50);
+        };
+      })(p.id);
+      picker.appendChild(item);
+    });
+    wrap.appendChild(picker);
+
+    var pickerOpen=false;
+    addBtn.onclick=function(){
+      pickerOpen=!pickerOpen;
+      picker.style.display=pickerOpen?'grid':'none';
+      addBtn.innerHTML=pickerOpen?'<span>✕</span><span>Close</span>':'<span>+</span><span>Add platform</span>';
+    };
+  }
+
+  render();
+  container.appendChild(wrap);
+}
+
 /* ── Build block edit fields ─────────────────── */
 function buildBlockFields(block, container){
   var bt=BLOCK_TYPES[block.type];
   if(!bt) return;
+
+  // Socials block gets its own chip UI
+  if(block.type==='socials'){
+    buildSocialsUI(block, container);
+    // Still need the advanced card — fall through after
+    var _socAdv=document.createElement('div'); _socAdv.className='blk-adv-card';
+    container.appendChild(_socAdv);
+    var _socAdvInner=_socAdv;
+    (function(){ /* advanced settings for socials — animation only */
+      function _mkChip(label,active){var c=document.createElement('button');c.type='button';c.textContent=label;c.style.cssText='padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid '+(active?'#6366f1':'#e5e7eb')+';background:'+(active?'#eef2ff':'#fafafa')+';color:'+(active?'#6366f1':'#6b7280')+';cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;line-height:1.5;';return c;}
+      /* skip — advanced toggle appended elsewhere */ })();
+    return;
+  }
 
   // Inner white card holds all regular fields
   var innerCard=document.createElement('div'); innerCard.className='blk-inner-card';
