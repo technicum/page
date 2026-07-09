@@ -637,3 +637,31 @@ exports.aiGenerate = async (req, res) => {
     res.json({ error: 'Generation failed.' })
   }
 }
+
+/* ── Analytics: track view / click ──────────────────────────────────────────── */
+exports.track = async (req, res) => {
+  // CORS — minisites run on subdomains
+  const origin = req.headers.origin || ''
+  res.setHeader('Access-Control-Allow-Origin', origin || '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  if (req.method === 'OPTIONS') return res.sendStatus(204)
+
+  try {
+    const { site_id, event_type, block_id, block_type, label, referrer } = req.body
+    if (!site_id || !event_type) return res.json({ ok: false })
+
+    // Hash IP (no raw PII stored)
+    const crypto = require('crypto')
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || ''
+    const ip_hash = crypto.createHash('sha1').update(ip + (process.env.HASH_SALT || 'pz')).digest('hex')
+
+    await db.execute(
+      'INSERT INTO ms_analytics (site_id, event_type, block_id, block_type, label, ip_hash, referrer) VALUES (?,?,?,?,?,?,?)',
+      [site_id, event_type, block_id || null, block_type || null, label || null, ip_hash, referrer || null]
+    )
+    res.json({ ok: true })
+  } catch(e) {
+    res.json({ ok: false })
+  }
+}

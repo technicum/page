@@ -52,6 +52,7 @@
     {% endif %}
     <a class="nav-item {% if activePage == 'chat' %}active{% endif %}" href="/dashboard/chat">💬 Chat{% if unreadTotal and unreadTotal > 0 %}<span class="nav-badge">{{ unreadTotal }}</span>{% endif %}</a>
     <a class="nav-item {% if activePage == 'leads' %}active{% endif %}" href="/dashboard/leads">🎯 Leads</a>
+    <a class="nav-item {% if activePage == 'analytics' %}active{% endif %}" href="/dashboard/analytics">📊 Analytics</a>
     <a class="nav-item {% if activePage == 'settings' %}active{% endif %}" href="/dashboard/settings">⚙️ Settings</a>
     {% if user.is_admin %}<a class="nav-item" href="/admin" style="margin-top:12px;border-top:1px solid var(--border);padding-top:14px;">🔧 Admin</a>{% endif %}
   </nav>

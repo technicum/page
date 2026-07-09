@@ -1,4 +1,6 @@
 const mysql = require('mysql2/promise')
+const fs    = require('fs')
+const path  = require('path')
 require('dotenv').config()
 
 // ── Startup diagnostics ───────────────────────────────────────────────────────
@@ -63,6 +65,34 @@ async function runStartupCheck() {
 }
 
 runStartupCheck()
+
+// ── Auto-run migration files ──────────────────────────────────────────────────
+async function runMigrations() {
+  const dir = path.join(__dirname, '..', 'migrations')
+  if (!fs.existsSync(dir)) return
+  const files = fs.readdirSync(dir).filter(f => f.endsWith('.sql')).sort()
+  let conn
+  try {
+    conn = await pool.getConnection()
+    for (const file of files) {
+      const sql = fs.readFileSync(path.join(dir, file), 'utf8')
+      const statements = sql.split(';').map(s => s.trim()).filter(Boolean)
+      for (const stmt of statements) {
+        try { await conn.query(stmt) } catch(e) {
+          if (!e.message.includes('already exists') && e.code !== 'ER_DUP_KEYNAME') {
+            console.warn(`[migration] ${file}: ${e.message}`)
+          }
+        }
+      }
+      console.log(`[migration] ✓ ${file}`)
+    }
+  } catch(e) {
+    console.error('[migration] failed:', e.message)
+  } finally {
+    if (conn) conn.release()
+  }
+}
+runMigrations()
 
 // ── DB helper ─────────────────────────────────────────────────────────────────
 const db = {

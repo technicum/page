@@ -1,0 +1,160 @@
+{% extends "dashboard/_layout.njk" %}
+{% block content %}
+{% include "dashboard/_sidebar.njk" %}
+<div class="main-content">
+<style>
+.an-wrap{max-width:900px;margin:0 auto;padding:28px 24px;}
+.an-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;}
+.an-title{font-size:22px;font-weight:700;color:var(--ink);}
+.site-picker{padding:8px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;background:var(--white);color:var(--ink);cursor:pointer;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
+.stat-label{font-size:12px;font-weight:500;color:var(--ink-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+.stat-value{font-size:28px;font-weight:700;color:var(--ink);}
+.stat-delta{font-size:12px;margin-top:4px;}
+.delta-up{color:#059669;}
+.delta-dn{color:#dc2626;}
+.delta-eq{color:var(--ink-muted);}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
+.chart-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:16px;}
+.chart-wrap{position:relative;height:180px;}
+.top-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.top-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
+.top-row:last-child{border-bottom:none;}
+.top-label{font-size:13px;color:var(--ink);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:12px;}
+.top-bar-wrap{flex:1;background:var(--off);border-radius:99px;height:6px;overflow:hidden;margin:0 12px;}
+.top-bar{height:100%;border-radius:99px;background:var(--blue);}
+.top-count{font-size:13px;font-weight:600;color:var(--ink);min-width:32px;text-align:right;}
+.empty-state{text-align:center;padding:60px 24px;color:var(--ink-muted);}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.no-site{text-align:center;padding:80px 24px;}
+</style>
+
+<div class="an-wrap">
+  <div class="an-header">
+    <div class="an-title">📊 Analytics</div>
+    {% if sites and sites.length > 1 %}
+    <select class="site-picker" onchange="window.location='/dashboard/analytics?site_id='+this.value">
+      {% for s in sites %}
+      <option value="{{ s.id }}" {% if site and site.id == s.id %}selected{% endif %}>{{ s.title or s.subdomain }}</option>
+      {% endfor %}
+    </select>
+    {% endif %}
+  </div>
+
+  {% if not site %}
+  <div class="no-site"><div class="empty-icon">🌐</div><p>No sites yet. Create a minisite to start tracking.</p></div>
+  {% elif not stats %}
+  <div class="empty-state"><div class="empty-icon">📊</div><p>No data yet — visit your minisite to start tracking.</p></div>
+  {% else %}
+
+  <!-- Stat cards -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Views</div>
+      <div class="stat-value">{{ stats.totalViews }}</div>
+      <div class="stat-delta {% if stats.todayViews > stats.yesterdayViews %}delta-up{% elif stats.todayViews < stats.yesterdayViews %}delta-dn{% else %}delta-eq{% endif %}">
+        Today: {{ stats.todayViews }}
+        {% if stats.yesterdayViews > 0 %}
+          {% set diff = stats.todayViews - stats.yesterdayViews %}
+          {% if diff > 0 %}▲ {{ diff }}{% elif diff < 0 %}▼ {{ diff | abs }}{% endif %}
+          vs yesterday
+        {% endif %}
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Clicks</div>
+      <div class="stat-value">{{ stats.totalClicks }}</div>
+      <div class="stat-delta {% if stats.todayClicks > stats.yesterdayClicks %}delta-up{% elif stats.todayClicks < stats.yesterdayClicks %}delta-dn{% else %}delta-eq{% endif %}">
+        Today: {{ stats.todayClicks }}
+        {% if stats.yesterdayClicks > 0 %}
+          {% set diff2 = stats.todayClicks - stats.yesterdayClicks %}
+          {% if diff2 > 0 %}▲ {{ diff2 }}{% elif diff2 < 0 %}▼ {{ diff2 | abs }}{% endif %}
+          vs yesterday
+        {% endif %}
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Unique Visitors</div>
+      <div class="stat-value">{{ stats.uniqueVisitors }}</div>
+      <div class="stat-delta delta-eq">All time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Click Rate</div>
+      <div class="stat-value">{% if stats.totalViews > 0 %}{{ ((stats.totalClicks / stats.totalViews) * 100) | round }}%{% else %}—{% endif %}</div>
+      <div class="stat-delta delta-eq">clicks / views</div>
+    </div>
+  </div>
+
+  <!-- 7-day chart -->
+  <div class="chart-card">
+    <div class="chart-title">Last 7 days</div>
+    <div class="chart-wrap">
+      <canvas id="anaChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Top clicked links -->
+  {% if topBlocks and topBlocks.length > 0 %}
+  <div class="top-card">
+    <div class="chart-title">Top clicked links</div>
+    {% set maxClicks = topBlocks[0].clicks %}
+    {% for row in topBlocks %}
+    <div class="top-row">
+      <div class="top-label" title="{{ row.label }}">{{ row.label }}</div>
+      <div class="top-bar-wrap"><div class="top-bar" style="width:{{ ((row.clicks / maxClicks) * 100) | round }}%"></div></div>
+      <div class="top-count">{{ row.clicks }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="top-card">
+    <div class="chart-title">Top clicked links</div>
+    <div class="empty-state" style="padding:30px;"><p>No clicks recorded yet.</p></div>
+  </div>
+  {% endif %}
+
+  {% endif %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+{% if daily %}
+(function(){
+  var raw = {{ daily | dump | safe }};
+
+  // Build last-7-days labels
+  var labels = [], viewData = [], clickData = [];
+  for(var i=6;i>=0;i--){
+    var d = new Date(); d.setDate(d.getDate()-i);
+    var key = d.toISOString().slice(0,10);
+    labels.push(d.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'}));
+    var row = raw.find(function(r){ return r.day && r.day.slice(0,10)===key; });
+    viewData.push(row ? parseInt(row.views)||0 : 0);
+    clickData.push(row ? parseInt(row.clicks)||0 : 0);
+  }
+
+  var ctx = document.getElementById('anaChart');
+  if(!ctx) return;
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: labels,
+      datasets:[
+        {label:'Views', data:viewData, backgroundColor:'#6366f133', borderColor:'#6366f1', borderWidth:2, borderRadius:6},
+        {label:'Clicks', data:clickData, backgroundColor:'#10b98133', borderColor:'#10b981', borderWidth:2, borderRadius:6}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:12,font:{size:12}}}},
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:11}}},
+        y:{beginAtZero:true, ticks:{stepSize:1, font:{size:11}}, grid:{color:'#f0f0f0'}}
+      }
+    }
+  });
+})();
+{% endif %}
+</script>
+{% endblock %}

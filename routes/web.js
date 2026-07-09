@@ -9,6 +9,7 @@ const media       = require('../controllers/mediaController')
 const form        = require('../controllers/formController')
 const chat        = require('../controllers/chatController')
 const leads       = require('../controllers/leadsController')
+const analytics   = require('../controllers/analyticsController')
 const { requireAuth, redirectIfAuth, requireAdmin } = require('../middleware/auth')
 const admin   = require('../controllers/adminController')
 const review  = require('../controllers/reviewController')
@@ -164,6 +165,13 @@ router.post('/dashboard/site/update-info',     requireAuth, site.updateInfo)
 router.post('/dashboard/site/create-staff',   requireAuth, site.createStaffSite)
 router.post('/dashboard/site/toggle-publish', requireAuth, site.togglePublish)
 router.post('/dashboard/site/update-seo',    requireAuth, site.updateSeo)
+
+// Analytics tracking — open (no auth), called from subdomain minisites
+router.options('/api/track', site.track)
+router.post  ('/api/track', site.track)
+
+// Analytics dashboard
+router.get('/dashboard/analytics', requireAuth, analytics.index)
 
 // Blog
 router.get ('/dashboard/blog/:siteId',                    requireAuth, blog.index)

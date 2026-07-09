@@ -955,6 +955,39 @@ function shareFormUrl(){
   if(url&&url!=='about:blank'&&navigator.share){navigator.share({url:url});}
   else if(url&&url!=='about:blank'){navigator.clipboard&&navigator.clipboard.writeText(url);}
 }
+
+/* ── Analytics tracking ──────────────────────────────────────────────────────── */
+(function(){
+  var SITE_ID = '{{ site.id }}';
+  var parts = window.location.hostname.split('.');
+  var appHost = parts.length > 2 ? parts.slice(1).join('.') : window.location.hostname;
+  var BASE = window.location.protocol + '//' + appHost;
+
+  function pzTrack(data){
+    data.site_id = SITE_ID;
+    data.referrer = document.referrer || '';
+    try { navigator.sendBeacon(BASE+'/api/track', JSON.stringify(Object.assign({}, data, {_ct:'application/json'}))); } catch(e){}
+    fetch(BASE+'/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),keepalive:true}).catch(function(){});
+  }
+
+  // Page view — fire once per session using sessionStorage dedup
+  var vkey = 'pzv_'+SITE_ID;
+  if(!sessionStorage.getItem(vkey)){
+    sessionStorage.setItem(vkey,'1');
+    pzTrack({event_type:'view'});
+  }
+
+  // Click tracking — delegate on all .pg-buy, .fl-btn, .bk-btn, .pg-gbtn, .pg-cbtn, a[href], button
+  document.addEventListener('click', function(e){
+    var el = e.target.closest('a[href], button, .pg-buy, .fl-btn, .bk-btn, .pg-gbtn, .pg-cbtn, .svc-btn');
+    if(!el) return;
+    var block = el.closest('[id]');
+    var blockId = block ? block.id : '';
+    var blockType = (block && block.className) ? block.className.split(' ')[0] : '';
+    var label = (el.textContent || '').trim().slice(0,80);
+    pzTrack({event_type:'click', block_id:blockId, block_type:blockType, label:label});
+  }, true);
+})();
 </script>
 
 <!-- Form popup modal (bottom-sheet) -->
