@@ -1,41 +1,44 @@
 {% extends "layouts/base.njk" %}
 {% block head %}
 <style>
-body{font-family:"DM Sans",sans-serif;}
+body{background:var(--off);}
 .layout{display:flex;min-height:100vh;}
-.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
-.sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:22px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;}
-.sidebar-logo em{font-style:italic;color:var(--blue);}
-.sidebar-nav{padding:16px 12px;flex:1;}
-.nav-label{font-size:11px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.06em;padding:10px 12px 4px;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;margin-bottom:2px;}
-.nav-item:hover{background:var(--off);color:var(--ink);}
-.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:500;}
-.sidebar-bottom{padding:16px 12px;border-top:1px solid var(--border);}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;}
-.logout-link{display:block;font-size:13px;color:var(--ink-faint);padding:6px 12px;margin-top:4px;}
-.content{flex:1;padding:36px 40px;min-width:0;}
-.page-title{font-family:"DM Serif Display",serif;font-size:26px;font-weight:400;margin-bottom:4px;}
-.page-sub{font-size:14px;color:var(--ink-muted);margin-bottom:28px;}
-.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-muted);text-decoration:none;margin-bottom:20px;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--white);}
-.back-btn:hover{background:var(--off);}
-.stats-row{display:flex;gap:16px;margin-bottom:28px;}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;flex:1;}
-.stat-num{font-size:32px;font-weight:700;color:var(--ink);line-height:1;}
-.stat-label{font-size:13px;color:var(--ink-muted);margin-top:6px;}
-.quick-links{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap;}
-.quick-link{display:flex;align-items:center;gap:8px;padding:11px 18px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:500;color:var(--ink);text-decoration:none;transition:all 0.15s;}
-.quick-link:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
-.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.section-title{font-size:16px;font-weight:700;}
-.bk-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
-.bk-table th{font-size:11px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.5px;padding:12px 16px;border-bottom:1px solid var(--border);text-align:left;background:var(--off);}
-.bk-table td{padding:12px 16px;font-size:14px;color:var(--ink);border-bottom:1px solid var(--border);}
+.main{flex:1;padding:28px 32px;min-width:0;}
+.page-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:22px 24px;}
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.page-title{font-size:18px;font-weight:700;color:var(--ink);}
+.page-sub{font-size:12px;color:var(--ink-muted);margin-top:2px;}
+.head-btns{display:flex;gap:8px;}
+.hbtn{font-size:13px;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--white);color:var(--ink-muted);text-decoration:none;cursor:pointer;white-space:nowrap;}
+.hbtn:hover{background:var(--off);}
+.hbtn.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+.hbtn.primary:hover{opacity:.88;}
+.stat-row{display:flex;gap:10px;margin-bottom:16px;}
+.stat{flex:1;background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;}
+.sv{font-size:22px;font-weight:700;color:var(--ink);}
+.sv.blue{color:var(--blue);}
+.sl{font-size:11px;color:var(--ink-muted);margin-top:3px;}
+.section{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;}
+.sec-head{padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:600;color:var(--ink-muted);display:flex;align-items:center;justify-content:space-between;}
+.sec-head a{font-size:12px;color:var(--blue);font-weight:400;text-decoration:none;}
+.sec-body{padding:12px 14px;}
+.link-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.link-row:last-child{border-bottom:none;}
+.link-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
+.link-name{font-size:13px;font-weight:500;color:var(--ink);}
+.link-url{font-size:11px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.copy-btn{font-size:12px;padding:5px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--white);color:var(--ink-muted);cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.copy-btn:hover{border-color:var(--blue);color:var(--blue);}
+.empty{text-align:center;padding:24px;color:var(--ink-muted);font-size:13px;}
+.empty-icon{font-size:24px;margin-bottom:8px;}
+.bk-table{width:100%;border-collapse:collapse;}
+.bk-table th{font-size:11px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.04em;padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;}
+.bk-table td{padding:10px 12px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border);}
 .bk-table tr:last-child td{border-bottom:none;}
 .bk-table tr:hover td{background:var(--off);}
-.event-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
-.empty{text-align:center;padding:48px 24px;color:var(--ink-muted);}
-.badge-confirmed{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;}
+.badge{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-muted);text-decoration:none;margin-bottom:16px;padding:6px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--white);}
+.back-btn:hover{background:var(--off);}
 </style>
 {% endblock %}
 {% block body %}
@@ -44,95 +47,96 @@ body{font-family:"DM Sans",sans-serif;}
 {% set bookingPage = 'overview' %}
 <div class="layout">
   {% include "dashboard/_sidebar.njk" %}
-  <main class="content">
+  <main class="main">
     <a class="back-btn" href="/dashboard/site/biolink-builder?id={{ site.id }}">← Back to Editor</a>
-    <div class="page-title">Booking — {{ site.title }}</div>
-    <div class="page-sub">Manage appointments and availability for your bio link page.</div>
 
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-num">{{ stats.total or 0 }}</div>
-        <div class="stat-label">Total bookings</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num">{{ stats.week_count or 0 }}</div>
-        <div class="stat-label">This week</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num">{{ stats.today_count or 0 }}</div>
-        <div class="stat-label">Today</div>
-      </div>
-    </div>
-
-    <div class="quick-links">
-      <a class="quick-link" href="/dashboard/booking/{{ site.id }}/events">🎯 Manage Event Types</a>
-      <a class="quick-link" href="/dashboard/booking/{{ site.id }}/availability">📅 Set Availability</a>
-      <a class="quick-link" href="/dashboard/booking/{{ site.id }}/list">📋 View All Bookings</a>
-    </div>
-
-    <div class="section-head" style="margin-top:28px;">
-      <div class="section-title">Your Booking Links</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;max-width:600px;margin-bottom:28px;">
-      <div style="font-size:13px;color:var(--ink-muted);margin-bottom:16px;">Copy these links and add them to your bio link page via the <strong>Links</strong> module in the editor.</div>
-      <div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="page-card">
+      <div class="page-head">
         <div>
-          <div style="font-size:12px;font-weight:600;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">🖥️ Online Meetings</div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <input id="url-book" type="text" value="{{ bookUrl }}" readonly style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);color:var(--ink);cursor:default;">
-            <button onclick="pzCopy('url-book','btn-book')" id="btn-book" style="padding:8px 16px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;">Copy</button>
-          </div>
+          <div class="page-title">Booking — {{ site.title }}</div>
+          <div class="page-sub">Manage appointments and availability</div>
         </div>
-        <div>
-          <div style="font-size:12px;font-weight:600;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">📍 In-Person Appointments</div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <input id="url-appt" type="text" value="{{ appointmentUrl }}" readonly style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);color:var(--ink);cursor:default;">
-            <button onclick="pzCopy('url-appt','btn-appt')" id="btn-appt" style="padding:8px 16px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;">Copy</button>
+        <div class="head-btns">
+          <a class="hbtn" href="/dashboard/booking/{{ site.id }}/availability">📅 Availability</a>
+          <a class="hbtn" href="/dashboard/booking/{{ site.id }}/events">🎯 Event types</a>
+          <a class="hbtn primary" href="/dashboard/booking/{{ site.id }}/list">📋 All bookings</a>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="sv">{{ stats.total or 0 }}</div><div class="sl">Total bookings</div></div>
+        <div class="stat"><div class="sv blue">{{ stats.week_count or 0 }}</div><div class="sl">This week</div></div>
+        <div class="stat"><div class="sv">{{ stats.today_count or 0 }}</div><div class="sl">Today</div></div>
+      </div>
+
+      <div class="section">
+        <div class="sec-head">Booking links</div>
+        <div class="sec-body">
+          <div class="link-row">
+            <div class="link-icon" style="background:#eff6ff;">🖥️</div>
+            <div style="flex:1;min-width:0;">
+              <div class="link-name">Online meetings</div>
+              <div class="link-url">{{ bookUrl }}</div>
+            </div>
+            <button class="copy-btn" onclick="pzCopy('{{ bookUrl }}', this)">Copy</button>
+          </div>
+          <div class="link-row">
+            <div class="link-icon" style="background:#f0fdf4;">📍</div>
+            <div style="flex:1;min-width:0;">
+              <div class="link-name">In-person appointments</div>
+              <div class="link-url">{{ appointmentUrl }}</div>
+            </div>
+            <button class="copy-btn" onclick="pzCopy('{{ appointmentUrl }}', this)">Copy</button>
           </div>
         </div>
       </div>
-    </div>
-    <script>
-    function pzCopy(inputId, btnId) {
-      var el = document.getElementById(inputId);
-      el.select(); el.setSelectionRange(0, 999);
-      try { document.execCommand('copy'); } catch(e) {}
-      var btn = document.getElementById(btnId);
-      btn.textContent = 'Copied!';
-      setTimeout(function(){ btn.textContent = 'Copy'; }, 2000);
-    }
-    </script>
 
-    <div class="section-head">
-      <div class="section-title">Upcoming Bookings</div>
-      <a href="/dashboard/booking/{{ site.id }}/list" style="font-size:13px;color:var(--blue);">View all →</a>
+      <div class="section">
+        <div class="sec-head">
+          Upcoming bookings
+          <a href="/dashboard/booking/{{ site.id }}/list">View all →</a>
+        </div>
+        <div class="sec-body" style="padding:0;">
+          {% if not upcoming or not upcoming.length %}
+          <div class="empty">
+            <div class="empty-icon">📅</div>
+            No upcoming bookings
+          </div>
+          {% else %}
+          <table class="bk-table">
+            <thead>
+              <tr><th>Date</th><th>Time</th><th>Event</th><th>Name</th><th>Email</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {% for b in upcoming %}
+              <tr>
+                <td style="font-weight:600;">{{ b.booking_date | string | truncate(10, true, '') }}</td>
+                <td>{{ b.start_time | string | truncate(5, true, '') }}</td>
+                <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:{{ b.color }};margin-right:6px;"></span>{{ b.event_name }}</td>
+                <td>{{ b.booker_name }}</td>
+                <td style="color:var(--ink-muted);">{{ b.booker_email }}</td>
+                <td><span class="badge">Confirmed</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+        </div>
+      </div>
     </div>
-
-    {% if not upcoming.length %}
-    <div class="empty">
-      <div style="font-size:36px;margin-bottom:12px;">📅</div>
-      <div style="font-size:16px;font-weight:500;margin-bottom:6px;">No upcoming bookings</div>
-      <div>Add the booking widget to your bio link page so visitors can schedule meetings.</div>
-    </div>
-    {% else %}
-    <table class="bk-table">
-      <thead>
-        <tr><th>Date</th><th>Time</th><th>Event</th><th>Name</th><th>Email</th><th>Status</th></tr>
-      </thead>
-      <tbody>
-        {% for b in upcoming %}
-        <tr>
-          <td style="font-weight:600;">{{ b.booking_date | string | truncate(10, true, '') }}</td>
-          <td>{{ b.start_time | string | truncate(5, true, '') }}</td>
-          <td><span class="event-dot" style="background:{{ b.color }}"></span>{{ b.event_name }}</td>
-          <td>{{ b.booker_name }}</td>
-          <td style="color:var(--ink-muted);">{{ b.booker_email }}</td>
-          <td><span class="badge-confirmed">Confirmed</span></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% endif %}
   </main>
 </div>
+
+<script>
+function pzCopy(text, btn) {
+  navigator.clipboard.writeText(text).catch(function(){
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  btn.textContent = 'Copied!';
+  setTimeout(function(){ btn.textContent = 'Copy'; }, 2000);
+}
+</script>
 {% endblock %}
