@@ -265,6 +265,17 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
   .preview-toolbar{top:6px;right:8px;gap:4px;}
   .modal-grid{grid-template-columns:1fr;}
 }
+/* ── Contact tab field styles ─────────────────── */
+.field-input{
+  display:block;width:100%;box-sizing:border-box;
+  padding:7px 9px;font-size:12px;font-family:inherit;
+  background:#fff;color:var(--ink);
+  border:1px solid var(--border,#e5e7eb);border-radius:6px;
+  outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.field-input:focus{border-color:var(--blue,#6366f1);box-shadow:0 0 0 3px rgba(99,102,241,.1);}
+.field-input::placeholder{color:var(--ink-faint,#ccc);}
+textarea.field-input{resize:vertical;min-height:52px;}
 </style>
 </head>
 <body>
