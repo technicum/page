@@ -159,6 +159,11 @@ env.addFilter('max', function(arr) {
 env.addFilter('tojson', function(obj) {
   return JSON.stringify(obj)
 })
+env.addFilter('safejson', function(obj) {
+  // JSON.stringify + escape </script> so data can't break inline <script> blocks
+  const s = JSON.stringify(obj).replace(/<\/script>/gi, '<\\/script>')
+  return new nunjucks.runtime.SafeString(s)
+})
 env.addFilter('date', function(dateVal, format) {
   const d = new Date(dateVal)
   if (!dateVal || isNaN(d.getTime())) return ''

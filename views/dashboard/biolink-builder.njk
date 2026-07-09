@@ -600,15 +600,15 @@ textarea.field-input{resize:vertical;min-height:52px;}
 
 <script>
 /* ── Server data ─────────────────────────────── */
-var BLOCKS       = {{ (blocks or []) | dump | safe }};
-var APP          = {{ (appearance or {}) | dump | safe }};
-var SEO          = {{ (seo or {}) | dump | safe }};
+var BLOCKS       = {{ (blocks or []) | safejson }};
+var APP          = {{ (appearance or {}) | safejson }};
+var SEO          = {{ (seo or {}) | safejson }};
 var SITE_ID      = {{ site.id }};
 var SITE_SUB     = '{{ site.subdomain }}';
 var BASE_DOMAIN  = '{{ baseDomain }}';
 var CURRENT_THEME= 'biolink-creator'; // always universal block renderer
 var IS_PUBLISHED = {{ site.is_published | int }} === 1;
-var CONTACT = {{ (settings.contact or {}) | dump | safe }};
+var CONTACT = {{ (settings.contact or {}) | safejson }};
 if(!BLOCKS) BLOCKS=[];
 if(!APP) APP={};
 if(!SEO) SEO={};
