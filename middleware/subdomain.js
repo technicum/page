@@ -309,7 +309,7 @@ function serveBookingPage(req, res, site, settings, type, eventId) {
     ? `<img class="biz-logo-img" src="${logo}" alt="${siteName}">`
     : `<div class="biz-logo-init">${siteName.charAt(0).toUpperCase()}</div>`
 
-  const html = `<!DOCTYPE html>
+  let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
