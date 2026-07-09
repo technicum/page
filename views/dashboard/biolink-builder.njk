@@ -613,6 +613,7 @@ if(!APP) APP={};
 if(!SEO) SEO={};
 if(!CONTACT) CONTACT={};
 
+
 /* ── Appearance defaults ─────────────────────── */
 APP = Object.assign({
   bgType:'color', bgColor:'#ffffff', bgGradient:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)', bgImage:'',
@@ -714,6 +715,14 @@ function markDirty(){
   document.getElementById('saveDot').className='save-dot dirty';
   document.getElementById('saveLabel').textContent='Unsaved';
 }
+
+/* ── Auto-remove deprecated block types ──────── */
+(function(){
+  var DEPRECATED = ['service'];
+  var before = BLOCKS.length;
+  BLOCKS = BLOCKS.filter(function(b){ return DEPRECATED.indexOf(b.type) === -1; });
+  if(BLOCKS.length !== before) markDirty();
+})();
 
 /* ── Accordion ───────────────────────────────── */
 function toggleAcc(id){
