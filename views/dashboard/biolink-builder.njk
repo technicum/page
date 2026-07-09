@@ -661,8 +661,6 @@ var BLOCK_TYPES = {
   product:{label:'Product',icon:'🛍️',cat:'advanced',desc:'Product card with buy button',defaults:{image:'',title:'',description:'',price:'',btn_text:'Buy now',btn_url:''},
     fields:[{id:'image',label:'Product image',type:'image'},{id:'title',label:'Name',type:'text',ph:'Product name'},{id:'description',label:'Description',type:'textarea',ph:'Short description...'},{id:'price',label:'Price',type:'text',ph:'$29.99'},{id:'btn_text',label:'Button text',type:'text',ph:'Buy now'},{id:'btn_url',label:'Buy URL',type:'text',ph:'https://'}]},
 
-  service:{label:'Service',icon:'⚙️',cat:'advanced',desc:'Service card with booking button',defaults:{image:'',title:'',description:'',price:'',duration:'',btn_text:'Book now',btn_url:''},
-    fields:[{id:'image',label:'Service image',type:'image'},{id:'title',label:'Service name',type:'text',ph:'Web Design'},{id:'description',label:'Description',type:'textarea',ph:"What's included..."},{id:'price',label:'Price / Rate',type:'text',ph:'Starting from $99'},{id:'duration',label:'Duration',type:'text',ph:'1 hour'},{id:'btn_text',label:'Button text',type:'text',ph:'Book now'},{id:'btn_url',label:'Booking URL',type:'text',ph:'https://'}]},
 
   banner:{label:'Banner',icon:'📢',cat:'advanced',desc:'Announcement / promo bar',defaults:{text:'🎉 Special offer!',btn_text:'',btn_url:'',bg_color:'#fef3c7',text_color:'#92400e'},
     fields:[{id:'text',label:'Banner text',type:'text',ph:'🎉 Special offer!'},{id:'btn_text',label:'Button text',type:'text',ph:'Learn more'},{id:'btn_url',label:'Button URL',type:'text',ph:'https://'},{id:'bg_color',label:'Background color',type:'color',ph:'#fef3c7'},{id:'text_color',label:'Text color',type:'color',ph:'#92400e'}]},
@@ -1008,7 +1006,6 @@ function getBlockSummary(block){
     case 'reviews': return 'Reviews ('+(block.items?block.items.length:0)+')';
     case 'map': return 'Map';
     case 'html': return 'Custom HTML';
-    case 'service': return block.title||'Service';
     default: return block.type;
   }
 }
