@@ -386,7 +386,7 @@ body{
 .bk-list-name{font-size:13px;font-weight:500;flex:1;}
 .bk-list-dur{font-size:11px;opacity:.55;margin-right:4px;}
 .bk-list-arr{font-size:16px;color:{{ _btn_color }};font-weight:700;}
-.bk-list-loading{font-size:13px;opacity:.45;padding:8px 4px;}};font-weight:700;}
+.bk-list-loading{font-size:13px;opacity:.45;padding:8px 4px;}
 
 /* ── Block animations ────────────────────────── */
 @keyframes bk-fade{from{opacity:0}to{opacity:1}}
@@ -917,33 +917,6 @@ body{
     </div>
   </div>
 </div>
-      {% if block.subtext != blank %}<div class="bk-sub">{{ block.subtext }}</div>{% endif %}
-    </div>
-    <a class="bk-btn" href="/book" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>
-  </div>
-</div>
-{% elsif _bk_layout == 'list' %}
-<div class="b-booking bk-list">
-  <div class="bk-list-head">📅 {{ block.heading | default: 'Book an appointment' }}</div>
-  <div class="bk-list-items" id="bkList_{{ block.id }}">
-    <a class="bk-list-item" href="/book" target="_blank" rel="noopener">
-      <div class="bk-list-dot"></div>
-      <div class="bk-list-name">{{ block.subtext | default: 'Schedule a call' }}</div>
-      <div class="bk-list-arr">›</div>
-    </a>
-  </div>
-</div>
-{% else %}
-<div class="b-booking">
-  <div class="bk-banner">📅</div>
-  <div class="bk-body">
-    {% if block.heading != blank %}<div class="bk-heading">{{ block.heading }}</div>{% endif %}
-    {% if block.subtext != blank %}<div class="bk-sub">{{ block.subtext }}</div>{% endif %}
-    <a class="bk-btn" href="/book" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>
-  </div>
-</div>
-{% endif %}
-
 {% endcase %}
 </div>
 {% endif %}
