@@ -503,24 +503,6 @@ body{
   </div>
 </div>
 
-{% when 'service' %}
-<div class="b-service">
-  {% if block.image != blank and block.image != nil %}
-    <img src="{{ block.image }}" alt="{{ block.title | default: '' }}">
-  {% endif %}
-  <div class="svc-body">
-    {% if block.title != blank and block.title != nil %}<div class="svc-title">{{ block.title }}</div>{% endif %}
-    {% if block.description != blank and block.description != nil %}<div class="svc-desc">{{ block.description }}</div>{% endif %}
-    <div class="svc-meta">
-      {% if block.price != blank and block.price != nil %}<div class="svc-price">{{ block.price }}</div>{% endif %}
-      {% if block.duration != blank and block.duration != nil %}<div class="svc-dur">⏱ {{ block.duration }}</div>{% endif %}
-    </div>
-    {% if block.btn_url != blank and block.btn_url != nil %}
-      <a class="svc-btn" href="{{ block.btn_url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>
-    {% endif %}
-  </div>
-</div>
-
 {% when 'banner' %}
 {% assign _ban_bg = block.bg_color | default: '#fef3c7' %}
 {% assign _ban_tc = block.text_color | default: '#92400e' %}
