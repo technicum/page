@@ -180,6 +180,8 @@ async function render(slug, site, settings, pageId = 'home', siteForms = {}, ext
   engine.registerFilter('wa',  (phone)     => (phone || '').replace(/\D/g, ''))
   engine.registerFilter('hex', (colorSlug) => colorMap[colorSlug] || accentColor)
   engine.registerFilter('where_includes', (arr, key, val) => Array.isArray(arr) ? arr.filter(item => Array.isArray(item[key]) && item[key].includes(val)) : [])
+  engine.registerFilter('tojson', (obj) => JSON.stringify(obj) ?? 'null')
+  engine.registerFilter('safejson', (obj) => (JSON.stringify(obj) ?? 'null').replace(/<\/script>/gi, '<\\/script>'))
 
   // ── Pre-render plugin sections ──────────────────────────────────────────────
   const plugins        = loadGlobalSections()
@@ -449,6 +451,8 @@ async function renderBlog(slug, site, settings, posts) {
   engine.registerFilter('wa',  (phone) => (phone || '').replace(/\D/g, ''))
   engine.registerFilter('hex', (colorSlug) => colorMap[colorSlug] || accentColor)
   engine.registerFilter('where_includes', (arr, key, val) => Array.isArray(arr) ? arr.filter(item => Array.isArray(item[key]) && item[key].includes(val)) : [])
+  engine.registerFilter('tojson', (obj) => JSON.stringify(obj) ?? 'null')
+  engine.registerFilter('safejson', (obj) => (JSON.stringify(obj) ?? 'null').replace(/<\/script>/gi, '<\\/script>'))
 
   const ctx = {
     site: { title: site.title, subdomain: site.subdomain, url: `https://${site.subdomain}.${process.env.BASE_DOMAIN || 'pagezapper.com'}` },
@@ -494,6 +498,8 @@ async function renderPost(slug, site, settings, post) {
   engine.registerFilter('wa',  (phone) => (phone || '').replace(/\D/g, ''))
   engine.registerFilter('hex', (colorSlug) => colorMap[colorSlug] || accentColor)
   engine.registerFilter('where_includes', (arr, key, val) => Array.isArray(arr) ? arr.filter(item => Array.isArray(item[key]) && item[key].includes(val)) : [])
+  engine.registerFilter('tojson', (obj) => JSON.stringify(obj) ?? 'null')
+  engine.registerFilter('safejson', (obj) => (JSON.stringify(obj) ?? 'null').replace(/<\/script>/gi, '<\\/script>'))
 
   const postDate = post.created_at
     ? new Date(post.created_at).toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' })
