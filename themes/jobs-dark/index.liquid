@@ -231,7 +231,8 @@ body{
 .pg-acc-meta{display:flex;align-items:center;gap:8px;}
 .pg-acc-count{font-size:11px;font-weight:500;opacity:.75;
   {% if _btn_style == 'soft' %}color:{{ _btn_color }};{% else %}color:{{ _btn_text_color }};{% endif %}}
-.pg-acc-chevron{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;transition:transform .25s ease;flex-shrink:0;
+.pg-acc-chevron{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;transition:transform .25s ease;flex-shrink:0;}
+.pg-acc-chevron::after{content:'';display:block;width:7px;height:7px;border-right:1.5px solid;border-bottom:1.5px solid;transform:rotate(45deg);margin-top:-3px;
   {% if _btn_style == 'soft' %}color:{{ _btn_color }};{% else %}color:{{ _btn_text_color }};{% endif %}}
 .pg-acc-body{display:none;padding:8px 8px 10px;}
 .pg-acc-body.open{display:block;}
@@ -461,7 +462,7 @@ body{
     <span class="pg-acc-title">{% if block.heading != blank and block.heading != nil %}{{ block.heading }}{% else %}Business Hours{% endif %}</span>
     <span class="pg-acc-meta">
       <span class="pg-acc-count" id="bh-badge-{{ block.id }}">Closed</span>
-      <span class="pg-acc-chevron" id="bh-chv-{{ block.id }}">▼</span>
+      <span class="pg-acc-chevron" id="bh-chv-{{ block.id }}"></span>
     </span>
   </div>
   <div class="b-hours-body" id="bh-body-{{ block.id }}">
@@ -613,7 +614,7 @@ body{
     <span class="pg-acc-title">{{ block.heading | default: 'Products' }}</span>
     <span class="pg-acc-meta">
       {% if _pg_items and _pg_items.size > 0 %}<span class="pg-acc-count">{{ _pg_items.size }} items</span>{% endif %}
-      <span class="pg-acc-chevron" id="pg-chv-{{ block.id }}">&#9660;</span>
+      <span class="pg-acc-chevron" id="pg-chv-{{ block.id }}"></span>
     </span>
   </div>
   <div class="pg-acc-body" id="pg-body-{{ block.id }}">
@@ -684,7 +685,7 @@ body{
     <span class="pg-acc-title">{{ block.heading | default: 'Our Services' }}</span>
     <span class="pg-acc-meta">
       {% if _sv_items and _sv_items.size > 0 %}<span class="pg-acc-count">{{ _sv_items.size }} services</span>{% endif %}
-      <span class="pg-acc-chevron" id="sv-chv-{{ block.id }}">&#9660;</span>
+      <span class="pg-acc-chevron" id="sv-chv-{{ block.id }}"></span>
     </span>
   </div>
   <div class="pg-acc-body" id="sv-body-{{ block.id }}">
@@ -752,7 +753,7 @@ body{
     <span class="pg-acc-title">{{ block.heading | default: 'Open Positions' }}</span>
     <span class="pg-acc-meta">
       {% if _jb_items and _jb_items.size > 0 %}<span class="pg-acc-count">{{ _jb_items.size }} positions</span>{% endif %}
-      <span class="pg-acc-chevron" id="jb-chv-{{ block.id }}">&#9660;</span>
+      <span class="pg-acc-chevron" id="jb-chv-{{ block.id }}"></span>
     </span>
   </div>
   <div class="pg-acc-body" id="jb-body-{{ block.id }}">
