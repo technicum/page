@@ -110,22 +110,6 @@ body{
 
 /* ── Business hours ──────────────────────────── */
 .b-hours{border-radius:{{ _btn_radius | default: '12' }}px;overflow:hidden;}
-.b-hours-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;-webkit-user-select:none;
-  {% if _btn_style == 'outline' %}background:{{ _btn_color }};color:{{ _btn_text_color }};
-  {% elsif _btn_style == 'soft' %}background:{{ _btn_color }}30;color:{{ _btn_color }};
-  {% elsif _btn_style == 'shadow' %}background:{{ _btn_color }};color:{{ _btn_text_color }};box-shadow:0 4px 14px {{ _btn_color }}44;
-  {% else %}background:{{ _btn_color }};color:{{ _btn_text_color }};{% endif %}}
-.b-hours-head:active{opacity:.85;}
-.b-hours-hl{display:flex;align-items:center;gap:8px;}
-.b-hours-hr{display:flex;align-items:center;gap:8px;}
-.b-hours-icon{font-size:15px;line-height:1;}
-.b-hours-title{font-size:16px;font-weight:700;
-  {% if _btn_style == 'soft' %}color:{{ _btn_color }};{% else %}color:{{ _btn_text_color }};{% endif %}}
-.bh-badge{font-size:11px;font-weight:500;opacity:.85;
-  {% if _btn_style == 'soft' %}color:{{ _btn_color }};{% else %}color:{{ _btn_text_color }};{% endif %}}
-.b-hours-chevron{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;transition:transform .25s ease;flex-shrink:0;
-  {% if _btn_style == 'soft' %}background:{{ _btn_color }}20;color:{{ _btn_color }};{% else %}color:{{ _btn_text_color }};{% endif %}}
-.b-hours-chevron.open{transform:rotate(180deg);}
 .b-hours-body{display:none;border-top:1px solid rgba(0,0,0,0.07);background:rgba(0,0,0,0.03);}
 .b-hours-body.open{display:block;}
 .b-hours-rows{padding:4px 0 6px;}
@@ -473,17 +457,14 @@ body{
 {% assign _bh_days = 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday' | split: ',' %}
 {% assign _bh_keys = 'mon,tue,wed,thu,fri,sat,sun' | split: ',' %}
 <div class="b-hours" id="bh-{{ block.id }}">
-  <div class="b-hours-head" onclick="bhToggle('{{ block.id }}')">
-    <div class="b-hours-hl">
-      <span class="b-hours-icon">🕐</span>
-      <span class="b-hours-title">{% if block.heading != blank and block.heading != nil %}{{ block.heading }}{% else %}Business Hours{% endif %}</span>
-    </div>
-    <div class="b-hours-hr">
-      <span class="bh-badge" id="bh-badge-{{ block.id }}">Closed</span>
-      <span class="b-hours-chevron open" id="bh-chv-{{ block.id }}">▼</span>
-    </div>
+  <div class="pg-acc-head" onclick="bhToggle('{{ block.id }}')">
+    <span class="pg-acc-title">{% if block.heading != blank and block.heading != nil %}{{ block.heading }}{% else %}Business Hours{% endif %}</span>
+    <span class="pg-acc-meta">
+      <span class="pg-acc-count" id="bh-badge-{{ block.id }}">Closed</span>
+      <span class="pg-acc-chevron" id="bh-chv-{{ block.id }}">▼</span>
+    </span>
   </div>
-  <div class="b-hours-body open" id="bh-body-{{ block.id }}">
+  <div class="b-hours-body" id="bh-body-{{ block.id }}">
     <div class="b-hours-rows">
     {% for _bk in _bh_keys %}
       {% assign _bopen_key = _bk | append: '_open' %}
@@ -513,7 +494,7 @@ body{
     if(tel){var now=new Date(),cur=now.getHours()*60+now.getMinutes();
       function pt(t){var m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return -1;var h=+m[1],mn=+m[2],ap=m[3].toUpperCase();if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return h*60+mn;}
       var p=tel.textContent.split('–').map(function(s){return s.trim();});
-      if(pt(p[0])>=0&&pt(p[1]||'')>0&&cur>=pt(p[0])&&cur<pt(p[1])){badge.textContent='Open now';badge.classList.add('bh-open');}
+      if(pt(p[0])>=0&&pt(p[1]||'')>0&&cur>=pt(p[0])&&cur<pt(p[1])){badge.textContent='Open now';}
     }
   }
 })();</script>
