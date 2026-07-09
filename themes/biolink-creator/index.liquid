@@ -379,12 +379,32 @@ body{
 .fl-btn:hover{opacity:.85;}
 
 /* ── Booking block ───────────────────────────── */
-.b-booking{text-align:center;padding:20px;background:rgba(0,0,0,0.04);border-radius:14px;}
-.bk-heading{font-size:17px;font-weight:700;margin-bottom:6px;}
-.bk-sub{font-size:13px;opacity:.65;margin-bottom:14px;line-height:1.5;}
-.bk-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 28px;border-radius:{{ _btn_radius }}px;font-size:15px;font-weight:600;text-decoration:none;background:{{ _btn_color }};color:{{ _btn_text_color }};transition:opacity .15s;}
+.b-booking{border-radius:14px;overflow:hidden;}
+/* Card layout */
+.bk-banner{width:100%;height:80px;background:{{ _btn_color }};display:flex;align-items:center;justify-content:center;font-size:36px;opacity:.85;}
+.bk-body{padding:14px 16px;background:rgba(0,0,0,0.04);}
+.bk-heading{font-size:16px;font-weight:700;margin-bottom:4px;}
+.bk-sub{font-size:13px;opacity:.65;margin-bottom:12px;line-height:1.5;}
+.bk-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 24px;border-radius:{{ _btn_radius }}px;font-size:14px;font-weight:600;text-decoration:none;background:{{ _btn_color }};color:{{ _btn_text_color }};transition:opacity .15s;}
 .bk-btn:hover{opacity:.85;}
-.bk-btn::before{content:'📅';}
+/* Horizontal layout */
+.b-booking.bk-horiz{background:rgba(0,0,0,0.04);padding:14px;}
+.bk-horiz .bk-inner{display:flex;align-items:center;gap:12px;}
+.bk-horiz .bk-icon{width:46px;height:46px;border-radius:10px;background:{{ _btn_color }};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.bk-horiz .bk-info{flex:1;min-width:0;}
+.bk-horiz .bk-heading{margin-bottom:2px;font-size:14px;}
+.bk-horiz .bk-sub{margin-bottom:0;font-size:12px;}
+.bk-horiz .bk-btn{padding:8px 14px;font-size:13px;}
+/* List layout */
+.b-booking.bk-list{background:transparent;padding:0;}
+.bk-list .bk-list-head{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.bk-list .bk-list-items{display:flex;flex-direction:column;gap:7px;}
+.bk-list-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,0.04);border-radius:10px;text-decoration:none;color:inherit;transition:opacity .15s;}
+.bk-list-item:hover{opacity:.8;}
+.bk-list-dot{width:10px;height:10px;border-radius:50%;background:{{ _btn_color }};flex-shrink:0;}
+.bk-list-name{font-size:13px;font-weight:500;flex:1;}
+.bk-list-dur{font-size:11px;opacity:.55;margin-right:4px;}
+.bk-list-arr{font-size:16px;color:{{ _btn_color }};font-weight:700;}
 
 /* ── Block animations ────────────────────────── */
 @keyframes bk-fade{from{opacity:0}to{opacity:1}}
@@ -902,11 +922,39 @@ body{
 </div>
 
 {% when 'booking' %}
-<div class="b-booking">
-  {% if block.heading != blank %}<div class="bk-heading">{{ block.heading }}</div>{% endif %}
-  {% if block.subtext != blank %}<div class="bk-sub">{{ block.subtext }}</div>{% endif %}
-  <a class="bk-btn" href="/book" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>
+{% assign _bk_layout = block.layout | default: 'card' %}
+{% if _bk_layout == 'horizontal' %}
+<div class="b-booking bk-horiz">
+  <div class="bk-inner">
+    <div class="bk-icon">📅</div>
+    <div class="bk-info">
+      {% if block.heading != blank %}<div class="bk-heading">{{ block.heading }}</div>{% endif %}
+      {% if block.subtext != blank %}<div class="bk-sub">{{ block.subtext }}</div>{% endif %}
+    </div>
+    <a class="bk-btn" href="/book" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>
+  </div>
 </div>
+{% elsif _bk_layout == 'list' %}
+<div class="b-booking bk-list">
+  <div class="bk-list-head">📅 {{ block.heading | default: 'Book an appointment' }}</div>
+  <div class="bk-list-items" id="bkList_{{ block.id }}">
+    <a class="bk-list-item" href="/book" target="_blank" rel="noopener">
+      <div class="bk-list-dot"></div>
+      <div class="bk-list-name">{{ block.subtext | default: 'Schedule a call' }}</div>
+      <div class="bk-list-arr">›</div>
+    </a>
+  </div>
+</div>
+{% else %}
+<div class="b-booking">
+  <div class="bk-banner">📅</div>
+  <div class="bk-body">
+    {% if block.heading != blank %}<div class="bk-heading">{{ block.heading }}</div>{% endif %}
+    {% if block.subtext != blank %}<div class="bk-sub">{{ block.subtext }}</div>{% endif %}
+    <a class="bk-btn" href="/book" target="_blank" rel="noopener">{{ block.btn_text | default: 'Book now' }}</a>
+  </div>
+</div>
+{% endif %}
 
 {% endcase %}
 </div>
