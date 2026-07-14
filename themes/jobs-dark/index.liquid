@@ -390,10 +390,13 @@ body{
 .b-payment-divider{display:flex;align-items:center;gap:10px;margin-bottom:14px;opacity:.35;}
 .b-payment-divider::before,.b-payment-divider::after{content:'';flex:1;height:1px;background:currentColor;}
 .b-payment-divider span{font-size:10px;font-weight:700;letter-spacing:.5px;white-space:nowrap;}
-.b-payment-upi-box{border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;overflow:hidden;display:flex;align-items:stretch;margin-bottom:10px;}
-.b-payment-upi-id{flex:1;padding:12px 14px;font-size:14px;font-weight:600;font-family:monospace;background:rgba(255,255,255,0.5);}
-.b-payment-upi-copy{width:46px;padding:0;border:none;border-left:1.5px solid rgba(0,0,0,0.1);background:transparent;cursor:pointer;opacity:.6;transition:opacity .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.b-payment-upi-copy:hover{opacity:1;}
+.b-payment-upi-box{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;}
+.b-payment-upi-info{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.b-payment-upi-label{font-size:10px;font-weight:700;letter-spacing:.6px;opacity:.45;text-transform:uppercase;}
+.b-payment-upi-id{font-size:14px;font-weight:700;font-family:monospace;letter-spacing:.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.b-payment-upi-copy{flex-shrink:0;width:36px;height:36px;border:1.5px solid rgba(255,255,255,0.18);border-radius:9px;background:rgba(255,255,255,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;padding:0;}
+.b-payment-upi-copy:hover{background:rgba(255,255,255,0.18);}
+.b-payment-upi-copy.copied{background:#22c55e!important;border-color:#22c55e!important;}
 .b-payment-note{font-size:11px;opacity:.4;text-align:center;margin:0;}
 
 /* ── Brochure ── */
@@ -999,8 +1002,11 @@ body{
       {% endif %}
       {% if block.upi_id != blank and block.upi_id != nil %}
       <div class="b-payment-upi-box">
-        <span class="b-payment-upi-id">{{ block.upi_id }}</span>
-        <button class="b-payment-upi-copy" id="upicpy-{{ block.id }}" title="Copy UPI ID" onclick="(function(){navigator.clipboard&&navigator.clipboard.writeText('{{ block.upi_id }}');var b=document.getElementById('upicpy-{{ block.id }}');b.innerHTML='<svg width=14 height=14 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2.5><polyline points='20 6 9 17 4 12'></polyline></svg>';setTimeout(function(){b.innerHTML='<svg width=14 height=14 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2><rect x=9 y=9 width=13 height=13 rx=2/><path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/></svg>';},2000);})()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        <div class="b-payment-upi-info">
+          <div class="b-payment-upi-label">UPI ID</div>
+          <div class="b-payment-upi-id">{{ block.upi_id }}</div>
+        </div>
+        <button class="b-payment-upi-copy" id="upicpy-{{ block.id }}" title="Copy UPI ID" onclick="pzCopyUpi('{{ block.id }}','{{ block.upi_id }}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
       </div>
       {% endif %}
       {% if block.note != blank %}<p class="b-payment-note">🔒 {{ block.note }}</p>{% endif %}
@@ -1217,6 +1223,7 @@ function pzSaveContact(){
     pzTrack({event_type:'click', block_id:blockId, block_type:blockType, label:label});
   }, true);
 })();
+function pzCopyUpi(id,val){navigator.clipboard&&navigator.clipboard.writeText(val);var b=document.getElementById('upicpy-'+id);b.classList.add('copied');b.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';setTimeout(function(){b.classList.remove('copied');b.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';},2000);}
 </script>
 
 {% if settings.contact and settings.contact.phone and settings.contact.phone != blank %}
