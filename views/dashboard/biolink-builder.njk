@@ -172,7 +172,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 
 #blockList{padding:8px 10px 4px;}
 /* ── Option A block cards ─────────────────────── */
-.blk-card{background:#fff;border:1px solid #e5e7eb;border-left:3px solid #d1d5db;border-radius:10px;margin-bottom:6px;overflow:hidden;transition:border-color .15s,box-shadow .15s;}
+.blk-card{background:#fff;border:1px solid #e5e7eb;border-left:3px solid #d1d5db;border-radius:10px;margin-bottom:6px;transition:border-color .15s,box-shadow .15s;}
 .blk-card:hover{border-color:#d1d5db;border-left-color:inherit;box-shadow:0 1px 4px rgba(0,0,0,.06);}
 .blk-card.open{border-color:#c7d2fe;border-left-color:inherit;background:#fafbff;}
 .blk-card.disabled{opacity:.5;}
@@ -1082,7 +1082,7 @@ function buildSocialsUI(block, container){
     // Active chips
     var hasAny=false;
     SOCIAL_PLATFORMS.forEach(function(p){
-      if(!block[p.id]) return;
+      if(!(p.id in block)) return;
       hasAny=true;
       var chip=document.createElement('div');
       chip.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;margin-bottom:6px;';
@@ -1119,7 +1119,7 @@ function buildSocialsUI(block, container){
     var picker=document.createElement('div');
     picker.style.cssText='display:none;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid #f3f4f6;';
     SOCIAL_PLATFORMS.forEach(function(p){
-      if(block[p.id]) return; // already added
+      if(p.id in block) return; // already added
       var item=document.createElement('button');
       item.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:8px;border:1px solid #e5e7eb;background:#fafafa;cursor:pointer;';
       item.innerHTML='<span style="font-size:16px;">'+p.emoji+'</span><span style="font-size:9px;color:#6b7280;font-weight:500;">'+p.label.split(' ')[0]+'</span>';
