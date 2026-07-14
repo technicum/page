@@ -468,11 +468,8 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
   <button class="pub-save-btn" id="mainSaveBtn" onclick="saveSections()">💾 Save</button>
 </div>
 
+<!-- Nunjucks data — rendered server-side -->
 <script>
-{% raw %}
-/* ═══════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════ */
 const WEBSITE_ID  = {{ website.id }};
 const SUBDOMAIN   = '{{ website.subdomain }}';
 const PRIMARY     = '{{ website.settings.primary or "#6366f1" }}';
@@ -491,6 +488,14 @@ var siteSettings    = {
   tagline: '{{ website.settings.tagline or "" }}',
   logo:    '{{ website.settings.logo or "" }}'
 };
+</script>
+
+<!-- Builder logic — {% raw %} prevents Nunjucks escaping && operators -->
+<script>
+{% raw %}
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
 
 /* ═══════════════════════════════════════════
    SECTION DEFAULTS
