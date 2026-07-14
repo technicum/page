@@ -19,6 +19,7 @@ const os     = require('os')
 const themeUpload = multer({ dest: os.tmpdir() })
 const { db }     = require('../config/db')
 const product    = require('../controllers/productController')
+const website    = require('../controllers/websiteController')
 
 // ── Debug route (REMOVE IN PRODUCTION) ───────────────────────────────────────
 router.get('/debug', async (req, res) => {
@@ -289,6 +290,23 @@ router.get ('/dashboard/chat/:sessionId',             requireAuth, chat.conversa
 router.get ('/dashboard/chat/:sessionId/poll',        requireAuth, chat.conversationPoll)
 router.post('/dashboard/chat/:sessionId/send',        requireAuth, chat.vendorSend)
 router.post('/dashboard/chat/:sessionId/status',      requireAuth, chat.setStatus)
+
+// ── Website Builder — dashboard (auth required) ───────────────────────────────
+router.get ('/dashboard/website',                              requireAuth, website.index)
+router.post('/dashboard/website/create',                      requireAuth, website.create)
+router.get ('/dashboard/website/:id/editor',                  requireAuth, website.editor)
+router.post('/dashboard/website/:id/page/add',                requireAuth, website.addPage)
+router.post('/dashboard/website/:id/page/:pageId/save',       requireAuth, website.saveSections)
+router.post('/dashboard/website/:id/page/:pageId/seo',        requireAuth, website.saveSEO)
+router.post('/dashboard/website/:id/page/:pageId/rename',     requireAuth, website.renamePage)
+router.post('/dashboard/website/:id/page/:pageId/delete',     requireAuth, website.deletePage)
+router.post('/dashboard/website/:id/settings',                requireAuth, website.saveSettings)
+router.post('/dashboard/website/:id/publish',                 requireAuth, website.publish)
+router.post('/dashboard/website/:id/delete',                  requireAuth, website.destroy)
+
+// ── Public website renderer ───────────────────────────────────────────────────
+router.get('/w/:subdomain',            website.publicSite)
+router.get('/w/:subdomain/:pageSlug',  website.publicSite)
 
 // ── Alias landing pages (must be before /:city) ───────────────────────────────
 router.get('/:city/:alias', home.aliasPage)

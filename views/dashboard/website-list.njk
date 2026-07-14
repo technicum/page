@@ -1,0 +1,126 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+*{box-sizing:border-box;}
+body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
+.dash-main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{height:56px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.topbar-title{font-size:15px;font-weight:700;color:#111827;flex:1;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s;border:none;cursor:pointer;font-family:inherit;}
+.btn-dark{background:#111827;color:#fff;}.btn-dark:hover{background:#374151;}
+.btn-outline{background:#fff;color:#374151;border:1.5px solid #e5e7eb;}.btn-outline:hover{border-color:#6366f1;color:#6366f1;}
+.btn-red{background:#fee2e2;color:#ef4444;border:none;}.btn-red:hover{background:#fecaca;}
+.page{max-width:900px;margin:0 auto;padding:32px 24px 60px;width:100%;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.page-title{font-size:22px;font-weight:700;color:#111827;}
+.page-sub{font-size:13px;color:#9ca3af;margin-top:2px;}
+
+/* ── Website cards ─── */
+.site-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.site-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;overflow:hidden;transition:box-shadow .15s,border-color .15s;}
+.site-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);border-color:#c7d2fe;}
+.site-thumb{height:140px;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%);display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;}
+.site-pub-badge{position:absolute;top:10px;right:10px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px;}
+.site-pub-badge.live{background:#dcfce7;color:#16a34a;}
+.site-pub-badge.draft{background:#f3f4f6;color:#6b7280;}
+.site-info{padding:16px;}
+.site-name{font-size:15px;font-weight:700;color:#111827;margin:0 0 4px;}
+.site-url{font-size:12px;color:#9ca3af;margin:0 0 12px;}
+.site-actions{display:flex;gap:8px;}
+
+/* ── Empty state ─── */
+.empty{text-align:center;padding:80px 20px;}
+.empty-icon{font-size:52px;margin-bottom:16px;}
+.empty-title{font-size:20px;font-weight:700;color:#111827;margin-bottom:8px;}
+.empty-sub{font-size:14px;color:#9ca3af;margin-bottom:24px;}
+
+/* ── Create modal ─── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:16px;padding:28px;width:400px;max-width:90vw;}
+.modal-title{font-size:18px;font-weight:700;color:#111827;margin:0 0 6px;}
+.modal-sub{font-size:13px;color:#9ca3af;margin:0 0 20px;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;}
+.form-input{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s;}
+.form-input:focus{border-color:#6366f1;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+  {% include "dashboard/_sidebar.njk" %}
+  <div class="dash-main">
+    <div class="topbar">
+      <span class="topbar-title">🌐 Website Builder</span>
+      <button class="btn btn-dark" onclick="openCreate()">+ New Website</button>
+    </div>
+    <div class="page">
+      {% if websites.length %}
+      <div class="page-header">
+        <div>
+          <div class="page-title">Your Websites</div>
+          <div class="page-sub">{{ websites.length }} website{{ 's' if websites.length != 1 }}</div>
+        </div>
+      </div>
+      <div class="site-grid">
+        {% for w in websites %}
+        <div class="site-card">
+          <div class="site-thumb" style="background:linear-gradient(135deg,{{ w.settings.primary or '#6366f1' }},{{ w.settings.primary or '#8b5cf6' }}88);">
+            🌐
+            <span class="site-pub-badge {{ 'live' if w.is_published else 'draft' }}">
+              {{ 'Live' if w.is_published else 'Draft' }}
+            </span>
+          </div>
+          <div class="site-info">
+            <div class="site-name">{{ w.title }}</div>
+            <div class="site-url">pagezaper.com/w/{{ w.subdomain }}</div>
+            <div class="site-actions">
+              <a href="/dashboard/website/{{ w.id }}/editor" class="btn btn-dark" style="flex:1;justify-content:center;">✏️ Edit</a>
+              {% if w.is_published %}
+              <a href="/w/{{ w.subdomain }}" target="_blank" class="btn btn-outline">↗ View</a>
+              {% endif %}
+              <form method="POST" action="/dashboard/website/{{ w.id }}/delete" onsubmit="return confirm('Delete this website?')">
+                <button type="submit" class="btn btn-red">🗑</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty">
+        <div class="empty-icon">🌐</div>
+        <div class="empty-title">No websites yet</div>
+        <div class="empty-sub">Build a multi-page website with hero sections, galleries, contact forms and more.</div>
+        <button class="btn btn-dark" onclick="openCreate()">+ Create your first website</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal-overlay" id="createModal" onclick="if(event.target===this)closeCreate()">
+  <div class="modal">
+    <div class="modal-title">Create new website</div>
+    <div class="modal-sub">You can change the name and design later.</div>
+    <form method="POST" action="/dashboard/website/create">
+      <div class="form-group">
+        <label class="form-label">Website Name</label>
+        <input class="form-input" name="title" placeholder="e.g. Abhi's Photography" required autofocus>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeCreate()">Cancel</button>
+        <button type="submit" class="btn btn-dark">Create & Open Editor →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openCreate(){ document.getElementById('createModal').classList.add('open'); }
+function closeCreate(){ document.getElementById('createModal').classList.remove('open'); }
+</script>
+{% endblock %}

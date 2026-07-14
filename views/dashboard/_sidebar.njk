@@ -40,6 +40,15 @@
       <a class="nav-item {% if activePage == 'collections' %}active{% endif %}" href="/dashboard/products/collections">🗂 Collections</a>
     </div>
     {% endif %}
+    <a class="nav-item {% if activePage == 'website' %}active{% endif %}" href="/dashboard/website">🌐 Website</a>
+    {% if activePage == 'website' %}
+    <div class="nav-sub">
+      <a class="nav-item {% if websiteSubPage == 'pages' %}active{% endif %}" href="/dashboard/website">🗂 All Websites</a>
+      {% if websiteId %}
+      <a class="nav-item {% if websiteSubPage == 'editor' %}active{% endif %}" href="/dashboard/website/{{ websiteId }}/editor">✏️ Editor</a>
+      {% endif %}
+    </div>
+    {% endif %}
     <a class="nav-item {% if activePage == 'forms' %}active{% endif %}" href="/dashboard/forms">📋 Forms</a>
     <a class="nav-item {% if activePage == 'booking' %}active{% endif %}" href="/dashboard/booking">📅 Booking</a>
     {% if bookingSiteId %}
