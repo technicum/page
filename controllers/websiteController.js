@@ -10,6 +10,12 @@ function parseJSON(raw, fallback) {
   try { return JSON.parse(raw) } catch { return fallback }
 }
 
+function parseMeta(raw) {
+  if (!raw) return {}
+  if (typeof raw === 'object') return raw
+  try { return JSON.parse(raw) } catch { return {} }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    DASHBOARD — list all websites
    GET /dashboard/website
@@ -54,16 +60,18 @@ exports.create = async (req, res) => {
   )
   const websiteId = result.insertId
 
-  // Create default Home page
+  // Create default Home page in ms_posts
   const homeSections = JSON.stringify([
-    { id: uuidv4(), type: 'hero',         data: { headline: `Welcome to ${title || 'My Website'}`, subheadline: 'We deliver exceptional results', cta_label: 'Get Started', cta_url: '#contact', bg_color: '#6366f1', text_color: '#ffffff' } },
-    { id: uuidv4(), type: 'about',        data: { heading: 'About Us', text: 'Tell your story here. What makes you unique? What do you stand for?', image: '', layout: 'image_right' } },
-    { id: uuidv4(), type: 'services',     data: { heading: 'Our Services', items: [{ icon: '⚡', title: 'Service One', desc: 'Brief description of this service' }, { icon: '🎯', title: 'Service Two', desc: 'Brief description of this service' }, { icon: '💎', title: 'Service Three', desc: 'Brief description of this service' }] } },
-    { id: uuidv4(), type: 'contact',      data: { heading: 'Get in Touch', email: '', phone: '', address: '', show_form: true } }
+    { id: uuidv4(), type: 'hero',     data: { headline: `Welcome to ${title || 'My Website'}`, subheadline: 'We deliver exceptional results', cta_label: 'Get Started', cta_url: '#contact', bg_color: '#6366f1', text_color: '#ffffff' } },
+    { id: uuidv4(), type: 'about',    data: { heading: 'About Us', text: 'Tell your story here. What makes you unique? What do you stand for?', image: '', layout: 'image_right' } },
+    { id: uuidv4(), type: 'services', data: { heading: 'Our Services', items: [{ icon: '⚡', title: 'Service One', desc: 'Brief description of this service' }, { icon: '🎯', title: 'Service Two', desc: 'Brief description of this service' }, { icon: '💎', title: 'Service Three', desc: 'Brief description of this service' }] } },
+    { id: uuidv4(), type: 'contact',  data: { heading: 'Get in Touch', email: '', phone: '', address: '', show_form: true } }
   ])
+  const homeMeta = JSON.stringify({ is_home: 1, seo_title: '', seo_desc: '' })
   await db.execute(
-    'INSERT INTO ms_website_pages (website_id, title, slug, is_home, sections, sort_order) VALUES (?,?,?,?,?,?)',
-    [websiteId, 'Home', 'home', 1, homeSections, 0]
+    `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta, sort_order)
+     VALUES (?,?,?,?,?,?,?,?,?)`,
+    [user.id, websiteId, 'page', 'Home', 'home', 'published', homeSections, homeMeta, 0]
   )
   res.redirect('/dashboard/website/' + websiteId + '/editor')
 }
@@ -83,16 +91,22 @@ exports.editor = async (req, res) => {
 
   const pageId = parseInt(req.query.page) || null
   const pages = await db.query(
-    'SELECT * FROM ms_website_pages WHERE website_id = ? ORDER BY sort_order, id', [websiteId]
+    `SELECT *, JSON_EXTRACT(meta,'$.is_home') AS is_home, JSON_EXTRACT(meta,'$.seo_title') AS seo_title, JSON_EXTRACT(meta,'$.seo_desc') AS seo_desc
+     FROM ms_posts WHERE website_id = ? AND post_type = 'page' ORDER BY sort_order ASC, id ASC`,
+    [websiteId]
   )
-  pages.forEach(p => { p.sections = parseJSON(p.sections, []) })
+  pages.forEach(p => {
+    p.sections = parseJSON(p.sections, [])
+    p.is_home   = p.is_home == 1 || p.is_home === '1' || p.is_home === true
+    p.is_published = p.status === 'published' ? 1 : 0
+  })
 
-  let activePage = pages.find(p => p.id === pageId) || pages.find(p => p.is_home) || pages[0] || null
+  let activeSitePage = pages.find(p => p.id === pageId) || pages.find(p => p.is_home) || pages[0] || null
 
   res.render('dashboard/website-editor.njk', {
     title: website.title + ' — Editor',
     activePage: 'website',
-    user, website, pages, activeSitePage: activePage
+    user, website, pages, activeSitePage
   })
 }
 
@@ -109,7 +123,8 @@ exports.saveSections = async (req, res) => {
 
   const sections = req.body.sections
   await db.execute(
-    'UPDATE ms_website_pages SET sections=?, updated_at=NOW() WHERE id=? AND website_id=?',
+    `UPDATE ms_posts SET sections=?, updated_at=NOW()
+     WHERE id=? AND website_id=? AND post_type='page'`,
     [JSON.stringify(sections), pageId, websiteId]
   )
   res.json({ ok: true })
@@ -126,12 +141,14 @@ exports.addPage = async (req, res) => {
   if (!website) return res.json({ ok: false })
   const { title } = req.body
   const s = slug(title || 'page')
-  const count = await db.first('SELECT COUNT(*) as c FROM ms_website_pages WHERE website_id=?', [websiteId])
+  const count = await db.first(`SELECT COUNT(*) AS c FROM ms_posts WHERE website_id=? AND post_type='page'`, [websiteId])
+  const meta = JSON.stringify({ is_home: 0, seo_title: '', seo_desc: '' })
   const result = await db.execute(
-    'INSERT INTO ms_website_pages (website_id, title, slug, sections, sort_order) VALUES (?,?,?,?,?)',
-    [websiteId, title || 'New Page', s, '[]', count.c]
+    `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta, sort_order)
+     VALUES (?,?,?,?,?,?,?,?,?)`,
+    [user.id, websiteId, 'page', title || 'New Page', s, 'published', '[]', meta, count.c]
   )
-  res.json({ ok: true, page: { id: result.insertId, title: title || 'New Page', slug: s, sections: [] } })
+  res.json({ ok: true, page: { id: result.insertId, title: title || 'New Page', slug: s, sections: [], is_home: 0, is_published: 1 } })
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -144,9 +161,14 @@ exports.deletePage = async (req, res) => {
   const pageId    = parseInt(req.params.pageId)
   const website = await db.first('SELECT id FROM ms_websites WHERE id=? AND account_id=?', [websiteId, user.id])
   if (!website) return res.json({ ok: false })
-  const page = await db.first('SELECT is_home FROM ms_website_pages WHERE id=? AND website_id=?', [pageId, websiteId])
-  if (!page || page.is_home) return res.json({ ok: false, error: 'Cannot delete home page' })
-  await db.execute('DELETE FROM ms_website_pages WHERE id=?', [pageId])
+  const page = await db.first(
+    `SELECT meta FROM ms_posts WHERE id=? AND website_id=? AND post_type='page'`,
+    [pageId, websiteId]
+  )
+  if (!page) return res.json({ ok: false, error: 'Page not found' })
+  const m = parseMeta(page.meta)
+  if (m.is_home) return res.json({ ok: false, error: 'Cannot delete home page' })
+  await db.execute(`DELETE FROM ms_posts WHERE id=? AND website_id=? AND post_type='page'`, [pageId, websiteId])
   res.json({ ok: true })
 }
 
@@ -162,7 +184,10 @@ exports.renamePage = async (req, res) => {
   if (!website) return res.json({ ok: false })
   const { title } = req.body
   const s = slug(title || 'page')
-  await db.execute('UPDATE ms_website_pages SET title=?, slug=? WHERE id=? AND website_id=?', [title, s, pageId, websiteId])
+  await db.execute(
+    `UPDATE ms_posts SET title=?, slug=? WHERE id=? AND website_id=? AND post_type='page'`,
+    [title, s, pageId, websiteId]
+  )
   res.json({ ok: true })
 }
 
@@ -202,9 +227,19 @@ exports.saveSEO = async (req, res) => {
   const pageId    = parseInt(req.params.pageId)
   const website = await db.first('SELECT id FROM ms_websites WHERE id=? AND account_id=?', [websiteId, user.id])
   if (!website) return res.json({ ok: false })
+
+  // Update seo fields inside meta JSON
+  const page = await db.first(
+    `SELECT meta FROM ms_posts WHERE id=? AND website_id=? AND post_type='page'`,
+    [pageId, websiteId]
+  )
+  if (!page) return res.json({ ok: false })
+  const m = parseMeta(page.meta)
+  m.seo_title = req.body.seo_title || ''
+  m.seo_desc  = req.body.seo_desc  || ''
   await db.execute(
-    'UPDATE ms_website_pages SET seo_title=?, seo_desc=? WHERE id=? AND website_id=?',
-    [req.body.seo_title || null, req.body.seo_desc || null, pageId, websiteId]
+    `UPDATE ms_posts SET meta=? WHERE id=? AND website_id=? AND post_type='page'`,
+    [JSON.stringify(m), pageId, websiteId]
   )
   res.json({ ok: true })
 }
@@ -230,6 +265,8 @@ exports.publish = async (req, res) => {
 exports.destroy = async (req, res) => {
   const user = req.session.user
   const websiteId = parseInt(req.params.id)
+  // Delete all pages from ms_posts first
+  await db.execute(`DELETE FROM ms_posts WHERE website_id=? AND post_type='page'`, [websiteId])
   await db.execute('DELETE FROM ms_websites WHERE id=? AND account_id=?', [websiteId, user.id])
   res.redirect('/dashboard/website')
 }
@@ -248,10 +285,15 @@ exports.publicSite = async (req, res) => {
   website.settings = parseJSON(website.settings, {})
 
   const pages = await db.query(
-    'SELECT * FROM ms_website_pages WHERE website_id=? AND is_published=1 ORDER BY sort_order, id',
+    `SELECT *, JSON_EXTRACT(meta,'$.is_home') AS is_home, JSON_EXTRACT(meta,'$.seo_title') AS seo_title, JSON_EXTRACT(meta,'$.seo_desc') AS seo_desc
+     FROM ms_posts WHERE website_id=? AND post_type='page' AND status='published' ORDER BY sort_order ASC, id ASC`,
     [website.id]
   )
-  pages.forEach(p => { p.sections = parseJSON(p.sections, []) })
+  pages.forEach(p => {
+    p.sections  = parseJSON(p.sections, [])
+    p.is_home   = p.is_home == 1 || p.is_home === '1' || p.is_home === true
+    p.is_published = 1
+  })
   if (!pages.length) return res.status(404).send('No pages published')
 
   const current = pages.find(p => p.slug === pageSlug) ||
