@@ -1256,6 +1256,16 @@ function buildBlockFields(block, container){
       ta.className='fg-input fg-textarea'; ta.style.minHeight='60px';
       ta.placeholder=f.ph||''; ta.value=block[f.id]||'';
       ta.addEventListener('input',function(){block[f.id]=this.value; markDirty(); debouncedPreview();});
+      // Show ✨ AI button for bio field on avatar block
+      if(f.id==='bio' && block.type==='avatar'){
+        var aiRow=document.createElement('div'); aiRow.style.cssText='display:flex;justify-content:flex-end;margin-bottom:4px;';
+        var aiBtn=document.createElement('button'); aiBtn.type='button';
+        aiBtn.style.cssText='font-size:11px;font-weight:600;color:#6366f1;background:#eef2ff;border:1px solid #c7d2fe;border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;';
+        aiBtn.innerHTML='✨ Write with AI';
+        (function(field){ aiBtn.onclick=function(){ openAIModal(field); }; })(ta);
+        aiRow.appendChild(aiBtn);
+        fg.appendChild(aiRow);
+      }
       fg.appendChild(ta);
     } else if(f.type==='select'){
       var sel=document.createElement('select'); sel.className='fg-select';
@@ -1773,6 +1783,134 @@ document.addEventListener('DOMContentLoaded', function(){
   renderBlocks();
   loadContactInfo();
   debouncedPreview();
+});
+</script>
+
+<!-- ── AI Bio Writer Modal ──────────────────────────────────────────── -->
+<script src="/js/pz-ai.js"></script>
+<style>
+.ai-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1100;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+.ai-modal-overlay.open{display:flex;}
+.ai-modal{background:#fff;border-radius:16px;width:100%;max-width:440px;margin:16px;box-shadow:0 24px 60px rgba(0,0,0,.2);overflow:hidden;}
+.ai-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid #f0f0f3;}
+.ai-modal-title{font-size:15px;font-weight:700;color:#111827;display:flex;align-items:center;gap:8px;}
+.ai-modal-close{border:none;background:none;font-size:18px;cursor:pointer;color:#9ca3af;line-height:1;padding:4px;}
+.ai-modal-body{padding:18px 20px;}
+.ai-fg{margin-bottom:14px;}
+.ai-fg label{display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
+.ai-fg input,.ai-fg select{width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s;}
+.ai-fg input:focus,.ai-fg select:focus{border-color:#6366f1;}
+.ai-tone-row{display:flex;gap:8px;}
+.ai-tone-btn{flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fafafa;font-size:12px;font-weight:600;cursor:pointer;color:#6b7280;transition:all .15s;font-family:inherit;}
+.ai-tone-btn.active{border-color:#6366f1;background:#eef2ff;color:#6366f1;}
+.ai-generate-btn{width:100%;padding:11px;background:#111827;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ai-generate-btn:hover{background:#374151;}
+.ai-results{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
+.ai-result-card{border:1.5px solid #e5e7eb;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;color:#374151;cursor:pointer;transition:all .15s;position:relative;}
+.ai-result-card:hover{border-color:#6366f1;background:#fafbff;}
+.ai-result-card .ai-use-btn{position:absolute;top:8px;right:8px;font-size:11px;font-weight:600;color:#6366f1;background:#eef2ff;border:none;border-radius:6px;padding:3px 8px;cursor:pointer;font-family:inherit;opacity:0;transition:opacity .15s;}
+.ai-result-card:hover .ai-use-btn{opacity:1;}
+.ai-detected{font-size:11px;color:#9ca3af;margin:0 0 14px;display:flex;align-items:center;gap:5px;}
+.ai-detected span{background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:99px;font-weight:600;}
+</style>
+
+<div class="ai-modal-overlay" id="aiModal">
+  <div class="ai-modal">
+    <div class="ai-modal-head">
+      <div class="ai-modal-title">✨ AI Bio Writer</div>
+      <button class="ai-modal-close" onclick="closeAIModal()">✕</button>
+    </div>
+    <div class="ai-modal-body">
+      <div class="ai-fg">
+        <label>Your Name</label>
+        <input id="ai-name" type="text" placeholder="e.g. Priya Sharma">
+      </div>
+      <div class="ai-fg">
+        <label>Profession / Business</label>
+        <input id="ai-profession" type="text" placeholder="e.g. Dentist, Yoga Trainer, Fashion Designer" oninput="updateAIDetect()">
+      </div>
+      <div class="ai-fg">
+        <label>Keywords <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional — speciality, skills, niche)</span></label>
+        <input id="ai-keywords" type="text" placeholder="e.g. cosmetic dentistry, implants, smile makeover">
+      </div>
+      <div class="ai-fg">
+        <label>Tone</label>
+        <div class="ai-tone-row" id="aiToneRow">
+          <button class="ai-tone-btn" data-tone="professional" onclick="setAITone(this)">🎩 Professional</button>
+          <button class="ai-tone-btn active" data-tone="friendly" onclick="setAITone(this)">😊 Friendly</button>
+          <button class="ai-tone-btn" data-tone="bold" onclick="setAITone(this)">💪 Bold</button>
+        </div>
+      </div>
+      <p class="ai-detected" id="aiDetected" style="display:none;">Detected type: <span id="aiDetectedType"></span></p>
+      <button class="ai-generate-btn" onclick="generateAIBios()">✨ Generate Bios</button>
+      <div class="ai-results" id="aiResults"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var _aiTone = 'friendly';
+var _aiTargetField = null;
+
+function openAIModal(fieldEl) {
+  _aiTargetField = fieldEl;
+  // Pre-fill name from blocks if available
+  var avatarBlock = BLOCKS.find(function(b){ return b.type === 'avatar'; });
+  if(avatarBlock) {
+    if(avatarBlock.name) document.getElementById('ai-name').value = avatarBlock.name;
+  }
+  document.getElementById('aiResults').innerHTML = '';
+  document.getElementById('aiDetected').style.display = 'none';
+  document.getElementById('aiModal').classList.add('open');
+  setTimeout(function(){ document.getElementById('ai-profession').focus(); }, 100);
+}
+function closeAIModal() {
+  document.getElementById('aiModal').classList.remove('open');
+}
+function setAITone(btn) {
+  document.querySelectorAll('.ai-tone-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  _aiTone = btn.dataset.tone;
+}
+function updateAIDetect() {
+  var prof = document.getElementById('ai-profession').value;
+  var kw   = document.getElementById('ai-keywords').value;
+  if(prof.length > 2) {
+    var type = pzAI.detectType(prof, kw);
+    var label = type.charAt(0).toUpperCase() + type.slice(1);
+    document.getElementById('aiDetectedType').textContent = label;
+    document.getElementById('aiDetected').style.display = 'flex';
+  } else {
+    document.getElementById('aiDetected').style.display = 'none';
+  }
+}
+function generateAIBios() {
+  var bios = pzAI.generateBios({
+    name:       document.getElementById('ai-name').value,
+    profession: document.getElementById('ai-profession').value,
+    keywords:   document.getElementById('ai-keywords').value,
+    tone:       _aiTone
+  });
+  var container = document.getElementById('aiResults');
+  container.innerHTML = '';
+  bios.forEach(function(bio) {
+    var card = document.createElement('div');
+    card.className = 'ai-result-card';
+    card.innerHTML = bio + '<button class="ai-use-btn">Use this →</button>';
+    card.querySelector('.ai-use-btn').onclick = function(e) {
+      e.stopPropagation();
+      if(_aiTargetField) {
+        _aiTargetField.value = bio;
+        _aiTargetField.dispatchEvent(new Event('input'));
+      }
+      closeAIModal();
+    };
+    card.onclick = function() { card.querySelector('.ai-use-btn').click(); };
+    container.appendChild(card);
+  });
+}
+document.getElementById('aiModal').addEventListener('click', function(e){
+  if(e.target === this) closeAIModal();
 });
 </script>
 </body>
