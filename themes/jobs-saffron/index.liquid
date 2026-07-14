@@ -601,6 +601,138 @@ body{font-family:'{{ _font }}',system-ui,sans-serif;color:{{ _text_color }};min-
     📅 {{ block.heading | default: 'Book an appointment' }}
   </a>
 </div>
+{% when 'announcement' %}
+<div style="border-radius:12px;padding:14px 16px;text-align:center;background:{{ block.bg_color | default: '#fef3c7' }};margin:0;">
+  <p style="margin:0 0 {% if block.btn_text != blank %}10px{% else %}0{% endif %};font-size:14px;font-weight:500;color:{{ block.text_color | default: '#92400e' }};">{{ block.text }}</p>
+  {% if block.btn_text != blank and block.btn_url != blank %}
+  <a href="{{ block.btn_url }}" target="_blank" rel="noopener" style="display:inline-block;padding:7px 20px;border-radius:99px;border:1.5px solid {{ block.text_color | default: '#92400e' }};color:{{ block.text_color | default: '#92400e' }};font-size:12px;font-weight:600;text-decoration:none;">{{ block.btn_text }}</a>
+  {% endif %}
+</div>
+
+{% when 'video' %}
+{% assign _vid_url = block.url | default: '' %}
+{% assign _vid_embed = '' %}
+{% if _vid_url contains 'youtu' %}
+  {% assign _vid_id = _vid_url | split: 'v=' | last | split: '&' | first %}
+  {% if _vid_url contains 'youtu.be/' %}{% assign _vid_id = _vid_url | split: 'youtu.be/' | last | split: '?' | first %}{% endif %}
+  {% assign _vid_embed = 'https://www.youtube.com/embed/' | append: _vid_id %}
+{% elsif _vid_url contains 'vimeo' %}
+  {% assign _vid_id = _vid_url | split: 'vimeo.com/' | last | split: '?' | first %}
+  {% assign _vid_embed = 'https://player.vimeo.com/video/' | append: _vid_id %}
+{% endif %}
+<div style="border-radius:12px;overflow:hidden;">
+  {% if _vid_embed != blank %}
+  <div style="position:relative;padding-bottom:56.25%;height:0;">
+    <iframe src="{{ _vid_embed }}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen loading="lazy"></iframe>
+  </div>
+  {% elsif _vid_url != blank %}
+  <video controls style="width:100%;border-radius:12px;display:block;">
+    <source src="{{ _vid_url }}">
+  </video>
+  {% endif %}
+  {% if block.caption != blank %}<p style="font-size:12px;opacity:.6;text-align:center;margin:6px 0 0;">{{ block.caption }}</p>{% endif %}
+</div>
+
+{% when 'gallery' %}
+{% if block.images and block.images.size > 0 %}
+<div>
+  {% if block.caption != blank %}<p style="font-size:13px;font-weight:600;text-align:center;margin:0 0 10px;">{{ block.caption }}</p>{% endif %}
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;border-radius:12px;overflow:hidden;">
+    {% for _img in block.images %}
+    <div style="position:relative;padding-bottom:75%;overflow:hidden;background:#f3f4f6;">
+      {% if _img.url != blank %}<img src="{{ _img.url }}" alt="{{ _img.caption | default: '' }}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;" loading="lazy">{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% when 'countdown' %}
+<div style="border-radius:12px;padding:20px 16px;text-align:center;background:rgba(0,0,0,0.04);" id="cd-{{ block.id }}">
+  {% if block.heading != blank %}<p style="font-size:14px;font-weight:600;margin:0 0 14px;opacity:.8;">{{ block.heading }}</p>{% endif %}
+  <div style="display:flex;justify-content:center;gap:12px;" id="cd-display-{{ block.id }}">
+    <div style="text-align:center;"><span style="font-size:32px;font-weight:800;line-height:1;" id="cd-d-{{ block.id }}">--</span><div style="font-size:10px;opacity:.5;margin-top:2px;font-weight:600;letter-spacing:.5px;">DAYS</div></div>
+    <div style="font-size:28px;font-weight:300;opacity:.3;line-height:1.2;">:</div>
+    <div style="text-align:center;"><span style="font-size:32px;font-weight:800;line-height:1;" id="cd-h-{{ block.id }}">--</span><div style="font-size:10px;opacity:.5;margin-top:2px;font-weight:600;letter-spacing:.5px;">HRS</div></div>
+    <div style="font-size:28px;font-weight:300;opacity:.3;line-height:1.2;">:</div>
+    <div style="text-align:center;"><span style="font-size:32px;font-weight:800;line-height:1;" id="cd-m-{{ block.id }}">--</span><div style="font-size:10px;opacity:.5;margin-top:2px;font-weight:600;letter-spacing:.5px;">MINS</div></div>
+    <div style="font-size:28px;font-weight:300;opacity:.3;line-height:1.2;">:</div>
+    <div style="text-align:center;"><span style="font-size:32px;font-weight:800;line-height:1;" id="cd-s-{{ block.id }}">--</span><div style="font-size:10px;opacity:.5;margin-top:2px;font-weight:600;letter-spacing:.5px;">SECS</div></div>
+  </div>
+  {% if block.btn_text != blank and block.btn_url != blank %}
+  <div class="b-link" style="margin-top:14px;"><a href="{{ block.btn_url }}" target="_blank" rel="noopener">{{ block.btn_text }}</a></div>
+  {% endif %}
+</div>
+<script>(function(){
+  var t=new Date('{{ block.target_date }}').getTime();
+  function tick(){var n=new Date().getTime(),d=t-n;
+    if(isNaN(t)||d<0){document.getElementById('cd-display-{{ block.id }}').innerHTML='<span style="font-size:18px;opacity:.5;">Event has passed</span>';return;}
+    document.getElementById('cd-d-{{ block.id }}').textContent=String(Math.floor(d/86400000)).padStart(2,'0');
+    document.getElementById('cd-h-{{ block.id }}').textContent=String(Math.floor((d%86400000)/3600000)).padStart(2,'0');
+    document.getElementById('cd-m-{{ block.id }}').textContent=String(Math.floor((d%3600000)/60000)).padStart(2,'0');
+    document.getElementById('cd-s-{{ block.id }}').textContent=String(Math.floor((d%60000)/1000)).padStart(2,'0');
+  }tick();setInterval(tick,1000);
+})();</script>
+
+{% when 'coupon' %}
+<div style="border-radius:12px;border:2px dashed rgba(0,0,0,0.15);padding:16px;text-align:center;background:rgba(0,0,0,0.02);">
+  {% if block.heading != blank %}<p style="font-size:13px;font-weight:600;margin:0 0 8px;opacity:.7;">{{ block.heading }}</p>{% endif %}
+  {% if block.description != blank %}<p style="font-size:12px;margin:0 0 12px;opacity:.6;">{{ block.description }}</p>{% endif %}
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">
+    <span id="cpn-{{ block.id }}" style="font-size:22px;font-weight:800;letter-spacing:3px;font-family:monospace;">{{ block.code }}</span>
+    <button onclick="(function(){navigator.clipboard&&navigator.clipboard.writeText('{{ block.code }}');var b=document.getElementById('cpb-{{ block.id }}');b.textContent='✓ Copied';setTimeout(function(){b.textContent='Copy';},2000);})()" id="cpb-{{ block.id }}" style="padding:6px 16px;border-radius:99px;border:1.5px solid currentColor;background:transparent;font-size:12px;font-weight:600;cursor:pointer;opacity:.7;font-family:inherit;">Copy</button>
+  </div>
+  {% if block.expiry != blank %}<p style="font-size:11px;margin:10px 0 0;opacity:.45;">Expires: {{ block.expiry }}</p>{% endif %}
+</div>
+
+{% when 'payment_link' %}
+<div style="border-radius:12px;padding:18px 16px;text-align:center;background:rgba(0,0,0,0.03);">
+  {% if block.heading != blank %}<p style="font-size:15px;font-weight:700;margin:0 0 4px;">{{ block.heading }}</p>{% endif %}
+  {% if block.amount != blank %}<p style="font-size:26px;font-weight:800;margin:0 0 4px;">{{ block.amount }}</p>{% endif %}
+  {% if block.note != blank %}<p style="font-size:12px;opacity:.55;margin:0 0 14px;">🔒 {{ block.note }}</p>{% endif %}
+  {% if block.url != blank %}
+  <div class="b-link"><a href="{{ block.url }}" target="_blank" rel="noopener">{{ block.btn_text | default: 'Pay Now' }}</a></div>
+  {% endif %}
+</div>
+
+{% when 'brochure' %}
+<div style="border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;background:rgba(0,0,0,0.03);">
+  <div style="font-size:32px;flex-shrink:0;">📄</div>
+  <div style="flex:1;min-width:0;">
+    {% if block.heading != blank %}<p style="font-size:14px;font-weight:700;margin:0 0 2px;">{{ block.heading }}</p>{% endif %}
+    {% if block.note != blank %}<p style="font-size:12px;opacity:.55;margin:0;">{{ block.note }}</p>{% endif %}
+  </div>
+  {% if block.file_url != blank %}
+  <a href="{{ block.file_url }}" target="_blank" rel="noopener" download style="flex-shrink:0;padding:8px 16px;border-radius:99px;border:1.5px solid currentColor;font-size:12px;font-weight:600;text-decoration:none;opacity:.75;white-space:nowrap;">{{ block.btn_text | default: 'Download' }}</a>
+  {% endif %}
+</div>
+
+{% when 'poll' %}
+{% assign _poll_opts = block.options | default: '' %}
+{% assign _poll_arr = _poll_opts | split: '\n' %}
+<div style="border-radius:12px;padding:16px;background:rgba(0,0,0,0.03);" id="poll-{{ block.id }}">
+  {% if block.question != blank %}<p style="font-size:15px;font-weight:700;margin:0 0 12px;text-align:center;">{{ block.question }}</p>{% endif %}
+  <div id="poll-opts-{{ block.id }}">
+    {% for _opt in _poll_arr %}
+    {% if _opt != blank %}
+    <button onclick="pzPollVote('{{ block.id }}','{{ forloop.index0 }}',this)" data-idx="{{ forloop.index0 }}" style="display:block;width:100%;padding:10px 14px;margin-bottom:6px;border-radius:8px;border:1.5px solid rgba(0,0,0,0.15);background:transparent;font-size:13px;font-weight:500;cursor:pointer;text-align:left;font-family:inherit;transition:all .15s;">{{ _opt | strip }}</button>
+    {% endif %}
+    {% endfor %}
+  </div>
+  <div id="poll-results-{{ block.id }}" style="display:none;font-size:12px;text-align:center;opacity:.6;padding:8px 0 0;">Thanks for voting! 🎉</div>
+</div>
+<script>
+function pzPollVote(pollId,idx,btn){
+  var wrap=document.getElementById('poll-opts-'+pollId);
+  var res=document.getElementById('poll-results-'+pollId);
+  if(!wrap)return;
+  wrap.querySelectorAll('button').forEach(function(b){b.disabled=true;b.style.opacity=b===btn?'1':'.4';});
+  btn.style.borderColor='currentColor';btn.style.fontWeight='700';
+  if(res)res.style.display='block';
+  fetch('/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'poll_vote',poll_id:pollId,option:idx,url:location.href})}).catch(function(){});
+}
+</script>
+
 {% endcase %}
 </div>{% endif %}{% endfor %}{% endif %}
 </div>

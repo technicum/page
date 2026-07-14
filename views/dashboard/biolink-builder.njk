@@ -652,10 +652,6 @@ var BLOCK_TYPES = {
   business_hours:{label:'Business Hours',icon:'🕐',cat:'advanced',desc:'Opening hours',defaults:{heading:'Business Hours',mon_open:'9:00 AM',mon_close:'6:00 PM',tue_open:'9:00 AM',tue_close:'6:00 PM',wed_open:'9:00 AM',wed_close:'6:00 PM',thu_open:'9:00 AM',thu_close:'6:00 PM',fri_open:'9:00 AM',fri_close:'6:00 PM',sat_open:'',sat_close:'',sun_open:'',sun_close:''},
     fields:[{id:'heading',label:'Heading',type:'text',ph:'Business Hours'},{id:'_hours',label:'Hours',type:'hours'}]},
 
-  /* ── New standard blocks ── */
-  video:{label:'Video',icon:'▶️',cat:'standard',desc:'YouTube, Vimeo or TikTok',defaults:{url:'',caption:''},
-    fields:[{id:'url',label:'Video URL',type:'text',ph:'https://youtube.com/watch?v=...'},{id:'caption',label:'Caption (optional)',type:'text',ph:''}]},
-
   divider:{label:'Divider',icon:'—',cat:'standard',desc:'Section separator',defaults:{style:'line',spacing:'16'},
     fields:[{id:'style',label:'Style',type:'select',opts:[{v:'line',l:'Line'},{v:'dots',l:'Dots ···'},{v:'gradient',l:'Gradient bar'},{v:'space',l:'Space only'}]},{id:'spacing',label:'Spacing',type:'select',opts:[{v:'8',l:'Small (8px)'},{v:'16',l:'Medium (16px)'},{v:'32',l:'Large (32px)'},{v:'48',l:'X-Large (48px)'}]}]},
 
@@ -680,7 +676,32 @@ var BLOCK_TYPES = {
     fields:[{id:'heading',label:'Heading',type:'text',ph:'What people say'},{id:'items',label:'Reviews',type:'items',item_fields:[{id:'name',type:'text',ph:'Customer name'},{id:'rating',type:'select',opts:[{v:'5',l:'★★★★★'},{v:'4',l:'★★★★☆'},{v:'3',l:'★★★☆☆'},{v:'2',l:'★★☆☆☆'},{v:'1',l:'★☆☆☆☆'}]},{id:'review',type:'textarea',ph:'Great service...'}]}]},
 
   html:{label:'Custom HTML',icon:'</>',cat:'advanced',desc:'Raw HTML or iframe embed',defaults:{code:''},
-    fields:[{id:'code',label:'HTML / iframe code',type:'textarea',ph:'<iframe src="..."></iframe>'}]}
+    fields:[{id:'code',label:'HTML / iframe code',type:'textarea',ph:'<iframe src="..."></iframe>'}]},
+
+  /* ── 8 new blocks ── */
+  announcement:{label:'Announcement',icon:'📣',cat:'standard',desc:'Highlighted notice bar with optional CTA',defaults:{text:'🎉 Something exciting is happening!',btn_text:'Learn more',btn_url:'',bg_color:'#fef3c7',text_color:'#92400e'},
+    fields:[{id:'text',label:'Message',type:'textarea',ph:'🎉 Something exciting is happening!'},{id:'btn_text',label:'Button text',type:'text',ph:'Learn more'},{id:'btn_url',label:'Button URL',type:'text',ph:'https://'},{id:'bg_color',label:'Background',type:'color',ph:'#fef3c7'},{id:'text_color',label:'Text color',type:'color',ph:'#92400e'}]},
+
+  video:{label:'Video',icon:'▶️',cat:'standard',desc:'YouTube, Vimeo or Reels embed',defaults:{url:'',caption:''},
+    fields:[{id:'url',label:'Video URL',type:'text',ph:'https://youtube.com/watch?v=...'},{id:'caption',label:'Caption',type:'text',ph:''}]},
+
+  gallery:{label:'Image Gallery',icon:'🖼️',cat:'standard',desc:'2-column photo grid',defaults:{images:[],caption:''},
+    fields:[{id:'images',label:'Images',type:'items',item_fields:[{id:'url',type:'image',ph:''},{id:'caption',type:'text',ph:'Caption (optional)'}]},{id:'caption',label:'Gallery title (optional)',type:'text',ph:''}]},
+
+  countdown:{label:'Countdown',icon:'⏳',cat:'standard',desc:'Live countdown to a date',defaults:{heading:'Launching soon',target_date:'',btn_text:'',btn_url:''},
+    fields:[{id:'heading',label:'Heading',type:'text',ph:'Launching soon'},{id:'target_date',label:'Target date & time',type:'text',ph:'2025-12-31T23:59'},{id:'btn_text',label:'Button text (optional)',type:'text',ph:'Notify me'},{id:'btn_url',label:'Button URL',type:'text',ph:'https://'}]},
+
+  coupon:{label:'Coupon Code',icon:'🎟️',cat:'standard',desc:'Styled promo code with copy button',defaults:{heading:'Special Offer',code:'SAVE20',description:'Use this code at checkout',expiry:''},
+    fields:[{id:'heading',label:'Heading',type:'text',ph:'Special Offer'},{id:'code',label:'Coupon code',type:'text',ph:'SAVE20'},{id:'description',label:'Description',type:'text',ph:'Use this code at checkout'},{id:'expiry',label:'Expires on (optional)',type:'text',ph:'2025-12-31'}]},
+
+  payment_link:{label:'Payment Link',icon:'💳',cat:'standard',desc:'UPI, Razorpay, Stripe or any pay link',defaults:{heading:'Pay Now',amount:'',btn_text:'Pay Now',url:'',note:''},
+    fields:[{id:'heading',label:'Heading',type:'text',ph:'Pay Now'},{id:'amount',label:'Amount (optional)',type:'text',ph:'₹499'},{id:'note',label:'Note',type:'text',ph:'Secure payment'},{id:'btn_text',label:'Button text',type:'text',ph:'Pay Now'},{id:'url',label:'Payment URL',type:'text',ph:'https://razorpay.com/...'}]},
+
+  brochure:{label:'Brochure / File',icon:'📄',cat:'standard',desc:'Downloadable PDF or file',defaults:{heading:'Download Brochure',file_url:'',btn_text:'Download PDF',note:''},
+    fields:[{id:'heading',label:'Heading',type:'text',ph:'Download Brochure'},{id:'note',label:'Description',type:'text',ph:'Our product catalogue'},{id:'btn_text',label:'Button text',type:'text',ph:'Download PDF'},{id:'file_url',label:'File URL',type:'text',ph:'https://...'}]},
+
+  poll:{label:'Poll',icon:'📊',cat:'standard',desc:'Single-question poll, votes saved to analytics',defaults:{question:'What do you prefer?',options:['Option A','Option B','Option C'],allow_multiple:false},
+    fields:[{id:'question',label:'Question',type:'text',ph:'What do you prefer?'},{id:'options',label:'Options (one per line)',type:'textarea',ph:'Option A\nOption B\nOption C'}]}
 };
 
 var PRESETS = [
@@ -1491,7 +1512,15 @@ var BLOCK_COLORS={
   faq:         {border:'#f43f5e',bg:'#fff1f2'},
   reviews:     {border:'#f43f5e',bg:'#fff1f2'},
   map:         {border:'#22c55e',bg:'#f0fdf4'},
-  html:        {border:'#6b7280',bg:'#f9fafb'}
+  html:        {border:'#6b7280',bg:'#f9fafb'},
+  announcement:{border:'#f59e0b',bg:'#fef3c7'},
+  video:       {border:'#ef4444',bg:'#fee2e2'},
+  gallery:     {border:'#f97316',bg:'#fff7ed'},
+  countdown:   {border:'#8b5cf6',bg:'#ede9fe'},
+  coupon:      {border:'#10b981',bg:'#d1fae5'},
+  payment_link:{border:'#0ea5e9',bg:'#e0f2fe'},
+  brochure:    {border:'#64748b',bg:'#f1f5f9'},
+  poll:        {border:'#ec4899',bg:'#fce7f3'}
 };
 
 function renderBlocks(){
