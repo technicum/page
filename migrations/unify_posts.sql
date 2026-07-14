@@ -10,7 +10,10 @@
 --   mysql -u root -p pagezapper < migrations/unify_posts.sql
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- 1. Add new columns to ms_posts
+-- 1. Fix site_id to allow NULL (required for website pages which have no site_id)
+ALTER TABLE ms_posts MODIFY site_id INT(11) DEFAULT NULL;
+
+-- 2. Add new columns to ms_posts
 ALTER TABLE ms_posts
   ADD COLUMN IF NOT EXISTS post_type   ENUM('post','page') NOT NULL DEFAULT 'post' AFTER account_id,
   ADD COLUMN IF NOT EXISTS website_id  INT DEFAULT NULL AFTER site_id,

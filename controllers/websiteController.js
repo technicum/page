@@ -47,42 +47,49 @@ exports.index = async (req, res) => {
 exports.create = async (req, res) => {
   const user = req.session.user
   const { title } = req.body
-  const base = slug(title || 'my-website')
-  // ensure unique subdomain
-  let sub = base, n = 1
-  while (true) {
-    const ex = await db.first('SELECT id FROM ms_websites WHERE subdomain = ?', [sub])
-    if (!ex) break
-    sub = base + '-' + (n++)
-  }
-  const settings = JSON.stringify({
-    font: 'Inter',
-    primary: '#6366f1',
-    text: '#111827',
-    bg: '#ffffff',
-    logo: '',
-    tagline: ''
-  })
-  const result = await db.execute(
-    'INSERT INTO ms_websites (account_id, title, subdomain, settings) VALUES (?,?,?,?)',
-    [user.id, title || 'My Website', sub, settings]
-  )
-  const websiteId = result.insertId
+  try {
+    const base = slug(title || 'my-website')
+    let sub = base, n = 1
+    while (true) {
+      const ex = await db.first('SELECT id FROM ms_websites WHERE subdomain = ?', [sub])
+      if (!ex) break
+      sub = base + '-' + (n++)
+    }
+    const settings = JSON.stringify({
+      font: 'Inter', primary: '#6366f1', text: '#111827',
+      bg: '#ffffff', logo: '', tagline: ''
+    })
+    const result = await db.execute(
+      'INSERT INTO ms_websites (account_id, title, subdomain, settings) VALUES (?,?,?,?)',
+      [user.id, title || 'My Website', sub, settings]
+    )
+    const websiteId = result.insertId
 
-  // Create default Home page in ms_posts
-  const homeSections = JSON.stringify([
-    { id: uuidv4(), type: 'hero',     data: { headline: `Welcome to ${title || 'My Website'}`, subheadline: 'We deliver exceptional results', cta_label: 'Get Started', cta_url: '#contact', bg_color: '#6366f1', text_color: '#ffffff' } },
-    { id: uuidv4(), type: 'about',    data: { heading: 'About Us', text: 'Tell your story here. What makes you unique? What do you stand for?', image: '', layout: 'image_right' } },
-    { id: uuidv4(), type: 'services', data: { heading: 'Our Services', items: [{ icon: '⚡', title: 'Service One', desc: 'Brief description of this service' }, { icon: '🎯', title: 'Service Two', desc: 'Brief description of this service' }, { icon: '💎', title: 'Service Three', desc: 'Brief description of this service' }] } },
-    { id: uuidv4(), type: 'contact',  data: { heading: 'Get in Touch', email: '', phone: '', address: '', show_form: true } }
-  ])
-  const homeMeta = JSON.stringify({ is_home: 1, seo_title: '', seo_desc: '' })
-  await db.execute(
-    `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta)
-     VALUES (?,?,?,?,?,?,?,?)`,
-    [user.id, websiteId, 'page', 'Home', 'home', 'published', homeSections, homeMeta]
-  )
-  res.redirect('/dashboard/website/' + websiteId + '/editor')
+    // Create default Home page in ms_posts
+    const homeSections = JSON.stringify([
+      { id: uuidv4(), type: 'hero',     data: { headline: `Welcome to ${title || 'My Website'}`, subheadline: 'We deliver exceptional results', cta_label: 'Get Started', cta_url: '#contact', bg_color: '#6366f1', text_color: '#ffffff' } },
+      { id: uuidv4(), type: 'about',    data: { heading: 'About Us', text: 'Tell your story here. What makes you unique?', image: '', layout: 'image_right' } },
+      { id: uuidv4(), type: 'services', data: { heading: 'Our Services', items: [{ icon: '⚡', title: 'Service One', desc: 'Description' }, { icon: '🎯', title: 'Service Two', desc: 'Description' }, { icon: '💎', title: 'Service Three', desc: 'Description' }] } },
+      { id: uuidv4(), type: 'contact',  data: { heading: 'Get in Touch', email: '', phone: '', address: '', show_form: true } }
+    ])
+    const homeMeta = JSON.stringify({ is_home: 1, seo_title: '', seo_desc: '' })
+
+    try {
+      await db.execute(
+        `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta)
+         VALUES (?,?,?,?,?,?,?,?)`,
+        [user.id, websiteId, 'page', 'Home', 'home', 'published', homeSections, homeMeta]
+      )
+    } catch(e) {
+      console.error('[website.create] ms_posts insert failed:', e.message, '| columns:', e.sql || '')
+      // Continue anyway — website was created, pages just won't load
+    }
+
+    res.redirect('/dashboard/website/' + websiteId + '/editor')
+  } catch(e) {
+    console.error('[website.create] failed:', e.message)
+    res.redirect('/dashboard/website?error=' + encodeURIComponent(e.message))
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
