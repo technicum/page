@@ -92,31 +92,43 @@ exports.create = async (req, res) => {
 exports.editor = async (req, res) => {
   const user = req.session.user
   const websiteId = parseInt(req.params.id)
-  const website = await db.first(
-    'SELECT * FROM ms_websites WHERE id = ? AND account_id = ?', [websiteId, user.id]
-  )
-  if (!website) return res.redirect('/dashboard/website')
-  website.settings = parseJSON(website.settings, {})
+  try {
+    const website = await db.first(
+      'SELECT * FROM ms_websites WHERE id = ? AND account_id = ?', [websiteId, user.id]
+    )
+    if (!website) return res.redirect('/dashboard/website')
+    website.settings = parseJSON(website.settings, {})
 
-  const pageId = parseInt(req.query.page) || null
-  const pages = await db.query(
-    `SELECT *, JSON_EXTRACT(meta,'$.is_home') AS is_home, JSON_EXTRACT(meta,'$.seo_title') AS seo_title, JSON_EXTRACT(meta,'$.seo_desc') AS seo_desc
-     FROM ms_posts WHERE website_id = ? AND post_type = 'page' ORDER BY sort_order ASC, id ASC`,
-    [websiteId]
-  )
-  pages.forEach(p => {
-    p.sections = parseJSON(p.sections, [])
-    p.is_home   = p.is_home == 1 || p.is_home === '1' || p.is_home === true
-    p.is_published = p.status === 'published' ? 1 : 0
-  })
+    const pageId = parseInt(req.query.page) || null
+    let pages = []
+    try {
+      pages = await db.query(
+        `SELECT *, JSON_EXTRACT(meta,'$.is_home') AS is_home, JSON_EXTRACT(meta,'$.seo_title') AS seo_title, JSON_EXTRACT(meta,'$.seo_desc') AS seo_desc
+         FROM ms_posts WHERE website_id = ? AND post_type = 'page' ORDER BY sort_order ASC, id ASC`,
+        [websiteId]
+      ) || []
+    } catch(e) {
+      console.error('[editor] ms_posts query failed — run unify_posts.sql migration:', e.message)
+      pages = []
+    }
 
-  let activeSitePage = pages.find(p => p.id === pageId) || pages.find(p => p.is_home) || pages[0] || null
+    pages.forEach(p => {
+      p.sections = parseJSON(p.sections, [])
+      p.is_home   = p.is_home == 1 || p.is_home === '1' || p.is_home === true
+      p.is_published = p.status === 'published' ? 1 : 0
+    })
 
-  res.render('dashboard/website-editor.njk', {
-    title: website.title + ' — Editor',
-    activePage: 'website',
-    user, website, pages, activeSitePage
-  })
+    let activeSitePage = pages.find(p => p.id === pageId) || pages.find(p => p.is_home) || pages[0] || null
+
+    res.render('dashboard/website-editor.njk', {
+      title: website.title + ' — Editor',
+      activePage: 'website',
+      user, website, pages, activeSitePage
+    })
+  } catch(e) {
+    console.error('[editor] error:', e.message)
+    res.redirect('/dashboard/website')
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
