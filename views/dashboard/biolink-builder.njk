@@ -694,8 +694,8 @@ var BLOCK_TYPES = {
   coupon:{label:'Coupon Code',icon:'🎟️',cat:'standard',desc:'Styled promo code with copy button',defaults:{heading:'Special Offer',code:'SAVE20',description:'Use this code at checkout',expiry:''},
     fields:[{id:'heading',label:'Heading',type:'text',ph:'Special Offer'},{id:'code',label:'Coupon code',type:'text',ph:'SAVE20'},{id:'description',label:'Description',type:'text',ph:'Use this code at checkout'},{id:'expiry',label:'Expires on (optional)',type:'text',ph:'2025-12-31'}]},
 
-  payment_link:{label:'Payment Link',icon:'💳',cat:'standard',desc:'UPI, Razorpay, Stripe or any pay link',defaults:{heading:'Pay Now',amount:'',btn_text:'Pay Now',url:'',note:''},
-    fields:[{id:'heading',label:'Heading',type:'text',ph:'Pay Now'},{id:'amount',label:'Amount (optional)',type:'text',ph:'₹499'},{id:'note',label:'Note',type:'text',ph:'Secure payment'},{id:'btn_text',label:'Button text',type:'text',ph:'Pay Now'},{id:'url',label:'Payment URL',type:'text',ph:'https://razorpay.com/...'}]},
+  payment_link:{label:'Payment Link',icon:'💳',cat:'standard',desc:'UPI ID, QR code or pay link',defaults:{heading:'Pay Now',amount:'',upi_id:'',qr_image:'',note:'Scan QR or pay via UPI'},
+    fields:[{id:'heading',label:'Heading',type:'text',ph:'Pay Now'},{id:'amount',label:'Amount (optional)',type:'text',ph:'₹499'},{id:'upi_id',label:'UPI ID',type:'text',ph:'yourname@upi'},{id:'qr_image',label:'QR Code Image',type:'image'},{id:'note',label:'Note',type:'text',ph:'Scan QR or pay via UPI'}]},
 
   brochure:{label:'Brochure / File',icon:'📄',cat:'standard',desc:'Downloadable PDF or file',defaults:{heading:'Download Brochure',file_url:'',btn_text:'Download PDF',note:''},
     fields:[{id:'heading',label:'Heading',type:'text',ph:'Download Brochure'},{id:'note',label:'Description',type:'text',ph:'Our product catalogue'},{id:'btn_text',label:'Button text',type:'text',ph:'Download PDF'},{id:'file_url',label:'File URL',type:'text',ph:'https://...'}]},
