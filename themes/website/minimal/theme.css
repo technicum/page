@@ -1,0 +1,167 @@
+/* ══════════════════════════════════════════════════════
+   THEME: Minimal — whitespace, typography, no shadows
+   ══════════════════════════════════════════════════════ */
+
+/* ── Root overrides ──────────────────────────────────── */
+:root {
+  --radius: 8px;
+  --border: #e4e4e7;
+}
+
+/* ── Nav ─────────────────────────────────────────────── */
+nav {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  box-shadow: none;
+}
+.nav-links a {
+  border-radius: 6px;
+  font-weight: 500;
+  color: #52525b;
+}
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--primary);
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Hero ────────────────────────────────────────────── */
+.hero {
+  padding: 120px 0 96px;
+  text-align: left;
+}
+.hero .container { max-width: 800px; }
+.hero h1 {
+  font-size: clamp(36px, 7vw, 72px);
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1.0;
+  color: #09090b;
+}
+.hero p {
+  font-size: 18px;
+  color: #71717a;
+  opacity: 1;
+  margin: 24px 0 40px;
+  max-width: 520px;
+}
+.btn-primary {
+  background: #09090b;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 12px 24px;
+  box-shadow: none;
+  letter-spacing: 0;
+}
+.btn-primary:hover {
+  background: #27272a;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ── Sections ────────────────────────────────────────── */
+.section { padding: 96px 0; }
+.section-alt { background: #fafafa; }
+.section-heading {
+  text-align: left;
+  margin-bottom: 56px;
+}
+.section-heading h2 {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  color: #09090b;
+}
+.section-heading p { color: #71717a; margin: 8px 0 0; }
+
+/* ── Services ────────────────────────────────────────── */
+.service-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: none;
+  transition: border-color .15s;
+}
+.service-card:hover {
+  border-color: #a1a1aa;
+  box-shadow: none;
+  transform: none;
+}
+.service-icon {
+  font-size: 28px;
+  margin-bottom: 14px;
+  display: block;
+}
+.service-title { font-size: 16px; font-weight: 700; color: #09090b; }
+.service-desc  { font-size: 14px; color: #71717a; margin-top: 6px; }
+
+/* ── About ────────────────────────────────────────────── */
+.about-text h2 { font-weight: 800; letter-spacing: -0.5px; color: #09090b; }
+.about-text p  { color: #52525b; line-height: 1.8; }
+.about-img { border-radius: var(--radius); box-shadow: none; border: 1px solid var(--border); }
+
+/* ── Testimonials ────────────────────────────────────── */
+.testi-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+.testi-quote {
+  font-size: 15px;
+  color: #3f3f46;
+  font-style: normal;
+  border-left: 3px solid var(--primary);
+  padding-left: 14px;
+}
+.testi-avatar { background: #09090b; border-radius: 6px; }
+
+/* ── Team ────────────────────────────────────────────── */
+.team-photo { border-radius: var(--radius); background: #f4f4f5; }
+.team-name  { font-weight: 700; color: #09090b; }
+.team-role  { color: #71717a; }
+
+/* ── Gallery ─────────────────────────────────────────── */
+.gallery-item { border-radius: var(--radius); box-shadow: none; }
+.gallery-item:hover img { transform: none; }
+
+/* ── FAQ ─────────────────────────────────────────────── */
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+.faq-item.open { border-color: var(--primary); box-shadow: none; }
+.faq-q { font-size: 15px; font-weight: 600; color: #09090b; }
+.faq-a-inner { color: #52525b; }
+
+/* ── Contact ─────────────────────────────────────────── */
+.contact-form {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: none;
+  background: #fafafa;
+}
+.cf-input {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+}
+.cf-input:focus { border-color: #09090b; box-shadow: none; }
+.cf-submit { border-radius: 6px; background: #09090b; }
+.cf-submit:hover { background: #27272a; opacity: 1; }
+
+/* ── Footer ──────────────────────────────────────────── */
+footer {
+  background: #fafafa;
+  border-top: 1px solid var(--border);
+  color: #71717a;
+}
+footer a { color: #71717a; }
+footer a:hover { color: #09090b; }
+
+/* ── CTA Banner ──────────────────────────────────────── */
+.cta-banner { padding: 80px 0; }
+.cta-banner h2 { letter-spacing: -1px; }

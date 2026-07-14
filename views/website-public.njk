@@ -7,6 +7,8 @@
 {% if current.seo_desc %}<meta name="description" content="{{ current.seo_desc }}">{% endif %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family={{ (website.settings.font or 'Inter') | urlencode }}:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+{% set activeTheme = website.settings.theme or 'default' %}
+<link rel="stylesheet" href="/themes/website/{{ activeTheme }}/theme.css">
 <style>
 :root{
   --primary: {{ website.settings.primary or '#6366f1' }};
@@ -330,10 +332,11 @@ footer a{color:#9ca3af;text-decoration:none;}footer a:hover{color:#fff;}
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="/themes/website/{{ activeTheme }}/theme.js"></script>
 <script>
 function submitContact(e, form){
   e.preventDefault();
-  // Simple fetch to a contact endpoint or just show success
   document.getElementById('cf-success').style.display = 'block';
   form.reset();
 }

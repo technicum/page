@@ -1,0 +1,7 @@
+{
+  "id": "bold",
+  "name": "Bold",
+  "description": "Dark, high-contrast, vibrant — makes a strong visual statement",
+  "preview": ["#7c3aed", "#0f0f0f", "#1c1c1e"],
+  "font": "Inter"
+}

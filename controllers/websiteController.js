@@ -234,7 +234,8 @@ exports.saveSettings = async (req, res) => {
     text:    req.body.text    || existing.text,
     bg:      req.body.bg      || existing.bg,
     logo:    req.body.logo    !== undefined ? req.body.logo    : existing.logo,
-    tagline: req.body.tagline !== undefined ? req.body.tagline : existing.tagline
+    tagline: req.body.tagline !== undefined ? req.body.tagline : existing.tagline,
+    theme:   req.body.theme   || existing.theme || 'default'
   })
   const newTitle = req.body.title || website.title
   await db.execute(

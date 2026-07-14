@@ -428,15 +428,27 @@ function openPreview() {
 /* ═══════════════════════════════════════════
    STYLES SAVE
 ═══════════════════════════════════════════ */
+var activeTheme = SITE_THEME;
+
 function onStyleChange(key, val) {
   siteSettings[key] = val;
   if (key === 'primary') primary = val;
   renderCanvas();
 }
+function selectTheme(themeId) {
+  activeTheme = themeId;
+  document.querySelectorAll('.theme-card').forEach(function(el){ el.classList.remove('selected'); });
+  var tc = document.getElementById('tc-' + themeId);
+  if (tc) tc.classList.add('selected');
+}
 async function saveStyles() {
   var res = await fetch('/dashboard/website/'+WEBSITE_ID+'/settings', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ primary: siteSettings.primary, font: document.getElementById('sy-font').value })
+    body: JSON.stringify({
+      primary: siteSettings.primary,
+      font:    document.getElementById('sy-font').value,
+      theme:   activeTheme
+    })
   });
   var data = await res.json();
   if (data.ok) setStatus('saved','Styles saved');

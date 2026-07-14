@@ -1,0 +1,7 @@
+{
+  "id": "default",
+  "name": "Default",
+  "description": "Clean modern look with soft cards and smooth hover effects",
+  "preview": ["#6366f1", "#ffffff", "#111827"],
+  "font": "Inter"
+}

@@ -123,6 +123,14 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 .style-input,.style-select{width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;}
 .style-input:focus,.style-select:focus{border-color:#6366f1;}
 .color-pair{display:flex;gap:8px;align-items:center;}
+/* ── Theme picker ── */
+.theme-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid #e5e7eb;border-radius:10px;cursor:pointer;transition:all .15s;background:#fff;}
+.theme-card:hover{border-color:#a5b4fc;}
+.theme-card.selected{border-color:#6366f1;background:#eef2ff;}
+.theme-card-dots{display:flex;gap:4px;flex-shrink:0;}
+.theme-card-dots span{width:14px;height:14px;border-radius:50%;display:inline-block;}
+.theme-card-name{font-size:13px;font-weight:700;color:#111827;}
+.theme-card-desc{font-size:11px;color:#6b7280;margin-top:1px;}
 .color-pick{width:36px;height:36px;border-radius:7px;border:1.5px solid #e5e7eb;cursor:pointer;flex-shrink:0;}
 
 /* ── Section edit panel ── */
@@ -410,6 +418,44 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
             {% endfor %}
           </select>
         </div>
+        <div class="panel-label">Theme</div>
+        <div class="style-row">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="theme-card {{ 'selected' if (website.settings.theme or 'default') == 'default' }}" onclick="selectTheme('default')" id="tc-default">
+              <div class="theme-card-dots">
+                <span style="background:#6366f1;"></span>
+                <span style="background:#ffffff;border:1px solid #e5e7eb;"></span>
+                <span style="background:#111827;"></span>
+              </div>
+              <div class="theme-card-info">
+                <div class="theme-card-name">Default</div>
+                <div class="theme-card-desc">Clean modern with soft cards</div>
+              </div>
+            </div>
+            <div class="theme-card {{ 'selected' if website.settings.theme == 'minimal' }}" onclick="selectTheme('minimal')" id="tc-minimal">
+              <div class="theme-card-dots">
+                <span style="background:#18181b;"></span>
+                <span style="background:#ffffff;border:1px solid #e4e4e7;"></span>
+                <span style="background:#f4f4f5;border:1px solid #e4e4e7;"></span>
+              </div>
+              <div class="theme-card-info">
+                <div class="theme-card-name">Minimal</div>
+                <div class="theme-card-desc">Whitespace, thin borders, typography</div>
+              </div>
+            </div>
+            <div class="theme-card {{ 'selected' if website.settings.theme == 'bold' }}" onclick="selectTheme('bold')" id="tc-bold">
+              <div class="theme-card-dots">
+                <span style="background:#7c3aed;"></span>
+                <span style="background:#0f0f0f;"></span>
+                <span style="background:#1c1c1e;"></span>
+              </div>
+              <div class="theme-card-info">
+                <div class="theme-card-name">Bold</div>
+                <div class="theme-card-desc">Dark, high-contrast, vibrant</div>
+              </div>
+            </div>
+          </div>
+        </div>
         <button onclick="saveStyles()" style="width:100%;padding:9px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;">Save Styles</button>
       </div>
 
@@ -489,6 +535,7 @@ var siteSettings    = {
   tagline: '{{ website.settings.tagline or "" }}',
   logo:    '{{ website.settings.logo or "" }}'
 };
+var SITE_THEME = '{{ website.settings.theme or "default" }}';
 </script>
 
 <!-- Builder logic — external file avoids Nunjucks escaping issues -->
