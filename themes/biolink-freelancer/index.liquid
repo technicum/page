@@ -387,20 +387,24 @@ body{
 .b-coupon-expiry{font-size:11px;margin:12px 0 0;opacity:.4;}
 
 /* ── Payment Link ── */
-.b-payment{border-radius:16px;overflow:hidden;background:rgba(0,0,0,0.04);}
-.b-payment-top{padding:20px 16px 16px;text-align:center;}
-.b-payment-title{font-size:13px;font-weight:600;margin:0 0 2px;opacity:.55;text-transform:uppercase;letter-spacing:.5px;}
-.b-payment-amount{font-size:34px;font-weight:800;margin:0;line-height:1.1;}
-.b-payment-qr-wrap{background:#fff;margin:0 16px 14px;border-radius:12px;padding:12px;display:flex;justify-content:center;}
+.b-payment{border-radius:{{ _btn_radius | default: '12' }}px;overflow:hidden;
+  {% if _btn_style == 'outline' %}background:transparent;border:2px solid {{ _btn_color }};
+  {% elsif _btn_style == 'soft' %}background:{{ _btn_color }}18;border:none;
+  {% else %}background:{{ _btn_color }}18;border:none;{% endif %}}
+.b-payment-body{display:none;border-top:1px solid rgba(0,0,0,0.07);}
+.b-payment-body.open{display:block;}
+.b-payment-inner{padding:16px;}
+.b-payment-amount{font-size:28px;font-weight:800;margin:0 0 14px;text-align:center;line-height:1;}
+.b-payment-qr-wrap{background:#fff;border-radius:12px;padding:12px;display:flex;justify-content:center;margin-bottom:14px;}
 .b-payment-qr{width:160px;height:160px;object-fit:contain;display:block;}
-.b-payment-divider{display:flex;align-items:center;gap:10px;padding:0 16px;margin-bottom:14px;opacity:.35;}
+.b-payment-divider{display:flex;align-items:center;gap:10px;margin-bottom:14px;opacity:.35;}
 .b-payment-divider::before,.b-payment-divider::after{content:'';flex:1;height:1px;background:currentColor;}
 .b-payment-divider span{font-size:10px;font-weight:700;letter-spacing:.5px;white-space:nowrap;}
-.b-payment-upi-box{margin:0 16px 16px;border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;overflow:hidden;display:flex;align-items:stretch;}
+.b-payment-upi-box{border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;overflow:hidden;display:flex;align-items:stretch;margin-bottom:10px;}
 .b-payment-upi-id{flex:1;padding:12px 14px;font-size:14px;font-weight:600;font-family:monospace;background:rgba(255,255,255,0.5);}
-.b-payment-upi-copy{padding:0 18px;border:none;border-left:1.5px solid rgba(0,0,0,0.1);background:transparent;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;opacity:.65;transition:opacity .15s;white-space:nowrap;}
+.b-payment-upi-copy{width:46px;padding:0;border:none;border-left:1.5px solid rgba(0,0,0,0.1);background:transparent;cursor:pointer;opacity:.6;transition:opacity .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .b-payment-upi-copy:hover{opacity:1;}
-.b-payment-note{font-size:11px;opacity:.4;text-align:center;padding:0 16px 16px;margin:0;}
+.b-payment-note{font-size:11px;opacity:.4;text-align:center;margin:0;}
 
 /* ── Brochure ── */
 .b-brochure{border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;background:rgba(0,0,0,0.03);}
@@ -986,24 +990,31 @@ body{
 </div>
 
 {% when 'payment_link' %}
-<div class="b-payment">
-  <div class="b-payment-top">
-    {% if block.heading != blank %}<p class="b-payment-title">{{ block.heading }}</p>{% endif %}
-    {% if block.amount != blank %}<p class="b-payment-amount">{{ block.amount }}</p>{% endif %}
+<div class="b-payment" id="pay-{{ block.id }}">
+  <div class="pg-acc-head" onclick="(function(){var b=document.getElementById('pay-body-{{ block.id }}'),c=document.getElementById('pay-chv-{{ block.id }}');var o=b.classList.contains('open');b.classList.toggle('open',!o);c.classList.toggle('open',!o);})()">
+    <span class="pg-acc-title">{{ block.heading | default: 'Pay Now' }}</span>
+    <span class="pg-acc-meta">
+      {% if block.amount != blank %}<span class="pg-acc-count">{{ block.amount }}</span>{% endif %}
+      <span class="pg-acc-chevron" id="pay-chv-{{ block.id }}"></span>
+    </span>
   </div>
-  {% if block.qr_image != blank and block.qr_image != nil %}
-  <div class="b-payment-qr-wrap"><img src="{{ block.qr_image }}" alt="QR Code" class="b-payment-qr"></div>
-  {% if block.upi_id != blank and block.upi_id != nil %}
-  <div class="b-payment-divider"><span>OR PAY VIA UPI</span></div>
-  {% endif %}
-  {% endif %}
-  {% if block.upi_id != blank and block.upi_id != nil %}
-  <div class="b-payment-upi-box">
-    <span class="b-payment-upi-id">{{ block.upi_id }}</span>
-    <button class="b-payment-upi-copy" id="upicpy-{{ block.id }}" onclick="(function(){navigator.clipboard&&navigator.clipboard.writeText('{{ block.upi_id }}');var b=document.getElementById('upicpy-{{ block.id }}');b.textContent='✓ Copied';setTimeout(function(){b.textContent='Copy';},2000);})()">Copy</button>
+  <div class="b-payment-body" id="pay-body-{{ block.id }}">
+    <div class="b-payment-inner">
+      {% if block.qr_image != blank and block.qr_image != nil %}
+      <div class="b-payment-qr-wrap"><img src="{{ block.qr_image }}" alt="QR Code" class="b-payment-qr"></div>
+      {% if block.upi_id != blank and block.upi_id != nil %}
+      <div class="b-payment-divider"><span>OR PAY VIA UPI</span></div>
+      {% endif %}
+      {% endif %}
+      {% if block.upi_id != blank and block.upi_id != nil %}
+      <div class="b-payment-upi-box">
+        <span class="b-payment-upi-id">{{ block.upi_id }}</span>
+        <button class="b-payment-upi-copy" id="upicpy-{{ block.id }}" title="Copy UPI ID" onclick="(function(){navigator.clipboard&&navigator.clipboard.writeText('{{ block.upi_id }}');var b=document.getElementById('upicpy-{{ block.id }}');b.innerHTML='<svg width=14 height=14 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2.5><polyline points='20 6 9 17 4 12'></polyline></svg>';setTimeout(function(){b.innerHTML='<svg width=14 height=14 viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width=2><rect x=9 y=9 width=13 height=13 rx=2/><path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/></svg>';},2000);})()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      </div>
+      {% endif %}
+      {% if block.note != blank %}<p class="b-payment-note">🔒 {{ block.note }}</p>{% endif %}
+    </div>
   </div>
-  {% endif %}
-  {% if block.note != blank %}<p class="b-payment-note">🔒 {{ block.note }}</p>{% endif %}
 </div>
 
 {% when 'brochure' %}
