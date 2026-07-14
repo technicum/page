@@ -78,9 +78,9 @@ exports.create = async (req, res) => {
   ])
   const homeMeta = JSON.stringify({ is_home: 1, seo_title: '', seo_desc: '' })
   await db.execute(
-    `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta, sort_order)
-     VALUES (?,?,?,?,?,?,?,?,?)`,
-    [user.id, websiteId, 'page', 'Home', 'home', 'published', homeSections, homeMeta, 0]
+    `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta)
+     VALUES (?,?,?,?,?,?,?,?)`,
+    [user.id, websiteId, 'page', 'Home', 'home', 'published', homeSections, homeMeta]
   )
   res.redirect('/dashboard/website/' + websiteId + '/editor')
 }
@@ -162,12 +162,11 @@ exports.addPage = async (req, res) => {
   if (!website) return res.json({ ok: false })
   const { title } = req.body
   const s = slug(title || 'page')
-  const count = await db.first(`SELECT COUNT(*) AS c FROM ms_posts WHERE website_id=? AND post_type='page'`, [websiteId])
   const meta = JSON.stringify({ is_home: 0, seo_title: '', seo_desc: '' })
   const result = await db.execute(
-    `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta, sort_order)
-     VALUES (?,?,?,?,?,?,?,?,?)`,
-    [user.id, websiteId, 'page', title || 'New Page', s, 'published', '[]', meta, count.c]
+    `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta)
+     VALUES (?,?,?,?,?,?,?,?)`,
+    [user.id, websiteId, 'page', title || 'New Page', s, 'published', '[]', meta]
   )
   res.json({ ok: true, page: { id: result.insertId, title: title || 'New Page', slug: s, sections: [], is_home: 0, is_published: 1 } })
 }
