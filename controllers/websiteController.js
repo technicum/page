@@ -22,13 +22,22 @@ function parseMeta(raw) {
    ═══════════════════════════════════════════════════════════════════════════ */
 exports.index = async (req, res) => {
   const user = req.session.user
-  const websites = await db.query(
-    'SELECT * FROM ms_websites WHERE account_id = ? ORDER BY created_at DESC',
-    [user.id]
-  )
-  res.render('dashboard/website-list.njk', {
-    title: 'Website Builder', activePage: 'website', user, websites
-  })
+  try {
+    const websites = await db.query(
+      'SELECT * FROM ms_websites WHERE account_id = ? ORDER BY created_at DESC',
+      [user.id]
+    )
+    ;(websites || []).forEach(w => { w.settings = parseJSON(w.settings, {}) })
+    res.render('dashboard/website-list.njk', {
+      title: 'Website Builder', activePage: 'website', user, websites: websites || []
+    })
+  } catch(e) {
+    console.error('[website.index]', e.message)
+    res.render('dashboard/website-list.njk', {
+      title: 'Website Builder', activePage: 'website', user, websites: [],
+      error: 'Could not load websites. ' + e.message
+    })
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
