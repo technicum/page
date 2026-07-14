@@ -193,7 +193,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f3;overflow:hidden
 .blk-body{padding:12px;border-top:1px solid #f0f0f3;background:#f9fafb;display:none;}
 .blk-card.open .blk-body{display:block;}
 .blk-inner-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin-bottom:10px;}
-.blk-adv-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin-bottom:10px;display:none;}
+.blk-adv-card{display:none!important;}
 .blk-footer{display:flex;gap:8px;}
 .blk-adv-btn{flex:1;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;color:#6b7280;font-size:12px;font-weight:600;padding:9px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
 .blk-adv-btn:hover{background:#e9eaeb;}
@@ -1455,25 +1455,11 @@ function buildBlockFields(block, container){
   _ccfg.appendChild(_cclbl); _ccfg.appendChild(_ccpair);
   _adv.appendChild(_ccfg);
 
-  // ── Split footer: Advanced toggle + Done ────────────
-  var _chevron=document.createElement('span');
-  _chevron.style.cssText='font-size:9px;display:inline-block;transition:transform .2s;';
-  _chevron.textContent='▶';
-  var _advBtn=document.createElement('button'); _advBtn.type='button'; _advBtn.className='blk-adv-btn';
-  _advBtn.appendChild(_chevron);
-  var _advLbl=document.createElement('span'); _advLbl.textContent=' Advanced';
-  _advBtn.appendChild(_advLbl);
-  _advBtn.onclick=function(){
-    var open=_advBody.style.display!=='none';
-    _advBody.style.display=open?'none':'block';
-    _chevron.style.transform=open?'':'rotate(90deg)';
-    _advBtn.classList.toggle('active',!open);
-  };
-  var done=document.createElement('button'); done.className='blk-done'; done.textContent='Done ✓';
+  // ── Footer: Done button only ────────────────────────
+  var done=document.createElement('button'); done.className='blk-done'; done.type='button';
+  done.style.width='100%'; done.textContent='Done ✓';
   done.onclick=function(){done.closest('.blk-card').classList.remove('open');};
-  var _footer=document.createElement('div'); _footer.className='blk-footer';
-  _footer.appendChild(_advBtn); _footer.appendChild(done);
-  container.appendChild(_footer);
+  container.appendChild(done);
 }
 
 /* ── Render block list ───────────────────────── */
