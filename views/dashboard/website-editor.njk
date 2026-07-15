@@ -124,14 +124,17 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 .style-input,.style-select{width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;}
 .style-input:focus,.style-select:focus{border-color:#6366f1;}
 .color-pair{display:flex;gap:8px;align-items:center;}
-/* ── Theme picker ── */
-.theme-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid #e5e7eb;border-radius:10px;cursor:pointer;transition:all .15s;background:#fff;}
-.theme-card:hover{border-color:#a5b4fc;}
-.theme-card.selected{border-color:#6366f1;background:#eef2ff;}
-.theme-card-dots{display:flex;gap:4px;flex-shrink:0;}
-.theme-card-dots span{width:14px;height:14px;border-radius:50%;display:inline-block;}
-.theme-card-name{font-size:13px;font-weight:700;color:#111827;}
-.theme-card-desc{font-size:11px;color:#6b7280;margin-top:1px;}
+/* ── Theme picker (visual thumbnails) ── */
+.theme-thumb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.theme-thumb{border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;overflow:hidden;transition:all .15s;background:#fff;position:relative;}
+.theme-thumb:hover{border-color:#a5b4fc;box-shadow:0 4px 14px rgba(99,102,241,.18);transform:translateY(-2px);}
+.theme-thumb.selected{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.2);}
+.theme-thumb-preview{height:90px;overflow:hidden;position:relative;}
+.theme-thumb-badge{position:absolute;top:5px;right:5px;background:#6366f1;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.3px;display:none;}
+.theme-thumb.selected .theme-thumb-badge{display:block;}
+.theme-thumb-info{padding:7px 9px;border-top:1px solid #f3f4f6;}
+.theme-thumb-name{font-size:12px;font-weight:700;color:#111827;}
+.theme-thumb-desc{font-size:10px;color:#9ca3af;margin-top:1px;}
 .color-pick{width:36px;height:36px;border-radius:7px;border:1.5px solid #e5e7eb;cursor:pointer;flex-shrink:0;}
 
 /* ── Section edit panel ── */
@@ -312,40 +315,99 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
         </div>
         <div class="panel-label">Theme</div>
         <div class="style-row">
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <div class="theme-card {{ 'selected' if (website.settings.theme or 'default') == 'default' }}" onclick="selectTheme('default')" id="tc-default">
-              <div class="theme-card-dots">
-                <span style="background:#6366f1;"></span>
-                <span style="background:#ffffff;border:1px solid #e5e7eb;"></span>
-                <span style="background:#111827;"></span>
+          <div class="theme-thumb-grid">
+
+            <!-- ── Default / Modern ── -->
+            <div class="theme-thumb {{ 'selected' if (website.settings.theme or 'default') == 'default' }}" onclick="selectTheme('default')" id="tc-default">
+              <div class="theme-thumb-preview">
+                <div style="background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:3px 7px;height:16px;">
+                  <div style="width:22px;height:5px;background:#6366f1;border-radius:3px;"></div>
+                  <div style="margin-left:auto;display:flex;gap:2px;">
+                    <div style="width:9px;height:3px;background:#e5e7eb;border-radius:2px;"></div>
+                    <div style="width:9px;height:3px;background:#e5e7eb;border-radius:2px;"></div>
+                    <div style="width:9px;height:3px;background:#e5e7eb;border-radius:2px;"></div>
+                  </div>
+                </div>
+                <div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:9px 7px;text-align:center;">
+                  <div style="width:55%;height:5px;background:rgba(255,255,255,.9);border-radius:3px;margin:0 auto 3px;"></div>
+                  <div style="width:35%;height:3px;background:rgba(255,255,255,.5);border-radius:3px;margin:0 auto 5px;"></div>
+                  <div style="display:inline-block;width:26px;height:7px;background:#fff;border-radius:20px;"></div>
+                </div>
+                <div style="background:#f8fafc;padding:5px 7px;display:flex;gap:3px;">
+                  <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:5px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e5e7eb;border-radius:2px;"></div></div>
+                  <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:5px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e5e7eb;border-radius:2px;"></div></div>
+                  <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:5px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e5e7eb;border-radius:2px;"></div></div>
+                </div>
+                <div style="background:#0f172a;height:10px;"></div>
+                <div class="theme-thumb-badge">✓ Active</div>
               </div>
-              <div class="theme-card-info">
-                <div class="theme-card-name">Default</div>
-                <div class="theme-card-desc">Clean modern with soft cards</div>
-              </div>
-            </div>
-            <div class="theme-card {{ 'selected' if website.settings.theme == 'minimal' }}" onclick="selectTheme('minimal')" id="tc-minimal">
-              <div class="theme-card-dots">
-                <span style="background:#18181b;"></span>
-                <span style="background:#ffffff;border:1px solid #e4e4e7;"></span>
-                <span style="background:#f4f4f5;border:1px solid #e4e4e7;"></span>
-              </div>
-              <div class="theme-card-info">
-                <div class="theme-card-name">Elegant</div>
-                <div class="theme-card-desc">Warm cream, serif fonts, gold accents</div>
-              </div>
-            </div>
-            <div class="theme-card {{ 'selected' if website.settings.theme == 'bold' }}" onclick="selectTheme('bold')" id="tc-bold">
-              <div class="theme-card-dots">
-                <span style="background:#7c3aed;"></span>
-                <span style="background:#0f0f0f;"></span>
-                <span style="background:#1c1c1e;"></span>
-              </div>
-              <div class="theme-card-info">
-                <div class="theme-card-name">Dark</div>
-                <div class="theme-card-desc">Full dark, glass cards, neon glow</div>
+              <div class="theme-thumb-info">
+                <div class="theme-thumb-name">Default</div>
+                <div class="theme-thumb-desc">Clean modern</div>
               </div>
             </div>
+
+            <!-- ── Elegant / Minimal ── -->
+            <div class="theme-thumb {{ 'selected' if website.settings.theme == 'minimal' }}" onclick="selectTheme('minimal')" id="tc-minimal">
+              <div class="theme-thumb-preview">
+                <div style="background:#fdf8f3;border-bottom:1px solid #e8d5c0;display:flex;align-items:center;padding:3px 7px;height:16px;">
+                  <div style="width:28px;height:5px;background:#2c1810;border-radius:1px;"></div>
+                  <div style="margin-left:auto;display:flex;gap:2px;">
+                    <div style="width:9px;height:3px;background:#e8d5c0;border-radius:1px;"></div>
+                    <div style="width:9px;height:3px;background:#e8d5c0;border-radius:1px;"></div>
+                    <div style="width:9px;height:3px;background:#e8d5c0;border-radius:1px;"></div>
+                  </div>
+                </div>
+                <div style="background:#2c1810;padding:9px 7px;text-align:center;">
+                  <div style="width:55%;height:5px;background:rgba(253,248,243,.9);border-radius:1px;margin:0 auto 3px;"></div>
+                  <div style="width:35%;height:3px;background:#c9a882;border-radius:1px;margin:0 auto 5px;"></div>
+                  <div style="display:inline-block;width:26px;height:7px;border:1.5px solid #b8963e;border-radius:0;"></div>
+                </div>
+                <div style="background:#fdf8f3;padding:5px 7px;display:flex;gap:3px;">
+                  <div style="flex:1;background:#fdf8f3;border:1px solid #e8d5c0;border-top:2px solid #b8963e;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#2c1810;border-radius:1px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e8d5c0;border-radius:1px;"></div></div>
+                  <div style="flex:1;background:#fdf8f3;border:1px solid #e8d5c0;border-top:2px solid #b8963e;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#2c1810;border-radius:1px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e8d5c0;border-radius:1px;"></div></div>
+                  <div style="flex:1;background:#fdf8f3;border:1px solid #e8d5c0;border-top:2px solid #b8963e;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#2c1810;border-radius:1px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e8d5c0;border-radius:1px;"></div></div>
+                </div>
+                <div style="background:#1a0f08;height:10px;"></div>
+                <div class="theme-thumb-badge">✓ Active</div>
+              </div>
+              <div class="theme-thumb-info">
+                <div class="theme-thumb-name">Elegant</div>
+                <div class="theme-thumb-desc">Warm cream, gold</div>
+              </div>
+            </div>
+
+            <!-- ── Dark / Bold ── -->
+            <div class="theme-thumb {{ 'selected' if website.settings.theme == 'bold' }}" onclick="selectTheme('bold')" id="tc-bold">
+              <div class="theme-thumb-preview">
+                <div style="background:#080810;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;padding:3px 7px;height:16px;">
+                  <div style="width:22px;height:5px;background:#6366f1;border-radius:3px;box-shadow:0 0 5px rgba(99,102,241,.7);"></div>
+                  <div style="margin-left:auto;display:flex;gap:2px;">
+                    <div style="width:9px;height:3px;background:rgba(255,255,255,.15);border-radius:2px;"></div>
+                    <div style="width:9px;height:3px;background:rgba(255,255,255,.15);border-radius:2px;"></div>
+                    <div style="width:9px;height:3px;background:rgba(255,255,255,.15);border-radius:2px;"></div>
+                  </div>
+                </div>
+                <div style="background:#080810;padding:9px 7px;text-align:center;position:relative;">
+                  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(99,102,241,.3),transparent 75%);pointer-events:none;"></div>
+                  <div style="position:relative;width:55%;height:5px;background:rgba(255,255,255,.9);border-radius:3px;margin:0 auto 3px;"></div>
+                  <div style="position:relative;width:35%;height:3px;background:rgba(255,255,255,.3);border-radius:3px;margin:0 auto 5px;"></div>
+                  <div style="position:relative;display:inline-block;width:26px;height:7px;background:#6366f1;border-radius:8px;box-shadow:0 0 8px rgba(99,102,241,.7);"></div>
+                </div>
+                <div style="background:#080810;padding:5px 7px;display:flex;gap:3px;">
+                  <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:rgba(255,255,255,.1);border-radius:2px;"></div></div>
+                  <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:rgba(255,255,255,.1);border-radius:2px;"></div></div>
+                  <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:rgba(255,255,255,.1);border-radius:2px;"></div></div>
+                </div>
+                <div style="background:#04040a;border-top:1px solid rgba(255,255,255,.05);height:10px;"></div>
+                <div class="theme-thumb-badge">✓ Active</div>
+              </div>
+              <div class="theme-thumb-info">
+                <div class="theme-thumb-name">Dark</div>
+                <div class="theme-thumb-desc">Full dark, neon glow</div>
+              </div>
+            </div>
+
           </div>
         </div>
         <button onclick="saveStyles()" style="width:100%;padding:9px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;">Save Styles</button>
@@ -426,7 +488,8 @@ var siteSettings    = {
   primary: '{{ website.settings.primary or "#6366f1" }}',
   font:    '{{ website.settings.font or "Inter" }}',
   tagline: '{{ website.settings.tagline or "" }}',
-  logo:    '{{ website.settings.logo or "" }}'
+  logo:    '{{ website.settings.logo or "" }}',
+  title:   '{{ website.title | replace("'", "\\'") }}'
 };
 var SITE_THEME = '{{ website.settings.theme or "default" }}';
 </script>

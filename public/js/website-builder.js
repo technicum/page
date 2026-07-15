@@ -129,7 +129,28 @@ function renderCanvas() {
     html += renderSectionPreview(sec);
     html += '</div>';
   });
-  root.innerHTML = html;
+  // Build nav preview (non-editable, matches public site structure)
+  var siteName = siteSettings.title || SUBDOMAIN;
+  var navHtml = '<nav class="canvas-nav-preview">' +
+    '<div class="container"><div class="nav-inner">' +
+    (siteSettings.logo
+      ? '<a class="nav-logo" href="#"><img src="' + escHtml(siteSettings.logo) + '" alt="' + escHtml(siteName) + '"></a>'
+      : '<a class="nav-logo" href="#">' + escHtml(siteName) + '</a>') +
+    '<div class="nav-links">' +
+    allPages.map(function(p) {
+      return '<a href="#" class="' + (p.id === currentPageId ? 'active' : '') + '">' + escHtml(p.title) + '</a>';
+    }).join('') +
+    '</div></div></div></nav>';
+
+  // Build footer preview
+  var footerHtml = '<footer>' +
+    '<div class="container">' +
+    '<p>© ' + escHtml(siteName) +
+    (siteSettings.tagline ? ' — ' + escHtml(siteSettings.tagline) : '') + '</p>' +
+    '<p style="margin-top:8px;font-size:11px;">Powered by <a href="#">PageZaper</a></p>' +
+    '</div></footer>';
+
+  root.innerHTML = navHtml + html + footerHtml;
 
   // Section click → open edit panel (ignore clicks on overlay or contenteditable)
   root.querySelectorAll('.sec-wrap').forEach(function(wrap) {
@@ -732,7 +753,7 @@ function onStyleChange(key, val) {
 
 function selectTheme(themeId) {
   activeTheme = themeId;
-  document.querySelectorAll('.theme-card').forEach(function(el){ el.classList.remove('selected'); });
+  document.querySelectorAll('.theme-thumb').forEach(function(el){ el.classList.remove('selected'); });
   var tc = document.getElementById('tc-' + themeId);
   if (tc) tc.classList.add('selected');
   // Live preview in canvas
