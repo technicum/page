@@ -522,8 +522,8 @@ const SUBDOMAIN   = '{{ website.subdomain }}';
 const PRIMARY     = '{{ website.settings.primary or "#6366f1" }}';
 
 var currentPageId   = {{ activeSitePage.id if activeSitePage else 'null' }};
-var sections        = {{ (activeSitePage.sections | dump) if activeSitePage else '[]' }};
-var allPages        = {{ (pages | dump) if pages else '[]' }};
+var sections        = {{ (activeSitePage.sections | dump | safe) if activeSitePage else '[]' }};
+var allPages        = {{ (pages | dump | safe) if pages else '[]' }};
 var isPublished     = {{ 'true' if website.is_published else 'false' }};
 var selectedSecId   = null;
 var activePanel     = null;
