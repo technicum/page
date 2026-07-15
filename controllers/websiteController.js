@@ -60,7 +60,7 @@ exports.create = async (req, res) => {
       bg: '#ffffff', logo: '', tagline: ''
     })
     const result = await db.execute(
-      'INSERT INTO ms_websites (account_id, title, subdomain, settings) VALUES (?,?,?,?)',
+      'INSERT INTO ms_websites (account_id, title, subdomain, settings, is_published) VALUES (?,?,?,?,1)',
       [user.id, title || 'My Website', sub, settings]
     )
     const websiteId = result.insertId
@@ -306,8 +306,9 @@ exports.destroy = async (req, res) => {
    ═══════════════════════════════════════════════════════════════════════════ */
 exports.publicSite = async (req, res) => {
   const { subdomain, pageSlug } = req.params
+  try {
   const website = await db.first(
-    'SELECT * FROM ms_websites WHERE subdomain = ? AND is_published = 1', [subdomain]
+    'SELECT * FROM ms_websites WHERE subdomain = ?', [subdomain]
   )
   if (!website) return res.status(404).send('Website not found')
   website.settings = parseJSON(website.settings, {})
@@ -329,4 +330,8 @@ exports.publicSite = async (req, res) => {
                   pages[0]
 
   res.render('website-public.njk', { website, pages, current })
+  } catch(e) {
+    console.error('[publicSite] error:', e.message)
+    res.status(500).send('Something went wrong loading this website.')
+  }
 }

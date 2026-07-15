@@ -513,6 +513,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 <div class="wb-publish-bar">
   <button class="pub-preview-btn" onclick="openPreview()">Preview ↗</button>
   <button class="pub-save-btn" id="mainSaveBtn" onclick="saveSections()">💾 Save</button>
+  <button class="pub-update-btn" id="publishBtn" onclick="saveAndPublish()">🌐 {{ 'Unpublish' if website.is_published else 'Publish' }}</button>
 </div>
 
 <!-- Nunjucks data — rendered server-side -->
