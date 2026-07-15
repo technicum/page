@@ -111,7 +111,7 @@ exports.editor = async (req, res) => {
     try {
       pages = await db.query(
         `SELECT *, JSON_EXTRACT(meta,'$.is_home') AS is_home, JSON_EXTRACT(meta,'$.seo_title') AS seo_title, JSON_EXTRACT(meta,'$.seo_desc') AS seo_desc
-         FROM ms_posts WHERE website_id = ? AND post_type = 'page' ORDER BY sort_order ASC, id ASC`,
+         FROM ms_posts WHERE website_id = ? AND post_type = 'page' ORDER BY id ASC`,
         [websiteId]
       ) || []
     } catch(e) {
@@ -314,7 +314,7 @@ exports.publicSite = async (req, res) => {
 
   const pages = await db.query(
     `SELECT *, JSON_EXTRACT(meta,'$.is_home') AS is_home, JSON_EXTRACT(meta,'$.seo_title') AS seo_title, JSON_EXTRACT(meta,'$.seo_desc') AS seo_desc
-     FROM ms_posts WHERE website_id=? AND post_type='page' AND status='published' ORDER BY sort_order ASC, id ASC`,
+     FROM ms_posts WHERE website_id=? AND post_type='page' AND status='published' ORDER BY id ASC`,
     [website.id]
   )
   pages.forEach(p => {
