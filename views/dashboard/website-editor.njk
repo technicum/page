@@ -171,47 +171,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 .wb-device.tablet{max-width:768px;border-radius:14px;}
 .wb-device.mobile{max-width:390px;border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.2);}
 
-/* ── Section rendered in canvas ── */
-.cs-section{position:relative;transition:outline .1s;}
-.cs-section:hover>.cs-overlay{opacity:1;}
-.cs-section.selected>.cs-overlay{opacity:1;outline:2px solid #6366f1;}
-.cs-section.selected{outline:2px solid #6366f1;}
-.cs-overlay{
-  position:absolute;top:0;left:0;right:0;bottom:0;
-  opacity:0;pointer-events:none;transition:opacity .15s;z-index:10;
-}
-.cs-section:hover{cursor:pointer;}
-.cs-toolbar{
-  position:absolute;top:8px;right:8px;
-  background:#111827;border-radius:8px;padding:4px;
-  display:flex;gap:2px;pointer-events:all;z-index:20;
-  opacity:0;transition:opacity .15s;
-}
-.cs-section:hover .cs-toolbar,
-.cs-section.selected .cs-toolbar{opacity:1;}
-.cs-tb-btn{
-  width:28px;height:28px;border:none;background:transparent;
-  cursor:pointer;color:rgba(255,255,255,.7);border-radius:5px;
-  font-size:13px;display:flex;align-items:center;justify-content:center;
-  transition:all .1s;
-}
-.cs-tb-btn:hover{background:rgba(255,255,255,.15);color:#fff;}
-.cs-tb-btn.del:hover{background:#ef4444;color:#fff;}
-.cs-add-row{
-  padding:6px 0;display:flex;align-items:center;justify-content:center;
-  opacity:0;transition:opacity .15s;position:relative;
-}
-.cs-add-row:hover{opacity:1;}
-.cs-add-row::before{content:'';position:absolute;left:0;right:0;height:1px;background:#6366f1;top:50%;}
-.cs-add-btn{
-  width:24px;height:24px;background:#6366f1;border:none;border-radius:50%;
-  cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;
-  position:relative;z-index:1;flex-shrink:0;transition:transform .15s;
-}
-.cs-add-btn:hover{transform:scale(1.15);}
-/* Hover the section above/below to show add row */
-.cs-section:hover + .cs-add-row,
-.cs-add-row:hover{opacity:1;}
+/* (old cs-* section CSS removed — replaced by .sec-wrap system in canvas CSS below) */
 
 /* ── Empty canvas state ── */
 .canvas-empty{
@@ -226,75 +186,104 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 }
 
 /* ════════════════════════════════════════════
-   SECTION PREVIEW CSS (matches public site)
+   CANVAS: True WYSIWYG (public site CSS scoped)
 ════════════════════════════════════════════ */
-.cs-hero{
-  padding:80px 48px;text-align:center;
-}
-.cs-hero h1{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;margin-bottom:16px;letter-spacing:-1px;}
-.cs-hero p{font-size:16px;opacity:.8;max-width:520px;margin:0 auto 28px;}
-.cs-cta{display:inline-block;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;}
+#canvasRoot{--primary:#6366f1;background:#fff;font-family:'Inter',system-ui,sans-serif;line-height:1.6;color:#111827;}
+#canvasRoot *{box-sizing:border-box;margin:0;padding:0;}
+#canvasRoot img{max-width:100%;height:auto;display:block;}
+#canvasRoot a{color:var(--primary);text-decoration:none;}
+#canvasRoot .container{max-width:100%;padding:0 40px;}
+/* Hero */
+#canvasRoot .hero{padding:80px 0;text-align:center;position:relative;overflow:hidden;}
+#canvasRoot .hero h1{font-size:clamp(28px,5vw,54px);font-weight:800;line-height:1.1;margin-bottom:16px;letter-spacing:-1px;}
+#canvasRoot .hero p{font-size:clamp(14px,2vw,18px);opacity:.8;max-width:500px;margin:0 auto 28px;}
+#canvasRoot .btn-primary{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;background:var(--primary);color:#fff;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;border:none;cursor:pointer;}
+/* Sections */
+#canvasRoot .section{padding:64px 0;}
+#canvasRoot .section-alt{background:#f9fafb;}
+#canvasRoot .section-heading{text-align:center;margin-bottom:40px;}
+#canvasRoot .section-heading h2{font-size:clamp(22px,3vw,34px);font-weight:800;color:#111827;margin-bottom:8px;}
+#canvasRoot .section-heading p{font-size:15px;color:#6b7280;max-width:500px;margin:0 auto;}
+/* About */
+#canvasRoot .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+#canvasRoot .about-grid.img-left{direction:rtl;}
+#canvasRoot .about-grid.img-left>*{direction:ltr;}
+#canvasRoot .about-img{border-radius:16px;overflow:hidden;aspect-ratio:4/3;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:48px;}
+#canvasRoot .about-img img{width:100%;height:100%;object-fit:cover;}
+#canvasRoot .about-text h2{font-size:26px;font-weight:800;margin-bottom:12px;}
+#canvasRoot .about-text p{font-size:15px;color:#6b7280;line-height:1.75;}
+/* Services */
+#canvasRoot .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;}
+#canvasRoot .service-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:24px;transition:all .2s;}
+#canvasRoot .service-card:hover{border-color:var(--primary);box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px);}
+#canvasRoot .service-icon{font-size:32px;margin-bottom:12px;}
+#canvasRoot .service-title{font-size:16px;font-weight:700;margin-bottom:6px;color:#111827;}
+#canvasRoot .service-desc{font-size:13px;color:#6b7280;line-height:1.6;}
+/* Gallery */
+#canvasRoot .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;}
+#canvasRoot .gallery-item{border-radius:12px;overflow:hidden;aspect-ratio:4/3;background:#f3f4f6;}
+#canvasRoot .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+#canvasRoot .gallery-item:hover img{transform:scale(1.05);}
+/* Testimonials */
+#canvasRoot .testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
+#canvasRoot .testi-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:22px;}
+#canvasRoot .testi-quote{font-size:14px;color:#374151;line-height:1.75;margin-bottom:16px;font-style:italic;}
+#canvasRoot .testi-author{display:flex;align-items:center;gap:10px;}
+#canvasRoot .testi-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+#canvasRoot .testi-name{font-size:13px;font-weight:700;color:#111827;}
+#canvasRoot .testi-role{font-size:11px;color:#9ca3af;}
+/* Team */
+#canvasRoot .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px;}
+#canvasRoot .team-card{text-align:center;}
+#canvasRoot .team-photo{width:100%;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:10px;}
+#canvasRoot .team-photo img{width:100%;height:100%;object-fit:cover;}
+#canvasRoot .team-name{font-size:14px;font-weight:700;color:#111827;}
+#canvasRoot .team-role{font-size:12px;color:#9ca3af;margin-top:2px;}
+/* FAQ */
+#canvasRoot .faq-list{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
+#canvasRoot .faq-item{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;overflow:hidden;}
+#canvasRoot .faq-q{padding:16px 18px;font-size:14px;font-weight:600;color:#111827;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:background .15s;}
+#canvasRoot .faq-q:hover{background:#f9fafb;}
+#canvasRoot .faq-q::after{content:'';width:8px;height:8px;border-right:2px solid #9ca3af;border-bottom:2px solid #9ca3af;transform:rotate(45deg);flex-shrink:0;transition:transform .2s;margin-top:-4px;}
+#canvasRoot .faq-item.open .faq-q::after{transform:rotate(-135deg);margin-top:4px;}
+#canvasRoot .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+#canvasRoot .faq-item.open .faq-a{max-height:400px;}
+#canvasRoot .faq-a-inner{padding:0 18px 14px;font-size:13px;color:#6b7280;line-height:1.75;border-top:1px solid #f3f4f6;}
+/* CTA */
+#canvasRoot .cta-banner{padding:64px 0;text-align:center;}
+#canvasRoot .cta-banner h2{font-size:clamp(22px,3.5vw,38px);font-weight:800;margin-bottom:10px;}
+#canvasRoot .cta-banner p{font-size:16px;opacity:.8;margin-bottom:28px;max-width:460px;margin-left:auto;margin-right:auto;}
+/* Contact */
+#canvasRoot .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+#canvasRoot .contact-info{display:flex;flex-direction:column;gap:16px;}
+#canvasRoot .contact-item{display:flex;align-items:flex-start;gap:12px;}
+#canvasRoot .contact-item-icon{width:36px;height:36px;border-radius:8px;background:rgba(99,102,241,.1);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+#canvasRoot .contact-item-text{font-size:13px;color:#6b7280;line-height:1.6;}
+#canvasRoot .contact-item-label{font-weight:600;color:#111827;margin-bottom:2px;font-size:12px;}
+#canvasRoot .contact-form{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:10px;}
+#canvasRoot .cf-input{padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;width:100%;}
+#canvasRoot .cf-input:focus{border-color:var(--primary);}
+#canvasRoot .cf-textarea{resize:vertical;min-height:80px;}
+#canvasRoot .cf-submit{padding:10px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;}
 
-.cs-about{padding:64px 48px;}
-.cs-about-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
-.cs-about-grid.text-only{grid-template-columns:1fr;}
-.cs-about-img{aspect-ratio:4/3;border-radius:16px;overflow:hidden;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:48px;}
-.cs-about-img img{width:100%;height:100%;object-fit:cover;}
-.cs-about-text h2{font-size:28px;font-weight:800;margin-bottom:12px;color:#111827;}
-.cs-about-text p{font-size:15px;color:#6b7280;line-height:1.75;}
-
-.cs-services{padding:64px 48px;background:#f9fafb;}
-.cs-services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
-.cs-svc-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:24px;}
-.cs-svc-icon{font-size:32px;margin-bottom:12px;}
-.cs-svc-title{font-size:16px;font-weight:700;margin-bottom:6px;color:#111827;}
-.cs-svc-desc{font-size:13px;color:#6b7280;line-height:1.6;}
-
-.cs-gallery{padding:64px 48px;}
-.cs-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
-.cs-gallery-item{aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#f3f4f6;}
-.cs-gallery-item img{width:100%;height:100%;object-fit:cover;}
-.cs-gallery-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;color:#d1d5db;}
-
-.cs-testimonials{padding:64px 48px;background:#f9fafb;}
-.cs-testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;}
-.cs-testi-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:24px;}
-.cs-testi-q{font-size:14px;color:#374151;font-style:italic;margin-bottom:16px;line-height:1.7;}
-.cs-testi-name{font-size:13px;font-weight:700;color:#111827;}
-.cs-testi-role{font-size:11px;color:#9ca3af;}
-
-.cs-team{padding:64px 48px;}
-.cs-team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:20px;}
-.cs-team-card{text-align:center;}
-.cs-team-photo{width:100%;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:10px;}
-.cs-team-photo img{width:100%;height:100%;object-fit:cover;}
-.cs-team-name{font-size:14px;font-weight:700;color:#111827;}
-.cs-team-role{font-size:12px;color:#9ca3af;margin-top:2px;}
-
-.cs-faq{padding:64px 48px;background:#f9fafb;}
-.cs-faq-list{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
-.cs-faq-item{background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;}
-.cs-faq-q{padding:14px 16px;font-size:14px;font-weight:600;color:#111827;display:flex;justify-content:space-between;align-items:center;}
-.cs-faq-q::after{content:'↓';font-size:12px;color:#9ca3af;}
-.cs-faq-a{padding:0 16px 14px;font-size:13px;color:#6b7280;line-height:1.7;}
-
-.cs-cta-banner{padding:64px 48px;text-align:center;}
-.cs-cta-banner h2{font-size:32px;font-weight:800;margin-bottom:10px;}
-.cs-cta-banner p{font-size:16px;opacity:.8;margin-bottom:28px;}
-
-.cs-contact{padding:64px 48px;}
-.cs-contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;}
-.cs-contact-info-item{display:flex;gap:12px;margin-bottom:20px;align-items:flex-start;}
-.cs-contact-info-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.cs-contact-info-text{font-size:13px;color:#6b7280;}
-.cs-contact-info-label{font-size:11px;font-weight:700;color:#374151;margin-bottom:2px;}
-.cs-contact-form{background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:10px;}
-.cs-cf-input{padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;width:100%;}
-.cs-cf-sub{padding:10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;}
-
-.cs-sec-heading{text-align:center;margin-bottom:40px;}
-.cs-sec-heading h2{font-size:28px;font-weight:800;color:#111827;margin-bottom:8px;}
-.cs-sec-heading p{font-size:15px;color:#6b7280;}
+/* ════════════════════════════════════════════
+   SECTION WRAPPERS (overlay controls)
+════════════════════════════════════════════ */
+.sec-wrap{position:relative;transition:outline .1s;}
+.sec-wrap:hover{outline:2px solid rgba(99,102,241,.35);outline-offset:-2px;}
+.sec-wrap.selected{outline:2px solid #6366f1;outline-offset:-2px;}
+.sec-overlay{position:absolute;top:8px;right:8px;display:none;align-items:center;gap:6px;z-index:20;}
+.sec-wrap:hover .sec-overlay,.sec-wrap.selected .sec-overlay{display:flex;}
+.sec-drag-handle{cursor:grab;background:#6366f1;color:#fff;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;letter-spacing:.5px;user-select:none;display:flex;align-items:center;gap:4px;}
+.sec-drag-handle:active{cursor:grabbing;}
+.sec-btn{background:rgba(0,0,0,.75);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;}
+.sec-btn:hover{background:rgba(0,0,0,.9);}
+.sec-btn.del{background:rgba(220,38,38,.8);}
+.sec-btn.del:hover{background:#dc2626;}
+.sec-ghost{opacity:.4;}
+.sec-chosen{outline:2px solid #6366f1;}
+/* contenteditable hints */
+[contenteditable]:focus{outline:2px dashed rgba(99,102,241,.5);outline-offset:2px;border-radius:3px;}
 
 /* ════════════════════════════════════════════
    BOTTOM SAVE BAR (mobile-style)
@@ -539,6 +528,10 @@ var siteSettings    = {
 var SITE_THEME = '{{ website.settings.theme or "default" }}';
 </script>
 
+<!-- SortableJS for drag & drop section reordering -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<!-- Scoped theme CSS for canvas preview -->
+<style id="canvas-theme-css"></style>
 <!-- Builder logic — external file avoids Nunjucks escaping issues -->
 <script src="/js/website-builder.js"></script>
 </body>
