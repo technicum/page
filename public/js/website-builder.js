@@ -1635,12 +1635,12 @@ var PREBUILT_CATS = [
 
 var PREBUILT_VARIANTS = {
   hero: [
-    { label:'Bold Center', desc:'Large headline on gradient background', color:'#6366f1', tag:'popular',
-      data:{ headline:'Welcome to Our Website', subheadline:'We deliver exceptional results for every client.', cta_label:'Get Started', cta_url:'#contact', bg_color:PRIMARY, text_color:'#ffffff' } },
-    { label:'Dark Hero', desc:'Dramatic dark background with bright button', color:'#0f172a',
-      data:{ headline:'Build Something Amazing', subheadline:'Professional solutions for modern businesses.', cta_label:'Start Today', cta_url:'#contact', bg_color:'#0f172a', text_color:'#ffffff' } },
-    { label:'Light & Clean', desc:'White background with accent color text', color:'#f0f9ff',
-      data:{ headline:'Your Vision, Delivered', subheadline:'Helping businesses grow since 2015.', cta_label:'Learn More', cta_url:'#about', bg_color:'#f0f9ff', text_color:'#111827' } }
+    { label:'Bold Center', desc:'Large headline on gradient background with dashboard visual', color:'#6366f1', tag:'popular',
+      data:{ layout:'centered', headline:'Welcome to Our Website', subheadline:'We deliver exceptional results for every client, on time and on budget.', cta_label:'Get Started', cta_url:'#contact', cta2_label:'Learn More', cta2_url:'#about', bg_color:PRIMARY, text_color:'#ffffff' } },
+    { label:'Dark Hero', desc:'Dramatic dark background with bright button and visual', color:'#0f172a',
+      data:{ layout:'centered', headline:'Build Something Amazing', subheadline:'Professional solutions for modern businesses that want to stand out.', cta_label:'Start Today', cta_url:'#contact', cta2_label:'See Our Work', cta2_url:'#services', bg_color:'#0f172a', text_color:'#ffffff' } },
+    { label:'Light & Clean', desc:'White background split layout with visual and floating cards', color:'#f0f9ff',
+      data:{ layout:'split', headline:'Your Vision, Delivered', subheadline:'Helping businesses grow since 2015. We create digital experiences that drive real results.', cta_label:'Learn More', cta_url:'#about', cta2_label:'Our Services', cta2_url:'#services', bg_color:'#f0f9ff', text_color:'#111827' } }
   ],
   about: [
     { label:'Image Right', desc:'Text on the left, image placeholder on the right', color:'#fff',
