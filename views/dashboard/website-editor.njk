@@ -124,18 +124,83 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 .style-input,.style-select{width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;}
 .style-input:focus,.style-select:focus{border-color:#6366f1;}
 .color-pair{display:flex;gap:8px;align-items:center;}
-/* ── Theme picker (visual thumbnails) ── */
-.theme-thumb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.theme-thumb{border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;overflow:hidden;transition:all .15s;background:#fff;position:relative;}
-.theme-thumb:hover{border-color:#a5b4fc;box-shadow:0 4px 14px rgba(99,102,241,.18);transform:translateY(-2px);}
-.theme-thumb.selected{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.2);}
-.theme-thumb-preview{height:90px;overflow:hidden;position:relative;}
-.theme-thumb-badge{position:absolute;top:5px;right:5px;background:#6366f1;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.3px;display:none;}
-.theme-thumb.selected .theme-thumb-badge{display:block;}
-.theme-thumb-info{padding:7px 9px;border-top:1px solid #f3f4f6;}
-.theme-thumb-name{font-size:12px;font-weight:700;color:#111827;}
-.theme-thumb-desc{font-size:10px;color:#9ca3af;margin-top:1px;}
+/* ── Full-screen Theme Chooser ── */
+#themeChooser{position:fixed;inset:0;background:#fff;z-index:9999;display:none;flex-direction:column;font-family:'Inter',system-ui,sans-serif;}
+.tco-head{background:#fff;border-bottom:1px solid #f0f0f0;padding:20px 32px 16px;text-align:center;}
+.tco-title{font-size:20px;font-weight:800;color:#111827;margin-bottom:4px;}
+.tco-title span{color:#6366f1;font-style:italic;}
+.tco-sub{font-size:13px;color:#6b7280;margin-bottom:14px;}
+.tco-search-row{display:flex;gap:10px;max-width:560px;margin:0 auto;}
+.tco-search{flex:1;padding:8px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;outline:none;}
+.tco-search:focus{border-color:#6366f1;}
+.tco-cat-select{padding:8px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;cursor:pointer;outline:none;}
+.tco-chips{display:flex;gap:7px;padding:10px 32px;border-bottom:1px solid #f0f0f0;background:#fafafa;flex-wrap:wrap;}
+.tco-chip{padding:5px 14px;border:1.5px solid #e5e7eb;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;background:#fff;font-family:inherit;transition:all .15s;color:#374151;}
+.tco-chip:hover{border-color:#a5b4fc;color:#6366f1;}
+.tco-chip.active{background:#111827;color:#fff;border-color:#111827;}
+.tco-body{display:flex;flex:1;overflow:hidden;}
+.tco-sidebar{width:170px;flex-shrink:0;border-right:1px solid #f0f0f0;padding:16px 14px;overflow-y:auto;background:#fafafa;}
+.tco-cat-label{font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;}
+.tco-cat-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:#374151;font-weight:500;margin-bottom:2px;}
+.tco-cat-item:hover{background:#f0f0f0;}
+.tco-cat-item.active{background:#eff6ff;color:#6366f1;font-weight:700;}
+.tco-count{background:#e5e7eb;color:#6b7280;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;}
+.tco-cat-item.active .tco-count{background:#dbeafe;color:#6366f1;}
+.tco-main{flex:1;overflow-y:auto;padding:16px 20px;}
+.tco-showing{font-size:12px;color:#9ca3af;margin-bottom:14px;}
+.tco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;}
+.tco-card{border:2px solid #e5e7eb;border-radius:14px;overflow:hidden;transition:all .18s;background:#fff;}
+.tco-card:hover{border-color:#a5b4fc;box-shadow:0 6px 22px rgba(99,102,241,.14);transform:translateY(-3px);}
+.tco-card.selected{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.18);}
+.tco-preview{height:170px;overflow:hidden;position:relative;background:#f3f4f6;}
+.tco-sel-badge{position:absolute;top:8px;right:8px;background:#6366f1;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;display:none;}
+.tco-card.selected .tco-sel-badge{display:block;}
+.tco-card-info{padding:11px 13px;border-top:1px solid #f3f4f6;}
+.tco-card-name{font-size:13px;font-weight:800;color:#111827;margin-bottom:3px;}
+.tco-card-desc{font-size:11px;color:#6b7280;line-height:1.5;margin-bottom:7px;}
+.tco-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:9px;}
+.tco-tag{font-size:10px;color:#6b7280;background:#f3f4f6;padding:2px 7px;border-radius:20px;font-weight:500;}
+.tco-actions{display:flex;gap:7px;}
+.tco-prev-btn{flex:1;padding:7px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;font-family:inherit;color:#374151;transition:all .15s;}
+.tco-prev-btn:hover{border-color:#6366f1;color:#6366f1;}
+.tco-sel-btn{flex:1;padding:7px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:#111827;color:#fff;font-family:inherit;transition:background .15s;}
+.tco-sel-btn:hover{background:#000;}
+.tco-card.selected .tco-sel-btn{background:#6366f1;}
+.tco-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;border-top:1px solid #e5e7eb;background:#fff;}
+.tco-footer-theme{font-size:13px;color:#6b7280;}
+.tco-footer-theme strong{color:#111827;text-transform:capitalize;}
+.tco-footer-btns{display:flex;gap:10px;align-items:center;}
+.tco-cancel{padding:8px 18px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;font-family:inherit;}
+.tco-use{padding:8px 22px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:#111827;color:#fff;font-family:inherit;}
+.tco-use:hover{background:#000;}
 .color-pick{width:36px;height:36px;border-radius:7px;border:1.5px solid #e5e7eb;cursor:pointer;flex-shrink:0;}
+
+/* ── Section Picker ── */
+#sectionPicker{position:fixed;inset:0;background:#fff;z-index:9999;display:none;flex-direction:column;font-family:'Inter',system-ui,sans-serif;}
+.sp-head{background:#fff;border-bottom:1px solid #eee;padding:14px 24px;display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.sp-title{font-size:17px;font-weight:800;color:#111827;flex:1;}
+.sp-sub{font-size:12px;color:#9ca3af;font-weight:400;margin-left:2px;}
+.sp-close{width:34px;height:34px;border:none;background:#f3f4f6;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#6b7280;}
+.sp-close:hover{background:#e5e7eb;}
+.sp-body{display:flex;flex:1;overflow:hidden;}
+.sp-sidebar{width:175px;flex-shrink:0;border-right:1px solid #f0f0f0;padding:10px 8px;overflow-y:auto;background:#fafafa;}
+.sp-cat-label{font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:.7px;text-transform:uppercase;padding:4px 8px 6px;margin-top:6px;}
+.sp-cat-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:#374151;font-weight:500;margin-bottom:1px;transition:all .1s;}
+.sp-cat-item:hover{background:#f0f0f0;}
+.sp-cat-item.active{background:#eef2ff;color:#6366f1;font-weight:700;}
+.sp-cat-icon{font-size:14px;flex-shrink:0;}
+.sp-main{flex:1;overflow-y:auto;padding:20px 24px;}
+.sp-section-title{font-size:16px;font-weight:800;color:#111827;margin-bottom:4px;}
+.sp-section-sub{font-size:13px;color:#9ca3af;margin-bottom:20px;}
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
+.sp-card{border:2px solid #e5e7eb;border-radius:12px;overflow:hidden;cursor:pointer;transition:all .15s;background:#fff;}
+.sp-card:hover{border-color:#a5b4fc;box-shadow:0 4px 16px rgba(99,102,241,.12);transform:translateY(-2px);}
+.sp-preview{height:110px;overflow:hidden;background:#f9fafb;position:relative;}
+.sp-card-info{padding:10px 12px;border-top:1px solid #f3f4f6;}
+.sp-card-name{font-size:13px;font-weight:700;color:#111827;margin-bottom:2px;}
+.sp-card-desc{font-size:11px;color:#9ca3af;margin-bottom:8px;line-height:1.4;}
+.sp-add-btn{width:100%;padding:7px;background:#111827;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;}
+.sp-add-btn:hover{background:#6366f1;}
 
 /* ── Section edit panel ── */
 .sec-edit-back{display:flex;align-items:center;gap:6px;padding:8px 0;color:#6b7280;cursor:pointer;font-size:12px;font-weight:500;margin-bottom:10px;border:none;background:transparent;font-family:inherit;}
@@ -280,7 +345,10 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 
       <!-- Elements / Add section -->
       <div class="panel-section" id="ps-elements">
-        <div class="panel-label">Sections</div>
+        <button onclick="openSectionPicker()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 12px;background:#111827;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px;">
+          <span style="font-size:14px;">✦</span> Browse Prebuilt Sections
+        </button>
+        <div class="panel-label">Quick Add</div>
         <div class="sec-type-grid">
           <button class="sec-type-card" onclick="addSection('hero')"><span class="stc-icon">🦸</span><span class="stc-label">Hero</span></button>
           <button class="sec-type-card" onclick="addSection('about')"><span class="stc-icon">👤</span><span class="stc-label">About</span></button>
@@ -291,6 +359,14 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
           <button class="sec-type-card" onclick="addSection('faq')"><span class="stc-icon">❓</span><span class="stc-label">FAQ</span></button>
           <button class="sec-type-card" onclick="addSection('cta')"><span class="stc-icon">📣</span><span class="stc-label">CTA Banner</span></button>
           <button class="sec-type-card" onclick="addSection('contact')"><span class="stc-icon">📬</span><span class="stc-label">Contact</span></button>
+          <button class="sec-type-card" onclick="addSection('pricing')"><span class="stc-icon">💰</span><span class="stc-label">Pricing</span></button>
+          <button class="sec-type-card" onclick="addSection('stats')"><span class="stc-icon">📊</span><span class="stc-label">Stats</span></button>
+          <button class="sec-type-card" onclick="addSection('timeline')"><span class="stc-icon">🗂</span><span class="stc-label">Timeline</span></button>
+          <button class="sec-type-card" onclick="addSection('columns')"><span class="stc-icon">⬛</span><span class="stc-label">Columns</span></button>
+          <button class="sec-type-card" onclick="addSection('video')"><span class="stc-icon">▶️</span><span class="stc-label">Video</span></button>
+          <button class="sec-type-card" onclick="addSection('logobar')"><span class="stc-icon">🏷</span><span class="stc-label">Logo Bar</span></button>
+          <button class="sec-type-card" onclick="addSection('newsletter')"><span class="stc-icon">📧</span><span class="stc-label">Newsletter</span></button>
+          <button class="sec-type-card" onclick="addSection('rich_text')"><span class="stc-icon">📝</span><span class="stc-label">Rich Text</span></button>
         </div>
       </div>
 
@@ -314,101 +390,13 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
           </select>
         </div>
         <div class="panel-label">Theme</div>
-        <div class="style-row">
-          <div class="theme-thumb-grid">
-
-            <!-- ── Default / Modern ── -->
-            <div class="theme-thumb {{ 'selected' if (website.settings.theme or 'default') == 'default' }}" onclick="selectTheme('default')" id="tc-default">
-              <div class="theme-thumb-preview">
-                <div style="background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:3px 7px;height:16px;">
-                  <div style="width:22px;height:5px;background:#6366f1;border-radius:3px;"></div>
-                  <div style="margin-left:auto;display:flex;gap:2px;">
-                    <div style="width:9px;height:3px;background:#e5e7eb;border-radius:2px;"></div>
-                    <div style="width:9px;height:3px;background:#e5e7eb;border-radius:2px;"></div>
-                    <div style="width:9px;height:3px;background:#e5e7eb;border-radius:2px;"></div>
-                  </div>
-                </div>
-                <div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:9px 7px;text-align:center;">
-                  <div style="width:55%;height:5px;background:rgba(255,255,255,.9);border-radius:3px;margin:0 auto 3px;"></div>
-                  <div style="width:35%;height:3px;background:rgba(255,255,255,.5);border-radius:3px;margin:0 auto 5px;"></div>
-                  <div style="display:inline-block;width:26px;height:7px;background:#fff;border-radius:20px;"></div>
-                </div>
-                <div style="background:#f8fafc;padding:5px 7px;display:flex;gap:3px;">
-                  <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:5px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e5e7eb;border-radius:2px;"></div></div>
-                  <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:5px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e5e7eb;border-radius:2px;"></div></div>
-                  <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:5px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e5e7eb;border-radius:2px;"></div></div>
-                </div>
-                <div style="background:#0f172a;height:10px;"></div>
-                <div class="theme-thumb-badge">✓ Active</div>
-              </div>
-              <div class="theme-thumb-info">
-                <div class="theme-thumb-name">Default</div>
-                <div class="theme-thumb-desc">Clean modern</div>
-              </div>
-            </div>
-
-            <!-- ── Elegant / Minimal ── -->
-            <div class="theme-thumb {{ 'selected' if website.settings.theme == 'minimal' }}" onclick="selectTheme('minimal')" id="tc-minimal">
-              <div class="theme-thumb-preview">
-                <div style="background:#fdf8f3;border-bottom:1px solid #e8d5c0;display:flex;align-items:center;padding:3px 7px;height:16px;">
-                  <div style="width:28px;height:5px;background:#2c1810;border-radius:1px;"></div>
-                  <div style="margin-left:auto;display:flex;gap:2px;">
-                    <div style="width:9px;height:3px;background:#e8d5c0;border-radius:1px;"></div>
-                    <div style="width:9px;height:3px;background:#e8d5c0;border-radius:1px;"></div>
-                    <div style="width:9px;height:3px;background:#e8d5c0;border-radius:1px;"></div>
-                  </div>
-                </div>
-                <div style="background:#2c1810;padding:9px 7px;text-align:center;">
-                  <div style="width:55%;height:5px;background:rgba(253,248,243,.9);border-radius:1px;margin:0 auto 3px;"></div>
-                  <div style="width:35%;height:3px;background:#c9a882;border-radius:1px;margin:0 auto 5px;"></div>
-                  <div style="display:inline-block;width:26px;height:7px;border:1.5px solid #b8963e;border-radius:0;"></div>
-                </div>
-                <div style="background:#fdf8f3;padding:5px 7px;display:flex;gap:3px;">
-                  <div style="flex:1;background:#fdf8f3;border:1px solid #e8d5c0;border-top:2px solid #b8963e;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#2c1810;border-radius:1px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e8d5c0;border-radius:1px;"></div></div>
-                  <div style="flex:1;background:#fdf8f3;border:1px solid #e8d5c0;border-top:2px solid #b8963e;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#2c1810;border-radius:1px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e8d5c0;border-radius:1px;"></div></div>
-                  <div style="flex:1;background:#fdf8f3;border:1px solid #e8d5c0;border-top:2px solid #b8963e;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#2c1810;border-radius:1px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:#e8d5c0;border-radius:1px;"></div></div>
-                </div>
-                <div style="background:#1a0f08;height:10px;"></div>
-                <div class="theme-thumb-badge">✓ Active</div>
-              </div>
-              <div class="theme-thumb-info">
-                <div class="theme-thumb-name">Elegant</div>
-                <div class="theme-thumb-desc">Warm cream, gold</div>
-              </div>
-            </div>
-
-            <!-- ── Dark / Bold ── -->
-            <div class="theme-thumb {{ 'selected' if website.settings.theme == 'bold' }}" onclick="selectTheme('bold')" id="tc-bold">
-              <div class="theme-thumb-preview">
-                <div style="background:#080810;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;padding:3px 7px;height:16px;">
-                  <div style="width:22px;height:5px;background:#6366f1;border-radius:3px;box-shadow:0 0 5px rgba(99,102,241,.7);"></div>
-                  <div style="margin-left:auto;display:flex;gap:2px;">
-                    <div style="width:9px;height:3px;background:rgba(255,255,255,.15);border-radius:2px;"></div>
-                    <div style="width:9px;height:3px;background:rgba(255,255,255,.15);border-radius:2px;"></div>
-                    <div style="width:9px;height:3px;background:rgba(255,255,255,.15);border-radius:2px;"></div>
-                  </div>
-                </div>
-                <div style="background:#080810;padding:9px 7px;text-align:center;position:relative;">
-                  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(99,102,241,.3),transparent 75%);pointer-events:none;"></div>
-                  <div style="position:relative;width:55%;height:5px;background:rgba(255,255,255,.9);border-radius:3px;margin:0 auto 3px;"></div>
-                  <div style="position:relative;width:35%;height:3px;background:rgba(255,255,255,.3);border-radius:3px;margin:0 auto 5px;"></div>
-                  <div style="position:relative;display:inline-block;width:26px;height:7px;background:#6366f1;border-radius:8px;box-shadow:0 0 8px rgba(99,102,241,.7);"></div>
-                </div>
-                <div style="background:#080810;padding:5px 7px;display:flex;gap:3px;">
-                  <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:rgba(255,255,255,.1);border-radius:2px;"></div></div>
-                  <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:rgba(255,255,255,.1);border-radius:2px;"></div></div>
-                  <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;height:22px;padding:3px;"><div style="width:55%;height:3px;background:#6366f1;border-radius:2px;margin-bottom:2px;"></div><div style="width:80%;height:2px;background:rgba(255,255,255,.1);border-radius:2px;"></div></div>
-                </div>
-                <div style="background:#04040a;border-top:1px solid rgba(255,255,255,.05);height:10px;"></div>
-                <div class="theme-thumb-badge">✓ Active</div>
-              </div>
-              <div class="theme-thumb-info">
-                <div class="theme-thumb-name">Dark</div>
-                <div class="theme-thumb-desc">Full dark, neon glow</div>
-              </div>
-            </div>
-
+        <div style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:10px;margin-bottom:2px;">
+          <div id="tcCurrentSwatch" style="width:44px;height:34px;border-radius:7px;overflow:hidden;flex-shrink:0;border:1px solid #e5e7eb;"></div>
+          <div style="min-width:0;">
+            <div id="tcCurrentName" style="font-size:13px;font-weight:700;color:#111827;">Default</div>
+            <div id="tcCurrentDesc" style="font-size:11px;color:#9ca3af;margin-top:1px;">Clean modern</div>
           </div>
+          <button onclick="openThemeChooser()" style="margin-left:auto;flex-shrink:0;padding:7px 13px;background:#111827;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Choose →</button>
         </div>
         <button onclick="saveStyles()" style="width:100%;padding:9px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;">Save Styles</button>
       </div>
@@ -500,5 +488,71 @@ var SITE_THEME = '{{ website.settings.theme or "default" }}';
 <style id="canvas-theme-css"></style>
 <!-- Builder logic — external file avoids Nunjucks escaping issues -->
 <script src="/js/website-builder.js"></script>
+
+<!-- ══ Prebuilt Section Picker ══ -->
+<div id="sectionPicker">
+  <div class="sp-head">
+    <div>
+      <div class="sp-title">Add a Section <span class="sp-sub">— choose a prebuilt layout</span></div>
+    </div>
+    <button class="sp-close" onclick="closeSectionPicker()">✕</button>
+  </div>
+  <div class="sp-body">
+    <div class="sp-sidebar" id="spSidebar"></div>
+    <div class="sp-main">
+      <div class="sp-section-title" id="spSectionTitle">Hero</div>
+      <div class="sp-section-sub" id="spSectionSub">Choose a layout for your hero section</div>
+      <div class="sp-grid" id="spGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Full-screen Theme Chooser ══ -->
+<div id="themeChooser">
+  <div class="tco-head">
+    <div class="tco-title">Choose a theme for <span id="tcSiteName"></span></div>
+    <div class="tco-sub">Pick a starting point — you can change it any time.</div>
+    <div class="tco-search-row">
+      <input id="tcSearch" class="tco-search" placeholder="Search themes..." oninput="tcFilter()">
+      <select id="tcCatSel" class="tco-cat-select" onchange="tcFilter()">
+        <option value="all">All categories</option>
+        <option value="Modern">Modern</option>
+        <option value="Classic">Classic</option>
+        <option value="Dark">Dark</option>
+      </select>
+    </div>
+  </div>
+  <div class="tco-chips">
+    <button class="tco-chip active" onclick="tcSetTag('all',this)">All</button>
+    <button class="tco-chip" onclick="tcSetTag('modern',this)">Modern</button>
+    <button class="tco-chip" onclick="tcSetTag('clean',this)">Clean</button>
+    <button class="tco-chip" onclick="tcSetTag('classic',this)">Classic</button>
+    <button class="tco-chip" onclick="tcSetTag('dark',this)">Dark</button>
+    <button class="tco-chip" onclick="tcSetTag('bold',this)">Bold</button>
+    <button class="tco-chip" onclick="tcSetTag('serif',this)">Serif</button>
+    <button class="tco-chip" onclick="tcSetTag('neon',this)">Neon</button>
+    <button class="tco-chip" onclick="tcSetTag('warm',this)">Warm</button>
+  </div>
+  <div class="tco-body">
+    <div class="tco-sidebar">
+      <div class="tco-cat-label">CATEGORY</div>
+      <div class="tco-cat-item active" onclick="tcSetCat('all',this)">All themes <span class="tco-count" id="tcCountAll">3</span></div>
+      <div class="tco-cat-item" onclick="tcSetCat('Modern',this)">Modern <span class="tco-count">1</span></div>
+      <div class="tco-cat-item" onclick="tcSetCat('Classic',this)">Classic <span class="tco-count">1</span></div>
+      <div class="tco-cat-item" onclick="tcSetCat('Dark',this)">Dark <span class="tco-count">1</span></div>
+    </div>
+    <div class="tco-main">
+      <div class="tco-showing" id="tcShowing">Showing all 3 themes</div>
+      <div class="tco-grid" id="tcGrid"></div>
+    </div>
+  </div>
+  <div class="tco-footer">
+    <div class="tco-footer-theme">Theme: <strong id="tcFooterLabel">default</strong></div>
+    <div class="tco-footer-btns">
+      <button class="tco-cancel" onclick="closeThemeChooser()">Cancel</button>
+      <button class="tco-use" onclick="tcUseTheme()">Use this theme →</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

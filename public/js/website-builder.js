@@ -22,7 +22,15 @@ var SEC_DEF = {
   team:         { heading:'Meet the Team', items:[{name:'Team Member',role:'Position',image:''}] },
   faq:          { heading:'Frequently Asked Questions', items:[{q:'What do you offer?',a:'We offer premium services tailored to your needs.'}] },
   cta:          { heading:'Ready to Get Started?', subheading:'Join hundreds of happy customers today.', cta_label:'Contact Us', cta_url:'#contact', bg_color:'#111827', text_color:'#ffffff' },
-  contact:      { heading:'Get in Touch', email:'', phone:'', address:'', show_form:true }
+  contact:      { heading:'Get in Touch', email:'', phone:'', address:'', show_form:true },
+  pricing:      { heading:'Our Pricing', subtitle:'Simple, transparent pricing.', plans:[{name:'Basic',price:'₹999/mo',features:'Feature one\nFeature two\nFeature three',cta:'Get Started',link:'#contact',featured:'no'},{name:'Pro',price:'₹1,999/mo',features:'Everything in Basic\nFeature four\nPriority support',cta:'Get Started',link:'#contact',featured:'yes'},{name:'Enterprise',price:'Custom',features:'Everything in Pro\nDedicated support\nCustom integrations',cta:'Contact Us',link:'#contact',featured:'no'}] },
+  stats:        { heading:'By the Numbers', items:[{number:'500+',label:'Happy Clients',emoji:'😊'},{number:'10+',label:'Years Experience',emoji:'📅'},{number:'99%',label:'Satisfaction Rate',emoji:'⭐'},{number:'24/7',label:'Support',emoji:'🛟'}] },
+  rich_text:    { title:'', content:'Write your content here. Share your story, mission, or any information that matters to your audience.\n\nAdd more paragraphs to expand on your message.', align:'left' },
+  columns:      { heading:'', cols:'3', bg:'white', items:[{emoji:'✨',heading:'Column One',text:'Add your content here.',btn_text:'',btn_link:''},{emoji:'🎯',heading:'Column Two',text:'Add your content here.',btn_text:'',btn_link:''},{emoji:'💎',heading:'Column Three',text:'Add your content here.',btn_text:'',btn_link:''}] },
+  video:        { heading:'', url:'', embed_url:'', caption:'' },
+  logobar:      { heading:'Trusted By', logos:[{url:'',alt:'Company One'},{url:'',alt:'Company Two'},{url:'',alt:'Company Three'},{url:'',alt:'Company Four'}] },
+  timeline:     { heading:'How It Works', items:[{step:'1',title:'Discovery',desc:'We learn about your goals and requirements.'},{step:'2',title:'Strategy',desc:'We craft a tailored plan for your success.'},{step:'3',title:'Execution',desc:'We build and deliver with precision.'},{step:'4',title:'Launch',desc:'We go live and continue to support you.'}] },
+  newsletter:   { heading:'Stay in the Loop', subtext:'Get the latest news and updates straight to your inbox.', placeholder:'Enter your email', cta:'Subscribe' }
 };
 
 /* ═══════════════════════════════════════════
@@ -345,6 +353,126 @@ function renderSectionPreview(sec) {
         '</form>' +
         '</div></div></section>';
 
+    case 'pricing':
+      var prPlans = d.plans || [];
+      return '<section class="section section-alt">' +
+        '<div class="container">' +
+        '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading || 'Our Pricing') + '</h2>' +
+        (d.subtitle ? '<p ' + ce('subtitle') + '>' + escHtml(d.subtitle) + '</p>' : '') + '</div>' +
+        '<div class="pricing-grid">' +
+        prPlans.map(function(plan, i) {
+          var feats = (plan.features || '').split('\n').filter(Boolean);
+          return '<div class="pricing-card' + (plan.featured === 'yes' ? ' featured' : '') + '">' +
+            '<div class="pricing-name" ' + ce(null,i,'name') + '>' + escHtml(plan.name || '') + '</div>' +
+            '<div class="pricing-price" ' + ce(null,i,'price') + '>' + escHtml(plan.price || '') + '</div>' +
+            '<ul class="pricing-features">' + feats.map(function(f){ return '<li>' + escHtml(f) + '</li>'; }).join('') + '</ul>' +
+            (plan.cta ? '<a class="pricing-cta" onclick="return false;" href="' + escHtml(plan.link||'#') + '">' + escHtml(plan.cta) + '</a>' : '') +
+            '</div>';
+        }).join('') +
+        '</div></div></section>';
+
+    case 'stats':
+      var stItems = d.items || [];
+      return '<section class="section">' +
+        '<div class="container">' +
+        (d.heading ? '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading) + '</h2></div>' : '') +
+        '<div class="stats-grid">' +
+        stItems.map(function(it, i) {
+          return '<div class="stat-item">' +
+            (it.emoji ? '<div class="stat-emoji">' + escHtml(it.emoji) + '</div>' : '') +
+            '<div class="stat-number" ' + ce(null,i,'number') + '>' + escHtml(it.number || '') + '</div>' +
+            '<div class="stat-label" ' + ce(null,i,'label') + '>' + escHtml(it.label || '') + '</div>' +
+            '</div>';
+        }).join('') +
+        '</div></div></section>';
+
+    case 'rich_text':
+      return '<section class="section">' +
+        '<div class="container">' +
+        '<div class="rich-text-block' + (d.align === 'center' ? ' center' : '') + '">' +
+        (d.title ? '<h2 ' + ce('title') + '>' + escHtml(d.title) + '</h2>' : '') +
+        '<div class="rtb-content" ' + ce('content') + ' style="white-space:pre-wrap;">' + escHtml(d.content || '') + '</div>' +
+        '</div></div></section>';
+
+    case 'columns':
+      var colItems = d.items || [];
+      var colBg = d.bg === 'accent' ? 'background:' + escHtml(p) + ';color:#fff;' : '';
+      var colCls = d.bg === 'light' ? 'section section-alt' : 'section';
+      return '<section class="' + colCls + '"' + (colBg ? ' style="' + colBg + '"' : '') + '>' +
+        '<div class="container">' +
+        (d.heading ? '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading) + '</h2></div>' : '') +
+        '<div class="columns-grid cols-' + escHtml(d.cols || '3') + '">' +
+        colItems.map(function(it, i) {
+          return '<div class="col-item">' +
+            (it.emoji ? '<div class="col-item-icon">' + escHtml(it.emoji) + '</div>' : '') +
+            (it.heading ? '<div class="col-item-heading" ' + ce(null,i,'heading') + '>' + escHtml(it.heading) + '</div>' : '') +
+            (it.text ? '<div class="col-item-text" ' + ce(null,i,'text') + '>' + escHtml(it.text) + '</div>' : '') +
+            (it.btn_text ? '<a class="col-item-btn" onclick="return false;">' + escHtml(it.btn_text) + '</a>' : '') +
+            '</div>';
+        }).join('') +
+        '</div></div></section>';
+
+    case 'video':
+      var embedUrl = d.embed_url || '';
+      return '<section class="section">' +
+        '<div class="container">' +
+        (d.heading ? '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading) + '</h2></div>' : '') +
+        '<div class="video-wrap">' +
+        (embedUrl
+          ? '<div class="video-embed"><iframe src="' + escHtml(embedUrl) + '" allowfullscreen loading="lazy"></iframe></div>'
+          : '<div class="video-embed" style="display:flex;align-items:center;justify-content:center;background:#f3f4f6;"><span style="font-size:48px;opacity:.3;">▶</span></div>'
+        ) +
+        (d.caption ? '<div class="video-caption" ' + ce('caption') + '>' + escHtml(d.caption) + '</div>' : '') +
+        '</div></div></section>';
+
+    case 'logobar':
+      var lbLogos = d.logos || [];
+      return '<section class="section section-alt">' +
+        '<div class="container">' +
+        (d.heading ? '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading) + '</h2></div>' : '') +
+        '<div class="logo-bar">' +
+        lbLogos.map(function(logo, i) {
+          return '<div class="logo-item">' +
+            (logo.url
+              ? '<img src="' + escHtml(logo.url) + '" alt="' + escHtml(logo.alt || '') + '">'
+              : '<span class="logo-item-text" ' + ce(null,i,'alt') + '>' + escHtml(logo.alt || 'Company') + '</span>'
+            ) +
+            '</div>';
+        }).join('') +
+        '</div></div></section>';
+
+    case 'timeline':
+      var tlItems = d.items || [];
+      return '<section class="section">' +
+        '<div class="container">' +
+        '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading || 'How It Works') + '</h2></div>' +
+        '<div class="timeline">' +
+        tlItems.map(function(it, i) {
+          return '<div class="tl-item">' +
+            '<div class="tl-line">' +
+              '<div class="tl-dot">' + escHtml(it.step || String(i + 1)) + '</div>' +
+              '<div class="tl-connector"></div>' +
+            '</div>' +
+            '<div class="tl-content">' +
+              '<div class="tl-title" ' + ce(null,i,'title') + '>' + escHtml(it.title || '') + '</div>' +
+              (it.desc ? '<div class="tl-desc" ' + ce(null,i,'desc') + '>' + escHtml(it.desc) + '</div>' : '') +
+            '</div>' +
+          '</div>';
+        }).join('') +
+        '</div></div></section>';
+
+    case 'newsletter':
+      return '<section class="section section-alt">' +
+        '<div class="container">' +
+        '<div class="newsletter-wrap">' +
+        '<h2 ' + ce('heading') + '>' + escHtml(d.heading || 'Stay in the Loop') + '</h2>' +
+        (d.subtext ? '<p ' + ce('subtext') + '>' + escHtml(d.subtext) + '</p>' : '') +
+        '<form class="newsletter-form" onsubmit="return false;">' +
+          '<input class="nl-input" type="email" placeholder="' + escHtml(d.placeholder || 'Enter your email') + '" disabled>' +
+          '<button type="button" class="nl-btn" style="background:' + escHtml(p) + ';">' + escHtml(d.cta || 'Subscribe') + '</button>' +
+        '</form>' +
+        '</div></div></section>';
+
     default:
       return '<div style="padding:40px;text-align:center;color:#9ca3af;font-size:13px;">Unknown section type: ' + escHtml(sec.type) + '</div>';
   }
@@ -565,6 +693,66 @@ function renderSectionEditPanel(sid) {
       html += fI('phone', 'Phone', d.phone, '+91 ...');
       html += fI('address', 'Address', d.address, 'Street, City');
       break;
+
+    case 'pricing':
+      html += fI('heading', 'Section Heading', d.heading);
+      html += fI('subtitle', 'Subtitle', d.subtitle);
+      (d.plans || []).forEach(function(plan, i) {
+        html += '<div class="it-card" style="margin-bottom:8px;">';
+        html += '<button class="it-del" onclick="removeItem(\'' + sid + '\',\'plans\',' + i + ')">✕</button>';
+        html += '<input class="fi" placeholder="Plan Name" value="' + escHtml(plan.name || '') + '" oninput="sdi(\'' + sid + '\',\'plans\',' + i + ',\'name\',this.value)">';
+        html += '<input class="fi" placeholder="Price (e.g. ₹999/mo)" value="' + escHtml(plan.price || '') + '" oninput="sdi(\'' + sid + '\',\'plans\',' + i + ',\'price\',this.value)" style="margin-top:4px;">';
+        html += '<textarea class="fi ft" placeholder="Features (one per line)" style="margin-top:4px;" oninput="sdi(\'' + sid + '\',\'plans\',' + i + ',\'features\',this.value)">' + escHtml(plan.features || '') + '</textarea>';
+        html += '<input class="fi" placeholder="Button Text" value="' + escHtml(plan.cta || '') + '" oninput="sdi(\'' + sid + '\',\'plans\',' + i + ',\'cta\',this.value)" style="margin-top:4px;">';
+        html += '<input class="fi" placeholder="Button Link" value="' + escHtml(plan.link || '') + '" oninput="sdi(\'' + sid + '\',\'plans\',' + i + ',\'link\',this.value)" style="margin-top:4px;">';
+        html += '<input class="fi" placeholder="Highlighted? yes / no" value="' + escHtml(plan.featured || 'no') + '" oninput="sdi(\'' + sid + '\',\'plans\',' + i + ',\'featured\',this.value)" style="margin-top:4px;">';
+        html += '</div>';
+      });
+      html += '<button class="add-it-btn" onclick="addPlan(\'' + sid + '\')">+ Add plan</button>';
+      break;
+
+    case 'stats':
+      html += fI('heading', 'Section Heading', d.heading);
+      html += itemsEditor('items', d.items || [], ['emoji','number','label'], ['Icon (emoji)','Number / Value','Label']);
+      break;
+
+    case 'rich_text':
+      html += fI('title', 'Title (optional)', d.title);
+      html += fT('content', 'Content', d.content);
+      html += fS('align', 'Alignment', d.align || 'left', {'left':'Left','center':'Center'});
+      break;
+
+    case 'columns':
+      html += fI('heading', 'Section Heading (optional)', d.heading);
+      html += fS('cols', 'Number of Columns', d.cols || '3', {'2':'2 columns','3':'3 columns'});
+      html += fS('bg', 'Background', d.bg || 'white', {'white':'White','light':'Light gray','accent':'Accent color'});
+      html += itemsEditor('items', d.items || [], ['emoji','heading','text','btn_text','btn_link'], ['Icon (emoji)','Heading','Text','Button Text (optional)','Button Link']);
+      break;
+
+    case 'video':
+      html += fI('heading', 'Section Heading (optional)', d.heading);
+      html += '<div class="field-group"><label class="fl">YouTube / Vimeo URL</label>' +
+        '<input class="fi" value="' + escHtml(d.url || '') + '" placeholder="https://www.youtube.com/watch?v=..." ' +
+        'oninput="setVideoUrl(\'' + sid + '\',this.value)"></div>';
+      html += fI('caption', 'Caption (optional)', d.caption);
+      break;
+
+    case 'logobar':
+      html += fI('heading', 'Section Heading (optional)', d.heading);
+      html += itemsEditor('logos', d.logos || [], ['url','alt'], ['Logo Image URL (optional)','Company Name / Alt text']);
+      break;
+
+    case 'timeline':
+      html += fI('heading', 'Section Heading', d.heading);
+      html += itemsEditor('items', d.items || [], ['step','title','desc'], ['Step Number / Year','Title','Description']);
+      break;
+
+    case 'newsletter':
+      html += fI('heading', 'Heading', d.heading);
+      html += fI('subtext', 'Subtext', d.subtext);
+      html += fI('placeholder', 'Input Placeholder', d.placeholder, 'Enter your email');
+      html += fI('cta', 'Button Text', d.cta, 'Subscribe');
+      break;
   }
 
   document.getElementById('sec-edit-fields').innerHTML = html;
@@ -613,6 +801,47 @@ function removeItem(sid, key, idx) {
   sec.data[key].splice(idx, 1);
   renderSectionEditPanel(sid);
   renderCanvas();
+  pushUndo();
+}
+
+/* ═══════════════════════════════════════════
+   HELPER FUNCTIONS FOR NEW SECTION TYPES
+═══════════════════════════════════════════ */
+function addPlan(sid) {
+  var sec = sections.find(function(s){ return s.id === sid; });
+  if (!sec) return;
+  if (!sec.data.plans) sec.data.plans = [];
+  sec.data.plans.push({ name:'New Plan', price:'₹999/mo', features:'Feature one\nFeature two\nFeature three', cta:'Get Started', link:'#contact', featured:'no' });
+  renderSectionEditPanel(sid);
+  renderCanvas();
+  pushUndo();
+}
+
+function setVideoUrl(sid, rawUrl) {
+  var sec = sections.find(function(s){ return s.id === sid; });
+  if (!sec) return;
+  sec.data.url = rawUrl;
+  // Convert to embed URL
+  var embed = rawUrl;
+  var m;
+  if (rawUrl && !rawUrl.includes('/embed/')) {
+    m = rawUrl.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+    if (m) { embed = 'https://www.youtube.com/embed/' + m[1]; }
+    else {
+      m = rawUrl.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+      if (m) { embed = 'https://www.youtube.com/embed/' + m[1]; }
+      else {
+        m = rawUrl.match(/vimeo\.com\/(\d+)/);
+        if (m) { embed = 'https://player.vimeo.com/video/' + m[1]; }
+      }
+    }
+  }
+  sec.data.embed_url = embed;
+  renderCanvas();
+  if (selectedSecId) {
+    var wrap = document.querySelector('.sec-wrap[data-sid="' + selectedSecId + '"]');
+    if (wrap) wrap.classList.add('selected');
+  }
   pushUndo();
 }
 
@@ -911,8 +1140,659 @@ document.addEventListener('keydown', function(e) {
 });
 
 /* ═══════════════════════════════════════════
+   FULL-SCREEN THEME CHOOSER
+═══════════════════════════════════════════ */
+var THEMES_LIST = [
+  { id:'default', name:'Default', desc:'Clean modern design with soft cards and indigo accents', tags:['modern','clean','minimal','professional'], category:'Modern' },
+  { id:'minimal', name:'Elegant', desc:'Warm cream palette with Playfair serif and gold accents', tags:['elegant','serif','classic','warm'], category:'Classic' },
+  { id:'bold',    name:'Dark',    desc:'Full dark theme with glass cards and neon purple glow', tags:['dark','bold','neon','modern'], category:'Dark' }
+];
+
+var _tcTag = 'all';
+var _tcCat = 'all';
+var _tcPendingId = null;
+
+function openThemeChooser() {
+  _tcPendingId = activeTheme;
+  document.getElementById('tcSiteName').textContent = siteSettings.title || SUBDOMAIN;
+  document.getElementById('tcFooterLabel').textContent = activeTheme;
+  // Reset filters
+  _tcTag = 'all'; _tcCat = 'all';
+  document.querySelectorAll('.tco-chip').forEach(function(c){ c.classList.toggle('active', c.textContent.trim() === 'All'); });
+  document.querySelectorAll('.tco-cat-item').forEach(function(c,i){ c.classList.toggle('active', i===0); });
+  document.getElementById('tcSearch').value = '';
+  document.getElementById('tcCatSel').value = 'all';
+  tcRenderGrid();
+  document.getElementById('themeChooser').style.display = 'flex';
+}
+
+function closeThemeChooser() {
+  // Revert live preview if user cancelled
+  if (_tcPendingId !== activeTheme) loadThemeCSS(activeTheme);
+  document.getElementById('themeChooser').style.display = 'none';
+}
+
+function tcUseTheme() {
+  if (_tcPendingId) selectTheme(_tcPendingId);
+  document.getElementById('themeChooser').style.display = 'none';
+  // Update the swatch in styles panel
+  tcUpdateSwatch(_tcPendingId);
+}
+
+function tcSetTag(tag, el) {
+  _tcTag = tag;
+  document.querySelectorAll('.tco-chip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+  tcFilter();
+}
+
+function tcSetCat(cat, el) {
+  _tcCat = cat;
+  document.querySelectorAll('.tco-cat-item').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+  tcFilter();
+}
+
+function tcFilter() {
+  var q = (document.getElementById('tcSearch').value || '').toLowerCase();
+  var catVal = document.getElementById('tcCatSel').value;
+  if (catVal !== 'all') _tcCat = catVal;
+  var filtered = THEMES_LIST.filter(function(t) {
+    var mSearch = !q || t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.tags.some(function(g){ return g.includes(q); });
+    var mTag = _tcTag === 'all' || t.tags.includes(_tcTag);
+    var mCat = _tcCat === 'all' || t.category === _tcCat;
+    return mSearch && mTag && mCat;
+  });
+  var n = filtered.length;
+  document.getElementById('tcShowing').textContent = 'Showing ' + (n === THEMES_LIST.length ? 'all ' : '') + n + ' theme' + (n !== 1 ? 's' : '');
+  tcRenderGrid(filtered);
+}
+
+function tcRenderGrid(list) {
+  list = list || THEMES_LIST;
+  var sel = _tcPendingId || activeTheme;
+  document.getElementById('tcGrid').innerHTML = list.map(function(t) {
+    var isActive = t.id === sel;
+    return '<div class="tco-card' + (isActive ? ' selected' : '') + '" data-tid="' + escHtml(t.id) + '">' +
+      '<div class="tco-preview">' + tcPreviewHTML(t) + '<div class="tco-sel-badge">✓ Selected</div></div>' +
+      '<div class="tco-card-info">' +
+        '<div class="tco-card-name">' + escHtml(t.name) + '</div>' +
+        '<div class="tco-card-desc">' + escHtml(t.desc) + '</div>' +
+        '<div class="tco-tags">' + t.tags.map(function(g){ return '<span class="tco-tag">' + escHtml(g) + '</span>'; }).join('') + '</div>' +
+        '<div class="tco-actions">' +
+          '<button class="tco-prev-btn" onclick="event.stopPropagation();tcPreview(\'' + escHtml(t.id) + '\')">Preview</button>' +
+          '<button class="tco-sel-btn" onclick="event.stopPropagation();tcPick(\'' + escHtml(t.id) + '\')">Select</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function tcPreview(tid) {
+  loadThemeCSS(tid);
+  document.getElementById('tcFooterLabel').textContent = tid;
+}
+
+function tcPick(tid) {
+  _tcPendingId = tid;
+  loadThemeCSS(tid);
+  document.getElementById('tcFooterLabel').textContent = tid;
+  document.querySelectorAll('.tco-card').forEach(function(c){
+    c.classList.toggle('selected', c.dataset.tid === tid);
+  });
+}
+
+function tcUpdateSwatch(tid) {
+  var t = THEMES_LIST.find(function(x){ return x.id === tid; });
+  if (!t) return;
+  var swatch = document.getElementById('tcCurrentSwatch');
+  var name = document.getElementById('tcCurrentName');
+  var desc = document.getElementById('tcCurrentDesc');
+  if (swatch) swatch.innerHTML = tcPreviewHTML(t);
+  if (name) name.textContent = t.name;
+  if (desc) desc.textContent = t.desc;
+}
+
+function tcPreviewHTML(t) {
+  if (t.id === 'default') {
+    return [
+      '<div style="background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 12px;height:28px;">',
+        '<div style="width:36px;height:7px;background:#6366f1;border-radius:4px;"></div>',
+        '<div style="margin-left:auto;display:flex;gap:4px;">',
+          '<div style="width:18px;height:5px;background:#f1f5f9;border-radius:3px;"></div>',
+          '<div style="width:18px;height:5px;background:#f1f5f9;border-radius:3px;"></div>',
+          '<div style="width:28px;height:5px;background:#6366f1;border-radius:3px;opacity:.25;"></div>',
+        '</div>',
+      '</div>',
+      '<div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:18px 14px;text-align:center;">',
+        '<div style="width:62%;height:9px;background:rgba(255,255,255,.92);border-radius:5px;margin:0 auto 7px;"></div>',
+        '<div style="width:42%;height:5px;background:rgba(255,255,255,.55);border-radius:4px;margin:0 auto 12px;"></div>',
+        '<div style="display:inline-block;width:52px;height:15px;background:#fff;border-radius:30px;box-shadow:0 3px 10px rgba(0,0,0,.2);"></div>',
+      '</div>',
+      '<div style="background:#f8fafc;padding:10px 12px;">',
+        '<div style="width:28%;height:6px;background:#0f172a;border-radius:4px;margin:0 auto 2px;"></div>',
+        '<div style="width:18%;height:4px;background:#6366f1;border-radius:3px;margin:0 auto 8px;"></div>',
+        '<div style="display:flex;gap:5px;">',
+          '<div style="flex:1;background:#fff;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px;">',
+            '<div style="width:14px;height:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:5px;margin-bottom:4px;"></div>',
+            '<div style="width:65%;height:4px;background:#111827;border-radius:2px;margin-bottom:3px;"></div>',
+            '<div style="width:88%;height:3px;background:#e5e7eb;border-radius:2px;"></div>',
+          '</div>',
+          '<div style="flex:1;background:#fff;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px;">',
+            '<div style="width:14px;height:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:5px;margin-bottom:4px;"></div>',
+            '<div style="width:65%;height:4px;background:#111827;border-radius:2px;margin-bottom:3px;"></div>',
+            '<div style="width:88%;height:3px;background:#e5e7eb;border-radius:2px;"></div>',
+          '</div>',
+          '<div style="flex:1;background:#fff;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px;">',
+            '<div style="width:14px;height:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:5px;margin-bottom:4px;"></div>',
+            '<div style="width:65%;height:4px;background:#111827;border-radius:2px;margin-bottom:3px;"></div>',
+            '<div style="width:88%;height:3px;background:#e5e7eb;border-radius:2px;"></div>',
+          '</div>',
+        '</div>',
+      '</div>',
+      '<div style="background:#0f172a;padding:9px 14px;text-align:center;">',
+        '<div style="width:22%;height:4px;background:rgba(255,255,255,.2);border-radius:3px;margin:0 auto;"></div>',
+      '</div>'
+    ].join('');
+  }
+  if (t.id === 'minimal') {
+    return [
+      '<div style="background:#fdf8f3;border-bottom:1px solid #e8d5c0;display:flex;align-items:center;padding:0 12px;height:28px;">',
+        '<div style="width:44px;height:6px;background:#2c1810;border-radius:1px;"></div>',
+        '<div style="margin-left:auto;display:flex;gap:4px;">',
+          '<div style="width:18px;height:4px;background:#e8d5c0;border-radius:1px;"></div>',
+          '<div style="width:18px;height:4px;background:#e8d5c0;border-radius:1px;"></div>',
+          '<div style="width:18px;height:4px;background:#b8963e;border-radius:1px;opacity:.4;"></div>',
+        '</div>',
+      '</div>',
+      '<div style="background:#2c1810;padding:18px 14px;text-align:center;position:relative;overflow:hidden;">',
+        '<div style="position:relative;width:62%;height:9px;background:rgba(253,248,243,.85);border-radius:1px;margin:0 auto 7px;"></div>',
+        '<div style="position:relative;width:40%;height:5px;background:#c9a882;border-radius:1px;margin:0 auto 12px;"></div>',
+        '<div style="position:relative;display:inline-block;width:52px;height:15px;border:2px solid #b8963e;border-radius:0;"></div>',
+      '</div>',
+      '<div style="background:#fdf8f3;padding:10px 12px;">',
+        '<div style="width:28%;height:6px;background:#2c1810;border-radius:1px;margin:0 auto 2px;"></div>',
+        '<div style="width:20%;height:3px;background:#b8963e;margin:0 auto 8px;"></div>',
+        '<div style="display:flex;gap:5px;">',
+          '<div style="flex:1;background:#fdf8f3;border:1px solid #e8d5c0;border-top:2.5px solid #b8963e;padding:6px;">',
+            '<div style="width:65%;height:4px;background:#2c1810;border-radius:1px;margin-bottom:3px;"></div>',
+            '<div style="width:88%;height:3px;background:#e8d5c0;border-radius:1px;"></div>',
+          '</div>',
+          '<div style="flex:1;background:#fdf8f3;border:1px solid #e8d5c0;border-top:2.5px solid #b8963e;padding:6px;">',
+            '<div style="width:65%;height:4px;background:#2c1810;border-radius:1px;margin-bottom:3px;"></div>',
+            '<div style="width:88%;height:3px;background:#e8d5c0;border-radius:1px;"></div>',
+          '</div>',
+          '<div style="flex:1;background:#fdf8f3;border:1px solid #e8d5c0;border-top:2.5px solid #b8963e;padding:6px;">',
+            '<div style="width:65%;height:4px;background:#2c1810;border-radius:1px;margin-bottom:3px;"></div>',
+            '<div style="width:88%;height:3px;background:#e8d5c0;border-radius:1px;"></div>',
+          '</div>',
+        '</div>',
+      '</div>',
+      '<div style="background:#1a0f08;padding:9px 14px;text-align:center;">',
+        '<div style="width:22%;height:3px;background:rgba(184,150,62,.35);margin:0 auto;"></div>',
+      '</div>'
+    ].join('');
+  }
+  if (t.id === 'bold') {
+    return [
+      '<div style="background:#080810;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;padding:0 12px;height:28px;">',
+        '<div style="width:36px;height:7px;background:#6366f1;border-radius:4px;box-shadow:0 0 8px rgba(99,102,241,.7);"></div>',
+        '<div style="margin-left:auto;display:flex;gap:4px;">',
+          '<div style="width:18px;height:5px;background:rgba(255,255,255,.12);border-radius:3px;"></div>',
+          '<div style="width:18px;height:5px;background:rgba(255,255,255,.12);border-radius:3px;"></div>',
+          '<div style="width:18px;height:5px;background:rgba(99,102,241,.35);border-radius:3px;"></div>',
+        '</div>',
+      '</div>',
+      '<div style="background:#080810;padding:18px 14px;text-align:center;position:relative;overflow:hidden;">',
+        '<div style="position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:220px;height:160px;background:radial-gradient(ellipse,rgba(99,102,241,.32),transparent 70%);pointer-events:none;"></div>',
+        '<div style="position:relative;width:62%;height:9px;background:rgba(255,255,255,.9);border-radius:5px;margin:0 auto 7px;"></div>',
+        '<div style="position:relative;width:42%;height:5px;background:rgba(255,255,255,.25);border-radius:4px;margin:0 auto 12px;"></div>',
+        '<div style="position:relative;display:inline-block;width:52px;height:15px;background:#6366f1;border-radius:10px;box-shadow:0 0 14px rgba(99,102,241,.7);"></div>',
+      '</div>',
+      '<div style="background:#080810;padding:10px 12px;">',
+        '<div style="width:28%;height:6px;background:rgba(255,255,255,.85);border-radius:4px;margin:0 auto 2px;"></div>',
+        '<div style="width:18%;height:4px;background:#6366f1;border-radius:3px;margin:0 auto 8px;box-shadow:0 0 6px rgba(99,102,241,.5);"></div>',
+        '<div style="display:flex;gap:5px;">',
+          '<div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px;">',
+            '<div style="width:14px;height:14px;background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.35);border-radius:5px;margin-bottom:4px;"></div>',
+            '<div style="width:65%;height:4px;background:rgba(255,255,255,.8);border-radius:2px;margin-bottom:3px;"></div>',
+            '<div style="width:88%;height:3px;background:rgba(255,255,255,.12);border-radius:2px;"></div>',
+          '</div>',
+          '<div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px;">',
+            '<div style="width:14px;height:14px;background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.35);border-radius:5px;margin-bottom:4px;"></div>',
+            '<div style="width:65%;height:4px;background:rgba(255,255,255,.8);border-radius:2px;margin-bottom:3px;"></div>',
+            '<div style="width:88%;height:3px;background:rgba(255,255,255,.12);border-radius:2px;"></div>',
+          '</div>',
+          '<div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px;">',
+            '<div style="width:14px;height:14px;background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.35);border-radius:5px;margin-bottom:4px;"></div>',
+            '<div style="width:65%;height:4px;background:rgba(255,255,255,.8);border-radius:2px;margin-bottom:3px;"></div>',
+            '<div style="width:88%;height:3px;background:rgba(255,255,255,.12);border-radius:2px;"></div>',
+          '</div>',
+        '</div>',
+      '</div>',
+      '<div style="background:#04040a;border-top:1px solid rgba(255,255,255,.05);padding:9px 14px;text-align:center;">',
+        '<div style="width:22%;height:4px;background:rgba(255,255,255,.1);border-radius:2px;margin:0 auto;"></div>',
+      '</div>'
+    ].join('');
+  }
+  return '';
+}
+
+/* ═══════════════════════════════════════════
+   PREBUILT SECTIONS PICKER
+═══════════════════════════════════════════ */
+var PREBUILT_CATS = [
+  { id:'hero',         label:'Hero',         icon:'🦸', sub:'Page hero sections' },
+  { id:'about',        label:'About',        icon:'👤', sub:'About / intro sections' },
+  { id:'services',     label:'Services',     icon:'⚡', sub:'Services & features' },
+  { id:'pricing',      label:'Pricing',      icon:'💰', sub:'Pricing plans & tiers' },
+  { id:'stats',        label:'Stats',        icon:'📊', sub:'Key numbers & metrics' },
+  { id:'testimonials', label:'Testimonials', icon:'💬', sub:'Client reviews & quotes' },
+  { id:'team',         label:'Team',         icon:'👥', sub:'Team member profiles' },
+  { id:'faq',          label:'FAQ',          icon:'❓', sub:'Frequently asked questions' },
+  { id:'cta',          label:'CTA Banner',   icon:'📣', sub:'Call-to-action banners' },
+  { id:'gallery',      label:'Gallery',      icon:'🖼', sub:'Photo & image galleries' },
+  { id:'video',        label:'Video',        icon:'▶️', sub:'YouTube / Vimeo embed' },
+  { id:'logobar',      label:'Logo Bar',     icon:'🏷', sub:'Client & partner logos' },
+  { id:'timeline',     label:'Timeline',     icon:'🗂', sub:'Process steps & milestones' },
+  { id:'columns',      label:'Columns',      icon:'⬛', sub:'Multi-column layouts' },
+  { id:'rich_text',    label:'Rich Text',    icon:'📝', sub:'Text & content blocks' },
+  { id:'newsletter',   label:'Newsletter',   icon:'📧', sub:'Email subscribe sections' },
+  { id:'contact',      label:'Contact',      icon:'📬', sub:'Contact forms & info' }
+];
+
+var PREBUILT_VARIANTS = {
+  hero: [
+    { label:'Bold Center', desc:'Large headline on gradient background', color:'#6366f1',
+      data:{ headline:'Welcome to Our Website', subheadline:'We deliver exceptional results for every client.', cta_label:'Get Started', cta_url:'#contact', bg_color:PRIMARY, text_color:'#ffffff' } },
+    { label:'Dark Hero', desc:'Dramatic dark background with bright button', color:'#0f172a',
+      data:{ headline:'Build Something Amazing', subheadline:'Professional solutions for modern businesses.', cta_label:'Start Today', cta_url:'#contact', bg_color:'#0f172a', text_color:'#ffffff' } },
+    { label:'Light & Clean', desc:'White background with accent color text', color:'#f0f9ff',
+      data:{ headline:'Your Vision, Delivered', subheadline:'Helping businesses grow since 2015.', cta_label:'Learn More', cta_url:'#about', bg_color:'#f0f9ff', text_color:'#111827' } }
+  ],
+  about: [
+    { label:'Image Right', desc:'Text on the left, image placeholder on the right', color:'#fff',
+      data:{ heading:'About Us', text:'Tell your story here. What makes you unique? What values drive your work?', image:'', layout:'image_right' } },
+    { label:'Image Left', desc:'Image placeholder on the left, text on the right', color:'#fff',
+      data:{ heading:'Our Story', text:'We started with a simple mission — to make great things happen for our clients.', image:'', layout:'image_left' } },
+    { label:'Full Width Text', desc:'No image, powerful full-width text block', color:'#f9fafb',
+      data:{ heading:'Who We Are', text:'We are a team of passionate professionals dedicated to excellence in everything we do.', image:'', layout:'full_text' } }
+  ],
+  services: [
+    { label:'3 Cards', desc:'Three service offering cards', color:'#f9fafb',
+      data:{ heading:'Our Services', items:[{icon:'⚡',title:'Strategy',desc:'We plan for your success.'},{icon:'🎨',title:'Design',desc:'Beautiful experiences that convert.'},{icon:'📈',title:'Growth',desc:'Scale your business faster.'}] } },
+    { label:'4 Cards', desc:'Four service offerings', color:'#f9fafb',
+      data:{ heading:'What We Do', items:[{icon:'🚀',title:'Launch',desc:'Get to market fast.'},{icon:'🎯',title:'Target',desc:'Reach the right audience.'},{icon:'⚙️',title:'Build',desc:'Robust solutions.'},{icon:'💎',title:'Quality',desc:'Premium at every step.'}] } },
+    { label:'6 Cards', desc:'Full range of six services', color:'#f9fafb',
+      data:{ heading:'Our Expertise', items:[{icon:'⚡',title:'Service 1',desc:'Short description.'},{icon:'🎯',title:'Service 2',desc:'Short description.'},{icon:'💎',title:'Service 3',desc:'Short description.'},{icon:'🚀',title:'Service 4',desc:'Short description.'},{icon:'🎨',title:'Service 5',desc:'Short description.'},{icon:'📈',title:'Service 6',desc:'Short description.'}] } }
+  ],
+  pricing: [
+    { label:'3 Tiers', desc:'Basic, Pro, and Enterprise plans', color:'#f9fafb',
+      data:{ heading:'Our Pricing', subtitle:'Simple, transparent pricing.', plans:[{name:'Basic',price:'₹999/mo',features:'Feature one\nFeature two\nFeature three',cta:'Get Started',link:'#contact',featured:'no'},{name:'Pro',price:'₹1,999/mo',features:'Everything in Basic\nFeature four\nPriority support',cta:'Get Started',link:'#contact',featured:'yes'},{name:'Enterprise',price:'Custom',features:'Everything in Pro\nDedicated support\nCustom integrations',cta:'Contact Us',link:'#contact',featured:'no'}] } },
+    { label:'2 Tiers', desc:'Free vs Pro comparison', color:'#f9fafb',
+      data:{ heading:'Choose Your Plan', subtitle:'Start free, upgrade anytime.', plans:[{name:'Free',price:'₹0/mo',features:'Basic features\nUp to 5 users\nEmail support',cta:'Start Free',link:'#contact',featured:'no'},{name:'Pro',price:'₹2,499/mo',features:'All features\nUnlimited users\nPriority support',cta:'Upgrade Now',link:'#contact',featured:'yes'}] } }
+  ],
+  stats: [
+    { label:'4 Stats', desc:'Four key impact numbers with icons', color:'#fff',
+      data:{ heading:'By the Numbers', items:[{number:'500+',label:'Happy Clients',emoji:'😊'},{number:'10+',label:'Years Experience',emoji:'📅'},{number:'99%',label:'Satisfaction Rate',emoji:'⭐'},{number:'24/7',label:'Support',emoji:'🛟'}] } },
+    { label:'3 Stats', desc:'Three bold metrics', color:'#fff',
+      data:{ heading:'Our Impact', items:[{number:'1,000+',label:'Projects Delivered',emoji:'🚀'},{number:'50+',label:'Team Members',emoji:'👥'},{number:'₹10Cr+',label:'Revenue Generated',emoji:'💰'}] } }
+  ],
+  testimonials: [
+    { label:'3 Cards', desc:'Three client testimonials in a grid', color:'#f9fafb',
+      data:{ heading:'What Clients Say', items:[{name:'Priya Sharma',role:'CEO, TechStartup',quote:'This service changed our business completely!'},{name:'Rahul Verma',role:'Founder, GrowFast',quote:'Incredible results, highly recommended.'},{name:'Anita Patel',role:'Marketing Head, BigBrand',quote:'Professional, fast, and reliable.'}] } },
+    { label:'2 Cards', desc:'Two prominent testimonials', color:'#f9fafb',
+      data:{ heading:'Client Love', items:[{name:'Vikram Singh',role:'Director, Innovation Co',quote:'Absolutely transformed our online presence and doubled our leads.'},{name:'Meera Nair',role:'CEO, Buildify',quote:'Best investment we made this year. Highly professional team.'}] } }
+  ],
+  team: [
+    { label:'3 Members', desc:'Three team member cards', color:'#fff',
+      data:{ heading:'Meet the Team', items:[{name:'Arjun Mehta',role:'Founder & CEO',image:''},{name:'Sneha Kapoor',role:'Lead Designer',image:''},{name:'Dev Patel',role:'Head of Technology',image:''}] } },
+    { label:'4 Members', desc:'Four team member cards', color:'#fff',
+      data:{ heading:'Our Team', items:[{name:'Arjun Mehta',role:'CEO',image:''},{name:'Sneha Kapoor',role:'Designer',image:''},{name:'Dev Patel',role:'Developer',image:''},{name:'Riya Shah',role:'Marketing',image:''}] } }
+  ],
+  faq: [
+    { label:'4 Questions', desc:'Accordion FAQ with four questions', color:'#f9fafb',
+      data:{ heading:'Frequently Asked Questions', items:[{q:'What do you offer?',a:'We offer premium services tailored to your needs.'},{q:'How long does it take?',a:'Most projects are completed within 2–4 weeks.'},{q:'Do you offer support?',a:'Yes, we provide ongoing support to all clients.'},{q:'What is the pricing?',a:'Pricing varies by project. Contact us for a quote.'}] } },
+    { label:'3 Questions', desc:'Short FAQ — three key questions', color:'#f9fafb',
+      data:{ heading:'Got Questions?', items:[{q:'How do I get started?',a:'Simply contact us and we\'ll schedule a call.'},{q:'Can I cancel anytime?',a:'Yes, no long-term contracts.'},{q:'Is there a free trial?',a:'Yes, we offer a 14-day free trial.'}] } }
+  ],
+  cta: [
+    { label:'Dark Banner', desc:'High-contrast dark call to action', color:'#111827',
+      data:{ heading:'Ready to Get Started?', subheading:'Join hundreds of happy customers today.', cta_label:'Contact Us', cta_url:'#contact', bg_color:'#111827', text_color:'#ffffff' } },
+    { label:'Brand Color', desc:'Primary color call to action', color:PRIMARY,
+      data:{ heading:'Let\'s Work Together', subheading:'Reach out and let\'s build something great.', cta_label:'Get in Touch', cta_url:'#contact', bg_color:PRIMARY, text_color:'#ffffff' } },
+    { label:'Light', desc:'Subtle CTA on light background', color:'#f8fafc',
+      data:{ heading:'Take the Next Step', subheading:'We\'re ready when you are.', cta_label:'Start Now →', cta_url:'#contact', bg_color:'#f8fafc', text_color:'#111827' } }
+  ],
+  gallery: [
+    { label:'Photo Grid', desc:'Image grid with a heading', color:'#fff',
+      data:{ heading:'Our Work', images:[] } },
+    { label:'No Heading', desc:'Clean gallery without a title', color:'#fff',
+      data:{ heading:'', images:[] } }
+  ],
+  video: [
+    { label:'With Heading', desc:'Video embed with a section title', color:'#fff',
+      data:{ heading:'Watch Our Story', url:'', embed_url:'', caption:'' } },
+    { label:'Video Only', desc:'Full-width video, no heading', color:'#fff',
+      data:{ heading:'', url:'', embed_url:'', caption:'' } }
+  ],
+  logobar: [
+    { label:'Trusted By', desc:'Logo strip with "Trusted By" heading', color:'#f9fafb',
+      data:{ heading:'Trusted By', logos:[{url:'',alt:'Company One'},{url:'',alt:'Company Two'},{url:'',alt:'Company Three'},{url:'',alt:'Company Four'},{url:'',alt:'Company Five'}] } },
+    { label:'Partners', desc:'Partners strip without heading', color:'#f9fafb',
+      data:{ heading:'', logos:[{url:'',alt:'Partner A'},{url:'',alt:'Partner B'},{url:'',alt:'Partner C'},{url:'',alt:'Partner D'}] } }
+  ],
+  timeline: [
+    { label:'Process Steps', desc:'Numbered steps — great for "How It Works"', color:'#fff',
+      data:{ heading:'How It Works', items:[{step:'1',title:'Discovery',desc:'We learn about your goals and requirements.'},{step:'2',title:'Strategy',desc:'We craft a tailored plan for your success.'},{step:'3',title:'Execution',desc:'We build and deliver with precision.'},{step:'4',title:'Launch',desc:'We go live and support you every step.'}] } },
+    { label:'Milestones', desc:'Year-based company history timeline', color:'#fff',
+      data:{ heading:'Our Journey', items:[{step:'2019',title:'Founded',desc:'Started with a small team and big dreams.'},{step:'2021',title:'100 Clients',desc:'Reached a major milestone in growth.'},{step:'2023',title:'Expanded',desc:'Grew to 20+ talented professionals.'},{step:'2024',title:'Global',desc:'Now serving clients across the world.'}] } }
+  ],
+  columns: [
+    { label:'3 Columns', desc:'Three equal content columns with icons', color:'#fff',
+      data:{ heading:'', cols:'3', bg:'white', items:[{emoji:'✨',heading:'Column One',text:'Add your content here.',btn_text:'',btn_link:''},{emoji:'🎯',heading:'Column Two',text:'Add your content here.',btn_text:'',btn_link:''},{emoji:'💎',heading:'Column Three',text:'Add your content here.',btn_text:'',btn_link:''}] } },
+    { label:'2 Columns', desc:'Two equal columns with buttons', color:'#fff',
+      data:{ heading:'', cols:'2', bg:'white', items:[{emoji:'🚀',heading:'Left Column',text:'Add your content here.',btn_text:'Learn More',btn_link:'#'},{emoji:'💡',heading:'Right Column',text:'Add your content here.',btn_text:'Learn More',btn_link:'#'}] } }
+  ],
+  rich_text: [
+    { label:'Left Aligned', desc:'Text block aligned left with a title', color:'#fff',
+      data:{ title:'Our Approach', content:'Write your content here. Share your story, mission, or any information that matters.\n\nAdd another paragraph for more depth.', align:'left' } },
+    { label:'Centered', desc:'Centered text — great for mission statements', color:'#fff',
+      data:{ title:'A Message From Us', content:'Thank you for visiting. We are dedicated to providing the best possible service.\n\nWe look forward to working with you.', align:'center' } }
+  ],
+  newsletter: [
+    { label:'Subscribe Banner', desc:'Newsletter signup with subtext', color:'#f9fafb',
+      data:{ heading:'Stay in the Loop', subtext:'Get the latest news and updates straight to your inbox.', placeholder:'Enter your email', cta:'Subscribe' } },
+    { label:'Minimal', desc:'Simple compact signup form', color:'#f9fafb',
+      data:{ heading:'Get Updates', subtext:'No spam, unsubscribe anytime.', placeholder:'your@email.com', cta:'Join Now' } }
+  ],
+  contact: [
+    { label:'Form + Info', desc:'Contact form alongside email, phone & address', color:'#fff',
+      data:{ heading:'Get in Touch', email:'contact@example.com', phone:'+91 98765 43210', address:'123 Main Street, City, State' } },
+    { label:'Form Only', desc:'Clean form with heading, no contact details', color:'#fff',
+      data:{ heading:'Send Us a Message', email:'', phone:'', address:'' } }
+  ]
+};
+
+var _spActiveCat = 'hero';
+
+function openSectionPicker() {
+  _spActiveCat = 'hero';
+  spRenderSidebar();
+  spRenderGrid('hero');
+  document.getElementById('sectionPicker').style.display = 'flex';
+}
+
+function closeSectionPicker() {
+  document.getElementById('sectionPicker').style.display = 'none';
+}
+
+function spRenderSidebar() {
+  var el = document.getElementById('spSidebar');
+  el.innerHTML = '<div class="sp-cat-label">SECTION TYPE</div>' +
+    PREBUILT_CATS.map(function(cat) {
+      return '<div class="sp-cat-item' + (cat.id === _spActiveCat ? ' active' : '') + '" onclick="spSetCat(\'' + cat.id + '\')">' +
+        '<span class="sp-cat-icon">' + cat.icon + '</span>' + cat.label +
+      '</div>';
+    }).join('');
+}
+
+function spSetCat(catId) {
+  _spActiveCat = catId;
+  spRenderSidebar();
+  spRenderGrid(catId);
+}
+
+function spRenderGrid(catId) {
+  var cat = PREBUILT_CATS.find(function(c){ return c.id === catId; });
+  var variants = PREBUILT_VARIANTS[catId] || [];
+  document.getElementById('spSectionTitle').textContent = (cat ? cat.icon + ' ' + cat.label : catId);
+  document.getElementById('spSectionSub').textContent = cat ? cat.sub : '';
+  document.getElementById('spGrid').innerHTML = variants.map(function(v, i) {
+    return '<div class="sp-card">' +
+      '<div class="sp-preview">' + spPreviewHTML(catId, i, v) + '</div>' +
+      '<div class="sp-card-info">' +
+        '<div class="sp-card-name">' + escHtml(v.label) + '</div>' +
+        '<div class="sp-card-desc">' + escHtml(v.desc) + '</div>' +
+        '<button class="sp-add-btn" onclick="spAddSection(\'' + catId + '\',' + i + ')">+ Add Section</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function spAddSection(catId, variantIdx) {
+  var variants = PREBUILT_VARIANTS[catId] || [];
+  var variant = variants[variantIdx];
+  if (!variant) return;
+  var sec = { id:'sec_' + Date.now(), type:catId, data:JSON.parse(JSON.stringify(variant.data)) };
+  if (_insertAfter) {
+    var idx = sections.findIndex(function(s){ return s.id === _insertAfter; });
+    if (idx >= 0) sections.splice(idx + 1, 0, sec);
+    else sections.push(sec);
+    _insertAfter = null;
+  } else {
+    sections.push(sec);
+  }
+  closeSectionPicker();
+  renderCanvas();
+  openSectionEdit(sec.id);
+  pushUndo();
+  setStatus('saving');
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(saveSections, 2000);
+}
+
+function spPreviewHTML(type, idx, variant) {
+  var c = variant.color || '#f9fafb';
+  var p = siteSettings.primary || PRIMARY || '#6366f1';
+  var isDark = c === '#111827' || c === '#0f172a' || c === '#080810';
+  var textColor = isDark ? 'rgba(255,255,255,.85)' : '#111827';
+  var subColor = isDark ? 'rgba(255,255,255,.4)' : '#9ca3af';
+  var barColor = isDark ? 'rgba(255,255,255,.12)' : '#e5e7eb';
+
+  // Shared mini-block helpers
+  var line = function(w, col, h, mb) { return '<div style="width:' + w + '%;height:' + (h||4) + 'px;background:' + (col||barColor) + ';border-radius:3px;margin-bottom:' + (mb||5) + 'px;"></div>'; };
+  var card = function(w, h, col) { return '<div style="flex:1;background:' + (col||'rgba(255,255,255,.7)') + ';border:1px solid rgba(0,0,0,.06);border-radius:8px;height:' + (h||50) + 'px;min-width:' + (w||0) + 'px;"></div>'; };
+
+  var wrap = function(inner, bg, extra) { return '<div style="width:100%;height:100%;background:' + (bg||c) + ';padding:12px 14px;box-sizing:border-box;' + (extra||'') + '">' + inner + '</div>'; };
+
+  switch(type) {
+    case 'hero':
+      return wrap(
+        '<div style="text-align:center;padding:8px 0;">' +
+        line(65, textColor === '#111827' ? '#111' : 'rgba(255,255,255,.9)', 7, 7) +
+        '<div style="margin:0 auto 5px;width:45%;height:4px;background:' + subColor + ';border-radius:3px;"></div>' +
+        '<div style="display:inline-block;padding:5px 14px;background:' + (isDark ? p : p) + ';border-radius:20px;margin-top:6px;">' +
+          '<div style="width:40px;height:5px;background:rgba(255,255,255,.9);border-radius:3px;"></div>' +
+        '</div>' +
+        '</div>', c
+      );
+    case 'about':
+      if (idx === 2) return wrap(line(50,'#111',6,8) + line(100,barColor,3,4) + line(95,barColor,3,4) + line(88,barColor,3,0));
+      return wrap(
+        '<div style="display:flex;gap:8px;align-items:center;">' +
+          (idx === 0 ? '<div style="flex:1;">' + line(70,'#111',6,8) + line(100,barColor,3,4) + line(90,barColor,3,0) + '</div><div style="width:60px;height:55px;background:#e5e7eb;border-radius:8px;flex-shrink:0;"></div>'
+                     : '<div style="width:60px;height:55px;background:#e5e7eb;border-radius:8px;flex-shrink:0;"></div><div style="flex:1;">' + line(70,'#111',6,8) + line(100,barColor,3,4) + line(90,barColor,3,0) + '</div>') +
+        '</div>'
+      );
+    case 'services':
+      var nCols = idx === 2 ? 3 : (idx === 1 ? 4 : 3);
+      return wrap(
+        line(40,'#111',6,10) +
+        '<div style="display:flex;gap:6px;">' +
+          Array(nCols).fill(0).map(function(){
+            return '<div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:6px;">' +
+              '<div style="width:16px;height:16px;background:' + p + ';border-radius:4px;margin-bottom:5px;opacity:.8;"></div>' +
+              line(70,'#111',4,3) + line(90,barColor,3,0) +
+            '</div>';
+          }).join('') +
+        '</div>'
+      );
+    case 'pricing':
+      var plans = idx === 1 ? 2 : 3;
+      return wrap(
+        line(40,'#111',6,10) +
+        '<div style="display:flex;gap:5px;align-items:flex-start;">' +
+          Array(plans).fill(0).map(function(_, pi) {
+            var isFeat = (plans === 3 && pi === 1) || (plans === 2 && pi === 1);
+            return '<div style="flex:1;background:#fff;border:' + (isFeat ? '2px solid ' + p : '1px solid #e5e7eb') + ';border-radius:8px;padding:6px;' + (isFeat ? 'transform:scale(1.04);' : '') + '">' +
+              line(60,'#888',3,4) + line(50,'#111',6,5) +
+              line(80,barColor,2,2) + line(75,barColor,2,2) + line(70,barColor,2,5) +
+              '<div style="background:' + p + ';border-radius:5px;height:12px;"></div>' +
+            '</div>';
+          }).join('') +
+        '</div>'
+      );
+    case 'stats':
+      var nStats = idx === 1 ? 3 : 4;
+      return wrap(
+        line(40,'#111',6,10) +
+        '<div style="display:flex;gap:6px;">' +
+          Array(nStats).fill(0).map(function(){
+            return '<div style="flex:1;text-align:center;padding:4px 0;">' +
+              '<div style="font-size:16px;margin-bottom:4px;">●</div>' +
+              '<div style="height:14px;background:' + p + ';border-radius:3px;margin:0 auto 4px;width:70%;opacity:.8;"></div>' +
+              line(80,barColor,3,0) +
+            '</div>';
+          }).join('') +
+        '</div>'
+      );
+    case 'testimonials':
+      var nT = idx === 1 ? 2 : 3;
+      return wrap(
+        line(45,'#111',6,10) +
+        '<div style="display:flex;gap:6px;">' +
+          Array(nT).fill(0).map(function(){
+            return '<div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:7px;">' +
+              line(90,barColor,3,2) + line(80,barColor,3,7) +
+              '<div style="display:flex;align-items:center;gap:4px;">' +
+                '<div style="width:16px;height:16px;border-radius:50%;background:' + p + ';opacity:.7;flex-shrink:0;"></div>' +
+                '<div>' + line(55,'#111',4,2) + line(45,barColor,3,0) + '</div>' +
+              '</div>' +
+            '</div>';
+          }).join('') +
+        '</div>'
+      );
+    case 'team':
+      var nMem = idx === 1 ? 4 : 3;
+      return wrap(
+        line(40,'#111',6,10) +
+        '<div style="display:flex;gap:8px;">' +
+          Array(nMem).fill(0).map(function(){
+            return '<div style="flex:1;text-align:center;">' +
+              '<div style="width:32px;height:32px;background:#e5e7eb;border-radius:8px;margin:0 auto 5px;"></div>' +
+              line(80,'#111',4,2) + line(65,barColor,3,0) +
+            '</div>';
+          }).join('') +
+        '</div>'
+      );
+    case 'faq':
+      var nQ = idx === 1 ? 3 : 4;
+      return wrap(
+        line(40,'#111',6,10) +
+        Array(nQ).fill(0).map(function(){
+          return '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:6px 8px;margin-bottom:4px;display:flex;align-items:center;gap:6px;">' +
+            line(70,'#111',4,0) + '<div style="margin-left:auto;width:6px;height:6px;border-right:2px solid #9ca3af;border-bottom:2px solid #9ca3af;transform:rotate(45deg);flex-shrink:0;"></div>' +
+          '</div>';
+        }).join('')
+      );
+    case 'cta':
+      return wrap(
+        '<div style="text-align:center;padding:8px 0;">' +
+        line(55, isDark ? 'rgba(255,255,255,.9)' : '#111', 7, 7) +
+        '<div style="margin:0 auto 10px;width:65%;height:3px;background:' + (isDark ? 'rgba(255,255,255,.3)' : barColor) + ';border-radius:3px;"></div>' +
+        '<div style="display:inline-block;padding:5px 14px;background:' + (idx === 2 ? p : 'rgba(255,255,255,.9)') + ';border-radius:20px;">' +
+          '<div style="width:40px;height:5px;background:' + (idx === 2 ? '#fff' : '#111') + ';border-radius:3px;"></div>' +
+        '</div>' +
+        '</div>', c
+      );
+    case 'gallery':
+      return wrap(
+        (idx === 0 ? line(35,'#111',6,8) : '<div style="height:8px;"></div>') +
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">' +
+          Array(6).fill(0).map(function(){ return '<div style="background:#e5e7eb;border-radius:4px;height:24px;"></div>'; }).join('') +
+        '</div>'
+      );
+    case 'video':
+      return wrap(
+        (variant.data.heading ? line(40,'#111',6,8) : '<div style="height:4px;"></div>') +
+        '<div style="background:#111;border-radius:8px;height:65px;display:flex;align-items:center;justify-content:center;">' +
+          '<div style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;">' +
+            '<div style="width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid rgba(255,255,255,.7);margin-left:2px;"></div>' +
+          '</div>' +
+        '</div>'
+      );
+    case 'logobar':
+      return wrap(
+        (variant.data.heading ? line(30,'#111',5,10) : '<div style="height:10px;"></div>') +
+        '<div style="display:flex;gap:8px;align-items:center;justify-content:center;opacity:.5;">' +
+          Array(4).fill(0).map(function(){ return '<div style="width:36px;height:12px;background:#6b7280;border-radius:2px;"></div>'; }).join('') +
+        '</div>'
+      );
+    case 'timeline':
+      return wrap(
+        line(40,'#111',6,10) +
+        Array(3).fill(0).map(function(_, ti){
+          return '<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:' + (ti<2?8:0) + 'px;">' +
+            '<div style="width:18px;height:18px;border-radius:50%;background:' + p + ';flex-shrink:0;opacity:.8;"></div>' +
+            '<div style="flex:1;padding-top:2px;">' + line(60,'#111',4,3) + line(85,barColor,3,0) + '</div>' +
+          '</div>';
+        }).join('')
+      );
+    case 'columns':
+      var nCol = variant.data.cols === '2' ? 2 : 3;
+      return wrap(
+        '<div style="display:flex;gap:6px;">' +
+          Array(nCol).fill(0).map(function(){
+            return '<div style="flex:1;padding:6px 0;">' +
+              '<div style="font-size:16px;margin-bottom:6px;">✨</div>' +
+              line(75,'#111',5,4) + line(90,barColor,3,3) + line(85,barColor,3,0) +
+            '</div>';
+          }).join('') +
+        '</div>'
+      );
+    case 'rich_text':
+      var centered = variant.data.align === 'center';
+      return wrap(
+        (variant.data.title ? '<div style="width:' + (centered?'45%':'55%') + ';height:6px;background:#111;border-radius:3px;margin:' + (centered?'0 auto ':'')+' 0 10px;"></div>' : '') +
+        line(centered ? 90 : 100, barColor, 3, 3) + line(centered ? 85 : 95, barColor, 3, 3) +
+        line(centered ? 90 : 88, barColor, 3, 3) + line(centered ? 70 : 78, barColor, 3, 0)
+      );
+    case 'newsletter':
+      return wrap(
+        line(45,'#111',6,6) +
+        line(65,barColor,3,8) +
+        '<div style="display:flex;gap:4px;max-width:90%;margin:0 auto;">' +
+          '<div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:6px;height:20px;"></div>' +
+          '<div style="background:' + p + ';border-radius:6px;padding:0 8px;height:20px;min-width:32px;"></div>' +
+        '</div>'
+      );
+    case 'contact':
+      return wrap(
+        line(40,'#111',6,10) +
+        '<div style="display:flex;gap:8px;">' +
+          (variant.data.email
+            ? '<div style="width:70px;">' + line(80,barColor,3,4) + line(80,barColor,3,4) + line(80,barColor,3,0) + '</div>'
+            : '') +
+          '<div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:6px;">' +
+            line(90,barColor,3,3) + line(90,barColor,3,3) + line(90,barColor,3,3) +
+            '<div style="background:' + p + ';border-radius:5px;height:10px;margin-top:4px;opacity:.8;"></div>' +
+          '</div>' +
+        '</div>'
+      );
+    default:
+      return '<div style="width:100%;height:100%;background:' + c + ';display:flex;align-items:center;justify-content:center;font-size:28px;">✦</div>';
+  }
+}
+
+/* ═══════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════ */
 renderCanvas();
 togglePanel('pages');
 loadThemeCSS(activeTheme);
+// Init swatch in styles panel
+(function(){
+  var t = THEMES_LIST.find(function(x){ return x.id === activeTheme; });
+  if (t) tcUpdateSwatch(t.id);
+})();
