@@ -65,9 +65,17 @@ nav{background:#fff;border-bottom:1px solid rgba(0,0,0,.07);position:sticky;top:
 
 /* ── Gallery ─── */
 .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
-.gallery-item{border-radius:14px;overflow:hidden;aspect-ratio:4/3;background:#f3f4f6;}
-.gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
-.gallery-item:hover img{transform:scale(1.05);}
+.gallery-item{border-radius:14px;overflow:hidden;background:#f3f4f6;cursor:zoom-in;}
+.gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .35s;}
+.gallery-item:hover img{transform:scale(1.06);}
+/* Lightbox */
+#pzLb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9998;display:none;align-items:center;justify-content:center;cursor:zoom-out;}
+#pzLb img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 60px rgba(0,0,0,.5);}
+#pzLbClose{position:absolute;top:18px;right:22px;color:#fff;font-size:32px;cursor:pointer;line-height:1;background:rgba(255,255,255,.1);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;border:none;transition:background .15s;}
+#pzLbClose:hover{background:rgba(255,255,255,.2);}
+#pzLbPrev,#pzLbNext{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:none;color:#fff;font-size:26px;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+#pzLbPrev{left:18px;}#pzLbNext{right:18px;}
+#pzLbPrev:hover,#pzLbNext:hover{background:rgba(255,255,255,.22);}
 
 /* ── Testimonials ─── */
 .testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;}
@@ -271,10 +279,15 @@ footer a{color:#9ca3af;text-decoration:none;}footer a:hover{color:#fff;}
   <section class="section">
     <div class="container">
       {% if sec.data.heading %}<div class="section-heading"><h2>{{ sec.data.heading }}</h2></div>{% endif %}
-      <div class="gallery-grid">
+      {% set gCols = sec.data.columns or 'auto' %}
+      {% set gAspect = sec.data.aspect or '4/3' %}
+      {% set gColStyle = 'repeat(auto-fill,minmax(240px,1fr))' if gCols == 'auto' else ('repeat(' + gCols + ',1fr)') %}
+      <div class="gallery-grid" style="grid-template-columns:{{ gColStyle }};">
         {% for img in sec.data.images %}
         {% if img %}
-        <div class="gallery-item"><img src="{{ img }}" alt="Gallery image" loading="lazy"></div>
+        <div class="gallery-item" style="aspect-ratio:{{ gAspect }};" onclick="pzOpenLb(this)">
+          <img src="{{ img }}" alt="Gallery image" loading="lazy" data-src="{{ img }}">
+        </div>
         {% endif %}
         {% endfor %}
       </div>
@@ -535,6 +548,14 @@ footer a{color:#9ca3af;text-decoration:none;}footer a:hover{color:#fff;}
   </div>
 </footer>
 
+<!-- Gallery lightbox -->
+<div id="pzLb" onclick="if(event.target===this)pzCloseLb()">
+  <img id="pzLbImg" src="" alt="">
+  <button id="pzLbClose" onclick="pzCloseLb()">×</button>
+  <button id="pzLbPrev" onclick="pzLbNav(-1)">‹</button>
+  <button id="pzLbNext" onclick="pzLbNav(1)">›</button>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="/themes/website/{{ activeTheme }}/theme.js"></script>
 <script>
@@ -543,6 +564,42 @@ function submitContact(e, form){
   document.getElementById('cf-success').style.display = 'block';
   form.reset();
 }
+
+// ── Gallery lightbox ──────────────────────────────────────────────────────────
+var _lbItems = [], _lbIdx = 0;
+function pzOpenLb(el) {
+  var items = Array.from(el.closest('.gallery-grid').querySelectorAll('.gallery-item img'));
+  _lbItems = items.map(function(i){ return i.getAttribute('data-src') || i.src; });
+  _lbIdx   = items.indexOf(el.querySelector('img'));
+  if (_lbIdx < 0) _lbIdx = 0;
+  _lbShow();
+}
+function _lbShow() {
+  var lb = document.getElementById('pzLb');
+  var img = document.getElementById('pzLbImg');
+  var prev = document.getElementById('pzLbPrev');
+  var next = document.getElementById('pzLbNext');
+  if (!lb || !img) return;
+  img.src = _lbItems[_lbIdx] || '';
+  lb.style.display = 'flex';
+  if (prev) prev.style.display = _lbItems.length > 1 ? '' : 'none';
+  if (next) next.style.display = _lbItems.length > 1 ? '' : 'none';
+}
+function pzCloseLb() {
+  var lb = document.getElementById('pzLb');
+  if (lb) lb.style.display = 'none';
+}
+function pzLbNav(dir) {
+  _lbIdx = (_lbIdx + dir + _lbItems.length) % _lbItems.length;
+  _lbShow();
+}
+document.addEventListener('keydown', function(e) {
+  var lb = document.getElementById('pzLb');
+  if (!lb || lb.style.display === 'none') return;
+  if (e.key === 'Escape') pzCloseLb();
+  if (e.key === 'ArrowLeft')  pzLbNav(-1);
+  if (e.key === 'ArrowRight') pzLbNav(1);
+});
 </script>
 </body>
 </html>

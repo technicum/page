@@ -1,23 +1,30 @@
 /**
  * MediaPicker — reusable media library picker modal
  *
- * Usage:
- *   MediaPicker.open(callback, { type: 'image' | 'all' })
+ * Single-select: MediaPicker.open(callback, { type: 'image' | 'all' })
  *   callback(file) where file = { url, name, id, isImage, mime_type }
+ *
+ * Multi-select:  MediaPicker.open(callback, { type: 'image', multi: true })
+ *   callback(files[]) where each file = { url, name, id, isImage, mime_type }
  */
 var MediaPicker = (function () {
-  var _cb     = null;
-  var _opts   = {};
-  var _files  = [];
-  var _folder = '__all__';
-  var _search = '';
-  var _built  = false;
-  var _uploadQueue = [];  // { file, name, status: 'pending'|'uploading'|'done'|'error', pct }
+  var _cb         = null;
+  var _opts       = {};
+  var _files      = [];
+  var _folder     = '__all__';
+  var _search     = '';
+  var _built      = false;
+  var _uploadQueue = [];
+  var _multi      = false;
+  var _selectedId = null;          // single-select
+  var _selectedIds = {};           // multi-select: { id: fileObj }
+  var _lastPickId = null;
+  var _lastPickTime = 0;
 
   // ── CSS ─────────────────────────────────────────────────────────────────────
   var CSS = [
     '#mpOverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);}',
-    '#mpModal{background:#fff;border-radius:14px;width:min(900px,96vw);height:min(620px,92vh);display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.28);overflow:hidden;transition:transform .15s;}',
+    '#mpModal{background:#fff;border-radius:14px;width:min(900px,96vw);height:min(620px,92vh);display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.28);overflow:hidden;}',
     '/* Header */',
     '#mpHeader{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #e5e7eb;flex-shrink:0;background:#fff;}',
     '#mpHeader h3{margin:0;font-size:15px;font-weight:600;color:#111827;flex:1;}',
@@ -40,10 +47,14 @@ var MediaPicker = (function () {
     '.mp-card{border:2px solid #e5e7eb;border-radius:9px;overflow:hidden;cursor:pointer;transition:border-color .12s,box-shadow .12s;position:relative;}',
     '.mp-card:hover{border-color:#6366f1;box-shadow:0 2px 12px rgba(99,102,241,.15);}',
     '.mp-card.selected{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,39,.12);}',
+    '.mp-card.checked{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.2);}',
     '.mp-thumb{width:100%;height:84px;object-fit:cover;display:block;background:#f3f4f6;}',
     '.mp-icon{width:100%;height:84px;display:flex;align-items:center;justify-content:center;font-size:28px;background:#f3f4f6;color:#9ca3af;}',
     '.mp-label{padding:5px 7px;font-size:10px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}',
     '.mp-meta{padding:0 7px 6px;font-size:10px;color:#9ca3af;}',
+    '/* Multi-select checkmark badge */',
+    '.mp-check{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:#6366f1;color:#fff;font-size:11px;font-weight:700;align-items:center;justify-content:center;display:none;z-index:2;border:2px solid #fff;}',
+    '.mp-card.checked .mp-check{display:flex;}',
     '/* Upload area */',
     '#mpUploadArea{flex-shrink:0;border-top:1px solid #e5e7eb;background:#f9fafb;padding:10px 14px;}',
     '#mpDropZone{border:2px dashed #d1d5db;border-radius:9px;padding:14px 20px;text-align:center;color:#9ca3af;font-size:13px;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:10px;}',
@@ -65,7 +76,6 @@ var MediaPicker = (function () {
     '#mpSelectBtn:hover{background:#1f2937;}',
     '/* Empty */',
     '#mpEmpty{text-align:center;padding:50px 20px;color:#9ca3af;}',
-    '#mpEmpty div:first-child{font-size:36px;margin-bottom:10px;}',
     '/* Drag-over overlay on main body */',
     '#mpDragOverlay{position:absolute;inset:0;background:rgba(99,102,241,.08);border:3px dashed #6366f1;border-radius:8px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:8px;pointer-events:none;z-index:10;}',
     '#mpDragOverlay.active{display:flex;}',
@@ -88,7 +98,7 @@ var MediaPicker = (function () {
     overlay.innerHTML = [
       '<div id="mpModal">',
       '  <div id="mpHeader">',
-      '    <h3>📁 Media Library</h3>',
+      '    <h3 id="mpTitle">📁 Media Library</h3>',
       '    <input id="mpSearch" type="search" placeholder="Search…" autocomplete="off">',
       '    <button id="mpClose" onclick="MediaPicker.close()" title="Close">×</button>',
       '  </div>',
@@ -177,12 +187,14 @@ var MediaPicker = (function () {
   // ── Public API ────────────────────────────────────────────────────────────
   function open(callback, opts) {
     build();
-    _cb   = callback;
-    _opts = opts || {};
-    _folder = '__all__';
-    _search = '';
+    _cb          = callback;
+    _opts        = opts || {};
+    _multi       = !!_opts.multi;
+    _folder      = '__all__';
+    _search      = '';
     _uploadQueue = [];
-    _selectedId = null;
+    _selectedId  = null;
+    _selectedIds = {};
 
     // Reset UI
     document.getElementById('mpOverlay').style.display = 'flex';
@@ -190,6 +202,12 @@ var MediaPicker = (function () {
     document.getElementById('mpQueue').innerHTML = '';
     document.getElementById('mpQueue').style.display = 'none';
     document.getElementById('mpSelectBtn').style.display = 'none';
+
+    // Update title for multi-select mode
+    var titleEl = document.getElementById('mpTitle');
+    if (titleEl) {
+      titleEl.textContent = _multi ? '📁 Select Images' : '📁 Media Library';
+    }
 
     var accept = _opts.type === 'image'
       ? 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml,image/avif'
@@ -202,16 +220,26 @@ var MediaPicker = (function () {
   function close() {
     var ov = document.getElementById('mpOverlay');
     if (ov) ov.style.display = 'none';
-    _cb = null; _selectedId = null;
+    _cb = null; _selectedId = null; _selectedIds = {}; _multi = false;
   }
 
-  // ── Selected state ───────────────────────────────────────────────────────
-  var _selectedId = null;
+  // ── Selection ────────────────────────────────────────────────────────────
   function _selectCurrent() {
-    if (!_selectedId || !_cb) return;
-    var f = _files.find(function (x) { return x.id === _selectedId; });
-    if (!f) return;
-    var cb = _cb; close(); cb({ url: f.url, name: f.original || f.name, id: f.id, isImage: f.isImage, mime_type: f.mime_type });
+    if (!_cb) return;
+    if (_multi) {
+      var files = [];
+      Object.keys(_selectedIds).forEach(function(id) {
+        var f = _selectedIds[id];
+        files.push({ url: f.url, name: f.original || f.name, id: f.id, isImage: f.isImage, mime_type: f.mime_type });
+      });
+      if (!files.length) return;
+      var cb = _cb; close(); cb(files);
+    } else {
+      if (!_selectedId) return;
+      var f = _files.find(function (x) { return x.id === _selectedId; });
+      if (!f) return;
+      var cb = _cb; close(); cb({ url: f.url, name: f.original || f.name, id: f.id, isImage: f.isImage, mime_type: f.mime_type });
+    }
   }
 
   // ── Load files ────────────────────────────────────────────────────────────
@@ -230,7 +258,15 @@ var MediaPicker = (function () {
         _renderSidebar(d.folders || []);
         _renderGrid();
         var el = document.getElementById('mpCount');
-        if (el) el.textContent = _files.length + ' file' + (_files.length !== 1 ? 's' : '');
+        if (el) {
+          if (_multi) {
+            var cnt = Object.keys(_selectedIds).length;
+            el.textContent = _files.length + ' file' + (_files.length !== 1 ? 's' : '') +
+              (cnt ? ' · ' + cnt + ' selected' : '');
+          } else {
+            el.textContent = _files.length + ' file' + (_files.length !== 1 ? 's' : '');
+          }
+        }
       })
       .catch(function () {
         var el = document.getElementById('mpCount'); if (el) el.textContent = 'Error loading files';
@@ -256,15 +292,11 @@ var MediaPicker = (function () {
 
   // ── Render grid ───────────────────────────────────────────────────────────
   function _renderGrid() {
-    var grid = document.getElementById('mpGrid');
-    if (!grid) return;
-
-    // Always keep drag overlay in grid
-    var overlay = document.getElementById('mpDragOverlay');
+    var inner = document.getElementById('mpGridInner');
+    if (!inner) return;
 
     if (!_files.length) {
-      var inner = document.getElementById('mpGridInner');
-      if (inner) inner.innerHTML =
+      inner.innerHTML =
         '<div id="mpEmpty" style="grid-column:1/-1;text-align:center;padding:40px 16px;color:#9ca3af;">' +
         '<div style="font-size:36px;margin-bottom:10px;">📂</div>' +
         '<div style="font-size:14px;font-weight:600;color:#374151;margin-bottom:4px;">No files here</div>' +
@@ -273,17 +305,23 @@ var MediaPicker = (function () {
       return;
     }
 
-    var inner = document.getElementById('mpGridInner');
-    if (!inner) return;
-
     inner.innerHTML = _files.map(function (f) {
       var isImg = f.isImage || (f.mime_type && f.mime_type.startsWith('image/'));
       var thumb = isImg
         ? '<img class="mp-thumb" src="' + _esc(f.url) + '" alt="" loading="lazy" onerror="this.className=\'mp-icon\';this.textContent=\'🖼\'">'
         : '<div class="mp-icon">' + _icon(f.mime_type, f.name) + '</div>';
-      var sel = _selectedId === f.id ? ' selected' : '';
+
+      // Single vs multi select CSS
+      var sel;
+      if (_multi) {
+        sel = _selectedIds[f.id] ? ' selected checked' : '';
+      } else {
+        sel = _selectedId === f.id ? ' selected' : '';
+      }
+
       var ext = (f.name || '').split('.').pop().toUpperCase();
       return '<div class="mp-card' + sel + '" data-id="' + f.id + '" onclick="MediaPicker._pick(' + f.id + ')">' +
+             '<div class="mp-check">✓</div>' +
              thumb +
              '<div class="mp-label" title="' + _esc(f.original || f.name) + '">' + _esc(f.original || f.name) + '</div>' +
              '<div class="mp-meta">' + ext + ' · ' + f.sizeLabel + '</div>' +
@@ -297,7 +335,6 @@ var MediaPicker = (function () {
     var queue = document.getElementById('mpQueue');
     var folder = (_folder !== '__all__' && _folder !== '') ? _folder : '';
 
-    // Build queue entries
     var entries = files.map(function (file, i) {
       return { file: file, name: file.name, status: 'pending', pct: 0, id: Date.now() + i };
     });
@@ -363,14 +400,47 @@ var MediaPicker = (function () {
 
   // ── Click to pick ─────────────────────────────────────────────────────────
   function _pick(id) {
+    if (_multi) {
+      // Toggle selection
+      var f = _files.find(function (x) { return x.id === id; });
+      if (!f) return;
+      var card = document.querySelector('.mp-card[data-id="' + id + '"]');
+
+      if (_selectedIds[id]) {
+        delete _selectedIds[id];
+        if (card) card.classList.remove('selected', 'checked');
+      } else {
+        _selectedIds[id] = f;
+        if (card) card.classList.add('selected', 'checked');
+      }
+
+      var count = Object.keys(_selectedIds).length;
+      var btn = document.getElementById('mpSelectBtn');
+      if (btn) {
+        if (count > 0) {
+          btn.style.display = '';
+          btn.textContent = 'Add ' + count + ' image' + (count !== 1 ? 's' : '') + ' ✓';
+        } else {
+          btn.style.display = 'none';
+        }
+      }
+
+      var countEl = document.getElementById('mpCount');
+      if (countEl) {
+        countEl.textContent = _files.length + ' file' + (_files.length !== 1 ? 's' : '') +
+          (count ? ' · ' + count + ' selected' : '');
+      }
+      return;
+    }
+
+    // Single-select mode
     _selectedId = id;
 
-    // Highlight selected
     document.querySelectorAll('.mp-card').forEach(function (c) { c.classList.remove('selected'); });
     var card = document.querySelector('.mp-card[data-id="' + id + '"]');
     if (card) card.classList.add('selected');
 
-    // If double-clicked within 300ms, confirm immediately
+    // Double-click to confirm immediately
     if (_lastPickId === id && Date.now() - _lastPickTime < 350) {
       _selectCurrent();
       return;
@@ -378,11 +448,9 @@ var MediaPicker = (function () {
     _lastPickId = id;
     _lastPickTime = Date.now();
 
-    // Show confirm button
     var btn = document.getElementById('mpSelectBtn');
     if (btn) { btn.style.display = ''; btn.textContent = 'Use this file ✓'; }
   }
-  var _lastPickId = null, _lastPickTime = 0;
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function _setFolder(folder, el) {
@@ -417,6 +485,5 @@ var MediaPicker = (function () {
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  // Public
   return { open: open, close: close, _pick: _pick, _setFolder: _setFolder, _selectCurrent: _selectCurrent };
 })();

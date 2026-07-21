@@ -17,7 +17,7 @@ var SEC_DEF = {
   hero:         { headline:'Welcome to Our Website', subheadline:'We deliver exceptional results for every client.', cta_label:'Get Started', cta_url:'#contact', bg_color:PRIMARY, text_color:'#ffffff', bg_image:'' },
   about:        { heading:'About Us', text:'Tell your story here. What makes you unique?', image:'', layout:'image_right' },
   services:     { heading:'Our Services', items:[{icon:'⚡',title:'Service One',desc:'Description of this service.'},{icon:'🎯',title:'Service Two',desc:'Description of this service.'},{icon:'💎',title:'Service Three',desc:'Description of this service.'}] },
-  gallery:      { heading:'Gallery', images:[] },
+  gallery:      { heading:'Gallery', images:[], columns:'auto', aspect:'4/3' },
   testimonials: { heading:'What Clients Say', items:[{name:'Client Name',role:'CEO, Company',quote:'This service changed our business completely!'}] },
   team:         { heading:'Meet the Team', items:[{name:'Team Member',role:'Position',image:''}] },
   faq:          { heading:'Frequently Asked Questions', items:[{q:'What do you offer?',a:'We offer premium services tailored to your needs.'}] },
@@ -252,15 +252,16 @@ function renderSectionPreview(sec) {
 
     case 'gallery':
       var imgs = (d.images || []).filter(Boolean);
+      var gCols = d.columns || 'auto';
+      var gColsStyle = gCols === 'auto' ? 'repeat(auto-fill,minmax(180px,1fr))' : 'repeat(' + gCols + ',1fr)';
+      var gAspect = d.aspect || '4/3';
       return '<section class="section">' +
         '<div class="container">' +
         (d.heading ? '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading) + '</h2></div>' : '') +
-        '<div class="gallery-grid">' +
+        '<div class="gallery-grid" style="grid-template-columns:' + gColsStyle + ';gap:12px;">' +
         (imgs.length
-          ? imgs.map(function(im){ return '<div class="gallery-item"><img src="' + escHtml(im) + '" alt="Gallery" loading="lazy"></div>'; }).join('')
-          : '<div class="gallery-item" style="display:flex;align-items:center;justify-content:center;font-size:32px;color:#d1d5db;">🖼</div>' +
-            '<div class="gallery-item" style="display:flex;align-items:center;justify-content:center;font-size:32px;color:#d1d5db;">🖼</div>' +
-            '<div class="gallery-item" style="display:flex;align-items:center;justify-content:center;font-size:32px;color:#d1d5db;">🖼</div>'
+          ? imgs.map(function(im){ return '<div class="gallery-item" style="aspect-ratio:' + gAspect + ';"><img src="' + escHtml(im) + '" alt="Gallery" loading="lazy"></div>'; }).join('')
+          : ['🖼','🖼','🖼','🖼','🖼','🖼'].map(function(ic){ return '<div class="gallery-item" style="aspect-ratio:' + gAspect + ';display:flex;align-items:center;justify-content:center;font-size:32px;color:#d1d5db;">' + ic + '</div>'; }).join('')
         ) +
         '</div></div></section>';
 
@@ -704,6 +705,8 @@ MediaPicker.open(function(f){\
       break;
     case 'gallery':
       html += fI('heading', 'Section Heading', d.heading);
+      html += fS('columns', 'Columns', d.columns || 'auto', [['auto','Auto (Responsive)'],['2','2 Columns'],['3','3 Columns'],['4','4 Columns'],['5','5 Columns']]);
+      html += fS('aspect', 'Aspect Ratio', d.aspect || '4/3', [['4/3','Landscape 4:3'],['1/1','Square 1:1'],['16/9','Widescreen 16:9'],['3/2','Photo 3:2'],['3/4','Portrait 3:4']]);
       html += galImgEditor(sid, d.images || []);
       break;
     case 'testimonials':
@@ -847,40 +850,96 @@ function removeItem(sid, key, idx) {
    GALLERY IMAGE EDITOR HELPERS
 ═══════════════════════════════════════════ */
 function galImgEditor(sid, images) {
-  var h = '<div class="field-group"><label class="fl">Images <span style="font-weight:400;color:#9ca3af;">(' + (images.length) + ')</span></label>';
-  h += '<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;" id="galList-' + sid + '">';
+  var totalLabel = images.length + ' image' + (images.length !== 1 ? 's' : '');
+  var h = '<div class="field-group"><label class="fl">Images <span style="font-weight:400;color:#9ca3af;">(' + totalLabel + ')</span></label>';
+  h += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;" id="galList-' + sid + '">';
+
   (images || []).forEach(function(url, i) {
     var imgId = 'galInp-' + sid + '-' + i;
-    h += '<div style="display:flex;align-items:center;gap:5px;">' +
-         '<div style="width:32px;height:32px;flex-shrink:0;border-radius:4px;border:1px solid #e5e7eb;overflow:hidden;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:15px;">' +
-         (url ? '<img src="' + escHtml(url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent=\'🖼\'">' : '🖼') + '</div>' +
-         '<input id="' + imgId + '" class="fi" style="flex:1;font-size:11px;" value="' + escHtml(url) + '" placeholder="https://…" oninput="galUpdateImg(\'' + sid + '\',' + i + ',this.value)">' +
-         '<button type="button" title="Browse media" style="flex-shrink:0;padding:0 7px;height:28px;border:1px solid #e5e7eb;border-radius:6px;background:#f9fafb;cursor:pointer;font-size:12px;" ' +
-         'onclick="galBrowse(\'' + sid + '\',' + i + ')">📁</button>' +
-         '<button type="button" style="flex-shrink:0;width:24px;height:24px;border-radius:50%;border:none;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:13px;line-height:1;" ' +
-         'onclick="galRemove(\'' + sid + '\',' + i + ')">×</button>' +
+    var last  = i === images.length - 1;
+
+    h += '<div style="display:flex;align-items:center;gap:6px;">';
+
+    // Clickable thumbnail (opens browse for that slot)
+    h += '<div onclick="galBrowse(\'' + sid + '\',' + i + ')" title="Click to change image" ' +
+         'style="width:52px;height:52px;flex-shrink:0;border-radius:7px;border:2px solid #e5e7eb;overflow:hidden;' +
+         'background:#f3f4f6;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;' +
+         'transition:border-color .15s;" onmouseover="this.style.borderColor=\'#6366f1\'" onmouseout="this.style.borderColor=\'#e5e7eb\'">' +
+         (url ? '<img src="' + escHtml(url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'🖼\'">' : '🖼') +
          '</div>';
+
+    // URL input
+    h += '<input id="' + imgId + '" class="fi" style="flex:1;font-size:11px;" value="' + escHtml(url) + '" ' +
+         'placeholder="https://… or click thumb to browse" oninput="galUpdateImg(\'' + sid + '\',' + i + ',this.value)">';
+
+    // Up / Down reorder buttons
+    h += '<div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">';
+    h += '<button type="button" onclick="galMoveUp(\'' + sid + '\',' + i + ')" ' +
+         (i === 0 ? 'disabled style="opacity:.25;cursor:default;' : 'style="cursor:pointer;') +
+         'width:20px;height:18px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;font-size:9px;line-height:1;padding:0;" title="Move up">▲</button>';
+    h += '<button type="button" onclick="galMoveDown(\'' + sid + '\',' + i + ')" ' +
+         (last ? 'disabled style="opacity:.25;cursor:default;' : 'style="cursor:pointer;') +
+         'width:20px;height:18px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;font-size:9px;line-height:1;padding:0;" title="Move down">▼</button>';
+    h += '</div>';
+
+    // Delete button
+    h += '<button type="button" onclick="galRemove(\'' + sid + '\',' + i + ')" ' +
+         'style="flex-shrink:0;width:24px;height:24px;border-radius:50%;border:none;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:13px;line-height:1;" title="Remove">×</button>';
+
+    h += '</div>';
   });
+
   h += '</div>';
-  h += '<div style="display:flex;gap:6px;">' +
-       '<button onclick="galAddBlank(\'' + sid + '\')" style="flex:1;padding:7px;border:1px dashed #d1d5db;border-radius:7px;background:#f9fafb;cursor:pointer;font-size:12px;color:#6b7280;">+ Paste URL</button>' +
-       '<button onclick="galBrowseNew(\'' + sid + '\')" style="flex:1;padding:7px;border:1px solid #6366f1;border-radius:7px;background:#eef2ff;cursor:pointer;font-size:12px;color:#6366f1;font-weight:500;">📁 Browse Library</button>' +
-       '</div></div>';
+
+  // Action buttons row
+  h += '<div style="display:flex;gap:5px;">';
+  h += '<button onclick="galAddBlank(\'' + sid + '\')" ' +
+       'style="flex:1;padding:7px 4px;border:1px dashed #d1d5db;border-radius:7px;background:#f9fafb;cursor:pointer;font-size:11px;color:#6b7280;">+ URL</button>';
+  h += '<button onclick="galBrowseNew(\'' + sid + '\')" ' +
+       'style="flex:1;padding:7px 4px;border:1px solid #6366f1;border-radius:7px;background:#eef2ff;cursor:pointer;font-size:11px;color:#6366f1;font-weight:500;">+ Image</button>';
+  h += '<button onclick="galBrowseMulti(\'' + sid + '\')" ' +
+       'style="flex:1;padding:7px 4px;border:1px solid #059669;border-radius:7px;background:#ecfdf5;cursor:pointer;font-size:11px;color:#059669;font-weight:600;">📁 Bulk Select</button>';
+  h += '</div>';
+
+  h += '</div>';
   return h;
 }
+
 function galUpdateImg(sid, idx, url) {
   var sec = sections.find(function(s){ return s.id === sid; });
   if (!sec) return;
   if (!sec.data.images) sec.data.images = [];
   sec.data.images[idx] = url;
+  // Update thumbnail preview without full panel re-render
+  var thumbEl = document.querySelector('#galList-' + sid + ' > div:nth-child(' + (idx + 1) + ') div');
+  if (thumbEl) {
+    thumbEl.innerHTML = url ? '<img src="' + escHtml(url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'🖼\'">' : '🖼';
+  }
   renderCanvas(); pushUndo();
 }
+
+function galMoveUp(sid, idx) {
+  if (idx <= 0) return;
+  var sec = sections.find(function(s){ return s.id === sid; });
+  if (!sec || !sec.data.images) return;
+  var tmp = sec.data.images[idx]; sec.data.images[idx] = sec.data.images[idx - 1]; sec.data.images[idx - 1] = tmp;
+  renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+}
+
+function galMoveDown(sid, idx) {
+  var sec = sections.find(function(s){ return s.id === sid; });
+  if (!sec || !sec.data.images || idx >= sec.data.images.length - 1) return;
+  var tmp = sec.data.images[idx]; sec.data.images[idx] = sec.data.images[idx + 1]; sec.data.images[idx + 1] = tmp;
+  renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+}
+
 function galRemove(sid, idx) {
   var sec = sections.find(function(s){ return s.id === sid; });
   if (!sec) return;
   (sec.data.images || []).splice(idx, 1);
   renderSectionEditPanel(sid); renderCanvas(); pushUndo();
 }
+
 function galAddBlank(sid) {
   var url = prompt('Enter image URL:'); if (!url || !url.trim()) return;
   var sec = sections.find(function(s){ return s.id === sid; });
@@ -889,6 +948,7 @@ function galAddBlank(sid) {
   sec.data.images.push(url.trim());
   renderSectionEditPanel(sid); renderCanvas(); pushUndo();
 }
+
 function galBrowse(sid, idx) {
   if (typeof MediaPicker === 'undefined') return;
   MediaPicker.open(function(f) {
@@ -899,6 +959,7 @@ function galBrowse(sid, idx) {
     renderSectionEditPanel(sid); renderCanvas(); pushUndo();
   }, { type: 'image' });
 }
+
 function galBrowseNew(sid) {
   if (typeof MediaPicker === 'undefined') return;
   MediaPicker.open(function(f) {
@@ -908,6 +969,19 @@ function galBrowseNew(sid) {
     sec.data.images.push(f.url);
     renderSectionEditPanel(sid); renderCanvas(); pushUndo();
   }, { type: 'image' });
+}
+
+function galBrowseMulti(sid) {
+  if (typeof MediaPicker === 'undefined') return;
+  MediaPicker.open(function(files) {
+    var sec = sections.find(function(s){ return s.id === sid; });
+    if (!sec) return;
+    if (!sec.data.images) sec.data.images = [];
+    (Array.isArray(files) ? files : [files]).forEach(function(f) {
+      if (f && f.url) sec.data.images.push(f.url);
+    });
+    renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+  }, { type: 'image', multi: true });
 }
 
 /* ═══════════════════════════════════════════
@@ -1571,10 +1645,14 @@ var PREBUILT_VARIANTS = {
       data:{ heading:'Take the Next Step', subheading:'We\'re ready when you are.', cta_label:'Start Now →', cta_url:'#contact', bg_color:'#f8fafc', text_color:'#111827' } }
   ],
   gallery: [
-    { label:'Photo Grid', desc:'Image grid with a heading', color:'#fff',
-      data:{ heading:'Our Work', images:[] } },
-    { label:'No Heading', desc:'Clean gallery without a title', color:'#fff',
-      data:{ heading:'', images:[] } }
+    { label:'3-Col Grid', desc:'3-column photo grid with heading', color:'#fff',
+      data:{ heading:'Our Work', images:[], columns:'3', aspect:'4/3' } },
+    { label:'4-Col Grid', desc:'Compact 4-column image grid', color:'#fff',
+      data:{ heading:'Gallery', images:[], columns:'4', aspect:'1/1' } },
+    { label:'2-Col Wide', desc:'Large two-column landscape gallery', color:'#fff',
+      data:{ heading:'Portfolio', images:[], columns:'2', aspect:'16/9' } },
+    { label:'Auto Grid', desc:'Responsive auto-filling grid, no heading', color:'#fff',
+      data:{ heading:'', images:[], columns:'auto', aspect:'4/3' } }
   ],
   video: [
     { label:'With Heading', desc:'Video embed with a section title', color:'#fff',
