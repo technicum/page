@@ -1,28 +1,469 @@
 {% extends "layouts/base.njk" %}
 {% block body %}
-<div style="max-width:900px;margin:40px auto;padding:0 24px;">
 
-  <!-- Header -->
+{% if mode === 'account' %}
+{# ── ACCOUNT-WIDE MEDIA LIBRARY ─────────────────────────────────────────── #}
+{% set activePage = 'media' %}
+<style>
+.layout{display:flex;min-height:100vh;}</style>
+<div class="layout">
+{% include "dashboard/_sidebar.njk" %}
+<div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+<style>
+.ml-wrap { display:flex; height:calc(100vh - 56px); overflow:hidden; }
+.ml-sidebar {
+  width:220px; min-width:180px; background:#f9fafb; border-right:1px solid #e5e7eb;
+  display:flex; flex-direction:column; flex-shrink:0; overflow:hidden;
+}
+.ml-sidebar-head {
+  padding:16px 14px 10px; font-size:12px; font-weight:700; color:#6b7280;
+  letter-spacing:.06em; text-transform:uppercase; flex-shrink:0;
+}
+.ml-folder-list { flex:1; overflow-y:auto; padding:0 8px 12px; }
+.ml-folder-item {
+  display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px;
+  font-size:13px; color:#374151; cursor:pointer; user-select:none;
+}
+.ml-folder-item:hover { background:#f3f4f6; }
+.ml-folder-item.active { background:#111827; color:#fff; }
+.ml-folder-item .ml-fi-icon { font-size:15px; flex-shrink:0; }
+.ml-folder-item .ml-fi-label { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ml-folder-item .ml-fi-count {
+  font-size:10px; background:rgba(0,0,0,.08); border-radius:10px;
+  padding:1px 6px; flex-shrink:0; font-weight:600;
+}
+.ml-folder-item.active .ml-fi-count { background:rgba(255,255,255,.2); }
+.ml-folder-new {
+  display:flex; align-items:center; gap:6px; padding:7px 10px; margin:2px 0;
+  border-radius:8px; font-size:12px; color:#6b7280; cursor:pointer; border:none;
+  background:transparent; width:100%; text-align:left;
+}
+.ml-folder-new:hover { background:#f3f4f6; color:#374151; }
+
+.ml-main { flex:1; overflow:hidden; display:flex; flex-direction:column; min-width:0; }
+.ml-topbar {
+  display:flex; align-items:center; gap:10px; padding:14px 20px;
+  border-bottom:1px solid #e5e7eb; flex-shrink:0; background:#fff;
+}
+.ml-title { font-size:16px; font-weight:600; color:#111827; flex:1; }
+.ml-search {
+  padding:7px 12px; border:1px solid #e5e7eb; border-radius:8px;
+  font-size:13px; width:200px; outline:none; color:#374151;
+}
+.ml-search:focus { border-color:#6366f1; }
+.ml-upload-btn {
+  padding:8px 16px; background:#111827; color:#fff; border:none; border-radius:8px;
+  font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; display:flex;
+  align-items:center; gap:6px;
+}
+.ml-upload-btn:hover { background:#1f2937; }
+.ml-view-btns { display:flex; border:1px solid #e5e7eb; border-radius:8px; overflow:hidden; }
+.ml-view-btn {
+  padding:6px 12px; border:none; background:#fff; color:#6b7280; cursor:pointer; font-size:13px;
+}
+.ml-view-btn.active { background:#111827; color:#fff; }
+
+.ml-content { flex:1; overflow-y:auto; padding:20px; }
+.ml-status-bar {
+  padding:8px 20px; background:#f9fafb; border-top:1px solid #e5e7eb;
+  font-size:12px; color:#6b7280; flex-shrink:0; display:flex; gap:12px; align-items:center;
+}
+
+/* Grid view */
+.ml-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;
+}
+.ml-card {
+  background:#fff; border:2px solid #e5e7eb; border-radius:10px; overflow:hidden;
+  cursor:pointer; transition:border-color .15s; position:relative;
+}
+.ml-card:hover { border-color:#6366f1; }
+.ml-card.selected { border-color:#111827; }
+.ml-card-thumb {
+  width:100%; height:100px; object-fit:cover; display:block; background:#f3f4f6;
+}
+.ml-card-icon {
+  width:100%; height:100px; display:flex; align-items:center; justify-content:center;
+  font-size:32px; background:#f3f4f6;
+}
+.ml-card-body { padding:8px 10px; }
+.ml-card-name { font-size:11px; color:#374151; word-break:break-all; line-height:1.3; font-weight:500; }
+.ml-card-meta { font-size:10px; color:#9ca3af; margin-top:3px; }
+.ml-card-del {
+  position:absolute; top:5px; right:5px; width:22px; height:22px; border-radius:50%;
+  border:none; background:rgba(0,0,0,.5); color:#fff; font-size:13px;
+  line-height:1; cursor:pointer; display:none; align-items:center; justify-content:center;
+}
+.ml-card:hover .ml-card-del { display:flex; }
+
+/* Table view */
+.ml-table { width:100%; border-collapse:collapse; font-size:13px; }
+.ml-table th {
+  padding:10px 14px; text-align:left; font-weight:600; color:#374151;
+  border-bottom:2px solid #e5e7eb; background:#f9fafb; white-space:nowrap;
+}
+.ml-table td { padding:10px 14px; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
+.ml-table tr:last-child td { border-bottom:none; }
+.ml-table tr:hover td { background:#fafafa; }
+
+/* Upload zone */
+.ml-drop-zone {
+  border:2px dashed #d1d5db; border-radius:12px; padding:48px 24px;
+  text-align:center; color:#9ca3af; transition:all .2s;
+}
+.ml-drop-zone.drag-over { border-color:#6366f1; background:#f5f3ff; }
+
+/* Toast */
+#mlToast {
+  position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+  background:#111827; color:#fff; padding:9px 18px; border-radius:24px;
+  font-size:12px; font-weight:500; opacity:0; transition:opacity 0.2s;
+  pointer-events:none; z-index:9999;
+}
+</style>
+
+<div class="ml-wrap">
+  <!-- Sidebar -->
+  <div class="ml-sidebar">
+    <div class="ml-sidebar-head">Folders</div>
+    <div class="ml-folder-list" id="folderList">
+      <div class="ml-folder-item active" data-folder="__all__" onclick="setFolder('__all__', this)">
+        <span class="ml-fi-icon">🗂</span>
+        <span class="ml-fi-label">All Files</span>
+        <span class="ml-fi-count" id="countAll">—</span>
+      </div>
+      <div class="ml-folder-item" data-folder="" onclick="setFolder('', this)">
+        <span class="ml-fi-icon">📄</span>
+        <span class="ml-fi-label">Uncategorized</span>
+      </div>
+      <div id="dynamicFolders">
+        {% for f in folders %}
+        <div class="ml-folder-item" data-folder="{{ f }}" onclick="setFolder('{{ f }}', this)">
+          <span class="ml-fi-icon">📁</span>
+          <span class="ml-fi-label">{{ f }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <button class="ml-folder-new" onclick="promptNewFolder()">＋ New folder</button>
+    </div>
+  </div>
+
+  <!-- Main area -->
+  <div class="ml-main">
+    <div class="ml-topbar">
+      <span class="ml-title" id="mlFolderTitle">All Files</span>
+      <input class="ml-search" id="mlSearch" type="search" placeholder="Search files…" oninput="searchFiles(this.value)">
+      <div class="ml-view-btns">
+        <button class="ml-view-btn active" id="btnGrid" onclick="setView('grid')">⊞ Grid</button>
+        <button class="ml-view-btn" id="btnTable" onclick="setView('table')">☰ List</button>
+      </div>
+      <label class="ml-upload-btn">
+        ↑ Upload
+        <input type="file" id="mlUploadInput" multiple style="display:none">
+      </label>
+    </div>
+
+    <div class="ml-content" id="mlContent">
+      <div class="ml-drop-zone" id="mlDropZone">
+        <div style="font-size:36px;margin-bottom:12px;">📂</div>
+        <div style="font-size:15px;font-weight:600;color:#374151;margin-bottom:6px;">Drop files here to upload</div>
+        <div style="font-size:13px;">or use the Upload button above</div>
+        <div style="margin-top:12px;font-size:12px;">Images, PDFs, videos, documents — up to 20 MB each</div>
+      </div>
+    </div>
+
+    <div class="ml-status-bar">
+      <span id="mlCount">Loading…</span>
+      <span id="mlUploadStatus"></span>
+    </div>
+  </div>
+</div>
+
+<div id="mlToast"></div>
+
+<script>
+var _currentFolder = '__all__';
+var _files = [];
+var _currentView = localStorage.getItem('pz_ml_view') || 'grid';
+var _searchQ = '';
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(function init() {
+  setView(_currentView, true);
+  loadFiles();
+  setupDragDrop();
+  document.getElementById('mlUploadInput').addEventListener('change', function(e) {
+    uploadFiles(Array.from(e.target.files));
+    e.target.value = '';
+  });
+})();
+
+// ── Folder nav ────────────────────────────────────────────────────────────────
+function setFolder(folder, el) {
+  _currentFolder = folder;
+  document.querySelectorAll('.ml-folder-item').forEach(function(i) { i.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  var title = folder === '__all__' ? 'All Files' : (folder === '' ? 'Uncategorized' : folder);
+  document.getElementById('mlFolderTitle').textContent = title;
+  loadFiles();
+}
+
+function promptNewFolder() {
+  var name = prompt('Folder name:');
+  if (!name || !name.trim()) return;
+  fetch('/api/media/folder', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ name: name.trim() })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    if (d.ok) {
+      // Add to sidebar
+      var item = document.createElement('div');
+      item.className = 'ml-folder-item';
+      item.dataset.folder = d.folder;
+      item.onclick = function(){ setFolder(d.folder, item); };
+      item.innerHTML = '<span class="ml-fi-icon">📁</span><span class="ml-fi-label">' + d.folder + '</span>';
+      document.getElementById('dynamicFolders').appendChild(item);
+      setFolder(d.folder, item);
+    } else {
+      alert(d.error || 'Could not create folder');
+    }
+  });
+}
+
+// ── Load / render files ───────────────────────────────────────────────────────
+function loadFiles() {
+  document.getElementById('mlCount').textContent = 'Loading…';
+  var params = new URLSearchParams();
+  if (_currentFolder !== '__all__') params.set('folder', _currentFolder);
+  if (_searchQ) params.set('q', _searchQ);
+
+  fetch('/api/media?' + params.toString())
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      _files = d.files || [];
+      document.getElementById('mlCount').textContent = _files.length + ' file' + (_files.length !== 1 ? 's' : '');
+      var allCount = d.files ? (d.allCount || _files.length) : 0;
+      renderFiles();
+    })
+    .catch(function() {
+      document.getElementById('mlCount').textContent = 'Error loading files';
+    });
+}
+
+function searchFiles(q) {
+  _searchQ = q;
+  loadFiles();
+}
+
+function getFileIcon(mime, name) {
+  if (!mime) {
+    var ext = (name || '').split('.').pop().toLowerCase();
+    if ('jpg jpeg png gif webp svg avif'.includes(ext)) return '🖼';
+    if (ext === 'pdf') return '📄';
+    if ('mp4 mov webm'.includes(ext)) return '🎬';
+    if ('mp3 wav'.includes(ext)) return '🎵';
+    if ('doc docx'.includes(ext)) return '📝';
+    if ('xls xlsx csv'.includes(ext)) return '📊';
+    if (ext === 'zip') return '📦';
+    return '📎';
+  }
+  if (mime.startsWith('image/')) return '🖼';
+  if (mime === 'application/pdf') return '📄';
+  if (mime.startsWith('video/')) return '🎬';
+  if (mime.startsWith('audio/')) return '🎵';
+  if (mime.includes('word')) return '📝';
+  if (mime.includes('sheet') || mime.includes('excel')) return '📊';
+  if (mime.includes('zip')) return '📦';
+  return '📎';
+}
+
+function renderFiles() {
+  var content = document.getElementById('mlContent');
+  if (!_files.length) {
+    content.innerHTML = '<div class="ml-drop-zone" id="mlDropZone"><div style="font-size:36px;margin-bottom:12px;">📂</div><div style="font-size:15px;font-weight:600;color:#374151;margin-bottom:6px;">No files here yet</div><div style="font-size:13px;">Drop files or use the Upload button</div></div>';
+    setupDragDrop();
+    return;
+  }
+
+  if (_currentView === 'grid') {
+    var html = '<div class="ml-grid">';
+    _files.forEach(function(f) {
+      var thumb = f.isImage
+        ? '<img class="ml-card-thumb" src="' + f.url + '" alt="' + esc(f.original) + '" loading="lazy">'
+        : '<div class="ml-card-icon">' + getFileIcon(f.mime_type, f.name) + '</div>';
+      html += '<div class="ml-card" data-id="' + f.id + '" data-url="' + esc(f.url) + '">'
+            + thumb
+            + '<button class="ml-card-del" onclick="deleteFile(event,' + f.id + ',\'' + esc(f.name) + '\')">×</button>'
+            + '<div class="ml-card-body">'
+            + '<div class="ml-card-name">' + esc(f.original || f.name) + '</div>'
+            + '<div class="ml-card-meta">' + f.sizeLabel + (f.folder ? ' · ' + esc(f.folder) : '') + '</div>'
+            + '</div>'
+            + '</div>';
+    });
+    html += '</div>';
+    content.innerHTML = html;
+  } else {
+    var html = '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">'
+             + '<table class="ml-table">'
+             + '<thead><tr>'
+             + '<th style="width:50px;">Preview</th>'
+             + '<th>Name</th>'
+             + '<th>Type</th>'
+             + '<th>Size</th>'
+             + '<th>Folder</th>'
+             + '<th>Date</th>'
+             + '<th style="text-align:right;">Actions</th>'
+             + '</tr></thead><tbody>';
+    _files.forEach(function(f) {
+      var preview = f.isImage
+        ? '<img src="' + f.url + '" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:5px;border:1px solid #e5e7eb;">'
+        : '<div style="font-size:22px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;">' + getFileIcon(f.mime_type, f.name) + '</div>';
+      var ext = (f.name || '').split('.').pop().toUpperCase();
+      html += '<tr>'
+            + '<td>' + preview + '</td>'
+            + '<td><div style="font-weight:500;color:#111827;">' + esc(f.original || f.name) + '</div><div style="font-size:11px;color:#9ca3af;">' + esc(f.url) + '</div></td>'
+            + '<td><span style="font-size:11px;background:#f3f4f6;padding:2px 6px;border-radius:4px;color:#374151;">' + ext + '</span></td>'
+            + '<td style="color:#6b7280;white-space:nowrap;">' + f.sizeLabel + '</td>'
+            + '<td style="color:#6b7280;">' + (f.folder ? esc(f.folder) : '—') + '</td>'
+            + '<td style="color:#6b7280;white-space:nowrap;">' + (f.modified || '') + '</td>'
+            + '<td style="text-align:right;white-space:nowrap;">'
+            + '<button onclick="copyUrl(\'' + esc(f.url) + '\')" style="padding:4px 9px;border-radius:5px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;cursor:pointer;margin-right:5px;">Copy URL</button>'
+            + '<button onclick="deleteFile(event,' + f.id + ',\'' + esc(f.name) + '\')" style="padding:4px 9px;border-radius:5px;border:1px solid #fecaca;background:#fff;color:#dc2626;font-size:12px;cursor:pointer;">Delete</button>'
+            + '</td>'
+            + '</tr>';
+    });
+    html += '</tbody></table></div>';
+    content.innerHTML = html;
+  }
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── View toggle ───────────────────────────────────────────────────────────────
+function setView(v, skipRender) {
+  _currentView = v;
+  localStorage.setItem('pz_ml_view', v);
+  document.getElementById('btnGrid').classList.toggle('active', v === 'grid');
+  document.getElementById('btnTable').classList.toggle('active', v === 'table');
+  if (!skipRender) renderFiles();
+}
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+function uploadFiles(files) {
+  if (!files.length) return;
+  var status = document.getElementById('mlUploadStatus');
+  status.textContent = 'Uploading ' + files.length + ' file' + (files.length > 1 ? 's' : '') + '…';
+
+  var folder = _currentFolder !== '__all__' && _currentFolder !== '' ? _currentFolder : '';
+  var done = 0;
+  var failed = 0;
+
+  files.forEach(function(file) {
+    var fd = new FormData();
+    fd.append('file', file);
+    var url = '/api/media/upload' + (folder ? '?folder=' + encodeURIComponent(folder) : '');
+    fetch(url, { method:'POST', body:fd })
+      .then(function(r){ return r.json(); })
+      .then(function(d) {
+        if (d.ok) { done++; } else { failed++; }
+        if (done + failed === files.length) {
+          status.textContent = done > 0 ? '✓ Uploaded ' + done + ' file' + (done > 1 ? 's' : '') : '';
+          if (failed > 0) status.textContent += (done > 0 ? ', ' : '') + failed + ' failed';
+          loadFiles();
+          setTimeout(function(){ status.textContent = ''; }, 3000);
+        }
+      })
+      .catch(function() {
+        failed++;
+        if (done + failed === files.length) {
+          status.textContent = failed + ' upload' + (failed > 1 ? 's' : '') + ' failed';
+          loadFiles();
+        }
+      });
+  });
+}
+
+// ── Drag & drop ───────────────────────────────────────────────────────────────
+function setupDragDrop() {
+  var content = document.getElementById('mlContent');
+  if (!content) return;
+  content.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    content.classList.add('drag-over');
+  });
+  content.addEventListener('dragleave', function(e) {
+    if (!content.contains(e.relatedTarget)) content.classList.remove('drag-over');
+  });
+  content.addEventListener('drop', function(e) {
+    e.preventDefault();
+    content.classList.remove('drag-over');
+    var dt = e.dataTransfer;
+    if (dt && dt.files && dt.files.length) uploadFiles(Array.from(dt.files));
+  });
+}
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+function deleteFile(e, id, name) {
+  e.stopPropagation();
+  if (!confirm('Delete "' + name + '"?')) return;
+  fetch('/api/media/' + id, { method:'DELETE' })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.ok) {
+        _files = _files.filter(function(f){ return f.id !== id; });
+        document.getElementById('mlCount').textContent = _files.length + ' file' + (_files.length !== 1 ? 's' : '');
+        renderFiles();
+        showToast('File deleted');
+      } else {
+        alert(d.error || 'Could not delete');
+      }
+    });
+}
+
+// ── Copy URL ──────────────────────────────────────────────────────────────────
+function copyUrl(url) {
+  var full = location.origin + url;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(full);
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = full; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  }
+  showToast('✓ URL copied to clipboard');
+}
+
+function showToast(msg) {
+  var t = document.getElementById('mlToast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(function(){ t.style.opacity = '0'; }, 2200);
+}
+</script>
+</div>{# /flex:1 wrapper #}
+</div>{# /layout #}
+
+{% else %}
+{# ── LEGACY SITE MEDIA (biolink/minisite) ─────────────────────────────────── #}
+<div style="max-width:900px;margin:40px auto;padding:0 24px;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:16px;">
     <div>
-      <div style="font-size:12px;color:var(--ink-faint,#9ca3af);margin-bottom:4px;">
-        <a href="/dashboard" style="color:var(--ink-muted,#6b7280);text-decoration:none;">Dashboard</a>
-        / <a href="/dashboard/site/{{ site.id }}" style="color:var(--ink-muted,#6b7280);text-decoration:none;">{{ site.title }}</a>
-        / Media Library
+      <div style="font-size:12px;color:#9ca3af;margin-bottom:4px;">
+        <a href="/dashboard" style="color:#6b7280;text-decoration:none;">Dashboard</a> / Media Library
       </div>
-      <h1 style="font-size:22px;font-weight:600;color:var(--ink,#111827);margin:0;">🖼 Media Library</h1>
+      <h1 style="font-size:22px;font-weight:600;color:#111827;margin:0;">🖼 Media Library</h1>
     </div>
-    <label id="uploadBtn" style="padding:10px 20px;background:#111827;color:#fff;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;">
+    <label style="padding:10px 20px;background:#111827;color:#fff;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;">
       + Upload Image
       <input type="file" id="uploadInput" accept="image/*" style="display:none">
     </label>
   </div>
-
-  <!-- Upload progress -->
   <div id="uploadStatus" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:14px;color:#166534;"></div>
   <div id="uploadError" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:14px;color:#991b1b;"></div>
-
-  <!-- Toggle view -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
     <div id="fileCount" style="font-size:13px;color:#6b7280;">{{ files | length }} file{% if files | length != 1 %}s{% endif %}</div>
     <div style="display:flex;gap:6px;">
@@ -30,43 +471,27 @@
       <button onclick="setView('grid')" id="btnGrid" style="padding:6px 12px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:13px;cursor:pointer;">Grid</button>
     </div>
   </div>
-
-  <!-- TABLE VIEW -->
   <div id="tableView">
     {% if files | length %}
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
       <table style="width:100%;border-collapse:collapse;font-size:14px;">
-        <thead>
-          <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
-            <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151;width:56px;">Preview</th>
-            <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151;">Filename</th>
-            <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151;white-space:nowrap;">Size</th>
-            <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151;white-space:nowrap;">Date</th>
-            <th style="padding:12px 16px;text-align:right;font-weight:600;color:#374151;">Actions</th>
-          </tr>
-        </thead>
+        <thead><tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
+          <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151;width:56px;">Preview</th>
+          <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151;">Filename</th>
+          <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151;">Size</th>
+          <th style="padding:12px 16px;text-align:left;font-weight:600;color:#374151;">Date</th>
+          <th style="padding:12px 16px;text-align:right;font-weight:600;color:#374151;">Actions</th>
+        </tr></thead>
         <tbody id="tableBody">
           {% for f in files %}
           <tr data-name="{{ f.name }}" style="border-bottom:{{ 'none' if loop.last else '1px solid #f3f4f6' }};">
-            <td style="padding:10px 16px;">
-              <img src="{{ f.url }}" alt="{{ f.name }}"
-                style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;">
-            </td>
-            <td style="padding:10px 16px;max-width:300px;">
-              <div style="font-size:13px;color:#111827;word-break:break-all;font-weight:500;">{{ f.name }}</div>
-              <div style="font-size:11px;color:#9ca3af;margin-top:2px;">{{ f.url }}</div>
-            </td>
+            <td style="padding:10px 16px;"><img src="{{ f.url }}" alt="{{ f.name }}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;"></td>
+            <td style="padding:10px 16px;max-width:300px;"><div style="font-size:13px;color:#111827;word-break:break-all;font-weight:500;">{{ f.name }}</div><div style="font-size:11px;color:#9ca3af;margin-top:2px;">{{ f.url }}</div></td>
             <td style="padding:10px 16px;color:#6b7280;white-space:nowrap;">{{ f.sizeLabel }}</td>
             <td style="padding:10px 16px;color:#6b7280;white-space:nowrap;">{{ f.modified }}</td>
             <td style="padding:10px 16px;text-align:right;white-space:nowrap;">
-              <button onclick="copyUrl('{{ f.url }}')"
-                style="padding:5px 10px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;cursor:pointer;margin-right:6px;">
-                Copy URL
-              </button>
-              <button onclick="deleteFile('{{ f.name }}', this)"
-                style="padding:5px 10px;border-radius:6px;border:1px solid #fecaca;background:#fff;color:#dc2626;font-size:12px;cursor:pointer;">
-                Delete
-              </button>
+              <button onclick="copyUrl('{{ f.url }}')" style="padding:5px 10px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;cursor:pointer;margin-right:6px;">Copy URL</button>
+              <button onclick="deleteFile('{{ f.name }}', this)" style="padding:5px 10px;border-radius:6px;border:1px solid #fecaca;background:#fff;color:#dc2626;font-size:12px;cursor:pointer;">Delete</button>
             </td>
           </tr>
           {% endfor %}
@@ -81,25 +506,18 @@
     </div>
     {% endif %}
   </div>
-
-  <!-- GRID VIEW -->
   <div id="gridView" style="display:none;">
     <div id="gridContainer" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;">
       {% for f in files %}
       <div data-name="{{ f.name }}" style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
         <div style="position:relative;">
-          <img src="{{ f.url }}" alt="{{ f.name }}"
-            style="width:100%;height:120px;object-fit:cover;display:block;">
-          <button onclick="deleteFile('{{ f.name }}', this)"
-            style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);color:#fff;font-size:14px;line-height:1;cursor:pointer;padding:0;">×</button>
+          <img src="{{ f.url }}" alt="{{ f.name }}" style="width:100%;height:120px;object-fit:cover;display:block;">
+          <button onclick="deleteFile('{{ f.name }}', this)" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);color:#fff;font-size:14px;line-height:1;cursor:pointer;padding:0;">×</button>
         </div>
         <div style="padding:8px 10px;">
           <div style="font-size:11px;color:#374151;word-break:break-all;line-height:1.3;margin-bottom:6px;font-weight:500;">{{ f.name | truncate(30) }}</div>
           <div style="font-size:10px;color:#9ca3af;margin-bottom:6px;">{{ f.sizeLabel }}</div>
-          <button onclick="copyUrl('{{ f.url }}')"
-            style="width:100%;padding:5px;border-radius:5px;border:1px solid #e5e7eb;background:#f9fafb;color:#374151;font-size:11px;cursor:pointer;">
-            Copy URL
-          </button>
+          <button onclick="copyUrl('{{ f.url }}')" style="width:100%;padding:5px;border-radius:5px;border:1px solid #e5e7eb;background:#f9fafb;color:#374151;font-size:11px;cursor:pointer;">Copy URL</button>
         </div>
       </div>
       {% endfor %}
@@ -111,18 +529,10 @@
     </div>
     {% endif %}
   </div>
-
-  <!-- Copy toast -->
-  <div id="copyToast" style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:9px 18px;border-radius:24px;font-size:12px;font-weight:500;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:999;white-space:nowrap;">
-    ✓ URL copied to clipboard
-  </div>
-
+  <div id="copyToast" style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:9px 18px;border-radius:24px;font-size:12px;font-weight:500;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:999;white-space:nowrap;">✓ URL copied to clipboard</div>
 </div>
-
 <script>
 const SITE_ID = {{ siteId }};
-
-// View toggle
 function setView(v) {
   document.getElementById('tableView').style.display = v === 'table' ? '' : 'none';
   document.getElementById('gridView').style.display  = v === 'grid'  ? '' : 'none';
@@ -132,25 +542,14 @@ function setView(v) {
   document.getElementById('btnGrid').style.color  = v === 'grid'  ? '#fff' : '#374151';
   localStorage.setItem('pz_media_view', v);
 }
-// Restore last view
 (function(){ var v = localStorage.getItem('pz_media_view') || 'table'; setView(v); })();
-
-// Copy URL
 function copyUrl(url) {
   var full = location.origin + url;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(full);
-  } else {
-    var ta = document.createElement('textarea');
-    ta.value = full; document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta);
-  }
-  var t = document.getElementById('copyToast');
-  t.style.opacity = '1';
+  if (navigator.clipboard) { navigator.clipboard.writeText(full); }
+  else { var ta = document.createElement('textarea'); ta.value = full; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
+  var t = document.getElementById('copyToast'); t.style.opacity = '1';
   setTimeout(function(){ t.style.opacity = '0'; }, 2000);
 }
-
-// Delete file
 function deleteFile(name, btn) {
   if (!confirm('Delete ' + name + '?')) return;
   btn.disabled = true;
@@ -158,55 +557,28 @@ function deleteFile(name, btn) {
     .then(r => r.json())
     .then(d => {
       if (d.ok) {
-        // Remove row from table
-        var tableRow = document.querySelector('#tableBody tr[data-name="' + name + '"]');
-        if (tableRow) tableRow.remove();
-        // Remove card from grid
-        var gridCard = document.querySelector('#gridContainer [data-name="' + name + '"]');
-        if (gridCard) gridCard.remove();
-        // Update count
-        var remaining = document.querySelectorAll('#tableBody tr').length;
-        document.getElementById('fileCount').textContent = remaining + ' file' + (remaining !== 1 ? 's' : '');
+        var tr = document.querySelector('#tableBody tr[data-name="' + name + '"]'); if (tr) tr.remove();
+        var gc = document.querySelector('#gridContainer [data-name="' + name + '"]'); if (gc) gc.remove();
+        var rem = document.querySelectorAll('#tableBody tr').length;
+        document.getElementById('fileCount').textContent = rem + ' file' + (rem !== 1 ? 's' : '');
       }
-    })
-    .catch(function(){ btn.disabled = false; });
+    }).catch(function(){ btn.disabled = false; });
 }
-
-// Upload
 document.getElementById('uploadInput').addEventListener('change', function(e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  var status = document.getElementById('uploadStatus');
-  var errEl  = document.getElementById('uploadError');
-  status.style.display = 'none';
-  errEl.style.display  = 'none';
-
-  var fd = new FormData();
-  fd.append('image', file);
-  status.textContent = 'Uploading…';
-  status.style.display = '';
-
+  var file = e.target.files[0]; if (!file) return;
+  var status = document.getElementById('uploadStatus'); var errEl = document.getElementById('uploadError');
+  status.style.display = 'none'; errEl.style.display = 'none';
+  var fd = new FormData(); fd.append('image', file);
+  status.textContent = 'Uploading…'; status.style.display = '';
   fetch('/dashboard/media/' + SITE_ID + '/upload', { method: 'POST', body: fd })
     .then(r => r.json())
     .then(d => {
-      if (d.ok) {
-        status.textContent = '✓ Uploaded: ' + d.name;
-        // Reload to show new file
-        setTimeout(function(){ location.reload(); }, 800);
-      } else {
-        status.style.display = 'none';
-        errEl.textContent = d.error || 'Upload failed';
-        errEl.style.display = '';
-      }
-    })
-    .catch(function(err){
-      status.style.display = 'none';
-      errEl.textContent = 'Upload failed';
-      errEl.style.display = '';
-    });
-
-  // Reset input
+      if (d.ok) { status.textContent = '✓ Uploaded: ' + d.name; setTimeout(function(){ location.reload(); }, 800); }
+      else { status.style.display = 'none'; errEl.textContent = d.error || 'Upload failed'; errEl.style.display = ''; }
+    }).catch(function(){ status.style.display = 'none'; errEl.textContent = 'Upload failed'; errEl.style.display = ''; });
   e.target.value = '';
 });
 </script>
+{% endif %}
+
 {% endblock %}

@@ -295,6 +295,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 
   <div class="wb-topbar-right">
     <span class="tb-saved" id="saveStatus">All changes saved</span>
+    <a href="/dashboard/media" target="_blank" class="tb-btn tb-btn-ghost" style="text-decoration:none;">🖼 Media</a>
     <button class="tb-btn tb-btn-ghost" onclick="openPreview()">Preview</button>
     {% if website.is_published %}
     <button class="tb-btn tb-btn-primary" onclick="saveAndPublish()" style="background:#10b981;">✓ Update Website</button>
@@ -488,6 +489,8 @@ var SITE_THEME = '{{ website.settings.theme or "default" }}';
 <style id="canvas-theme-css"></style>
 <!-- Builder logic — external file avoids Nunjucks escaping issues -->
 <script src="/js/website-builder.js"></script>
+<!-- Media picker widget -->
+<script src="/js/media-picker.js"></script>
 
 <!-- ══ Prebuilt Section Picker ══ -->
 <div id="sectionPicker">

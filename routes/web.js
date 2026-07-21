@@ -182,7 +182,15 @@ router.get ('/dashboard/blog/:siteId/edit/:postId',       requireAuth, blog.edit
 router.post('/dashboard/blog/:siteId/edit/:postId',       requireAuth, blog.update)
 router.post('/dashboard/blog/:siteId/delete/:postId',     requireAuth, blog.destroy)
 
-// Media library
+// Media library — account-wide
+router.get   ('/dashboard/media',              requireAuth, media.accountLibrary)
+router.get   ('/api/media',                    requireAuth, media.accountList)
+router.post  ('/api/media/upload',             requireAuth, media.accountUpload)
+router.post  ('/api/media/folder',             requireAuth, media.createFolder)
+router.delete('/api/media/folder/:name',       requireAuth, media.deleteFolder)
+router.delete('/api/media/:id',               requireAuth, media.accountDelete)
+
+// Media library — legacy site-based (biolink builder compat)
 router.get ('/dashboard/media/:siteId/library',      requireAuth, media.library)
 router.get ('/dashboard/media/:siteId',              requireAuth, media.list)
 router.post('/dashboard/media/:siteId/upload',       requireAuth, media.upload)

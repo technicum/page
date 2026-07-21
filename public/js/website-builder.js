@@ -627,6 +627,23 @@ function renderSectionEditPanel(sid) {
     });
     return s + '</select></div>';
   };
+  // Image field with media picker browse button
+  var fImg = function(key, label, val, ph) {
+    var inputId = 'fimg-' + sid + '-' + key;
+    return '<div class="field-group"><label class="fl">' + label + '</label>' +
+      '<div style="display:flex;gap:6px;">' +
+      '<input id="' + inputId + '" class="fi" style="flex:1;" value="' + escHtml(val || '') + '" placeholder="' + escHtml(ph || 'https://…') + '" ' +
+      'oninput="sd(\'' + sid + '\',\'' + key + '\',this.value)"> ' +
+      '<button type="button" style="flex-shrink:0;padding:0 10px;border:1px solid #e5e7eb;border-radius:7px;background:#f9fafb;cursor:pointer;font-size:12px;color:#374151;" ' +
+      'onclick="(function(){\
+if(typeof MediaPicker===\'undefined\')return alert(\'Media library not loaded\');\
+MediaPicker.open(function(f){\
+  var el=document.getElementById(\'' + inputId + '\');\
+  if(el){el.value=f.url;el.dispatchEvent(new Event(\'input\'));}\
+},{type:\'image\'});\
+})()">📁</button>' +
+      '</div></div>';
+  };
 
   function itemsEditor(key, items, fields, labels) {
     var h = '<div class="field-group"><label class="fl">Items</label><div class="it-list" id="itl-' + sid + '-' + key + '">';
@@ -654,7 +671,7 @@ function renderSectionEditPanel(sid) {
     case 'about':
       html += fI('heading', 'Section Heading', d.heading);
       html += fT('text', 'Content', d.text);
-      html += fI('image', 'Image URL', d.image, 'https://...');
+      html += fImg('image', 'Image URL', d.image, 'https://…');
       html += fS('layout', 'Layout', d.layout, { 'image_right':'Text left, Image right', 'image_left':'Image left, Text right', 'full_text':'Text only' });
       break;
     case 'services':

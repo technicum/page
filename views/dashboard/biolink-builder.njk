@@ -597,6 +597,7 @@ textarea.field-input{resize:vertical;min-height:52px;}
 </div>
 
 <input type="file" id="hiddenFileInput" accept="image/*" style="display:none">
+<script src="/js/media-picker.js"></script>
 
 <script>
 /* ── Server data ─────────────────────────────── */
@@ -1001,18 +1002,27 @@ function buildSettingsUI(){
   syncAppUI();
 }
 
-/* ── Image upload ────────────────────────────── */
+/* ── Image upload / media picker ─────────────── */
 var _imgCb=null;
+// Legacy file input fallback (still works)
 document.getElementById('hiddenFileInput').addEventListener('change',function(){
   var file=this.files[0];
   if(!file||!_imgCb) return;
-  var fd=new FormData(); fd.append('image',file); fd.append('site_id',SITE_ID);
-  fetch('/dashboard/media/'+SITE_ID+'/upload',{method:'POST',body:fd})
+  var fd=new FormData(); fd.append('file',file);
+  fetch('/api/media/upload',{method:'POST',body:fd})
     .then(function(r){return r.json();})
-    .then(function(d){if(d.url)_imgCb(d.url);});
+    .then(function(d){if(d.url&&_imgCb)_imgCb(d.url);});
   this.value='';
 });
-function triggerUpload(cb){_imgCb=cb;document.getElementById('hiddenFileInput').click();}
+// Use MediaPicker if available, otherwise fall back to file input
+function triggerUpload(cb){
+  _imgCb=cb;
+  if(typeof MediaPicker!=='undefined'){
+    MediaPicker.open(function(f){ if(cb)cb(f.url); },{type:'image'});
+  } else {
+    document.getElementById('hiddenFileInput').click();
+  }
+}
 
 /* ── Block helpers ───────────────────────────── */
 function genId(){return 'b'+(Date.now()).toString(36)+Math.random().toString(36).slice(2,5);}
