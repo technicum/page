@@ -1614,28 +1614,28 @@ function tcPreviewHTML(t) {
    PREBUILT SECTIONS PICKER
 ═══════════════════════════════════════════ */
 var PREBUILT_CATS = [
-  { id:'hero',         label:'Hero',         icon:'🦸', sub:'Page hero sections' },
-  { id:'about',        label:'About',        icon:'👤', sub:'About / intro sections' },
-  { id:'services',     label:'Services',     icon:'⚡', sub:'Services & features' },
-  { id:'pricing',      label:'Pricing',      icon:'💰', sub:'Pricing plans & tiers' },
-  { id:'stats',        label:'Stats',        icon:'📊', sub:'Key numbers & metrics' },
-  { id:'testimonials', label:'Testimonials', icon:'💬', sub:'Client reviews & quotes' },
-  { id:'team',         label:'Team',         icon:'👥', sub:'Team member profiles' },
-  { id:'faq',          label:'FAQ',          icon:'❓', sub:'Frequently asked questions' },
-  { id:'cta',          label:'CTA Banner',   icon:'📣', sub:'Call-to-action banners' },
-  { id:'gallery',      label:'Gallery',      icon:'🖼', sub:'Photo & image galleries' },
-  { id:'video',        label:'Video',        icon:'▶️', sub:'YouTube / Vimeo embed' },
-  { id:'logobar',      label:'Logo Bar',     icon:'🏷', sub:'Client & partner logos' },
-  { id:'timeline',     label:'Timeline',     icon:'🗂', sub:'Process steps & milestones' },
-  { id:'columns',      label:'Columns',      icon:'⬛', sub:'Multi-column layouts' },
-  { id:'rich_text',    label:'Rich Text',    icon:'📝', sub:'Text & content blocks' },
-  { id:'newsletter',   label:'Newsletter',   icon:'📧', sub:'Email subscribe sections' },
-  { id:'contact',      label:'Contact',      icon:'📬', sub:'Contact forms & info' }
+  { id:'hero',         label:'Hero',         icon:'🦸', sub:'Page hero sections',             bg:'#ede9fe' },
+  { id:'about',        label:'About',        icon:'👤', sub:'About / intro sections',          bg:'#fef3c7' },
+  { id:'services',     label:'Services',     icon:'⚡', sub:'Services & features',             bg:'#dbeafe' },
+  { id:'pricing',      label:'Pricing',      icon:'💰', sub:'Pricing plans & tiers',           bg:'#dcfce7' },
+  { id:'stats',        label:'Stats',        icon:'📊', sub:'Key numbers & metrics',           bg:'#fce7f3' },
+  { id:'testimonials', label:'Testimonials', icon:'💬', sub:'Client reviews & quotes',         bg:'#eff6ff' },
+  { id:'team',         label:'Team',         icon:'👥', sub:'Team member profiles',            bg:'#f5f3ff' },
+  { id:'faq',          label:'FAQ',          icon:'❓', sub:'Frequently asked questions',      bg:'#fefce8' },
+  { id:'cta',          label:'CTA Banner',   icon:'📣', sub:'Call-to-action banners',          bg:'#fff1f2' },
+  { id:'gallery',      label:'Gallery',      icon:'🖼', sub:'Photo & image galleries',         bg:'#f0fdf4' },
+  { id:'video',        label:'Video',        icon:'▶️', sub:'YouTube / Vimeo embed',           bg:'#f0f9ff' },
+  { id:'logobar',      label:'Logo Bar',     icon:'🏷', sub:'Client & partner logos',          bg:'#f8fafc' },
+  { id:'timeline',     label:'Timeline',     icon:'🗂', sub:'Process steps & milestones',      bg:'#fdf2f8' },
+  { id:'columns',      label:'Columns',      icon:'⬛', sub:'Multi-column layouts',            bg:'#f3f4f6' },
+  { id:'rich_text',    label:'Rich Text',    icon:'📝', sub:'Text & content blocks',           bg:'#fefce8' },
+  { id:'newsletter',   label:'Newsletter',   icon:'📧', sub:'Email subscribe sections',        bg:'#ecfdf5' },
+  { id:'contact',      label:'Contact',      icon:'📬', sub:'Contact forms & info',            bg:'#f8fafc' }
 ];
 
 var PREBUILT_VARIANTS = {
   hero: [
-    { label:'Bold Center', desc:'Large headline on gradient background', color:'#6366f1',
+    { label:'Bold Center', desc:'Large headline on gradient background', color:'#6366f1', tag:'popular',
       data:{ headline:'Welcome to Our Website', subheadline:'We deliver exceptional results for every client.', cta_label:'Get Started', cta_url:'#contact', bg_color:PRIMARY, text_color:'#ffffff' } },
     { label:'Dark Hero', desc:'Dramatic dark background with bright button', color:'#0f172a',
       data:{ headline:'Build Something Amazing', subheadline:'Professional solutions for modern businesses.', cta_label:'Start Today', cta_url:'#contact', bg_color:'#0f172a', text_color:'#ffffff' } },
@@ -1651,7 +1651,7 @@ var PREBUILT_VARIANTS = {
       data:{ heading:'Who We Are', text:'We are a team of passionate professionals dedicated to excellence in everything we do.', image:'', layout:'full_text' } }
   ],
   services: [
-    { label:'3 Cards', desc:'Three service offering cards', color:'#f9fafb',
+    { label:'3 Cards', desc:'Three service offering cards', color:'#f9fafb', tag:'popular',
       data:{ heading:'Our Services', items:[{icon:'⚡',title:'Strategy',desc:'We plan for your success.'},{icon:'🎨',title:'Design',desc:'Beautiful experiences that convert.'},{icon:'📈',title:'Growth',desc:'Scale your business faster.'}] } },
     { label:'4 Cards', desc:'Four service offerings', color:'#f9fafb',
       data:{ heading:'What We Do', items:[{icon:'🚀',title:'Launch',desc:'Get to market fast.'},{icon:'🎯',title:'Target',desc:'Reach the right audience.'},{icon:'⚙️',title:'Build',desc:'Robust solutions.'},{icon:'💎',title:'Quality',desc:'Premium at every step.'}] } },
@@ -1754,6 +1754,9 @@ var _spActiveCat = 'hero';
 
 function openSectionPicker() {
   _spActiveCat = 'hero';
+  _spSearch = '';
+  var searchEl = document.getElementById('spSearch');
+  if (searchEl) searchEl.value = '';
   spRenderSidebar();
   spRenderGrid('hero');
   document.getElementById('sectionPicker').style.display = 'flex';
@@ -1763,37 +1766,64 @@ function closeSectionPicker() {
   document.getElementById('sectionPicker').style.display = 'none';
 }
 
+var _spSearch = '';
+
 function spRenderSidebar() {
   var el = document.getElementById('spSidebar');
-  el.innerHTML = '<div class="sp-cat-label">SECTION TYPE</div>' +
+  el.innerHTML = '<div class="sp-cat-label">Section type</div>' +
     PREBUILT_CATS.map(function(cat) {
-      return '<div class="sp-cat-item' + (cat.id === _spActiveCat ? ' active' : '') + '" onclick="spSetCat(\'' + cat.id + '\')">' +
-        '<span class="sp-cat-icon">' + cat.icon + '</span>' + cat.label +
+      var isActive = cat.id === _spActiveCat;
+      return '<div class="sp-cat-item' + (isActive ? ' active' : '') + '" onclick="spSetCat(\'' + cat.id + '\')">' +
+        '<span class="sp-cat-icon" style="background:' + (cat.bg || '#f3f4f6') + '">' + cat.icon + '</span>' +
+        escHtml(cat.label) +
       '</div>';
     }).join('');
 }
 
 function spSetCat(catId) {
   _spActiveCat = catId;
+  _spSearch = '';
+  var searchEl = document.getElementById('spSearch');
+  if (searchEl) searchEl.value = '';
   spRenderSidebar();
   spRenderGrid(catId);
 }
 
-function spRenderGrid(catId) {
+function _spCardHTML(catId, i, v) {
+  var tagHtml = '';
+  if (v.tag === 'popular') tagHtml = '<span class="sp-tag sp-tag-popular">Popular</span>';
+  else if (v.tag === 'new')  tagHtml = '<span class="sp-tag sp-tag-new">New</span>';
+  return '<div class="sp-card" onclick="spAddSection(\'' + catId + '\',' + i + ')">' +
+    '<div class="sp-preview">' + spPreviewHTML(catId, i, v) +
+      '<div class="sp-overlay"><button class="sp-overlay-btn" onclick="event.stopPropagation();spAddSection(\'' + catId + '\',' + i + ')">＋ Add section</button></div>' +
+    '</div>' +
+    '<div class="sp-card-info">' +
+      '<div class="sp-card-name">' + escHtml(v.label) + '</div>' +
+      '<div class="sp-card-desc">' + escHtml(v.desc) + '</div>' +
+      (tagHtml ? '<div class="sp-card-foot">' + tagHtml + '</div>' : '') +
+    '</div>' +
+  '</div>';
+}
+
+function spRenderGrid(catId, filter) {
   var cat = PREBUILT_CATS.find(function(c){ return c.id === catId; });
   var variants = PREBUILT_VARIANTS[catId] || [];
-  document.getElementById('spSectionTitle').textContent = (cat ? cat.icon + ' ' + cat.label : catId);
+  document.getElementById('spSectionTitle').textContent = cat ? cat.icon + ' ' + cat.label : catId;
   document.getElementById('spSectionSub').textContent = cat ? cat.sub : '';
-  document.getElementById('spGrid').innerHTML = variants.map(function(v, i) {
-    return '<div class="sp-card">' +
-      '<div class="sp-preview">' + spPreviewHTML(catId, i, v) + '</div>' +
-      '<div class="sp-card-info">' +
-        '<div class="sp-card-name">' + escHtml(v.label) + '</div>' +
-        '<div class="sp-card-desc">' + escHtml(v.desc) + '</div>' +
-        '<button class="sp-add-btn" onclick="spAddSection(\'' + catId + '\',' + i + ')">+ Add Section</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+
+  var q = (filter || '').toLowerCase().trim();
+  var filtered = q
+    ? variants.filter(function(v){ return (v.label + ' ' + v.desc).toLowerCase().includes(q); })
+    : variants;
+
+  document.getElementById('spGrid').innerHTML = filtered.length
+    ? filtered.map(function(v, i) { return _spCardHTML(catId, variants.indexOf(v), v); }).join('')
+    : '<div class="sp-no-results">No layouts found for "<strong>' + escHtml(q) + '</strong>"</div>';
+}
+
+function spFilterSearch(q) {
+  _spSearch = q;
+  spRenderGrid(_spActiveCat, q);
 }
 
 function spAddSection(catId, variantIdx) {
