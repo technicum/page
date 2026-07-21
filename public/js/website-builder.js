@@ -948,12 +948,18 @@ function galImgEditor(sid, images) {
   return h;
 }
 
+function _galSave() {
+  setStatus('saving');
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(saveSections, 800);
+}
+
 function galUpdateImg(sid, idx, url) {
   var sec = sections.find(function(s){ return s.id === sid; });
   if (!sec) return;
   if (!sec.data.images) sec.data.images = [];
   sec.data.images[idx] = url;
-  renderCanvas(); pushUndo();
+  renderCanvas(); pushUndo(); _galSave();
 }
 
 function galClearAll(sid) {
@@ -961,7 +967,7 @@ function galClearAll(sid) {
   var sec = sections.find(function(s){ return s.id === sid; });
   if (!sec) return;
   sec.data.images = [];
-  renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+  renderSectionEditPanel(sid); renderCanvas(); pushUndo(); _galSave();
 }
 
 function galMoveUp(sid, idx) {
@@ -969,21 +975,21 @@ function galMoveUp(sid, idx) {
   var sec = sections.find(function(s){ return s.id === sid; });
   if (!sec || !sec.data.images) return;
   var tmp = sec.data.images[idx]; sec.data.images[idx] = sec.data.images[idx - 1]; sec.data.images[idx - 1] = tmp;
-  renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+  renderSectionEditPanel(sid); renderCanvas(); pushUndo(); _galSave();
 }
 
 function galMoveDown(sid, idx) {
   var sec = sections.find(function(s){ return s.id === sid; });
   if (!sec || !sec.data.images || idx >= sec.data.images.length - 1) return;
   var tmp = sec.data.images[idx]; sec.data.images[idx] = sec.data.images[idx + 1]; sec.data.images[idx + 1] = tmp;
-  renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+  renderSectionEditPanel(sid); renderCanvas(); pushUndo(); _galSave();
 }
 
 function galRemove(sid, idx) {
   var sec = sections.find(function(s){ return s.id === sid; });
   if (!sec) return;
   (sec.data.images || []).splice(idx, 1);
-  renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+  renderSectionEditPanel(sid); renderCanvas(); pushUndo(); _galSave();
 }
 
 function galAddBlank(sid) {
@@ -992,7 +998,7 @@ function galAddBlank(sid) {
   if (!sec) return;
   if (!sec.data.images) sec.data.images = [];
   sec.data.images.push(url.trim());
-  renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+  renderSectionEditPanel(sid); renderCanvas(); pushUndo(); _galSave();
 }
 
 function galBrowse(sid, idx) {
@@ -1002,7 +1008,7 @@ function galBrowse(sid, idx) {
     if (!sec) return;
     if (!sec.data.images) sec.data.images = [];
     sec.data.images[idx] = f.url;
-    renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+    renderSectionEditPanel(sid); renderCanvas(); pushUndo(); _galSave();
   }, { type: 'image' });
 }
 
@@ -1013,7 +1019,7 @@ function galBrowseNew(sid) {
     if (!sec) return;
     if (!sec.data.images) sec.data.images = [];
     sec.data.images.push(f.url);
-    renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+    renderSectionEditPanel(sid); renderCanvas(); pushUndo(); _galSave();
   }, { type: 'image' });
 }
 
@@ -1026,7 +1032,7 @@ function galBrowseMulti(sid) {
     (Array.isArray(files) ? files : [files]).forEach(function(f) {
       if (f && f.url) sec.data.images.push(f.url);
     });
-    renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+    renderSectionEditPanel(sid); renderCanvas(); pushUndo(); _galSave();
   }, { type: 'image', multi: true });
 }
 
