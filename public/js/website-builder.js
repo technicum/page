@@ -14,7 +14,7 @@ function escHtml(s) {
    SECTION DEFAULTS
 ═══════════════════════════════════════════ */
 var SEC_DEF = {
-  hero:         { headline:'Welcome to Our Website', subheadline:'We deliver exceptional results for every client.', cta_label:'Get Started', cta_url:'#contact', bg_color:PRIMARY, text_color:'#ffffff' },
+  hero:         { headline:'Welcome to Our Website', subheadline:'We deliver exceptional results for every client.', cta_label:'Get Started', cta_url:'#contact', bg_color:PRIMARY, text_color:'#ffffff', bg_image:'' },
   about:        { heading:'About Us', text:'Tell your story here. What makes you unique?', image:'', layout:'image_right' },
   services:     { heading:'Our Services', items:[{icon:'⚡',title:'Service One',desc:'Description of this service.'},{icon:'🎯',title:'Service Two',desc:'Description of this service.'},{icon:'💎',title:'Service Three',desc:'Description of this service.'}] },
   gallery:      { heading:'Gallery', images:[] },
@@ -202,9 +202,15 @@ function renderSectionPreview(sec) {
 
   switch (sec.type) {
 
-    case 'hero':
-      return '<section class="hero" style="background:' + escHtml(d.bg_color || p) + ';color:' + escHtml(d.text_color || '#fff') + ';">' +
-        '<div class="container">' +
+    case 'hero': {
+      var heroBg = d.bg_image
+        ? 'background:url(' + escHtml(d.bg_image) + ') center/cover no-repeat;'
+        : 'background:' + escHtml(d.bg_color || p) + ';';
+      heroBg += 'color:' + escHtml(d.text_color || '#fff') + ';';
+      if (d.bg_image) heroBg += 'position:relative;';
+      return '<section class="hero" style="' + heroBg + '">' +
+        (d.bg_image ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);pointer-events:none;"></div>' : '') +
+        '<div class="container" style="position:relative;z-index:1;">' +
         '<h1 ' + ce('headline') + '>' + escHtml(d.headline || 'Welcome') + '</h1>' +
         '<p ' + ce('subheadline') + '>' + escHtml(d.subheadline || '') + '</p>' +
         (d.cta_label
@@ -212,6 +218,7 @@ function renderSectionPreview(sec) {
             '<span ' + ce('cta_label') + '>' + escHtml(d.cta_label) + '</span></a>'
           : '') +
         '</div></section>';
+    }
 
     case 'about':
       var imgRight = d.layout !== 'image_left';
@@ -645,13 +652,29 @@ MediaPicker.open(function(f){\
       '</div></div>';
   };
 
-  function itemsEditor(key, items, fields, labels) {
+  function itemsEditor(key, items, fields, labels, imageFields) {
+    imageFields = imageFields || [];
     var h = '<div class="field-group"><label class="fl">Items</label><div class="it-list" id="itl-' + sid + '-' + key + '">';
     items.forEach(function(item, i) {
       h += '<div class="it-card">';
       h += '<button class="it-del" onclick="removeItem(\'' + sid + '\',\'' + key + '\',' + i + ')">✕</button>';
       fields.forEach(function(f, fi) {
-        h += '<input class="fi" placeholder="' + escHtml(labels[fi]) + '" value="' + escHtml(item[f] || '') + '" oninput="sdi(\'' + sid + '\',\'' + key + '\',' + i + ',\'' + f + '\',this.value)">';
+        var isImg = imageFields.indexOf(f) !== -1;
+        if (isImg) {
+          var imgId = 'itp-' + sid + '-' + key + '-' + i + '-' + f;
+          h += '<div style="display:flex;align-items:center;gap:5px;margin-top:' + (fi === 0 ? '0' : '4px') + ';">';
+          h += '<div style="width:32px;height:32px;flex-shrink:0;border-radius:4px;border:1px solid #e5e7eb;overflow:hidden;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:16px;">' +
+               (item[f] ? '<img src="' + escHtml(item[f]) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent=\'🖼\'">' : '🖼') + '</div>';
+          h += '<input id="' + imgId + '" class="fi" style="flex:1;font-size:11px;" placeholder="' + escHtml(labels[fi]) + '" value="' + escHtml(item[f] || '') + '" ' +
+               'oninput="sdi(\'' + sid + '\',\'' + key + '\',' + i + ',\'' + f + '\',this.value)">';
+          h += '<button type="button" title="Browse media library" style="flex-shrink:0;padding:0 7px;height:28px;border:1px solid #e5e7eb;border-radius:6px;background:#f9fafb;cursor:pointer;font-size:12px;" ' +
+               'onclick="(function(){if(typeof MediaPicker===\'undefined\')return;MediaPicker.open(function(file){' +
+               'var el=document.getElementById(\'' + imgId + '\');if(el){el.value=file.url;el.dispatchEvent(new Event(\'input\'));}' +
+               '},{type:\'image\'});})()">📁</button>';
+          h += '</div>';
+        } else {
+          h += '<input class="fi" style="margin-top:' + (fi === 0 ? '0' : '4px') + ';" placeholder="' + escHtml(labels[fi]) + '" value="' + escHtml(item[f] || '') + '" oninput="sdi(\'' + sid + '\',\'' + key + '\',' + i + ',\'' + f + '\',this.value)">';
+        }
       });
       h += '</div>';
     });
@@ -665,7 +688,8 @@ MediaPicker.open(function(f){\
       html += fI('subheadline', 'Subheadline', d.subheadline, 'e.g. We deliver results');
       html += fI('cta_label', 'Button Label', d.cta_label, 'e.g. Get Started');
       html += fI('cta_url', 'Button URL', d.cta_url, '#contact');
-      html += fC('bg_color', 'Background Color', d.bg_color || '#6366f1');
+      html += fImg('bg_image', 'Background Image', d.bg_image, 'Leave blank to use color');
+      html += fC('bg_color', 'Background Color (no image)', d.bg_color || '#6366f1');
       html += fC('text_color', 'Text Color', d.text_color || '#ffffff');
       break;
     case 'about':
@@ -680,9 +704,7 @@ MediaPicker.open(function(f){\
       break;
     case 'gallery':
       html += fI('heading', 'Section Heading', d.heading);
-      html += '<div class="field-group"><label class="fl">Image URLs (one per line)</label>' +
-        '<textarea class="fi ft" oninput="sd(\'' + sid + '\',\'images\',this.value.split(\'\\n\').filter(Boolean))">' +
-        escHtml((d.images || []).join('\n')) + '</textarea></div>';
+      html += galImgEditor(sid, d.images || []);
       break;
     case 'testimonials':
       html += fI('heading', 'Section Heading', d.heading);
@@ -690,7 +712,7 @@ MediaPicker.open(function(f){\
       break;
     case 'team':
       html += fI('heading', 'Section Heading', d.heading);
-      html += itemsEditor('items', d.items || [], ['image','name','role'], ['Photo URL','Name','Role']);
+      html += itemsEditor('items', d.items || [], ['image','name','role'], ['Photo URL','Name','Role'], ['image']);
       break;
     case 'faq':
       html += fI('heading', 'Section Heading', d.heading);
@@ -756,7 +778,7 @@ MediaPicker.open(function(f){\
 
     case 'logobar':
       html += fI('heading', 'Section Heading (optional)', d.heading);
-      html += itemsEditor('logos', d.logos || [], ['url','alt'], ['Logo Image URL (optional)','Company Name / Alt text']);
+      html += itemsEditor('logos', d.logos || [], ['url','alt'], ['Logo Image URL','Company Name / Alt text'], ['url']);
       break;
 
     case 'timeline':
@@ -819,6 +841,73 @@ function removeItem(sid, key, idx) {
   renderSectionEditPanel(sid);
   renderCanvas();
   pushUndo();
+}
+
+/* ═══════════════════════════════════════════
+   GALLERY IMAGE EDITOR HELPERS
+═══════════════════════════════════════════ */
+function galImgEditor(sid, images) {
+  var h = '<div class="field-group"><label class="fl">Images <span style="font-weight:400;color:#9ca3af;">(' + (images.length) + ')</span></label>';
+  h += '<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;" id="galList-' + sid + '">';
+  (images || []).forEach(function(url, i) {
+    var imgId = 'galInp-' + sid + '-' + i;
+    h += '<div style="display:flex;align-items:center;gap:5px;">' +
+         '<div style="width:32px;height:32px;flex-shrink:0;border-radius:4px;border:1px solid #e5e7eb;overflow:hidden;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:15px;">' +
+         (url ? '<img src="' + escHtml(url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent=\'🖼\'">' : '🖼') + '</div>' +
+         '<input id="' + imgId + '" class="fi" style="flex:1;font-size:11px;" value="' + escHtml(url) + '" placeholder="https://…" oninput="galUpdateImg(\'' + sid + '\',' + i + ',this.value)">' +
+         '<button type="button" title="Browse media" style="flex-shrink:0;padding:0 7px;height:28px;border:1px solid #e5e7eb;border-radius:6px;background:#f9fafb;cursor:pointer;font-size:12px;" ' +
+         'onclick="galBrowse(\'' + sid + '\',' + i + ')">📁</button>' +
+         '<button type="button" style="flex-shrink:0;width:24px;height:24px;border-radius:50%;border:none;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:13px;line-height:1;" ' +
+         'onclick="galRemove(\'' + sid + '\',' + i + ')">×</button>' +
+         '</div>';
+  });
+  h += '</div>';
+  h += '<div style="display:flex;gap:6px;">' +
+       '<button onclick="galAddBlank(\'' + sid + '\')" style="flex:1;padding:7px;border:1px dashed #d1d5db;border-radius:7px;background:#f9fafb;cursor:pointer;font-size:12px;color:#6b7280;">+ Paste URL</button>' +
+       '<button onclick="galBrowseNew(\'' + sid + '\')" style="flex:1;padding:7px;border:1px solid #6366f1;border-radius:7px;background:#eef2ff;cursor:pointer;font-size:12px;color:#6366f1;font-weight:500;">📁 Browse Library</button>' +
+       '</div></div>';
+  return h;
+}
+function galUpdateImg(sid, idx, url) {
+  var sec = sections.find(function(s){ return s.id === sid; });
+  if (!sec) return;
+  if (!sec.data.images) sec.data.images = [];
+  sec.data.images[idx] = url;
+  renderCanvas(); pushUndo();
+}
+function galRemove(sid, idx) {
+  var sec = sections.find(function(s){ return s.id === sid; });
+  if (!sec) return;
+  (sec.data.images || []).splice(idx, 1);
+  renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+}
+function galAddBlank(sid) {
+  var url = prompt('Enter image URL:'); if (!url || !url.trim()) return;
+  var sec = sections.find(function(s){ return s.id === sid; });
+  if (!sec) return;
+  if (!sec.data.images) sec.data.images = [];
+  sec.data.images.push(url.trim());
+  renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+}
+function galBrowse(sid, idx) {
+  if (typeof MediaPicker === 'undefined') return;
+  MediaPicker.open(function(f) {
+    var sec = sections.find(function(s){ return s.id === sid; });
+    if (!sec) return;
+    if (!sec.data.images) sec.data.images = [];
+    sec.data.images[idx] = f.url;
+    renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+  }, { type: 'image' });
+}
+function galBrowseNew(sid) {
+  if (typeof MediaPicker === 'undefined') return;
+  MediaPicker.open(function(f) {
+    var sec = sections.find(function(s){ return s.id === sid; });
+    if (!sec) return;
+    if (!sec.data.images) sec.data.images = [];
+    sec.data.images.push(f.url);
+    renderSectionEditPanel(sid); renderCanvas(); pushUndo();
+  }, { type: 'image' });
 }
 
 /* ═══════════════════════════════════════════

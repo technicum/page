@@ -466,7 +466,7 @@ textarea.field-input{resize:vertical;min-height:52px;}
               <div class="img-thumb" id="bgImgThumb">🖼️</div>
               <div class="img-inputs">
                 <input class="fg-input" id="bgImageUrl" placeholder="https://…" oninput="setApp('bgImage',this.value);updateBgThumb()">
-                <button class="btn-upload" onclick="triggerUpload(function(u){setApp('bgImage',u);document.getElementById('bgImageUrl').value=u;updateBgThumb();})">📷 Upload</button>
+                <button class="btn-upload" onclick="triggerUpload(function(u){setApp('bgImage',u);document.getElementById('bgImageUrl').value=u;updateBgThumb();})">📁 Browse</button>
               </div>
             </div>
           </div>
@@ -1248,7 +1248,7 @@ function buildBlockFields(block, container){
         else{ithumb.textContent='🖼️';}
         markDirty(); debouncedPreview();
       });
-      var iubtn=document.createElement('button'); iubtn.className='btn-upload'; iubtn.textContent='📷 Upload';
+      var iubtn=document.createElement('button'); iubtn.className='btn-upload'; iubtn.textContent='📁 Browse';
       (function(inputEl,thumbEl,fid){
         iubtn.onclick=function(){
           triggerUpload(function(url){

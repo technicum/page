@@ -120,6 +120,35 @@
   font-size:12px; font-weight:500; opacity:0; transition:opacity 0.2s;
   pointer-events:none; z-index:9999;
 }
+
+/* Drag overlay */
+#mlDragOverlay {
+  position:fixed; inset:0; background:rgba(99,102,241,.1);
+  border:4px dashed #6366f1; z-index:500; display:none;
+  align-items:center; justify-content:center; flex-direction:column;
+  gap:12px; pointer-events:none;
+}
+#mlDragOverlay.active { display:flex; }
+#mlDragOverlay .ml-drag-icon { font-size:52px; }
+#mlDragOverlay p { font-size:18px; font-weight:700; color:#6366f1; }
+
+/* Upload progress panel */
+#mlUploadPanel {
+  display:none; position:fixed; bottom:28px; right:24px; z-index:600;
+  background:#fff; border:1px solid #e5e7eb; border-radius:12px;
+  box-shadow:0 4px 24px rgba(0,0,0,.12); padding:12px 14px;
+  min-width:280px; max-width:340px;
+}
+#mlUploadPanel h4 { font-size:12px; font-weight:700; color:#374151; margin:0 0 8px; }
+#mlUploadList { display:flex; flex-direction:column; gap:5px; }
+.mlu-item { display:flex; align-items:center; gap:7px; font-size:12px; }
+.mlu-icon { flex-shrink:0; font-size:13px; font-weight:700; }
+.mlu-name { flex-shrink:0; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#374151; }
+.mlu-bar { flex:1; height:4px; background:#e5e7eb; border-radius:2px; overflow:hidden; }
+.mlu-fill-prog { height:100%; background:#6366f1; border-radius:2px; transition:width .2s; }
+.mlu-fill-done { height:100%; background:#10b981; border-radius:2px; }
+.mlu-fill-err  { height:100%; background:#dc2626; border-radius:2px; }
+.mlu-pct { flex-shrink:0; color:#9ca3af; font-size:10px; min-width:28px; text-align:right; }
 </style>
 
 <div class="ml-wrap">
@@ -180,6 +209,18 @@
 </div>
 
 <div id="mlToast"></div>
+
+<!-- Full-page drag overlay -->
+<div id="mlDragOverlay">
+  <div class="ml-drag-icon">📂</div>
+  <p>Drop files to upload</p>
+</div>
+
+<!-- Upload progress panel -->
+<div id="mlUploadPanel">
+  <h4>Uploading files…</h4>
+  <div id="mlUploadList"></div>
+</div>
 
 <script>
 var _currentFolder = '__all__';
@@ -352,57 +393,114 @@ function setView(v, skipRender) {
   if (!skipRender) renderFiles();
 }
 
-// ── Upload ────────────────────────────────────────────────────────────────────
+// ── Upload with per-file XHR progress ────────────────────────────────────────
+var _uploadEntries = [];
+
 function uploadFiles(files) {
   if (!files.length) return;
-  var status = document.getElementById('mlUploadStatus');
-  status.textContent = 'Uploading ' + files.length + ' file' + (files.length > 1 ? 's' : '') + '…';
-
   var folder = _currentFolder !== '__all__' && _currentFolder !== '' ? _currentFolder : '';
-  var done = 0;
-  var failed = 0;
 
-  files.forEach(function(file) {
-    var fd = new FormData();
-    fd.append('file', file);
-    var url = '/api/media/upload' + (folder ? '?folder=' + encodeURIComponent(folder) : '');
-    fetch(url, { method:'POST', body:fd })
-      .then(function(r){ return r.json(); })
-      .then(function(d) {
-        if (d.ok) { done++; } else { failed++; }
-        if (done + failed === files.length) {
-          status.textContent = done > 0 ? '✓ Uploaded ' + done + ' file' + (done > 1 ? 's' : '') : '';
-          if (failed > 0) status.textContent += (done > 0 ? ', ' : '') + failed + ' failed';
-          loadFiles();
-          setTimeout(function(){ status.textContent = ''; }, 3000);
-        }
-      })
-      .catch(function() {
-        failed++;
-        if (done + failed === files.length) {
-          status.textContent = failed + ' upload' + (failed > 1 ? 's' : '') + ' failed';
-          loadFiles();
-        }
-      });
+  var entries = Array.from(files).map(function(f, i) {
+    return { file: f, name: f.name, pct: 0, status: 'pending', id: Date.now() + i };
   });
+  _uploadEntries = _uploadEntries.concat(entries);
+  _showUploadPanel(true);
+  _renderUploadPanel();
+
+  var done = 0;
+  entries.forEach(function(entry) {
+    entry.status = 'uploading';
+    _renderUploadPanel();
+
+    var xhr = new XMLHttpRequest();
+    var apiUrl = '/api/media/upload' + (folder ? '?folder=' + encodeURIComponent(folder) : '');
+    xhr.open('POST', apiUrl);
+
+    xhr.upload.addEventListener('progress', function(e) {
+      if (e.lengthComputable) {
+        entry.pct = Math.round(e.loaded / e.total * 100);
+        _renderUploadPanel();
+      }
+    });
+
+    xhr.onload = function() {
+      var d; try { d = JSON.parse(xhr.responseText); } catch(e) { d = {}; }
+      entry.pct = 100;
+      entry.status = (xhr.status === 200 && d.ok) ? 'done' : 'error';
+      if (d.error) entry.errMsg = d.error;
+      _renderUploadPanel();
+      done++;
+      if (done === entries.length) {
+        var countEl = document.getElementById('mlCount');
+        if (countEl) {
+          var good = entries.filter(function(e){ return e.status === 'done'; }).length;
+          var bad  = entries.length - good;
+          countEl.textContent = good + ' uploaded' + (bad ? ', ' + bad + ' failed' : '');
+        }
+        loadFiles();
+        setTimeout(function(){
+          _uploadEntries = _uploadEntries.filter(function(e){ return e.status !== 'done'; });
+          if (!_uploadEntries.length) _showUploadPanel(false);
+          else _renderUploadPanel();
+        }, 2500);
+      }
+    };
+    xhr.onerror = function() {
+      entry.status = 'error'; entry.pct = 100; _renderUploadPanel();
+      done++;
+      if (done === entries.length) loadFiles();
+    };
+
+    var fd = new FormData();
+    fd.append('file', entry.file);
+    xhr.send(fd);
+  });
+}
+
+function _showUploadPanel(show) {
+  var panel = document.getElementById('mlUploadPanel');
+  if (panel) panel.style.display = show ? '' : 'none';
+}
+function _renderUploadPanel() {
+  var list = document.getElementById('mlUploadList');
+  if (!list) return;
+  list.innerHTML = _uploadEntries.slice(-8).map(function(e) {
+    var fillCls = e.status === 'done' ? 'mlu-fill-done' : e.status === 'error' ? 'mlu-fill-err' : 'mlu-fill-prog';
+    var icon = e.status === 'done' ? '✓' : e.status === 'error' ? '✗' : '↑';
+    var iconColor = e.status === 'done' ? '#10b981' : e.status === 'error' ? '#dc2626' : '#6366f1';
+    return '<div class="mlu-item">' +
+      '<span class="mlu-icon" style="color:' + iconColor + '">' + icon + '</span>' +
+      '<span class="mlu-name" title="' + esc(e.name) + '">' + esc(e.name) + '</span>' +
+      '<div class="mlu-bar"><div class="' + fillCls + '" style="width:' + e.pct + '%"></div></div>' +
+      '<span class="mlu-pct">' + e.pct + '%</span>' +
+      '</div>';
+  }).join('');
 }
 
 // ── Drag & drop ───────────────────────────────────────────────────────────────
 function setupDragDrop() {
-  var content = document.getElementById('mlContent');
-  if (!content) return;
-  content.addEventListener('dragover', function(e) {
+  var wrap = document.querySelector('.ml-wrap');
+  if (!wrap) return;
+
+  var overlay = document.getElementById('mlDragOverlay');
+  var dragCounter = 0;
+
+  // Full-wrap drag target (catches drags anywhere in the page)
+  wrap.addEventListener('dragenter', function(e) {
     e.preventDefault();
-    content.classList.add('drag-over');
+    if (!e.dataTransfer.types || !Array.from(e.dataTransfer.types).includes('Files')) return;
+    dragCounter++;
+    if (overlay) overlay.classList.add('active');
   });
-  content.addEventListener('dragleave', function(e) {
-    if (!content.contains(e.relatedTarget)) content.classList.remove('drag-over');
+  wrap.addEventListener('dragleave', function() {
+    dragCounter--; if (dragCounter <= 0) { dragCounter = 0; if (overlay) overlay.classList.remove('active'); }
   });
-  content.addEventListener('drop', function(e) {
-    e.preventDefault();
-    content.classList.remove('drag-over');
-    var dt = e.dataTransfer;
-    if (dt && dt.files && dt.files.length) uploadFiles(Array.from(dt.files));
+  wrap.addEventListener('dragover', function(e) { e.preventDefault(); });
+  wrap.addEventListener('drop', function(e) {
+    e.preventDefault(); dragCounter = 0;
+    if (overlay) overlay.classList.remove('active');
+    var files = Array.from(e.dataTransfer.files || []);
+    if (files.length) uploadFiles(files);
   });
 }
 
