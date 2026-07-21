@@ -705,8 +705,8 @@ MediaPicker.open(function(f){\
       break;
     case 'gallery':
       html += fI('heading', 'Section Heading', d.heading);
-      html += fS('columns', 'Columns', d.columns || 'auto', [['auto','Auto (Responsive)'],['2','2 Columns'],['3','3 Columns'],['4','4 Columns'],['5','5 Columns']]);
-      html += fS('aspect', 'Aspect Ratio', d.aspect || '4/3', [['4/3','Landscape 4:3'],['1/1','Square 1:1'],['16/9','Widescreen 16:9'],['3/2','Photo 3:2'],['3/4','Portrait 3:4']]);
+      html += fS('columns', 'Columns', d.columns || 'auto', {'auto':'Auto (Responsive)','2':'2 Columns','3':'3 Columns','4':'4 Columns','5':'5 Columns'});
+      html += fS('aspect', 'Aspect Ratio', d.aspect || '4/3', {'4/3':'Landscape 4:3','1/1':'Square 1:1','16/9':'Widescreen 16:9','3/2':'Photo 3:2','3/4':'Portrait 3:4'});
       html += galImgEditor(sid, d.images || []);
       break;
     case 'testimonials':
@@ -849,56 +849,99 @@ function removeItem(sid, key, idx) {
 /* ═══════════════════════════════════════════
    GALLERY IMAGE EDITOR HELPERS
 ═══════════════════════════════════════════ */
+function _galInjectStyles() {
+  if (document.getElementById('pzGalEdCss')) return;
+  var st = document.createElement('style');
+  st.id = 'pzGalEdCss';
+  st.textContent = [
+    /* Card base */
+    '.pgc{position:relative;border-radius:9px;overflow:hidden;border:2px solid #e5e7eb;background:#f3f4f6;cursor:pointer;transition:border-color .15s;}',
+    '.pgc:hover{border-color:#6366f1;}',
+    /* Overlay */
+    '.pgc-ov{position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:background .2s;padding:6px;}',
+    '.pgc:hover .pgc-ov{background:rgba(0,0,0,.55);}',
+    /* Buttons inside overlay — hidden until hover */
+    '.pgc-ov .pgb{opacity:0;transition:opacity .15s;}',
+    '.pgc:hover .pgc-ov .pgb{opacity:1;}',
+    '.pgb{border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;padding:4px 9px;white-space:nowrap;}',
+    '.pgb-chg{background:rgba(255,255,255,.92);color:#111;}',
+    '.pgb-del{background:rgba(220,38,38,.85);color:#fff;}',
+    '.pgb-row{display:flex;gap:4px;}',
+    '.pgb-arr{background:rgba(255,255,255,.8);color:#111;padding:4px 8px!important;font-size:12px!important;}',
+    /* Add card */
+    '.pgc-add{border:2px dashed #d1d5db!important;background:#fafafa!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}',
+    '.pgc-add:hover{border-color:#6366f1!important;background:#f5f3ff!important;}',
+    '.pgc-add:hover .pgc-ov{background:transparent!important;}',
+    /* Image fills card */
+    '.pgc img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;}',
+    '.pgc:hover img{transform:scale(1.04);}',
+    /* Empty state inside card */
+    '.pgc-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px;color:#d1d5db;}'
+  ].join('\n');
+  document.head.appendChild(st);
+}
+
 function galImgEditor(sid, images) {
-  var totalLabel = images.length + ' image' + (images.length !== 1 ? 's' : '');
-  var h = '<div class="field-group"><label class="fl">Images <span style="font-weight:400;color:#9ca3af;">(' + totalLabel + ')</span></label>';
-  h += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;" id="galList-' + sid + '">';
+  _galInjectStyles();
 
-  (images || []).forEach(function(url, i) {
-    var imgId = 'galInp-' + sid + '-' + i;
-    var last  = i === images.length - 1;
+  var count = (images || []).length;
+  var h = '<div class="field-group">';
 
-    h += '<div style="display:flex;align-items:center;gap:6px;">';
-
-    // Clickable thumbnail (opens browse for that slot)
-    h += '<div onclick="galBrowse(\'' + sid + '\',' + i + ')" title="Click to change image" ' +
-         'style="width:52px;height:52px;flex-shrink:0;border-radius:7px;border:2px solid #e5e7eb;overflow:hidden;' +
-         'background:#f3f4f6;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;' +
-         'transition:border-color .15s;" onmouseover="this.style.borderColor=\'#6366f1\'" onmouseout="this.style.borderColor=\'#e5e7eb\'">' +
-         (url ? '<img src="' + escHtml(url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'🖼\'">' : '🖼') +
-         '</div>';
-
-    // URL input
-    h += '<input id="' + imgId + '" class="fi" style="flex:1;font-size:11px;" value="' + escHtml(url) + '" ' +
-         'placeholder="https://… or click thumb to browse" oninput="galUpdateImg(\'' + sid + '\',' + i + ',this.value)">';
-
-    // Up / Down reorder buttons
-    h += '<div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">';
-    h += '<button type="button" onclick="galMoveUp(\'' + sid + '\',' + i + ')" ' +
-         (i === 0 ? 'disabled style="opacity:.25;cursor:default;' : 'style="cursor:pointer;') +
-         'width:20px;height:18px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;font-size:9px;line-height:1;padding:0;" title="Move up">▲</button>';
-    h += '<button type="button" onclick="galMoveDown(\'' + sid + '\',' + i + ')" ' +
-         (last ? 'disabled style="opacity:.25;cursor:default;' : 'style="cursor:pointer;') +
-         'width:20px;height:18px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;font-size:9px;line-height:1;padding:0;" title="Move down">▼</button>';
-    h += '</div>';
-
-    // Delete button
-    h += '<button type="button" onclick="galRemove(\'' + sid + '\',' + i + ')" ' +
-         'style="flex-shrink:0;width:24px;height:24px;border-radius:50%;border:none;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:13px;line-height:1;" title="Remove">×</button>';
-
-    h += '</div>';
-  });
-
+  // Header row: label + count + clear-all
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
+  h += '<label class="fl" style="margin:0;">Images <span style="font-weight:400;color:#9ca3af;">(' + count + ')</span></label>';
+  if (count > 0) {
+    h += '<button onclick="galClearAll(\'' + sid + '\')" style="border:none;background:none;font-size:11px;color:#9ca3af;cursor:pointer;padding:0;" title="Remove all">Clear all</button>';
+  }
   h += '</div>';
 
-  // Action buttons row
+  // Thumbnail grid (3 columns)
+  h += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">';
+
+  (images || []).forEach(function(url, i) {
+    var isLast = i === count - 1;
+    // aspect-ratio via padding trick for older browsers
+    h += '<div class="pgc" style="aspect-ratio:1;">';
+
+    // Image or placeholder
+    if (url) {
+      h += '<img src="' + escHtml(url) + '" alt="" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'">';
+      h += '<div class="pgc-ph" style="display:none;">🖼</div>';
+    } else {
+      h += '<div class="pgc-ph">🖼</div>';
+    }
+
+    // Hover overlay
+    h += '<div class="pgc-ov">';
+    h += '<button class="pgb pgb-chg" onclick="event.stopPropagation();galBrowse(\'' + sid + '\',' + i + ')">✏️ Change</button>';
+    h += '<button class="pgb pgb-del" onclick="event.stopPropagation();galRemove(\'' + sid + '\',' + i + ')">✕ Remove</button>';
+    // Reorder row (show when > 1 image)
+    if (count > 1) {
+      h += '<div class="pgb-row">';
+      h += '<button class="pgb pgb-arr" onclick="event.stopPropagation();galMoveUp(\'' + sid + '\',' + i + ')" ' + (i === 0 ? 'disabled style="opacity:.35;"' : '') + ' title="Move left">◀</button>';
+      h += '<button class="pgb pgb-arr" onclick="event.stopPropagation();galMoveDown(\'' + sid + '\',' + i + ')" ' + (isLast ? 'disabled style="opacity:.35;"' : '') + ' title="Move right">▶</button>';
+      h += '</div>';
+    }
+    h += '</div>'; // .pgc-ov
+
+    h += '</div>'; // .pgc
+  });
+
+  // "Add image" placeholder cell
+  h += '<div class="pgc pgc-add" style="aspect-ratio:1;" onclick="galBrowseNew(\'' + sid + '\')">';
+  h += '<div style="font-size:22px;color:#9ca3af;line-height:1;">＋</div>';
+  h += '<div style="font-size:10px;font-weight:600;color:#9ca3af;margin-top:2px;">Add Photo</div>';
+  h += '<div class="pgc-ov"></div>';
+  h += '</div>';
+
+  h += '</div>'; // grid
+
+  // Action buttons
   h += '<div style="display:flex;gap:5px;">';
   h += '<button onclick="galAddBlank(\'' + sid + '\')" ' +
-       'style="flex:1;padding:7px 4px;border:1px dashed #d1d5db;border-radius:7px;background:#f9fafb;cursor:pointer;font-size:11px;color:#6b7280;">+ URL</button>';
-  h += '<button onclick="galBrowseNew(\'' + sid + '\')" ' +
-       'style="flex:1;padding:7px 4px;border:1px solid #6366f1;border-radius:7px;background:#eef2ff;cursor:pointer;font-size:11px;color:#6366f1;font-weight:500;">+ Image</button>';
+       'style="flex:1;padding:7px 4px;border:1px dashed #d1d5db;border-radius:7px;background:#f9fafb;cursor:pointer;font-size:11px;color:#6b7280;" title="Paste an image URL">+ Paste URL</button>';
   h += '<button onclick="galBrowseMulti(\'' + sid + '\')" ' +
-       'style="flex:1;padding:7px 4px;border:1px solid #059669;border-radius:7px;background:#ecfdf5;cursor:pointer;font-size:11px;color:#059669;font-weight:600;">📁 Bulk Select</button>';
+       'style="flex:2;padding:7px 8px;border:1px solid #6366f1;border-radius:7px;background:#eef2ff;cursor:pointer;font-size:11px;color:#6366f1;font-weight:600;">📁 Browse & Bulk Select</button>';
   h += '</div>';
 
   h += '</div>';
@@ -910,12 +953,15 @@ function galUpdateImg(sid, idx, url) {
   if (!sec) return;
   if (!sec.data.images) sec.data.images = [];
   sec.data.images[idx] = url;
-  // Update thumbnail preview without full panel re-render
-  var thumbEl = document.querySelector('#galList-' + sid + ' > div:nth-child(' + (idx + 1) + ') div');
-  if (thumbEl) {
-    thumbEl.innerHTML = url ? '<img src="' + escHtml(url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'🖼\'">' : '🖼';
-  }
   renderCanvas(); pushUndo();
+}
+
+function galClearAll(sid) {
+  if (!confirm('Remove all images from this gallery?')) return;
+  var sec = sections.find(function(s){ return s.id === sid; });
+  if (!sec) return;
+  sec.data.images = [];
+  renderSectionEditPanel(sid); renderCanvas(); pushUndo();
 }
 
 function galMoveUp(sid, idx) {
