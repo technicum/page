@@ -1791,16 +1791,19 @@ function spSetCat(catId) {
 
 function _spCardHTML(catId, i, v) {
   var tagHtml = '';
-  if (v.tag === 'popular') tagHtml = '<span class="sp-tag sp-tag-popular">Popular</span>';
-  else if (v.tag === 'new')  tagHtml = '<span class="sp-tag sp-tag-new">New</span>';
-  return '<div class="sp-card" onclick="spAddSection(\'' + catId + '\',' + i + ')">' +
+  if (v.tag === 'popular') tagHtml = '<span class="sp-tag sp-tag-popular">⭐ Popular</span>';
+  else if (v.tag === 'new') tagHtml = '<span class="sp-tag sp-tag-new">✦ New</span>';
+  return '<div class="sp-card">' +
     '<div class="sp-preview">' + spPreviewHTML(catId, i, v) +
-      '<div class="sp-overlay"><button class="sp-overlay-btn" onclick="event.stopPropagation();spAddSection(\'' + catId + '\',' + i + ')">＋ Add section</button></div>' +
+      '<div class="sp-overlay"><button class="sp-overlay-btn" onclick="spAddSection(\'' + catId + '\',' + i + ')">＋ Add section</button></div>' +
     '</div>' +
     '<div class="sp-card-info">' +
       '<div class="sp-card-name">' + escHtml(v.label) + '</div>' +
       '<div class="sp-card-desc">' + escHtml(v.desc) + '</div>' +
-      (tagHtml ? '<div class="sp-card-foot">' + tagHtml + '</div>' : '') +
+      '<div class="sp-card-foot">' +
+        '<button class="sp-add-btn" onclick="spAddSection(\'' + catId + '\',' + i + ')">＋ Add section</button>' +
+        tagHtml +
+      '</div>' +
     '</div>' +
   '</div>';
 }
