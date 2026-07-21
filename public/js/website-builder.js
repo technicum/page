@@ -207,16 +207,73 @@ function renderSectionPreview(sec) {
         ? 'background:url(' + escHtml(d.bg_image) + ') center/cover no-repeat;'
         : 'background:' + escHtml(d.bg_color || p) + ';';
       heroBg += 'color:' + escHtml(d.text_color || '#fff') + ';';
-      if (d.bg_image) heroBg += 'position:relative;';
-      return '<section class="hero" style="' + heroBg + '">' +
+      var hLayout = d.layout || 'centered';
+      var hLight = d.text_color && d.text_color !== '#ffffff';
+      var hBadgeCls = 'hero-badge' + (hLight ? ' badge-light' : '');
+      var btnStyle = 'style="background:' + escHtml(d.text_color || '#fff') + ';color:' + escHtml(d.bg_color || p) + ';"';
+      var btn2Cls = 'btn-outline-hero' + (hLight ? ' dark-outline' : '');
+      var svgPersonL = '<svg viewBox="0 0 170 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="85" cy="64" rx="42" ry="46" fill="rgba(255,255,255,.4)"/><path d="M0 200 Q85 112 170 200 Z" fill="rgba(255,255,255,.26)"/></svg>';
+
+      if (hLayout === 'split') {
+        var svgSplitR = '<svg viewBox="0 0 200 340" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="100" cy="90" rx="50" ry="54" fill="rgba(255,255,255,.38)"/><path d="M0 340 Q100 190 200 340 Z" fill="rgba(255,255,255,.24)"/></svg>';
+        var svgSplitL = '<svg viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="90" cy="82" rx="46" ry="50" fill="rgba(255,255,255,.38)"/><path d="M0 300 Q90 165 180 300 Z" fill="rgba(255,255,255,.24)"/></svg>';
+        return '<section class="hero hero-split" style="' + heroBg + '">' +
+          '<div class="container"><div class="hero-split-grid">' +
+            '<div>' +
+              '<div class="' + hBadgeCls + '">✦ New — See what\'s possible</div>' +
+              '<h1 ' + ce('headline') + '>' + escHtml(d.headline || 'Your Vision, Delivered') + '</h1>' +
+              '<p class="hero-p" ' + ce('subheadline') + '>' + escHtml(d.subheadline || '') + '</p>' +
+              '<div class="hero-btns">' +
+                (d.cta_label ? '<a href="' + escHtml(d.cta_url || '#') + '" class="btn-primary" ' + btnStyle + ' onclick="return false;"><span ' + ce('cta_label') + '>' + escHtml(d.cta_label) + '</span></a>' : '') +
+                (d.cta2_label ? '<a href="' + escHtml(d.cta2_url || '#') + '" class="' + btn2Cls + '" onclick="return false;"><span ' + ce('cta2_label') + '>' + escHtml(d.cta2_label) + '</span></a>' : '') +
+              '</div>' +
+            '</div>' +
+            '<div class="hero-split-img">' +
+              '<div class="hero-split-card">' +
+                '<div class="hero-split-inner">' + svgSplitR + '</div>' +
+                '<div class="hero-split-inner2">' + svgSplitL + '</div>' +
+              '</div>' +
+              '<div class="hero-float-card hfc-stat">' +
+                '<div class="s-lbl">Monthly Users</div>' +
+                '<div class="s-num">100M+</div>' +
+                '<div class="s-pct">↑ 24% this month</div>' +
+              '</div>' +
+              '<div class="hero-float-card hfc-chart">' +
+                '<div class="hfc-chart-head"><div class="hfc-icon">📈</div><div><div class="hfc-chart-lbl">Revenue</div><div class="hfc-chart-val">$48,294</div></div></div>' +
+                '<div class="hfc-bars"><span style="height:35%;"></span><span style="height:55%;"></span><span style="height:42%;"></span><span style="height:68%;"></span><span style="height:58%;"></span><span style="height:84%;"></span><span style="height:72%;"></span><span style="height:96%;"></span></div>' +
+              '</div>' +
+            '</div>' +
+          '</div></div></section>';
+      }
+
+      // ── Centered layout (default) ──
+      var svgPersonR = '<svg viewBox="0 0 170 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="85" cy="64" rx="42" ry="46" fill="rgba(255,255,255,.4)"/><path d="M0 200 Q85 112 170 200 Z" fill="rgba(255,255,255,.26)"/></svg>';
+      return '<section class="hero hero-centered" style="' + heroBg + '">' +
         (d.bg_image ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);pointer-events:none;"></div>' : '') +
         '<div class="container" style="position:relative;z-index:1;">' +
-        '<h1 ' + ce('headline') + '>' + escHtml(d.headline || 'Welcome') + '</h1>' +
-        '<p ' + ce('subheadline') + '>' + escHtml(d.subheadline || '') + '</p>' +
-        (d.cta_label
-          ? '<a href="' + escHtml(d.cta_url || '#') + '" class="btn-primary" style="background:' + escHtml(d.text_color || '#fff') + ';color:' + escHtml(d.bg_color || p) + ';" onclick="return false;">' +
-            '<span ' + ce('cta_label') + '>' + escHtml(d.cta_label) + '</span></a>'
-          : '') +
+          '<div class="' + hBadgeCls + '">✦ Introducing Our Platform</div>' +
+          '<h1 ' + ce('headline') + '>' + escHtml(d.headline || 'Welcome') + '</h1>' +
+          '<p ' + ce('subheadline') + '>' + escHtml(d.subheadline || '') + '</p>' +
+          '<div class="hero-btns">' +
+            (d.cta_label ? '<a href="' + escHtml(d.cta_url || '#') + '" class="btn-primary" ' + btnStyle + ' onclick="return false;"><span ' + ce('cta_label') + '>' + escHtml(d.cta_label) + '</span></a>' : '') +
+            (d.cta2_label ? '<a href="' + escHtml(d.cta2_url || '#') + '" class="' + btn2Cls + '" onclick="return false;"><span ' + ce('cta2_label') + '>' + escHtml(d.cta2_label) + '</span></a>' : '') +
+          '</div>' +
+          '<div class="hero-visual"><div class="hero-browser">' +
+            '<div class="hero-browser-chrome"><span></span><span></span><span></span><div class="hero-browser-url"></div></div>' +
+            '<div class="hero-browser-body">' +
+              '<div class="hero-person hero-person-l">' + svgPersonL + '</div>' +
+              '<div class="hero-chart-area">' +
+                '<div class="hero-chart-label">Performance Overview</div>' +
+                '<div class="hero-chart-bars">' +
+                  '<span style="height:42%;"></span><span style="height:62%;"></span><span style="height:50%;"></span>' +
+                  '<span style="height:80%;"></span><span style="height:60%;"></span><span style="height:90%;"></span>' +
+                  '<span style="height:74%;"></span><span style="height:96%;"></span><span style="height:68%;"></span>' +
+                  '<span style="height:100%;"></span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="hero-person hero-person-r">' + svgPersonR + '</div>' +
+            '</div>' +
+          '</div></div>' +
         '</div></section>';
     }
 
