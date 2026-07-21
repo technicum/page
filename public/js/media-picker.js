@@ -418,7 +418,7 @@ var MediaPicker = (function () {
       var btn = document.getElementById('mpSelectBtn');
       if (btn) {
         if (count > 0) {
-          btn.style.display = '';
+          btn.style.display = 'inline-block';
           btn.textContent = 'Add ' + count + ' image' + (count !== 1 ? 's' : '') + ' ✓';
         } else {
           btn.style.display = 'none';
@@ -433,23 +433,12 @@ var MediaPicker = (function () {
       return;
     }
 
-    // Single-select mode
-    _selectedId = id;
-
-    document.querySelectorAll('.mp-card').forEach(function (c) { c.classList.remove('selected'); });
-    var card = document.querySelector('.mp-card[data-id="' + id + '"]');
-    if (card) card.classList.add('selected');
-
-    // Double-click to confirm immediately
-    if (_lastPickId === id && Date.now() - _lastPickTime < 350) {
-      _selectCurrent();
-      return;
-    }
-    _lastPickId = id;
-    _lastPickTime = Date.now();
-
-    var btn = document.getElementById('mpSelectBtn');
-    if (btn) { btn.style.display = ''; btn.textContent = 'Use this file ✓'; }
+    // Single-select mode: click immediately confirms
+    var f = _files.find(function (x) { return x.id === id; });
+    if (!f) return;
+    var cb = _cb;
+    close();
+    cb({ url: f.url, name: f.original || f.name, id: f.id, isImage: f.isImage, mime_type: f.mime_type });
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
