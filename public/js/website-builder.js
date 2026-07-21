@@ -1898,38 +1898,155 @@ function _spRealisticPreview(type, d, BG, TC, AC, variant) {
       var cta = escHtml(d.cta_label || 'Get Started');
       var cta2 = escHtml(d.cta2_label || 'Learn More');
       var layout = d.layout || 'centered';
-      var btnBg = dark ? 'rgba(255,255,255,0.9)' : AC;
-      var btnTc = dark ? BG : '#fff';
-      if (layout === 'split' || layout === 'split_image_right') {
-        return '<div style="background:'+BG+';min-height:600px;">' +
-          _spNavBar(TC,AC) +
-          '<div style="display:flex;align-items:center;gap:0;min-height:460px;">' +
-            '<div style="flex:1;padding:60px 56px;">' +
-              '<div style="font-size:62px;font-weight:800;color:'+TC+';line-height:1.08;margin-bottom:20px;">'+hl+'</div>' +
-              '<div style="font-size:18px;color:'+muted+';margin-bottom:40px;line-height:1.6;">'+sub+'</div>' +
-              '<div style="display:flex;gap:14px;">' +
-                '<div style="padding:14px 36px;background:'+btnBg+';color:'+btnTc+';border-radius:10px;font-size:16px;font-weight:700;">'+cta+'</div>' +
-                '<div style="padding:14px 36px;border:2px solid '+cardBorder+';color:'+TC+';border-radius:10px;font-size:16px;font-weight:600;">'+cta2+'</div>' +
+      var btnBg = dark ? '#ffffff' : AC;
+      var btnTc = dark ? BG : '#ffffff';
+      var btn2Border = dark ? 'rgba(255,255,255,0.25)' : '#d1d5db';
+
+      // ── Stats row (appears below hero on the preview page) ──
+      var hStatsRow =
+        '<div style="background:'+(dark?'rgba(255,255,255,0.04)':'#f8fafc')+';border-top:1px solid '+(dark?'rgba(255,255,255,0.07)':'#e5e7eb')+';padding:38px 56px;display:flex;gap:0;">' +
+          [['100M+','Monthly active users'],['200k+','Results delivered'],['150','Countries served']].map(function(s,si){
+            return '<div style="flex:1;'+(si>0?'border-left:1px solid '+(dark?'rgba(255,255,255,0.07)':'#e5e7eb')+';padding-left:36px;':'')+'">' +
+              '<div style="font-size:38px;font-weight:800;color:'+(dark?'#fff':AC)+';line-height:1;">'+s[0]+'</div>' +
+              '<div style="font-size:14px;color:'+muted+';margin-top:6px;">'+s[1]+'</div>' +
+            '</div>';
+          }).join('') +
+        '</div>';
+
+      // ── Services preview (dark section below stats) ──
+      var hServicesSection =
+        '<div style="background:#0f172a;padding:60px 56px;">' +
+          '<div style="font-size:13px;font-weight:700;color:'+AC+';letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:10px;">Our services</div>' +
+          '<div style="font-size:34px;font-weight:800;color:#ffffff;text-align:center;margin-bottom:36px;">Impactful solutions for business</div>' +
+          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">' +
+            [
+              {icon:'🎯',title:'Strategy',desc:'Actionable plans built around your goals and vision.'},
+              {icon:'📊',title:'Analytics',desc:'Data-driven insights that inform every decision.'},
+              {icon:'🚀',title:'Growth',desc:'Campaigns that convert and scale your business.'}
+            ].map(function(s){
+              return '<div style="background:rgba(255,255,255,0.055);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:24px 20px;">' +
+                '<div style="width:44px;height:44px;background:'+AC+'44;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;">'+s.icon+'</div>' +
+                '<div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:8px;">'+s.title+'</div>' +
+                '<div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6;">'+s.desc+'</div>' +
+              '</div>';
+            }).join('') +
+          '</div>' +
+        '</div>';
+
+      // ── Person block (used in split layout) ──
+      var personBlock =
+        '<div style="flex:1;position:relative;min-height:420px;">' +
+          // Main gradient image card
+          '<div style="position:absolute;top:0;right:0;bottom:0;left:40px;background:linear-gradient(140deg,'+AC+'18,'+AC+'08);border-radius:24px;overflow:hidden;">' +
+            // Person 1 — right side, large
+            '<div style="position:absolute;bottom:0;right:0;width:55%;height:90%;background:linear-gradient(155deg,'+AC+',#8b5cf6);border-radius:20px 0 0 0;overflow:hidden;">' +
+              '<svg viewBox="0 0 220 340" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;">' +
+                '<ellipse cx="110" cy="88" rx="46" ry="50" fill="rgba(255,255,255,0.38)"/>' +
+                '<path d="M0 340 Q110 180 220 340 Z" fill="rgba(255,255,255,0.22)"/>' +
+              '</svg>' +
+            '</div>' +
+            // Person 2 — left side
+            '<div style="position:absolute;bottom:0;left:0;width:48%;height:80%;background:linear-gradient(155deg,#f59e0b,#ef4444);border-radius:0 20px 0 24px;overflow:hidden;">' +
+              '<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;">' +
+                '<ellipse cx="100" cy="80" rx="42" ry="46" fill="rgba(255,255,255,0.38)"/>' +
+                '<path d="M0 300 Q100 160 200 300 Z" fill="rgba(255,255,255,0.22)"/>' +
+              '</svg>' +
+            '</div>' +
+          '</div>' +
+          // Floating metric card — bottom left
+          '<div style="position:absolute;bottom:36px;left:0;background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.14);min-width:180px;">' +
+            '<div style="font-size:11px;color:#9ca3af;font-weight:500;margin-bottom:5px;">Monthly Users</div>' +
+            '<div style="font-size:26px;font-weight:800;color:#111827;line-height:1;">100M+</div>' +
+            '<div style="font-size:11px;color:#10b981;font-weight:700;margin-top:5px;">↑ 24% this month</div>' +
+          '</div>' +
+          // Floating chart card — top left
+          '<div style="position:absolute;top:24px;left:0;background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 16px 48px rgba(0,0,0,0.12);">' +
+            '<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">' +
+              '<div style="width:36px;height:36px;border-radius:10px;background:'+AC+'22;display:flex;align-items:center;justify-content:center;font-size:17px;">📈</div>' +
+              '<div>' +
+                '<div style="font-size:11px;color:#9ca3af;">Revenue</div>' +
+                '<div style="font-size:16px;font-weight:700;color:#111827;">$48,294</div>' +
               '</div>' +
             '</div>' +
-            '<div style="flex:1;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);min-height:460px;display:flex;align-items:center;justify-content:center;">' +
-              '<div style="text-align:center;opacity:0.6;"><div style="font-size:80px;">🖼️</div></div>' +
+            '<div style="display:flex;gap:3px;align-items:flex-end;height:24px;">' +
+              [30,50,40,65,55,80,70,95].map(function(h){ return '<div style="flex:1;background:'+AC+';border-radius:2px;height:'+h+'%;opacity:0.75;"></div>'; }).join('') +
             '</div>' +
           '</div>' +
         '</div>';
-      }
-      return '<div style="background:'+BG+';min-height:600px;">' +
-        _spNavBar(TC,AC) +
-        '<div style="padding:72px 80px;text-align:center;">' +
-          '<div style="display:inline-block;padding:6px 16px;background:'+AC+'22;color:'+AC+';border-radius:20px;font-size:13px;font-weight:600;margin-bottom:24px;letter-spacing:0.3px;">✦ Welcome</div>' +
-          '<div style="font-size:66px;font-weight:800;color:'+TC+';line-height:1.05;margin-bottom:20px;max-width:780px;margin-left:auto;margin-right:auto;">'+hl+'</div>' +
-          '<div style="font-size:19px;color:'+muted+';margin-bottom:44px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.65;">'+sub+'</div>' +
-          '<div style="display:flex;gap:14px;justify-content:center;">' +
-            '<div style="padding:15px 44px;background:'+btnBg+';color:'+btnTc+';border-radius:11px;font-size:17px;font-weight:700;">'+cta+'</div>' +
-            '<div style="padding:15px 44px;border:2px solid '+cardBorder+';color:'+TC+';border-radius:11px;font-size:17px;font-weight:600;">'+cta2+'</div>' +
+
+      // ── Dashboard / browser mockup (used in centered layout) ──
+      var dashboardMockup =
+        '<div style="max-width:740px;margin:0 auto;padding:0 56px;">' +
+          '<div style="background:#1e293b;border-radius:16px 16px 0 0;padding:14px 18px 0;box-shadow:0 30px 80px rgba(0,0,0,0.28);">' +
+            // Browser chrome
+            '<div style="display:flex;align-items:center;gap:7px;margin-bottom:14px;">' +
+              '<div style="width:12px;height:12px;border-radius:50%;background:#ef4444;"></div>' +
+              '<div style="width:12px;height:12px;border-radius:50%;background:#f59e0b;"></div>' +
+              '<div style="width:12px;height:12px;border-radius:50%;background:#22c55e;"></div>' +
+              '<div style="flex:1;background:rgba(255,255,255,0.07);border-radius:5px;height:22px;margin-left:10px;"></div>' +
+            '</div>' +
+            // Dashboard body
+            '<div style="background:linear-gradient(155deg,'+AC+'28,#8b5cf628);border-radius:10px 10px 0 0;padding:24px 20px 0;display:flex;gap:16px;align-items:flex-end;">' +
+              // Person left
+              '<div style="width:150px;flex-shrink:0;background:linear-gradient(145deg,'+AC+',#8b5cf6);border-radius:12px 12px 0 0;height:160px;overflow:hidden;position:relative;">' +
+                '<svg viewBox="0 0 150 160" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;">' +
+                  '<ellipse cx="75" cy="52" rx="34" ry="38" fill="rgba(255,255,255,0.4)"/>' +
+                  '<path d="M0 160 Q75 90 150 160 Z" fill="rgba(255,255,255,0.28)"/>' +
+                '</svg>' +
+              '</div>' +
+              // Chart area middle
+              '<div style="flex:1;">' +
+                '<div style="font-size:11px;color:rgba(255,255,255,0.45);font-weight:500;margin-bottom:10px;">Performance Overview</div>' +
+                '<div style="display:flex;gap:5px;align-items:flex-end;height:100px;">' +
+                  [42,60,50,78,58,88,72,95,68,100].map(function(h){
+                    return '<div style="flex:1;background:linear-gradient(to top,'+AC+',#8b5cf6);border-radius:4px 4px 0 0;height:'+h+'%;opacity:0.85;"></div>';
+                  }).join('') +
+                '</div>' +
+              '</div>' +
+              // Person right
+              '<div style="width:150px;flex-shrink:0;background:linear-gradient(145deg,#f59e0b,#f97316);border-radius:12px 12px 0 0;height:140px;overflow:hidden;position:relative;">' +
+                '<svg viewBox="0 0 150 140" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;">' +
+                  '<ellipse cx="75" cy="46" rx="34" ry="38" fill="rgba(255,255,255,0.4)"/>' +
+                  '<path d="M0 140 Q75 75 150 140 Z" fill="rgba(255,255,255,0.28)"/>' +
+                '</svg>' +
+              '</div>' +
+            '</div>' +
           '</div>' +
-        '</div>' +
-      '</div>';
+        '</div>';
+
+      // ── Assemble hero content ──
+      var heroBody;
+      if (layout === 'split' || layout === 'split_image_right') {
+        heroBody =
+          '<div style="display:flex;align-items:center;gap:60px;padding:56px 56px 48px;">' +
+            '<div style="flex:1;display:flex;flex-direction:column;">' +
+              '<div style="display:inline-block;padding:6px 16px;background:'+AC+'22;color:'+AC+';border-radius:20px;font-size:13px;font-weight:600;margin-bottom:22px;letter-spacing:0.3px;">✦ New — See what\'s possible</div>' +
+              '<div style="font-size:60px;font-weight:800;color:'+TC+';line-height:1.06;margin-bottom:18px;">'+hl+'</div>' +
+              '<div style="font-size:18px;color:'+muted+';margin-bottom:36px;line-height:1.65;">'+sub+'</div>' +
+              '<div style="display:flex;gap:14px;">' +
+                '<div style="padding:14px 36px;background:'+btnBg+';color:'+btnTc+';border-radius:11px;font-size:16px;font-weight:700;box-shadow:0 4px 16px '+AC+'44;">'+cta+'</div>' +
+                '<div style="padding:14px 36px;border:2px solid '+btn2Border+';color:'+TC+';border-radius:11px;font-size:16px;font-weight:600;">'+cta2+'</div>' +
+              '</div>' +
+            '</div>' +
+            personBlock +
+          '</div>';
+      } else {
+        heroBody =
+          '<div style="padding:60px 56px 0;text-align:center;">' +
+            '<div style="display:inline-block;padding:6px 18px;background:'+AC+'22;color:'+AC+';border-radius:20px;font-size:13px;font-weight:600;margin-bottom:22px;letter-spacing:0.3px;">✦ Introducing PageZaper</div>' +
+            '<div style="font-size:66px;font-weight:800;color:'+TC+';line-height:1.05;margin-bottom:18px;max-width:780px;margin-left:auto;margin-right:auto;">'+hl+'</div>' +
+            '<div style="font-size:19px;color:'+muted+';margin-bottom:40px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.65;">'+sub+'</div>' +
+            '<div style="display:flex;gap:14px;justify-content:center;margin-bottom:52px;">' +
+              '<div style="padding:15px 44px;background:'+btnBg+';color:'+btnTc+';border-radius:11px;font-size:17px;font-weight:700;box-shadow:0 4px 20px '+AC+'44;">'+cta+'</div>' +
+              '<div style="padding:15px 44px;border:2px solid '+btn2Border+';color:'+TC+';border-radius:11px;font-size:17px;font-weight:600;">'+cta2+'</div>' +
+            '</div>' +
+            dashboardMockup +
+          '</div>';
+      }
+
+      return '<div style="background:'+BG+';">' + _spNavBar(TC,AC) + heroBody + '</div>' +
+             hStatsRow +
+             hServicesSection;
     }
 
     case 'about': {
