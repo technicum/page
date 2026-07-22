@@ -1,0 +1,8 @@
+{
+  "id": "ecom-fresh",
+  "name": "Fresh Market",
+  "description": "Clean white with emerald green — minimal, modern ecommerce",
+  "preview": ["#059669", "#d1fae5", "#111827"],
+  "font": "Inter",
+  "order": 4
+}

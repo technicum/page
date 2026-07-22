@@ -1,0 +1,8 @@
+{
+  "id": "ecom-luxe",
+  "name": "Luxe",
+  "description": "Dark background with gold accents — premium, luxury ecommerce",
+  "preview": ["#d4af37", "#0a0a0f", "#1a1a28"],
+  "font": "Cormorant Garamond",
+  "order": 5
+}

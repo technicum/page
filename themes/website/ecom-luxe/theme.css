@@ -1,0 +1,104 @@
+/* ══════════════════════════════════════════════════
+   THEME: Luxe — dark bg, gold accents, luxury feel
+   ══════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600;700&display=swap');
+
+:root { --primary: #d4af37; --primary-dark: #b8963e; --primary-light: rgba(212,175,55,.15); }
+
+body { background: #0a0a0f; font-family: 'Jost', system-ui, sans-serif; color: #e2d9c8; }
+
+/* NAV */
+nav { background: rgba(10,10,15,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,.06); box-shadow: none; }
+.nav-logo { color: #f5f0e8; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.nav-links a { color: #94a3b8; font-family: 'Jost', sans-serif; font-weight: 400; font-size: 13px; letter-spacing: 0.5px; border-radius: 4px; }
+.nav-links a:hover, .nav-links a.active { color: #d4af37; background: rgba(212,175,55,.08); }
+nav.scrolled { border-bottom-color: rgba(212,175,55,.15); }
+
+/* HERO */
+.hero { background: #050508 !important; padding: 130px 0 110px; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -30%; left: 50%; transform: translateX(-50%); width: 700px; height: 500px; background: radial-gradient(ellipse, rgba(212,175,55,0.1) 0%, transparent 70%); pointer-events: none; }
+.hero-badge { background: rgba(212,175,55,.12); color: #d4af37; border: 1px solid rgba(212,175,55,.3); border-radius: 50px; font-family: 'Jost', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; padding: 5px 16px; display: inline-block; margin-bottom: 28px; position: relative; }
+.hero h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(44px, 7vw, 84px); font-weight: 600; letter-spacing: -1px; line-height: 1.0; color: #f5f0e8; position: relative; }
+.hero p { color: #94a3b8; font-family: 'Jost', sans-serif; font-size: 17px; font-weight: 300; max-width: 500px; margin: 28px auto 48px; letter-spacing: 0.3px; position: relative; }
+.hero .btn-primary { background: #d4af37 !important; color: #0a0a0f !important; border-radius: 4px; padding: 15px 36px; font-family: 'Jost', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; box-shadow: none; position: relative; }
+.hero .btn-primary:hover { background: #e8c84a !important; transform: none; box-shadow: 0 0 30px rgba(212,175,55,.3); }
+.hero .btn-outline { background: transparent; color: #d4af37; border: 1px solid rgba(212,175,55,.4); border-radius: 4px; padding: 14px 32px; font-family: 'Jost', sans-serif; font-weight: 500; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
+.hero .btn-outline:hover { background: rgba(212,175,55,.07); border-color: rgba(212,175,55,.6); }
+
+/* SECTIONS */
+.section { padding: 96px 0; background: #0a0a0f; }
+.section-alt { background: #0d0d1a; }
+.section-heading { text-align: center; margin-bottom: 60px; }
+.section-heading h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(32px, 4vw, 52px); font-weight: 600; color: #f5f0e8; letter-spacing: -0.5px; margin-bottom: 16px; }
+.section-heading h2::after { content: ''; display: block; width: 32px; height: 1px; background: #d4af37; margin: 18px auto 0; }
+.section-heading p { font-family: 'Jost', sans-serif; color: #64748b; font-size: 16px; font-weight: 300; letter-spacing: 0.3px; }
+
+/* ABOUT */
+.about-text h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(32px, 4vw, 48px); font-weight: 600; color: #f5f0e8; letter-spacing: -0.5px; margin-bottom: 24px; line-height: 1.15; }
+.about-text p { font-family: 'Jost', sans-serif; color: #94a3b8; font-size: 16px; line-height: 1.9; font-weight: 300; }
+.about-img { border-radius: 4px; border: 1px solid rgba(255,255,255,.07); overflow: hidden; }
+
+/* SERVICE / PRODUCT CARDS */
+.services-grid { gap: 20px; }
+.service-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 4px; padding: 32px 28px; box-shadow: none; transition: all .25s; }
+.service-card:hover { background: rgba(212,175,55,.05); border-color: rgba(212,175,55,.3); box-shadow: 0 0 40px rgba(212,175,55,.07); transform: translateY(-4px); }
+.service-icon { width: 52px; height: 52px; border-radius: 4px; background: rgba(212,175,55,.1); border: 1px solid rgba(212,175,55,.2); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 20px; }
+.service-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; font-weight: 600; color: #f5f0e8; margin-bottom: 10px; }
+.service-desc { font-family: 'Jost', sans-serif; font-size: 14px; color: #64748b; line-height: 1.75; font-weight: 300; }
+.service-price { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #d4af37; margin-top: 16px; }
+.service-price-old { font-size: 16px; color: #4b5563; text-decoration: line-through; margin-left: 6px; font-family: 'Jost', sans-serif; font-weight: 300; }
+.btn-add-cart { display: block; width: 100%; margin-top: 16px; background: rgba(212,175,55,.15); color: #d4af37; border: 1px solid rgba(212,175,55,.3); border-radius: 4px; padding: 10px; font-family: 'Jost', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all .2s; }
+.btn-add-cart:hover { background: #d4af37; color: #0a0a0f; }
+
+/* TESTIMONIALS */
+.testimonials-grid { gap: 20px; }
+.testi-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 4px; padding: 32px; transition: border-color .2s; }
+.testi-card:hover { border-color: rgba(212,175,55,.25); }
+.testi-quote { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 17px; color: #c9bfa9; font-style: italic; line-height: 1.85; margin-bottom: 24px; }
+.testi-avatar { background: linear-gradient(135deg, #b8963e, #d4af37); border-radius: 4px; }
+.testi-name { font-family: 'Jost', sans-serif; font-weight: 600; color: #f5f0e8; font-size: 14px; }
+.testi-role { color: #d4af37; font-size: 12px; letter-spacing: 0.5px; }
+
+/* TEAM */
+.team-photo { border-radius: 4px; background: #111120; border: 1px solid rgba(255,255,255,.07); }
+.team-card:hover .team-photo { border-color: rgba(212,175,55,.3); }
+.team-name { font-family: 'Cormorant Garamond', serif; font-weight: 600; color: #f5f0e8; font-size: 18px; }
+.team-role { color: #d4af37; font-size: 13px; letter-spacing: 0.5px; font-family: 'Jost', sans-serif; }
+
+/* GALLERY */
+.gallery-item { border-radius: 4px; border: 1px solid rgba(255,255,255,.07); overflow: hidden; }
+.gallery-item:hover { border-color: rgba(212,175,55,.3); }
+.gallery-item:hover img { transform: scale(1.04); }
+
+/* FAQ */
+.faq-item { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 4px; transition: border-color .2s; }
+.faq-item.open { border-color: rgba(212,175,55,.4); }
+.faq-q { font-family: 'Jost', sans-serif; font-weight: 500; color: #f5f0e8; font-size: 15px; }
+.faq-q:hover { background: rgba(255,255,255,.03); }
+.faq-q::after { border-color: #d4af37; }
+.faq-a-inner { color: #94a3b8; border-top-color: rgba(255,255,255,.06); font-family: 'Jost', sans-serif; font-weight: 300; }
+
+/* CTA BANNER */
+.cta-banner { background: #050508 !important; color: #f5f0e8 !important; padding: 100px 0; position: relative; overflow: hidden; }
+.cta-banner::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(212,175,55,0.12) 0%, transparent 70%); pointer-events: none; }
+.cta-banner h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 64px); font-weight: 600; letter-spacing: -1px; position: relative; color: #f5f0e8; }
+.cta-banner p { color: #94a3b8; font-weight: 300; position: relative; font-family: 'Jost', sans-serif; }
+.cta-banner .btn-primary { background: #d4af37 !important; color: #0a0a0f !important; border-radius: 4px; padding: 15px 36px; font-family: 'Jost', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; position: relative; }
+.cta-banner .btn-primary:hover { background: #e8c84a !important; }
+
+/* CONTACT */
+.contact-form { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 4px; padding: 36px; }
+.cf-input { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 4px; color: #e2d9c8; font-family: 'Jost', sans-serif; }
+.cf-input::placeholder { color: #4b5563; }
+.cf-input:focus { border-color: rgba(212,175,55,.5); background: rgba(212,175,55,.04); box-shadow: 0 0 0 3px rgba(212,175,55,.1); }
+.cf-submit { border-radius: 4px; background: #d4af37; color: #0a0a0f; font-family: 'Jost', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; }
+.cf-submit:hover { background: #e8c84a; opacity: 1; }
+.contact-item-icon { background: rgba(212,175,55,.1); border: 1px solid rgba(212,175,55,.2); border-radius: 4px; color: #d4af37; }
+.contact-item-label { color: #f5f0e8; font-family: 'Jost', sans-serif; font-weight: 500; }
+.contact-item-text { color: #64748b; }
+
+/* FOOTER */
+footer { background: #04040a; border-top: 1px solid rgba(255,255,255,.05); color: #4b5563; padding: 48px 0; }
+footer a { color: #4b5563; font-family: 'Jost', sans-serif; }
+footer a:hover { color: #d4af37; }
+.footer-logo { font-family: 'Cormorant Garamond', serif; color: #f5f0e8; font-size: 20px; font-weight: 600; letter-spacing: 2px; }
