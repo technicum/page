@@ -310,15 +310,20 @@ footer a{color:#9ca3af;text-decoration:none;}footer a:hover{color:#fff;}
           </div>
         </div>
         <div class="hero-split-img">
+          {% if sec.data.hero_image %}
+          {# User uploaded image – fill the card #}
+          <div style="position:absolute;inset:0;left:32px;border-radius:20px;overflow:hidden;">
+            <img src="{{ sec.data.hero_image }}" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+          {% else %}
+          {# Default: two-person gradient illustration #}
           <div class="hero-split-card">
-            {# Person right – purple gradient #}
             <div class="hero-split-inner">
               <svg viewBox="0 0 200 340" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;">
                 <ellipse cx="100" cy="90" rx="50" ry="54" fill="rgba(255,255,255,.38)"/>
                 <path d="M0 340 Q100 190 200 340 Z" fill="rgba(255,255,255,.24)"/>
               </svg>
             </div>
-            {# Person left – orange gradient #}
             <div class="hero-split-inner2">
               <svg viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;">
                 <ellipse cx="90" cy="82" rx="46" ry="50" fill="rgba(255,255,255,.38)"/>
@@ -326,19 +331,20 @@ footer a{color:#9ca3af;text-decoration:none;}footer a:hover{color:#fff;}
               </svg>
             </div>
           </div>
-          {# Floating stat card #}
+          {% endif %}
+          {# Floating stat card — user-editable values #}
           <div class="hero-float-card hfc-stat">
-            <div class="s-lbl">Monthly Users</div>
-            <div class="s-num">100M+</div>
-            <div class="s-pct">↑ 24% this month</div>
+            <div class="s-lbl">{{ sec.data.stat1_lbl or 'Monthly Users' }}</div>
+            <div class="s-num">{{ sec.data.stat1_num or '100M+' }}</div>
+            <div class="s-pct">{{ sec.data.stat1_pct or '↑ 24% this month' }}</div>
           </div>
-          {# Floating chart card #}
+          {# Floating chart card — user-editable values #}
           <div class="hero-float-card hfc-chart">
             <div class="hfc-chart-head">
               <div class="hfc-icon">📈</div>
               <div>
-                <div class="hfc-chart-lbl">Revenue</div>
-                <div class="hfc-chart-val">$48,294</div>
+                <div class="hfc-chart-lbl">{{ sec.data.stat2_lbl or 'Revenue' }}</div>
+                <div class="hfc-chart-val">{{ sec.data.stat2_val or '$48,294' }}</div>
               </div>
             </div>
             <div class="hfc-bars">
@@ -368,22 +374,25 @@ footer a{color:#9ca3af;text-decoration:none;}footer a:hover{color:#fff;}
         <a href="{{ sec.data.cta2_url or '#' }}" class="btn-outline-hero {% if hLight %}dark-outline{% endif %}">{{ sec.data.cta2_label }}</a>
         {% endif %}
       </div>
-      {# Browser / dashboard mockup visual #}
+      {# Browser / dashboard mockup visual — or uploaded hero image #}
       <div class="hero-visual">
+        {% if sec.data.hero_image %}
+        <div style="border-radius:16px 16px 0 0;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.32);">
+          <img src="{{ sec.data.hero_image }}" style="width:100%;display:block;max-height:360px;object-fit:cover;">
+        </div>
+        {% else %}
         <div class="hero-browser">
           <div class="hero-browser-chrome">
             <span></span><span></span><span></span>
             <div class="hero-browser-url"></div>
           </div>
           <div class="hero-browser-body">
-            {# Person left – purple #}
             <div class="hero-person hero-person-l">
               <svg viewBox="0 0 170 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;">
                 <ellipse cx="85" cy="64" rx="42" ry="46" fill="rgba(255,255,255,.4)"/>
                 <path d="M0 200 Q85 112 170 200 Z" fill="rgba(255,255,255,.26)"/>
               </svg>
             </div>
-            {# Chart area #}
             <div class="hero-chart-area">
               <div class="hero-chart-label">Performance Overview</div>
               <div class="hero-chart-bars">
@@ -399,7 +408,6 @@ footer a{color:#9ca3af;text-decoration:none;}footer a:hover{color:#fff;}
                 <span style="height:100%;"></span>
               </div>
             </div>
-            {# Person right – orange #}
             <div class="hero-person hero-person-r">
               <svg viewBox="0 0 170 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;">
                 <ellipse cx="85" cy="64" rx="42" ry="46" fill="rgba(255,255,255,.4)"/>
@@ -408,6 +416,7 @@ footer a{color:#9ca3af;text-decoration:none;}footer a:hover{color:#fff;}
             </div>
           </div>
         </div>
+        {% endif %}
       </div>
       {% endif %}
 

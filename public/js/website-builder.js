@@ -212,11 +212,37 @@ function renderSectionPreview(sec) {
       var hBadgeCls = 'hero-badge' + (hLight ? ' badge-light' : '');
       var btnStyle = 'style="background:' + escHtml(d.text_color || '#fff') + ';color:' + escHtml(d.bg_color || p) + ';"';
       var btn2Cls = 'btn-outline-hero' + (hLight ? ' dark-outline' : '');
-      var svgPersonL = '<svg viewBox="0 0 170 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="85" cy="64" rx="42" ry="46" fill="rgba(255,255,255,.4)"/><path d="M0 200 Q85 112 170 200 Z" fill="rgba(255,255,255,.26)"/></svg>';
+      // Stat values from data or defaults
+      var s1num = d.stat1_num || '100M+';
+      var s1lbl = d.stat1_lbl || 'Monthly Users';
+      var s1pct = d.stat1_pct || '↑ 24% this month';
+      var s2val = d.stat2_val || '$48,294';
+      var s2lbl = d.stat2_lbl || 'Revenue';
+
+      // Floating stat cards (reused in both layouts)
+      var floatStatCard = '<div class="hero-float-card hfc-stat">' +
+        '<div class="s-lbl" ' + ce('stat1_lbl') + '>' + escHtml(s1lbl) + '</div>' +
+        '<div class="s-num"><span ' + ce('stat1_num') + '>' + escHtml(s1num) + '</span></div>' +
+        '<div class="s-pct"><span ' + ce('stat1_pct') + '>' + escHtml(s1pct) + '</span></div>' +
+      '</div>';
+      var floatChartCard = '<div class="hero-float-card hfc-chart">' +
+        '<div class="hfc-chart-head"><div class="hfc-icon">📈</div>' +
+          '<div><div class="hfc-chart-lbl"><span ' + ce('stat2_lbl') + '>' + escHtml(s2lbl) + '</span></div>' +
+          '<div class="hfc-chart-val"><span ' + ce('stat2_val') + '>' + escHtml(s2val) + '</span></div></div>' +
+        '</div>' +
+        '<div class="hfc-bars"><span style="height:35%;"></span><span style="height:55%;"></span><span style="height:42%;"></span><span style="height:68%;"></span><span style="height:58%;"></span><span style="height:84%;"></span><span style="height:72%;"></span><span style="height:96%;"></span></div>' +
+      '</div>';
 
       if (hLayout === 'split') {
-        var svgSplitR = '<svg viewBox="0 0 200 340" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="100" cy="90" rx="50" ry="54" fill="rgba(255,255,255,.38)"/><path d="M0 340 Q100 190 200 340 Z" fill="rgba(255,255,255,.24)"/></svg>';
-        var svgSplitL = '<svg viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="90" cy="82" rx="46" ry="50" fill="rgba(255,255,255,.38)"/><path d="M0 300 Q90 165 180 300 Z" fill="rgba(255,255,255,.24)"/></svg>';
+        // Right visual: real image if uploaded, else SVG person art
+        var splitVisual;
+        if (d.hero_image) {
+          splitVisual = '<div style="position:absolute;inset:0;left:32px;border-radius:20px;overflow:hidden;"><img src="' + escHtml(d.hero_image) + '" style="width:100%;height:100%;object-fit:cover;display:block;"></div>';
+        } else {
+          var svgSplitR = '<svg viewBox="0 0 200 340" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="100" cy="90" rx="50" ry="54" fill="rgba(255,255,255,.38)"/><path d="M0 340 Q100 190 200 340 Z" fill="rgba(255,255,255,.24)"/></svg>';
+          var svgSplitL = '<svg viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="90" cy="82" rx="46" ry="50" fill="rgba(255,255,255,.38)"/><path d="M0 300 Q90 165 180 300 Z" fill="rgba(255,255,255,.24)"/></svg>';
+          splitVisual = '<div class="hero-split-card"><div class="hero-split-inner">' + svgSplitR + '</div><div class="hero-split-inner2">' + svgSplitL + '</div></div>';
+        }
         return '<section class="hero hero-split" style="' + heroBg + '">' +
           '<div class="container"><div class="hero-split-grid">' +
             '<div>' +
@@ -228,26 +254,35 @@ function renderSectionPreview(sec) {
                 (d.cta2_label ? '<a href="' + escHtml(d.cta2_url || '#') + '" class="' + btn2Cls + '" onclick="return false;"><span ' + ce('cta2_label') + '>' + escHtml(d.cta2_label) + '</span></a>' : '') +
               '</div>' +
             '</div>' +
-            '<div class="hero-split-img">' +
-              '<div class="hero-split-card">' +
-                '<div class="hero-split-inner">' + svgSplitR + '</div>' +
-                '<div class="hero-split-inner2">' + svgSplitL + '</div>' +
-              '</div>' +
-              '<div class="hero-float-card hfc-stat">' +
-                '<div class="s-lbl">Monthly Users</div>' +
-                '<div class="s-num">100M+</div>' +
-                '<div class="s-pct">↑ 24% this month</div>' +
-              '</div>' +
-              '<div class="hero-float-card hfc-chart">' +
-                '<div class="hfc-chart-head"><div class="hfc-icon">📈</div><div><div class="hfc-chart-lbl">Revenue</div><div class="hfc-chart-val">$48,294</div></div></div>' +
-                '<div class="hfc-bars"><span style="height:35%;"></span><span style="height:55%;"></span><span style="height:42%;"></span><span style="height:68%;"></span><span style="height:58%;"></span><span style="height:84%;"></span><span style="height:72%;"></span><span style="height:96%;"></span></div>' +
-              '</div>' +
-            '</div>' +
+            '<div class="hero-split-img">' + splitVisual + floatStatCard + floatChartCard + '</div>' +
           '</div></div></section>';
       }
 
       // ── Centered layout (default) ──
+      var svgPersonL = '<svg viewBox="0 0 170 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="85" cy="64" rx="42" ry="46" fill="rgba(255,255,255,.4)"/><path d="M0 200 Q85 112 170 200 Z" fill="rgba(255,255,255,.26)"/></svg>';
       var svgPersonR = '<svg viewBox="0 0 170 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:0;width:100%;height:100%;"><ellipse cx="85" cy="64" rx="42" ry="46" fill="rgba(255,255,255,.4)"/><path d="M0 200 Q85 112 170 200 Z" fill="rgba(255,255,255,.26)"/></svg>';
+      // Visual area: real image if uploaded, else browser mockup with SVG art
+      var centeredVisual;
+      if (d.hero_image) {
+        centeredVisual = '<div class="hero-visual"><div style="border-radius:16px 16px 0 0;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.32);"><img src="' + escHtml(d.hero_image) + '" style="width:100%;display:block;max-height:360px;object-fit:cover;"></div></div>';
+      } else {
+        centeredVisual = '<div class="hero-visual"><div class="hero-browser">' +
+          '<div class="hero-browser-chrome"><span></span><span></span><span></span><div class="hero-browser-url"></div></div>' +
+          '<div class="hero-browser-body">' +
+            '<div class="hero-person hero-person-l">' + svgPersonL + '</div>' +
+            '<div class="hero-chart-area">' +
+              '<div class="hero-chart-label">Performance Overview</div>' +
+              '<div class="hero-chart-bars">' +
+                '<span style="height:42%;"></span><span style="height:62%;"></span><span style="height:50%;"></span>' +
+                '<span style="height:80%;"></span><span style="height:60%;"></span><span style="height:90%;"></span>' +
+                '<span style="height:74%;"></span><span style="height:96%;"></span><span style="height:68%;"></span>' +
+                '<span style="height:100%;"></span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="hero-person hero-person-r">' + svgPersonR + '</div>' +
+          '</div>' +
+        '</div></div>';
+      }
       return '<section class="hero hero-centered" style="' + heroBg + '">' +
         (d.bg_image ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);pointer-events:none;"></div>' : '') +
         '<div class="container" style="position:relative;z-index:1;">' +
@@ -258,22 +293,7 @@ function renderSectionPreview(sec) {
             (d.cta_label ? '<a href="' + escHtml(d.cta_url || '#') + '" class="btn-primary" ' + btnStyle + ' onclick="return false;"><span ' + ce('cta_label') + '>' + escHtml(d.cta_label) + '</span></a>' : '') +
             (d.cta2_label ? '<a href="' + escHtml(d.cta2_url || '#') + '" class="' + btn2Cls + '" onclick="return false;"><span ' + ce('cta2_label') + '>' + escHtml(d.cta2_label) + '</span></a>' : '') +
           '</div>' +
-          '<div class="hero-visual"><div class="hero-browser">' +
-            '<div class="hero-browser-chrome"><span></span><span></span><span></span><div class="hero-browser-url"></div></div>' +
-            '<div class="hero-browser-body">' +
-              '<div class="hero-person hero-person-l">' + svgPersonL + '</div>' +
-              '<div class="hero-chart-area">' +
-                '<div class="hero-chart-label">Performance Overview</div>' +
-                '<div class="hero-chart-bars">' +
-                  '<span style="height:42%;"></span><span style="height:62%;"></span><span style="height:50%;"></span>' +
-                  '<span style="height:80%;"></span><span style="height:60%;"></span><span style="height:90%;"></span>' +
-                  '<span style="height:74%;"></span><span style="height:96%;"></span><span style="height:68%;"></span>' +
-                  '<span style="height:100%;"></span>' +
-                '</div>' +
-              '</div>' +
-              '<div class="hero-person hero-person-r">' + svgPersonR + '</div>' +
-            '</div>' +
-          '</div></div>' +
+          centeredVisual +
         '</div></section>';
     }
 
@@ -742,12 +762,25 @@ MediaPicker.open(function(f){\
 
   switch (type) {
     case 'hero':
+      html += fS('layout', 'Layout', d.layout || 'centered', { 'centered':'Centered + dashboard visual', 'split':'Split — text & image side by side' });
+      html += '<div class="ep-section-label">Content</div>';
       html += fI('headline', 'Headline', d.headline, 'e.g. Welcome to Our Website');
-      html += fI('subheadline', 'Subheadline', d.subheadline, 'e.g. We deliver results');
-      html += fI('cta_label', 'Button Label', d.cta_label, 'e.g. Get Started');
-      html += fI('cta_url', 'Button URL', d.cta_url, '#contact');
+      html += fT('subheadline', 'Subheadline', d.subheadline);
+      html += fI('cta_label', 'Primary Button', d.cta_label, 'e.g. Get Started');
+      html += fI('cta_url', 'Primary Button URL', d.cta_url, '#contact');
+      html += fI('cta2_label', 'Secondary Button', d.cta2_label, 'e.g. Learn More');
+      html += fI('cta2_url', 'Secondary Button URL', d.cta2_url, '#about');
+      html += '<div class="ep-section-label">Image / Visual</div>';
+      html += fImg('hero_image', 'Hero Image', d.hero_image, 'Upload a photo — replaces illustration');
+      html += '<div class="ep-section-label">Floating Stat Cards</div>';
+      html += fI('stat1_num', 'Stat 1 — Number', d.stat1_num, 'e.g. 100M+');
+      html += fI('stat1_lbl', 'Stat 1 — Label', d.stat1_lbl, 'e.g. Monthly Users');
+      html += fI('stat1_pct', 'Stat 1 — Change', d.stat1_pct, 'e.g. ↑ 24% this month');
+      html += fI('stat2_val', 'Stat 2 — Value', d.stat2_val, 'e.g. $48,294');
+      html += fI('stat2_lbl', 'Stat 2 — Label', d.stat2_lbl, 'e.g. Revenue');
+      html += '<div class="ep-section-label">Background &amp; Colors</div>';
       html += fImg('bg_image', 'Background Image', d.bg_image, 'Leave blank to use color');
-      html += fC('bg_color', 'Background Color (no image)', d.bg_color || '#6366f1');
+      html += fC('bg_color', 'Background Color', d.bg_color || '#6366f1');
       html += fC('text_color', 'Text Color', d.text_color || '#ffffff');
       break;
     case 'about':
