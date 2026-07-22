@@ -44,9 +44,20 @@ exports.index = async (req, res) => {
    CREATE website
    POST /dashboard/website/create
    ═══════════════════════════════════════════════════════════════════════════ */
+const THEME_SETTINGS_MAP = {
+  'default':    { font: 'Inter',               primary: '#6366f1', text: '#111827', bg: '#ffffff' },
+  'minimal':    { font: 'Playfair Display',    primary: '#b45309', text: '#1c1917', bg: '#fdf8f0' },
+  'bold':       { font: 'Inter',               primary: '#8b5cf6', text: '#e2e8f0', bg: '#0f0f1a' },
+  'ecom-fresh': { font: 'Inter',               primary: '#059669', text: '#111827', bg: '#ffffff' },
+  'ecom-luxe':  { font: 'Cormorant Garamond',  primary: '#d4af37', text: '#f5f0e8', bg: '#0a0a0f' },
+  'ecom-spark': { font: 'DM Sans',             primary: '#f43f5e', text: '#0f172a', bg: '#ffffff' }
+}
+
 exports.create = async (req, res) => {
   const user = req.session.user
-  const { title } = req.body
+  const { title, theme } = req.body
+  const themeId = (theme && THEME_SETTINGS_MAP[theme]) ? theme : 'default'
+  const ts = THEME_SETTINGS_MAP[themeId]
   try {
     const base = slug(title || 'my-website')
     let sub = base, n = 1
@@ -56,8 +67,8 @@ exports.create = async (req, res) => {
       sub = base + '-' + (n++)
     }
     const settings = JSON.stringify({
-      font: 'Inter', primary: '#6366f1', text: '#111827',
-      bg: '#ffffff', logo: '', tagline: ''
+      font: ts.font, primary: ts.primary, text: ts.text,
+      bg: ts.bg, logo: '', tagline: '', theme: themeId
     })
     const result = await db.execute(
       'INSERT INTO ms_websites (account_id, title, subdomain, settings, is_published) VALUES (?,?,?,?,1)',
@@ -65,9 +76,16 @@ exports.create = async (req, res) => {
     )
     const websiteId = result.insertId
 
-    // Create default Home page in ms_posts
-    const homeSections = JSON.stringify([
-      { id: uuidv4(), type: 'hero',     data: { headline: `Welcome to ${title || 'My Website'}`, subheadline: 'We deliver exceptional results', cta_label: 'Get Started', cta_url: '#contact', bg_color: '#6366f1', text_color: '#ffffff' } },
+    // Create default Home page in ms_posts — use ecom starter sections for ecom themes
+    const isEcom = themeId.startsWith('ecom-')
+    const siteName = title || 'My Website'
+    const homeSections = isEcom ? JSON.stringify([
+      { id: uuidv4(), type: 'hero',         data: { headline: `Welcome to ${siteName}`, subheadline: 'Discover our curated collection — quality you can feel.', cta_label: 'Shop Now', cta_url: '#services', bg_color: ts.primary, text_color: ts.text.startsWith('#f') ? ts.text : '#ffffff', bg_image: '' } },
+      { id: uuidv4(), type: 'services',     data: { heading: 'Featured Products', items: [{ icon: '⭐', title: 'Product One', desc: 'Add your product description here.', price: '' }, { icon: '🔥', title: 'Product Two', desc: 'Add your product description here.', price: '' }, { icon: '💎', title: 'Product Three', desc: 'Add your product description here.', price: '' }] } },
+      { id: uuidv4(), type: 'testimonials', data: { heading: 'Happy Customers', items: [{ name: 'Customer Name', role: 'Verified Buyer', quote: 'Absolutely love the quality — will order again!' }] } },
+      { id: uuidv4(), type: 'contact',      data: { heading: 'Get in Touch', email: '', phone: '', address: '', show_form: true } }
+    ]) : JSON.stringify([
+      { id: uuidv4(), type: 'hero',     data: { headline: `Welcome to ${siteName}`, subheadline: 'We deliver exceptional results', cta_label: 'Get Started', cta_url: '#contact', bg_color: ts.primary, text_color: '#ffffff', bg_image: '' } },
       { id: uuidv4(), type: 'about',    data: { heading: 'About Us', text: 'Tell your story here. What makes you unique?', image: '', layout: 'image_right' } },
       { id: uuidv4(), type: 'services', data: { heading: 'Our Services', items: [{ icon: '⚡', title: 'Service One', desc: 'Description' }, { icon: '🎯', title: 'Service Two', desc: 'Description' }, { icon: '💎', title: 'Service Three', desc: 'Description' }] } },
       { id: uuidv4(), type: 'contact',  data: { heading: 'Get in Touch', email: '', phone: '', address: '', show_form: true } }

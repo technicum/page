@@ -1473,9 +1473,32 @@ var THEMES_LIST = [
   { id:'ecom-spark',name:'Spark',        desc:'Bold white with rose accents — energetic streetwear ecommerce', tags:['ecommerce','bold','modern','colorful'], category:'Bold' }
 ];
 
+/* Per-theme demo starter sections shown in the "import content" dialog */
+var THEME_STARTER_SECTIONS = {
+  'ecom-fresh': [
+    { type:'hero',         data:{ headline:'Fresh Finds for Every Day', subheadline:'Shop our curated collection of everyday essentials — quality you can feel.', cta_label:'Shop Now', cta_url:'#services', bg_color:'#059669', text_color:'#ffffff', bg_image:'' } },
+    { type:'services',     data:{ heading:'Featured Products', items:[{icon:'🥑',title:'Organic Fresh',desc:'Sourced from local farms, delivered to your door.',price:'₹249'},{icon:'🌿',title:'Natural Beauty',desc:'Clean formulas, sustainable packaging.',price:'₹399'},{icon:'🏺',title:'Home Essentials',desc:'Beautiful objects for everyday living.',price:'₹599'}] } },
+    { type:'testimonials', data:{ heading:'Happy Customers', items:[{name:'Priya S.',role:'Regular Customer',quote:'The quality is incredible — I order every week!'},{name:'Rahul M.',role:'Verified Buyer',quote:'Fast delivery and everything arrived perfectly fresh.'}] } },
+    { type:'contact',      data:{ heading:'Get in Touch', email:'hello@mystore.com', phone:'', address:'', show_form:true } }
+  ],
+  'ecom-luxe': [
+    { type:'hero',         data:{ headline:'Crafted for the Discerning', subheadline:"A curated edit of the world's finest goods — for those who expect nothing but the best.", cta_label:'Explore Collection', cta_url:'#services', bg_color:'#0a0a0f', text_color:'#f5f0e8', bg_image:'' } },
+    { type:'services',     data:{ heading:'The Collection', items:[{icon:'💎',title:'Fine Jewellery',desc:"Handcrafted pieces from the world's finest ateliers.",price:'₹12,999'},{icon:'👜',title:'Luxury Leather',desc:'Full-grain leather goods built to last a lifetime.',price:'₹8,999'},{icon:'🕯️',title:'Home Luxuries',desc:'Objects of beauty for the refined home.',price:'₹3,499'}] } },
+    { type:'testimonials', data:{ heading:'Client Testimonials', items:[{name:'Aanya K.',role:'Collector',quote:'The craftsmanship is extraordinary — worth every rupee.'},{name:'Vikram R.',role:'Long-time Client',quote:'Impeccable packaging, impeccable service.'}] } },
+    { type:'contact',      data:{ heading:'Private Enquiries', email:'concierge@mystore.com', phone:'', address:'', show_form:true } }
+  ],
+  'ecom-spark': [
+    { type:'hero',         data:{ headline:'Drop Different.', subheadline:'Limited releases, bold designs — wear what sets you apart.', cta_label:'Shop the Drop', cta_url:'#services', bg_color:'#f43f5e', text_color:'#ffffff', bg_image:'' } },
+    { type:'services',     data:{ heading:'Latest Drops', items:[{icon:'🔥',title:'Oversized Tee',desc:'Heavy cotton, washed finish — built for the streets.',price:'₹899'},{icon:'⚡',title:'Cargo Shorts',desc:'6-pocket utility with elastic waistband.',price:'₹1,299'},{icon:'👟',title:'Sport Cap',desc:'Unstructured fit, embroidered logo.',price:'₹499'}] } },
+    { type:'testimonials', data:{ heading:'The Community', items:[{name:'Dev T.',role:'Hype Collector',quote:'Every drop is straight 🔥 — sold out in minutes for a reason.'},{name:'Zara K.',role:'Style Creator',quote:'Finally a brand that actually has taste.'}] } },
+    { type:'contact',      data:{ heading:'Hit Us Up', email:'hello@mystore.com', phone:'', address:'', show_form:true } }
+  ]
+};
+
 var _tcTag = 'all';
 var _tcCat = 'all';
 var _tcPendingId = null;
+var _tcImportThemeId = null;
 
 function openThemeChooser() {
   _tcPendingId = activeTheme;
@@ -1498,10 +1521,40 @@ function closeThemeChooser() {
 }
 
 function tcUseTheme() {
-  if (_tcPendingId) selectTheme(_tcPendingId);
+  var tid = _tcPendingId;
+  var starters = tid && THEME_STARTER_SECTIONS[tid];
+  if (starters) {
+    // Close chooser and show import dialog
+    _tcImportThemeId = tid;
+    document.getElementById('themeChooser').style.display = 'none';
+    var overlay = document.getElementById('tcImportOverlay');
+    var t = THEMES_LIST.find(function(x){ return x.id === tid; });
+    document.getElementById('tcImportThemeName').textContent = t ? t.name : tid;
+    overlay.style.display = 'flex';
+    return;
+  }
+  // No starter sections — just apply theme directly
+  if (tid) selectTheme(tid);
   document.getElementById('themeChooser').style.display = 'none';
-  // Update the swatch in styles panel
-  tcUpdateSwatch(_tcPendingId);
+  tcUpdateSwatch(tid);
+}
+
+function tcApplyTheme(importContent) {
+  document.getElementById('tcImportOverlay').style.display = 'none';
+  var tid = _tcImportThemeId;
+  _tcImportThemeId = null;
+  if (!tid) return;
+  if (importContent) {
+    var starters = THEME_STARTER_SECTIONS[tid] || [];
+    sections = starters.map(function(s) {
+      var d = JSON.parse(JSON.stringify(s.data));
+      return { id: 'sec_' + Math.random().toString(36).slice(2, 10), type: s.type, data: d };
+    });
+    renderCanvas();
+    saveSections();
+  }
+  selectTheme(tid);
+  tcUpdateSwatch(tid);
 }
 
 function tcSetTag(tag, el) {

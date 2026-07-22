@@ -37,7 +37,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 /* ── Create modal ─── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
-.modal{background:#fff;border-radius:16px;padding:28px;width:400px;max-width:90vw;}
+.modal{background:#fff;border-radius:16px;padding:28px;width:460px;max-width:92vw;}
 .modal-title{font-size:18px;font-weight:700;color:#111827;margin:0 0 6px;}
 .modal-sub{font-size:13px;color:#9ca3af;margin:0 0 20px;}
 .form-group{margin-bottom:16px;}
@@ -45,6 +45,20 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .form-input{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s;}
 .form-input:focus{border-color:#6366f1;}
 .modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+/* ── Theme picker in create modal ─── */
+.wl-theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;max-height:260px;overflow-y:auto;padding:2px;}
+.wlt-card{border:2px solid #e5e7eb;border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.wlt-card:hover{border-color:#a5b4fc;}
+.wlt-card.selected{border-color:#6366f1;box-shadow:0 0 0 3px #e0e7ff;}
+.wlt-thumb{height:78px;position:relative;overflow:hidden;padding:0;}
+.wlt-nav{height:14px;display:flex;align-items:center;padding:0 7px;gap:4px;}
+.wlt-nav-logo{height:5px;border-radius:2px;flex:1;max-width:28px;opacity:.8;}
+.wlt-nav-links{display:flex;gap:3px;margin-left:auto;}
+.wlt-nav-link{height:4px;border-radius:2px;width:14px;opacity:.4;}
+.wlt-hero{margin:3px 7px;border-radius:4px;height:26px;}
+.wlt-body{padding:5px 7px;display:flex;flex-direction:column;gap:3px;}
+.wlt-line{border-radius:2px;height:3px;}
+.wlt-name{font-size:11px;font-weight:600;color:#374151;padding:5px 8px;text-align:center;background:#fff;border-top:1px solid #f1f5f9;}
 </style>
 {% endblock %}
 
@@ -104,23 +118,103 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 <!-- Create Modal -->
 <div class="modal-overlay" id="createModal" onclick="if(event.target===this)closeCreate()">
   <div class="modal">
-    <div class="modal-title">Create new website</div>
-    <div class="modal-sub">You can change the name and design later.</div>
-    <form method="POST" action="/dashboard/website/create">
-      <div class="form-group">
-        <label class="form-label">Website Name</label>
-        <input class="form-input" name="title" placeholder="e.g. Abhi's Photography" required autofocus>
+    <form method="POST" action="/dashboard/website/create" id="wlForm">
+      <!-- Step 1: Name -->
+      <div id="wlStep1">
+        <div class="modal-title">Create new website</div>
+        <div class="modal-sub">Give your website a name to get started.</div>
+        <div class="form-group">
+          <label class="form-label">Website Name</label>
+          <input class="form-input" id="wlNameInput" name="title" placeholder="e.g. My Online Store" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeCreate()">Cancel</button>
+          <button type="button" class="btn btn-dark" onclick="wlNext()">Next: Pick a Theme →</button>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline" onclick="closeCreate()">Cancel</button>
-        <button type="submit" class="btn btn-dark">Create & Open Editor →</button>
+      <!-- Step 2: Theme picker -->
+      <div id="wlStep2" style="display:none;">
+        <div class="modal-title">Pick a theme</div>
+        <div class="modal-sub">Choosing a theme for "<span id="wlNamePreview" style="color:#111827;font-weight:600;"></span>" — you can change it anytime.</div>
+        <div class="wl-theme-grid" id="wlThemeGrid"></div>
+        <input type="hidden" name="theme" id="wlThemeInput" value="default">
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="wlBack()">← Back</button>
+          <button type="submit" class="btn btn-dark">Create Website →</button>
+        </div>
       </div>
     </form>
   </div>
 </div>
 
 <script>
-function openCreate(){ document.getElementById('createModal').classList.add('open'); }
-function closeCreate(){ document.getElementById('createModal').classList.remove('open'); }
+var WL_THEMES = [
+  { id:'default',    name:'Default',      bg:'#f8fafc', nav:'#ffffff', primary:'#6366f1', text:'#111827' },
+  { id:'minimal',   name:'Elegant',      bg:'#fdf8f0', nav:'#fdf8f0', primary:'#b45309', text:'#1c1917' },
+  { id:'bold',      name:'Dark',         bg:'#0f0f1a', nav:'#1a1a2e', primary:'#8b5cf6', text:'#e2e8f0' },
+  { id:'ecom-fresh',name:'Fresh Market', bg:'#ffffff', nav:'#f8fafc', primary:'#059669', text:'#111827' },
+  { id:'ecom-luxe', name:'Luxe',         bg:'#0a0a0f', nav:'#1a1a28', primary:'#d4af37', text:'#f5f0e8' },
+  { id:'ecom-spark',name:'Spark',        bg:'#ffffff', nav:'#f8fafc', primary:'#f43f5e', text:'#0f172a' }
+];
+var _wlSelected = 'default';
+
+function openCreate(){
+  document.getElementById('createModal').classList.add('open');
+  setTimeout(function(){ document.getElementById('wlNameInput').focus(); }, 80);
+}
+function closeCreate(){
+  document.getElementById('createModal').classList.remove('open');
+  // Reset steps
+  document.getElementById('wlStep1').style.display = '';
+  document.getElementById('wlStep2').style.display = 'none';
+  document.getElementById('wlNameInput').value = '';
+  _wlSelected = 'default';
+  document.getElementById('wlThemeInput').value = 'default';
+}
+function wlNext(){
+  var name = document.getElementById('wlNameInput').value.trim();
+  if (!name) { document.getElementById('wlNameInput').focus(); return; }
+  document.getElementById('wlNamePreview').textContent = name;
+  renderWlGrid();
+  document.getElementById('wlStep1').style.display = 'none';
+  document.getElementById('wlStep2').style.display = '';
+}
+function wlBack(){
+  document.getElementById('wlStep2').style.display = 'none';
+  document.getElementById('wlStep1').style.display = '';
+  setTimeout(function(){ document.getElementById('wlNameInput').focus(); }, 80);
+}
+function wlPickTheme(id){
+  _wlSelected = id;
+  document.getElementById('wlThemeInput').value = id;
+  document.querySelectorAll('.wlt-card').forEach(function(c){
+    c.classList.toggle('selected', c.dataset.tid === id);
+  });
+}
+function renderWlGrid(){
+  var html = WL_THEMES.map(function(t){
+    var bg = t.bg, nav = t.nav, p = t.primary, tx = t.text;
+    return '<div class="wlt-card' + (_wlSelected===t.id?' selected':'') + '" data-tid="' + t.id + '" onclick="wlPickTheme(\'' + t.id + '\')">' +
+      '<div class="wlt-thumb" style="background:' + bg + ';">' +
+        '<div class="wlt-nav" style="background:' + nav + ';">' +
+          '<div class="wlt-nav-logo" style="background:' + p + ';"></div>' +
+          '<div class="wlt-nav-links">' +
+            '<div class="wlt-nav-link" style="background:' + tx + ';"></div>' +
+            '<div class="wlt-nav-link" style="background:' + tx + ';"></div>' +
+            '<div class="wlt-nav-link" style="background:' + p + ';border-radius:3px;opacity:1;"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="wlt-hero" style="background:' + p + ';"></div>' +
+        '<div class="wlt-body">' +
+          '<div class="wlt-line" style="background:' + tx + ';opacity:.25;width:72%;"></div>' +
+          '<div class="wlt-line" style="background:' + tx + ';opacity:.15;width:48%;"></div>' +
+          '<div class="wlt-line" style="background:' + p + ';opacity:.6;width:30%;height:5px;border-radius:3px;margin-top:2px;"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="wlt-name">' + t.name + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('wlThemeGrid').innerHTML = html;
+}
 </script>
 {% endblock %}
