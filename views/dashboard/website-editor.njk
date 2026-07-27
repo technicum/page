@@ -509,19 +509,21 @@ var SITE_THEME = '{{ website.settings.theme or "default" }}';
 <!-- Builder logic — external file avoids Nunjucks escaping issues -->
 <script src="/js/website-builder.js"></script>
 
-<!-- ══ Theme Preview Modal ══ -->
-<div id="tcPrevModal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.6);align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif;" onclick="if(event.target===this)tcClosePrevModal()">
-  <div style="background:#fff;border-radius:16px;overflow:hidden;width:380px;max-width:92vw;box-shadow:0 24px 64px rgba(0,0,0,.25);">
-    <div style="height:255px;overflow:hidden;position:relative;background:#f3f4f6;" id="tcPrevModalThumb"></div>
-    <div style="padding:20px 22px 22px;">
-      <div id="tcPrevModalName" style="font-size:16px;font-weight:800;color:#111827;margin-bottom:5px;"></div>
-      <div id="tcPrevModalDesc" style="font-size:13px;color:#6b7280;margin-bottom:12px;line-height:1.6;"></div>
-      <div id="tcPrevModalTags" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:18px;"></div>
-      <div style="display:flex;gap:10px;">
-        <button onclick="tcClosePrevModal()" style="flex:1;padding:9px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#374151;font-family:inherit;">Close</button>
-        <button onclick="tcSelectFromPreview()" style="flex:1;padding:9px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:#111827;color:#fff;font-family:inherit;">Select this theme →</button>
+<!-- ══ Theme Preview Modal (full iframe) ══ -->
+<div id="tcPrevModal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.7);align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif;" onclick="if(event.target===this)tcClosePrevModal()">
+  <div style="background:#fff;border-radius:16px;overflow:hidden;width:90vw;max-width:1100px;height:88vh;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.35);">
+    <!-- header -->
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+      <div style="flex:1;">
+        <div id="tcPrevModalName" style="font-size:15px;font-weight:800;color:#111827;"></div>
+        <div id="tcPrevModalDesc" style="font-size:12px;color:#6b7280;margin-top:2px;"></div>
       </div>
+      <div id="tcPrevModalTags" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+      <button onclick="tcClosePrevModal()" style="padding:7px 16px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#374151;font-family:inherit;white-space:nowrap;">✕ Close</button>
+      <button onclick="tcSelectFromPreview()" style="padding:7px 18px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:#111827;color:#fff;font-family:inherit;white-space:nowrap;">Select this theme →</button>
     </div>
+    <!-- iframe -->
+    <iframe id="tcPrevFrame" src="" style="flex:1;border:none;width:100%;background:#f9fafb;"></iframe>
   </div>
 </div>
 

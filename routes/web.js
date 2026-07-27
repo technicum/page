@@ -312,6 +312,9 @@ router.post('/dashboard/website/:id/settings',                requireAuth, websi
 router.post('/dashboard/website/:id/publish',                 requireAuth, website.publish)
 router.post('/dashboard/website/:id/delete',                  requireAuth, website.destroy)
 
+// ── Theme demo preview (no auth) ─────────────────────────────────────────────
+router.get('/theme-demo/:themeId',     website.themeDemo)
+
 // ── Public website renderer ───────────────────────────────────────────────────
 router.get('/w/:subdomain',            website.publicSite)
 router.get('/w/:subdomain/:pageSlug',  website.publicSite)
