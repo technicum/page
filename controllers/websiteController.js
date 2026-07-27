@@ -76,31 +76,75 @@ exports.create = async (req, res) => {
     )
     const websiteId = result.insertId
 
-    // Create default Home page in ms_posts — use ecom starter sections for ecom themes
-    const isEcom = themeId.startsWith('ecom-')
+    // Create starter pages
     const siteName = title || 'My Website'
-    const homeSections = isEcom ? JSON.stringify([
-      { id: uuidv4(), type: 'hero',         data: { headline: `Welcome to ${siteName}`, subheadline: 'Discover our curated collection — quality you can feel.', cta_label: 'Shop Now', cta_url: '#services', bg_color: ts.primary, text_color: ts.text.startsWith('#f') ? ts.text : '#ffffff', bg_image: '' } },
-      { id: uuidv4(), type: 'services',     data: { heading: 'Featured Products', items: [{ icon: '⭐', title: 'Product One', desc: 'Add your product description here.', price: '' }, { icon: '🔥', title: 'Product Two', desc: 'Add your product description here.', price: '' }, { icon: '💎', title: 'Product Three', desc: 'Add your product description here.', price: '' }] } },
-      { id: uuidv4(), type: 'testimonials', data: { heading: 'Happy Customers', items: [{ name: 'Customer Name', role: 'Verified Buyer', quote: 'Absolutely love the quality — will order again!' }] } },
-      { id: uuidv4(), type: 'contact',      data: { heading: 'Get in Touch', email: '', phone: '', address: '', show_form: true } }
-    ]) : JSON.stringify([
-      { id: uuidv4(), type: 'hero',     data: { headline: `Welcome to ${siteName}`, subheadline: 'We deliver exceptional results', cta_label: 'Get Started', cta_url: '#contact', bg_color: ts.primary, text_color: '#ffffff', bg_image: '' } },
-      { id: uuidv4(), type: 'about',    data: { heading: 'About Us', text: 'Tell your story here. What makes you unique?', image: '', layout: 'image_right' } },
-      { id: uuidv4(), type: 'services', data: { heading: 'Our Services', items: [{ icon: '⚡', title: 'Service One', desc: 'Description' }, { icon: '🎯', title: 'Service Two', desc: 'Description' }, { icon: '💎', title: 'Service Three', desc: 'Description' }] } },
-      { id: uuidv4(), type: 'contact',  data: { heading: 'Get in Touch', email: '', phone: '', address: '', show_form: true } }
-    ])
-    const homeMeta = JSON.stringify({ is_home: 1, seo_title: '', seo_desc: '' })
+    const isSpark  = themeId === 'ecom-spark'
+    const isEcom   = themeId.startsWith('ecom-')
+
+    // Build page list to insert
+    const pagesToCreate = isSpark ? [
+      { title:'Home',           slug:'home',     is_home:1, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',            data:{ headline:`Welcome to ${siteName}`, subheadline:'Limited drops. Zero restocks. Street-ready pieces.', cta_label:'Shop the Drop', cta_url:'/products', cta2_label:'Our Story', cta2_url:'/about', bg_color:ts.primary, text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'category_banner', data:{ heading:'Shop by Category', categories:[{name:'Tees & Tops',icon:'👕',color:'#0f172a',url:'#'},{name:'Bottoms',icon:'👖',color:'#1e293b',url:'#'},{name:'Outerwear',icon:'🧥',color:'#f43f5e',url:'#'},{name:'Accessories',icon:'🧢',color:'#334155',url:'#'}]}},
+          { id:uuidv4(), type:'product_grid',    data:{ heading:'New Arrivals', products:[{icon:'🔥',name:'Product One',category:'Category',price:'₹0',badge:'New'},{icon:'⚡',name:'Product Two',category:'Category',price:'₹0'},{icon:'🧥',name:'Product Three',category:'Category',price:'₹0'},{icon:'🧢',name:'Product Four',category:'Category',price:'₹0'}]}},
+          { id:uuidv4(), type:'newsletter',      data:{ heading:'Join the Drop List', subtext:'Get early access to every drop.', placeholder:'Enter your email', cta:'Subscribe' }}
+        ])},
+      { title:'About',          slug:'about',    is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',  data:{ headline:'Our Story', subheadline:`${siteName} — built from the ground up.`, cta_label:'Shop Now', cta_url:'/products', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'about', data:{ heading:'Who We Are', text:'Tell your brand story here. Where did you start, what do you believe in, and why does it matter?', image:'', layout:'image_right' }},
+          { id:uuidv4(), type:'cta',   data:{ heading:'Ready to Shop?', subheading:'New drops every season.', cta_label:'Shop All Products', cta_url:'/products', bg_color:ts.primary }}
+        ])},
+      { title:'Shop',           slug:'products', is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',         data:{ headline:'Shop All', subheadline:'New Drop — Live Now', cta_label:'', cta_url:'', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'product_grid', data:{ heading:'All Products', products:[
+            {icon:'👕',name:'Product 1',category:'Category',price:'₹0'},{icon:'👕',name:'Product 2',category:'Category',price:'₹0'},
+            {icon:'👕',name:'Product 3',category:'Category',price:'₹0'},{icon:'👕',name:'Product 4',category:'Category',price:'₹0'},
+            {icon:'👕',name:'Product 5',category:'Category',price:'₹0'},{icon:'👕',name:'Product 6',category:'Category',price:'₹0'}
+          ]}}
+        ])},
+      { title:'Product',        slug:'product',  is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'product_detail', data:{ name:'Product Name', category:'Category', price:'₹0', icon:'👕', desc:'Add your product description here. Talk about materials, fit, and what makes it special.', sizes:['XS','S','M','L','XL','XXL'], colors:['#1f2937','#6b7280','#f43f5e'] }}
+        ])},
+      { title:'Category',       slug:'category', is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',         data:{ headline:'Category Name', subheadline:'Browse the collection', cta_label:'', cta_url:'', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'product_grid', data:{ heading:'', products:[
+            {icon:'👕',name:'Product 1',category:'Category',price:'₹0'},{icon:'👕',name:'Product 2',category:'Category',price:'₹0'},
+            {icon:'👕',name:'Product 3',category:'Category',price:'₹0'},{icon:'👕',name:'Product 4',category:'Category',price:'₹0'}
+          ]}}
+        ])},
+      { title:'Cart',           slug:'cart',     is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'cart', data:{ heading:'Your Cart', items:[{icon:'👕',name:'Product Name',variant:'Size: M',qty:1,price:'₹0'}], subtotal:'₹0', shipping:'Free', total:'₹0' }}
+        ])},
+      { title:'Checkout',       slug:'checkout', is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'checkout', data:{ heading:'Checkout', items:[{name:'Product Name × 1',qty:1,price:'₹0'}], subtotal:'₹0', shipping:'Free', total:'₹0' }}
+        ])}
+    ] : isEcom ? [
+      { title:'Home', slug:'home', is_home:1, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',         data:{ headline:`Welcome to ${siteName}`, subheadline:'Discover our curated collection — quality you can feel.', cta_label:'Shop Now', cta_url:'/products', bg_color:ts.primary, text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'product_grid', data:{ heading:'Featured Products', products:[{icon:'⭐',name:'Product One',category:'',price:'₹0'},{icon:'🔥',name:'Product Two',category:'',price:'₹0'},{icon:'💎',name:'Product Three',category:'',price:'₹0'}]}},
+          { id:uuidv4(), type:'testimonials', data:{ heading:'Happy Customers', items:[{name:'Customer Name', role:'Verified Buyer', quote:'Absolutely love the quality — will order again!'}]}},
+          { id:uuidv4(), type:'contact',      data:{ heading:'Get in Touch', email:'', phone:'', address:'', show_form:true }}
+        ])}
+    ] : [
+      { title:'Home', slug:'home', is_home:1, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',     data:{ headline:`Welcome to ${siteName}`, subheadline:'We deliver exceptional results', cta_label:'Get Started', cta_url:'#contact', bg_color:ts.primary, text_color:'#ffffff', bg_image:'' }},
+          { id:uuidv4(), type:'about',    data:{ heading:'About Us', text:'Tell your story here. What makes you unique?', image:'', layout:'image_right' }},
+          { id:uuidv4(), type:'services', data:{ heading:'Our Services', items:[{icon:'⚡',title:'Service One',desc:'Description'},{icon:'🎯',title:'Service Two',desc:'Description'},{icon:'💎',title:'Service Three',desc:'Description'}]}},
+          { id:uuidv4(), type:'contact',  data:{ heading:'Get in Touch', email:'', phone:'', address:'', show_form:true }}
+        ])}
+    ]
 
     try {
-      await db.execute(
-        `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta)
-         VALUES (?,?,?,?,?,?,?,?)`,
-        [user.id, websiteId, 'page', 'Home', 'home', 'published', homeSections, homeMeta]
-      )
+      for (const pg of pagesToCreate) {
+        const meta = JSON.stringify({ is_home: pg.is_home, seo_title:'', seo_desc:'' })
+        await db.execute(
+          `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta)
+           VALUES (?,?,?,?,?,?,?,?)`,
+          [user.id, websiteId, 'page', pg.title, pg.slug, 'published', pg.sections, meta]
+        )
+      }
     } catch(e) {
-      console.error('[website.create] ms_posts insert failed:', e.message, '| columns:', e.sql || '')
-      // Continue anyway — website was created, pages just won't load
+      console.error('[website.create] ms_posts insert failed:', e.message)
     }
 
     res.redirect('/dashboard/website/' + websiteId + '/editor')
@@ -419,34 +463,149 @@ const THEME_DEMO_DATA = {
   'ecom-spark': {
     title: 'SPARK STUDIO',
     settings: { font:'DM Sans', primary:'#f43f5e', text:'#0f172a', bg:'#ffffff', theme:'ecom-spark', logo:'', tagline:'Drop Different.' },
-    sections: [
-      { id:'d1', type:'hero', data:{ headline:'Drop Different.', subheadline:"Limited drops, no restocks, zero compromise. Street-ready pieces built for those who don't follow trends — they set them.", cta_label:'Shop the Drop', cta_url:'#services', cta2_label:'Follow Us', cta2_url:'#contact', bg_color:'#f43f5e', text_color:'#ffffff', layout:'centered' }},
-      { id:'d2', type:'about', data:{ heading:'The Brand', text:'SPARK STUDIO was born in a Dharavi workshop in 2021. We started making one-of-one pieces for our friends, posted them, and the internet went crazy. Now we drop 6 times a year in limited quantities. If you\'re lucky enough to cop, you\'re part of something real.', image:'', layout:'image_right' }},
-      { id:'d3', type:'services', data:{ heading:'Current Drop: HEAT 06', items:[
-        { icon:'🔥', title:'Oversized Tee — Charcoal', desc:'480 GSM heavy cotton, washed twice for that broken-in feel. Box fit, drop shoulders.', price:'₹1,299' },
-        { icon:'⚡', title:'Cargo Jogger — Olive', desc:'8-pocket utility pants with adjustable ankle cuffs. Ripstop shell, fleece lining.', price:'₹2,499' },
-        { icon:'👟', title:'Logo Dad Cap — Off White', desc:'6-panel unstructured cap with embroidered SPARK logo. Brass adjustable clasp.', price:'₹799' },
-        { icon:'🧥', title:'Coach Jacket — Black', desc:'Satin outer, mesh inner. Chenille patch on back. Snap button closure.', price:'₹3,199' },
-        { icon:'👜', title:'Canvas Tote — Natural', desc:'16oz canvas tote. SPARK screenprint front. Internal zip pocket.', price:'₹499' },
-        { icon:'🧦', title:'Crew Socks 3-Pack', desc:'Thick cotton. Branded ankle ribbing in three colourways.', price:'₹599' }
-      ]}},
-      { id:'d4', type:'testimonials', data:{ heading:'The Community', items:[
-        { name:'Dev Tiwari', role:'Hype Collector, Delhi', quote:'Copped the Coach Jacket from HEAT 04 and wore it every day for a month. Quality is unreal for the price. The brand is ascending.' },
-        { name:'Zara Khan', role:'Content Creator, Mumbai', quote:'Every drop I post goes viral. My audience goes crazy for Spark pieces — impossible to find after they sell out.' },
-        { name:'Aryan Seth', role:'Sneakerhead, Bangalore', quote:"Finally a brand that designs for people who actually know streetwear. They have their own language." }
-      ]}},
-      { id:'d5', type:'contact', data:{ heading:'Hit Us Up', email:'drop@sparkstudio.in', phone:'+91 90000 11234', address:'DM us @sparkstudio on Instagram', show_form:true }}
+    pages: [
+      {
+        slug: 'home', title: 'Home', is_home: true,
+        sections: [
+          { id:'h1', type:'hero', data:{ headline:'Drop Different.', subheadline:"Limited drops. Zero restocks. Street-ready pieces built for those who don't follow trends — they set them.", cta_label:'Shop the Drop', cta_url:'#products', cta2_label:'Our Story', cta2_url:'#about', bg_color:'#f43f5e', text_color:'#ffffff', layout:'centered' }},
+          { id:'h2', type:'category_banner', data:{ heading:'Shop by Category', categories:[
+            { name:'Tees & Tops', icon:'👕', color:'#0f172a', url:'#' },
+            { name:'Bottoms', icon:'👖', color:'#1e293b', url:'#' },
+            { name:'Outerwear', icon:'🧥', color:'#f43f5e', url:'#' },
+            { name:'Accessories', icon:'🧢', color:'#334155', url:'#' }
+          ]}},
+          { id:'h3', type:'product_grid', data:{ heading:'New Arrivals', subheading:'HEAT 06 — Limited quantities. First come, first served.', products:[
+            { icon:'🔥', name:'Oversized Tee — Charcoal', category:'Tees', price:'₹1,299', badge:'New' },
+            { icon:'⚡', name:'Cargo Jogger — Olive', category:'Bottoms', price:'₹2,499', badge:'Hot' },
+            { icon:'🧥', name:'Coach Jacket — Black', category:'Outerwear', price:'₹3,199' },
+            { icon:'🧢', name:'Logo Dad Cap — Off White', category:'Accessories', price:'₹799', badge:'New' }
+          ]}},
+          { id:'h4', type:'testimonials', data:{ heading:'The Community', items:[
+            { name:'Dev Tiwari', role:'Hype Collector, Delhi', quote:'Copped the Coach Jacket from HEAT 04 and wore it every day for a month. Quality is unreal for the price.' },
+            { name:'Zara Khan', role:'Content Creator, Mumbai', quote:'Every drop I post goes viral. My audience goes crazy for Spark pieces.' },
+            { name:'Aryan Seth', role:'Sneakerhead, Bangalore', quote:"Finally a brand that designs for people who actually know streetwear." }
+          ]}},
+          { id:'h5', type:'newsletter', data:{ heading:'Get Early Access to Drops', subtext:'Join 28,000+ people who never miss a drop.', placeholder:'Enter your email', cta:'Join the Drop List' }}
+        ]
+      },
+      {
+        slug: 'about', title: 'About',
+        sections: [
+          { id:'a1', type:'hero', data:{ headline:'Born in the Streets.', subheadline:'SPARK STUDIO started as a one-person operation in 2021. Now we dress thousands — but we still make every piece like it\'s the only one.', cta_label:'Shop Now', cta_url:'/theme-demo/ecom-spark/products', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
+          { id:'a2', type:'about', data:{ heading:'The Brand', text:'SPARK STUDIO was born in a Dharavi workshop in 2021. We started making one-of-one pieces for our friends, posted them online, and the internet went crazy. Now we drop 6 times a year in limited quantities. If you\'re lucky enough to cop, you\'re part of something real. We never restock. Every piece is made in India by people who care about craft — 100% of our manufacturing is local.', image:'', layout:'image_right' }},
+          { id:'a3', type:'stats', data:{ heading:'By the Numbers', items:[
+            { number:'6', label:'Drops per year' },
+            { number:'28K+', label:'Community members' },
+            { number:'100%', label:'Made in India' },
+            { number:'0', label:'Restocks. Ever.' }
+          ]}},
+          { id:'a4', type:'testimonials', data:{ heading:'What People Say', items:[
+            { name:'Dev Tiwari', role:'Hype Collector, Delhi', quote:'Copped the Coach Jacket from HEAT 04 and wore it every day for a month. Quality is unreal for the price. The brand is ascending.' },
+            { name:'Zara Khan', role:'Content Creator, Mumbai', quote:'Every drop I post goes viral. My audience goes crazy for Spark pieces — impossible to find after they sell out.' }
+          ]}},
+          { id:'a5', type:'cta', data:{ heading:'Ready to Drop?', subheading:'The next drop goes live Friday at 12PM IST.', cta_label:'Shop All Products', cta_url:'/theme-demo/ecom-spark/products', bg_color:'#f43f5e' }}
+        ]
+      },
+      {
+        slug: 'products', title: 'Shop',
+        sections: [
+          { id:'p1', type:'hero', data:{ headline:'Shop All', subheadline:'HEAT 06 — Live Now', cta_label:'', cta_url:'', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
+          { id:'p2', type:'product_grid', data:{ heading:'All Products', products:[
+            { icon:'🔥', name:'Oversized Tee — Charcoal', category:'Tees', price:'₹1,299', badge:'New' },
+            { icon:'🌿', name:'Oversized Tee — Sage Green', category:'Tees', price:'₹1,299' },
+            { icon:'⚡', name:'Cargo Jogger — Olive', category:'Bottoms', price:'₹2,499', badge:'Hot' },
+            { icon:'🖤', name:'Cargo Jogger — Black', category:'Bottoms', price:'₹2,499' },
+            { icon:'🧥', name:'Coach Jacket — Black', category:'Outerwear', price:'₹3,199' },
+            { icon:'🧥', name:'Coach Jacket — Burgundy', category:'Outerwear', price:'₹3,199', badge:'Low Stock' },
+            { icon:'🧢', name:'Logo Dad Cap — Off White', category:'Accessories', price:'₹799', badge:'New' },
+            { icon:'👜', name:'Canvas Tote — Natural', category:'Accessories', price:'₹499' },
+            { icon:'🧦', name:'Crew Socks 3-Pack', category:'Accessories', price:'₹599' },
+            { icon:'🪡', name:'Lanyard — Black', category:'Accessories', price:'₹299' },
+            { icon:'🔴', name:'Bucket Hat — Red', category:'Accessories', price:'₹899', badge:'New' },
+            { icon:'💪', name:'Muscle Tee — White', category:'Tees', price:'₹999' }
+          ]}}
+        ]
+      },
+      {
+        slug: 'product', title: 'Product',
+        sections: [
+          { id:'sp1', type:'product_detail', data:{
+            name:'Oversized Tee — Charcoal', category:'Tees', price:'₹1,299', icon:'🔥',
+            desc:'480 GSM heavy cotton, washed twice for that broken-in feel. Box fit with drop shoulders. Minimal SPARK logo embroidered on the chest. This is the tee you wear till it falls apart — and it won\'t.',
+            sizes:['XS','S','M','L','XL','XXL'],
+            colors:['#1f2937','#6b7280','#f43f5e','#065f46']
+          }},
+          { id:'sp2', type:'product_grid', data:{ heading:'You Might Also Like', products:[
+            { icon:'🌿', name:'Oversized Tee — Sage Green', category:'Tees', price:'₹1,299' },
+            { icon:'💪', name:'Muscle Tee — White', category:'Tees', price:'₹999' },
+            { icon:'🧢', name:'Logo Dad Cap — Off White', category:'Accessories', price:'₹799' },
+            { icon:'🧦', name:'Crew Socks 3-Pack', category:'Accessories', price:'₹599' }
+          ]}}
+        ]
+      },
+      {
+        slug: 'category', title: 'Category',
+        sections: [
+          { id:'c1', type:'hero', data:{ headline:'Tees & Tops', subheadline:'Heavy cotton. Drop shoulders. Built to last.', cta_label:'', cta_url:'', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
+          { id:'c2', type:'product_grid', data:{ heading:'', products:[
+            { icon:'🔥', name:'Oversized Tee — Charcoal', category:'Tees', price:'₹1,299', badge:'New' },
+            { icon:'🌿', name:'Oversized Tee — Sage Green', category:'Tees', price:'₹1,299' },
+            { icon:'💪', name:'Muscle Tee — White', category:'Tees', price:'₹999' },
+            { icon:'🖤', name:'Graphic Tee — Black', category:'Tees', price:'₹1,099' },
+            { icon:'🔴', name:'Logo Tee — Red', category:'Tees', price:'₹1,099' },
+            { icon:'🩶', name:'Washed Tee — Grey', category:'Tees', price:'₹1,199' }
+          ]}}
+        ]
+      },
+      {
+        slug: 'cart', title: 'Cart',
+        sections: [
+          { id:'ca1', type:'cart', data:{
+            heading:'Your Cart',
+            items:[
+              { icon:'🔥', name:'Oversized Tee — Charcoal', variant:'Size: L · Colour: Charcoal', qty:1, price:'₹1,299' },
+              { icon:'🧥', name:'Coach Jacket — Black', variant:'Size: M · Colour: Black', qty:1, price:'₹3,199' },
+              { icon:'🧦', name:'Crew Socks 3-Pack', variant:'One Size', qty:2, price:'₹1,198' }
+            ],
+            subtotal:'₹5,696', shipping:'Free', total:'₹5,696'
+          }}
+        ]
+      },
+      {
+        slug: 'checkout', title: 'Checkout',
+        sections: [
+          { id:'ch1', type:'checkout', data:{
+            heading:'Checkout',
+            items:[
+              { name:'Oversized Tee — Charcoal (L)', qty:1, price:'₹1,299' },
+              { name:'Coach Jacket — Black (M)', qty:1, price:'₹3,199' },
+              { name:'Crew Socks 3-Pack', qty:2, price:'₹1,198' }
+            ],
+            subtotal:'₹5,696', shipping:'Free', total:'₹5,696'
+          }}
+        ]
+      }
     ]
   }
 };
 
 exports.themeDemo = (req, res) => {
-  const { themeId } = req.params
+  const { themeId, pageSlug } = req.params
   const demo = THEME_DEMO_DATA[themeId]
   if (!demo) return res.status(404).send('Theme not found')
-  const website = { id:0, title:demo.title, subdomain:'demo', settings:demo.settings, is_published:true }
-  const pages   = [{ id:1, title:'Home', slug:'home', is_home:true, is_published:true, sections:demo.sections }]
-  const current = pages[0]
+
+  const website = { id:0, title:demo.title, subdomain:'demo', settings:demo.settings, is_published:true, demo_theme:themeId }
+
+  // Multi-page themes (ecom-spark) use pages array; others use single sections array
+  let pages, current
+  if (demo.pages) {
+    pages = demo.pages.map((p, i) => ({ id: i+1, ...p, is_published: true }))
+    current = (pageSlug && pages.find(p => p.slug === pageSlug)) || pages.find(p => p.is_home) || pages[0]
+  } else {
+    pages   = [{ id:1, title:'Home', slug:'home', is_home:true, is_published:true, sections:demo.sections }]
+    current = pages[0]
+  }
+
   res.render('website-public.njk', { website, pages, current })
 }
 
