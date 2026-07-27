@@ -1569,25 +1569,27 @@ function tcApplyTheme(importContent) {
   var newBg      = td.bg      || siteSettings.bg    || '#ffffff';
 
   if (importContent) {
-    var starters = THEME_STARTER_SECTIONS[tid] || [];
-    sections = starters.map(function(s) {
-      var d = JSON.parse(JSON.stringify(s.data));
-      return { id: 'sec_' + Math.random().toString(36).slice(2, 10), type: s.type, data: d };
+    // Import all theme pages from server (creates Cart, Checkout, etc.)
+    fetch('/dashboard/website/' + WEBSITE_ID + '/import-theme', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ themeId: tid })
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.redirectUrl) window.location.href = data.redirectUrl;
+      else window.location.reload();
+    }).catch(function() { window.location.reload(); });
+  } else {
+    // Style-only: save settings with new defaults and reload
+    fetch('/dashboard/website/' + WEBSITE_ID + '/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ theme: tid, primary: newPrimary, font: newFont, text: newText, bg: newBg })
+    }).then(function() {
+      window.location.reload();
+    }).catch(function() {
+      window.location.reload();
     });
-    renderCanvas();
-    saveSections();
   }
-
-  // Save theme + correct defaults to DB, then reload so everything is consistent
-  fetch('/dashboard/website/' + WEBSITE_ID + '/settings', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ theme: tid, primary: newPrimary, font: newFont, text: newText, bg: newBg })
-  }).then(function() {
-    window.location.reload();
-  }).catch(function() {
-    window.location.reload(); // reload even on error so user sees something
-  });
 }
 
 function tcSetTag(tag, el) {

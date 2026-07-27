@@ -16,6 +16,69 @@ function parseMeta(raw) {
   try { return JSON.parse(raw) } catch { return {} }
 }
 
+/* Build the pages array for a given theme — shared by create and importTheme */
+function buildPagesForTheme(themeId, siteName, ts) {
+  const isSpark = themeId === 'ecom-spark'
+  const isEcom  = themeId.startsWith('ecom-')
+  if (isSpark) {
+    return [
+      { title:'Home',     slug:'home',     is_home:1, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',            data:{ headline:`Welcome to ${siteName}`, subheadline:'Limited drops. Zero restocks. Street-ready pieces.', cta_label:'Shop the Drop', cta_url:'/products', cta2_label:'Our Story', cta2_url:'/about', bg_color:ts.primary, text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'category_banner', data:{ heading:'Shop by Category', categories:[{name:'Tees & Tops',icon:'👕',color:'#0f172a',url:'#'},{name:'Bottoms',icon:'👖',color:'#1e293b',url:'#'},{name:'Outerwear',icon:'🧥',color:'#f43f5e',url:'#'},{name:'Accessories',icon:'🧢',color:'#334155',url:'#'}]}},
+          { id:uuidv4(), type:'product_grid',    data:{ heading:'New Arrivals', products:[{icon:'🔥',name:'Product One',category:'Category',price:'₹0',badge:'New'},{icon:'⚡',name:'Product Two',category:'Category',price:'₹0'},{icon:'🧥',name:'Product Three',category:'Category',price:'₹0'},{icon:'🧢',name:'Product Four',category:'Category',price:'₹0'}]}},
+          { id:uuidv4(), type:'newsletter',      data:{ heading:'Join the Drop List', subtext:'Get early access to every drop.', placeholder:'Enter your email', cta:'Subscribe' }}
+        ])},
+      { title:'About',    slug:'about',    is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',  data:{ headline:'Our Story', subheadline:`${siteName} — built from the ground up.`, cta_label:'Shop Now', cta_url:'/products', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'about', data:{ heading:'Who We Are', text:'Tell your brand story here. Where did you start, what do you believe in, and why does it matter?', image:'', layout:'image_right' }},
+          { id:uuidv4(), type:'cta',   data:{ heading:'Ready to Shop?', subheading:'New drops every season.', cta_label:'Shop All Products', cta_url:'/products', bg_color:ts.primary }}
+        ])},
+      { title:'Shop',     slug:'products', is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',         data:{ headline:'Shop All', subheadline:'New Drop — Live Now', cta_label:'', cta_url:'', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'product_grid', data:{ heading:'All Products', products:[
+            {icon:'👕',name:'Product 1',category:'Category',price:'₹0'},{icon:'👕',name:'Product 2',category:'Category',price:'₹0'},
+            {icon:'👕',name:'Product 3',category:'Category',price:'₹0'},{icon:'👕',name:'Product 4',category:'Category',price:'₹0'},
+            {icon:'👕',name:'Product 5',category:'Category',price:'₹0'},{icon:'👕',name:'Product 6',category:'Category',price:'₹0'}
+          ]}}
+        ])},
+      { title:'Product',  slug:'product',  is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'product_detail', data:{ name:'Product Name', category:'Category', price:'₹0', icon:'👕', desc:'Add your product description here.', sizes:['XS','S','M','L','XL','XXL'], colors:['#1f2937','#6b7280','#f43f5e'] }}
+        ])},
+      { title:'Category', slug:'category', is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',         data:{ headline:'Category Name', subheadline:'Browse the collection', cta_label:'', cta_url:'', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'product_grid', data:{ heading:'', products:[
+            {icon:'👕',name:'Product 1',category:'Category',price:'₹0'},{icon:'👕',name:'Product 2',category:'Category',price:'₹0'},
+            {icon:'👕',name:'Product 3',category:'Category',price:'₹0'},{icon:'👕',name:'Product 4',category:'Category',price:'₹0'}
+          ]}}
+        ])},
+      { title:'Cart',     slug:'cart',     is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'cart', data:{ heading:'Your Cart', items:[{icon:'👕',name:'Product Name',variant:'Size: M',qty:1,price:'₹0'}], subtotal:'₹0', shipping:'Free', total:'₹0' }}
+        ])},
+      { title:'Checkout', slug:'checkout', is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'checkout', data:{ heading:'Checkout', items:[{name:'Product Name × 1',qty:1,price:'₹0'}], subtotal:'₹0', shipping:'Free', total:'₹0' }}
+        ])}
+    ]
+  } else if (isEcom) {
+    return [
+      { title:'Home', slug:'home', is_home:1, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',         data:{ headline:`Welcome to ${siteName}`, subheadline:'Discover our curated collection.', cta_label:'Shop Now', cta_url:'/products', bg_color:ts.primary, text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'product_grid', data:{ heading:'Featured Products', products:[{icon:'⭐',name:'Product One',category:'',price:'₹0'},{icon:'🔥',name:'Product Two',category:'',price:'₹0'},{icon:'💎',name:'Product Three',category:'',price:'₹0'}]}},
+          { id:uuidv4(), type:'testimonials', data:{ heading:'Happy Customers', items:[{name:'Customer Name', role:'Verified Buyer', quote:'Absolutely love the quality!'}]}},
+          { id:uuidv4(), type:'contact',      data:{ heading:'Get in Touch', email:'', phone:'', address:'', show_form:true }}
+        ])}
+    ]
+  } else {
+    return [
+      { title:'Home', slug:'home', is_home:1, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero',     data:{ headline:`Welcome to ${siteName}`, subheadline:'We deliver exceptional results', cta_label:'Get Started', cta_url:'#contact', bg_color:ts.primary, text_color:'#ffffff', bg_image:'' }},
+          { id:uuidv4(), type:'about',    data:{ heading:'About Us', text:'Tell your story here. What makes you unique?', image:'', layout:'image_right' }},
+          { id:uuidv4(), type:'services', data:{ heading:'Our Services', items:[{icon:'⚡',title:'Service One',desc:'Description'},{icon:'🎯',title:'Service Two',desc:'Description'},{icon:'💎',title:'Service Three',desc:'Description'}]}},
+          { id:uuidv4(), type:'contact',  data:{ heading:'Get in Touch', email:'', phone:'', address:'', show_form:true }}
+        ])}
+    ]
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    DASHBOARD — list all websites
    GET /dashboard/website
@@ -78,61 +141,7 @@ exports.create = async (req, res) => {
 
     // Create starter pages
     const siteName = title || 'My Website'
-    const isSpark  = themeId === 'ecom-spark'
-    const isEcom   = themeId.startsWith('ecom-')
-
-    // Build page list to insert
-    const pagesToCreate = isSpark ? [
-      { title:'Home',           slug:'home',     is_home:1, sections: JSON.stringify([
-          { id:uuidv4(), type:'hero',            data:{ headline:`Welcome to ${siteName}`, subheadline:'Limited drops. Zero restocks. Street-ready pieces.', cta_label:'Shop the Drop', cta_url:'/products', cta2_label:'Our Story', cta2_url:'/about', bg_color:ts.primary, text_color:'#ffffff', layout:'centered' }},
-          { id:uuidv4(), type:'category_banner', data:{ heading:'Shop by Category', categories:[{name:'Tees & Tops',icon:'👕',color:'#0f172a',url:'#'},{name:'Bottoms',icon:'👖',color:'#1e293b',url:'#'},{name:'Outerwear',icon:'🧥',color:'#f43f5e',url:'#'},{name:'Accessories',icon:'🧢',color:'#334155',url:'#'}]}},
-          { id:uuidv4(), type:'product_grid',    data:{ heading:'New Arrivals', products:[{icon:'🔥',name:'Product One',category:'Category',price:'₹0',badge:'New'},{icon:'⚡',name:'Product Two',category:'Category',price:'₹0'},{icon:'🧥',name:'Product Three',category:'Category',price:'₹0'},{icon:'🧢',name:'Product Four',category:'Category',price:'₹0'}]}},
-          { id:uuidv4(), type:'newsletter',      data:{ heading:'Join the Drop List', subtext:'Get early access to every drop.', placeholder:'Enter your email', cta:'Subscribe' }}
-        ])},
-      { title:'About',          slug:'about',    is_home:0, sections: JSON.stringify([
-          { id:uuidv4(), type:'hero',  data:{ headline:'Our Story', subheadline:`${siteName} — built from the ground up.`, cta_label:'Shop Now', cta_url:'/products', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
-          { id:uuidv4(), type:'about', data:{ heading:'Who We Are', text:'Tell your brand story here. Where did you start, what do you believe in, and why does it matter?', image:'', layout:'image_right' }},
-          { id:uuidv4(), type:'cta',   data:{ heading:'Ready to Shop?', subheading:'New drops every season.', cta_label:'Shop All Products', cta_url:'/products', bg_color:ts.primary }}
-        ])},
-      { title:'Shop',           slug:'products', is_home:0, sections: JSON.stringify([
-          { id:uuidv4(), type:'hero',         data:{ headline:'Shop All', subheadline:'New Drop — Live Now', cta_label:'', cta_url:'', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
-          { id:uuidv4(), type:'product_grid', data:{ heading:'All Products', products:[
-            {icon:'👕',name:'Product 1',category:'Category',price:'₹0'},{icon:'👕',name:'Product 2',category:'Category',price:'₹0'},
-            {icon:'👕',name:'Product 3',category:'Category',price:'₹0'},{icon:'👕',name:'Product 4',category:'Category',price:'₹0'},
-            {icon:'👕',name:'Product 5',category:'Category',price:'₹0'},{icon:'👕',name:'Product 6',category:'Category',price:'₹0'}
-          ]}}
-        ])},
-      { title:'Product',        slug:'product',  is_home:0, sections: JSON.stringify([
-          { id:uuidv4(), type:'product_detail', data:{ name:'Product Name', category:'Category', price:'₹0', icon:'👕', desc:'Add your product description here. Talk about materials, fit, and what makes it special.', sizes:['XS','S','M','L','XL','XXL'], colors:['#1f2937','#6b7280','#f43f5e'] }}
-        ])},
-      { title:'Category',       slug:'category', is_home:0, sections: JSON.stringify([
-          { id:uuidv4(), type:'hero',         data:{ headline:'Category Name', subheadline:'Browse the collection', cta_label:'', cta_url:'', bg_color:'#0f172a', text_color:'#ffffff', layout:'centered' }},
-          { id:uuidv4(), type:'product_grid', data:{ heading:'', products:[
-            {icon:'👕',name:'Product 1',category:'Category',price:'₹0'},{icon:'👕',name:'Product 2',category:'Category',price:'₹0'},
-            {icon:'👕',name:'Product 3',category:'Category',price:'₹0'},{icon:'👕',name:'Product 4',category:'Category',price:'₹0'}
-          ]}}
-        ])},
-      { title:'Cart',           slug:'cart',     is_home:0, sections: JSON.stringify([
-          { id:uuidv4(), type:'cart', data:{ heading:'Your Cart', items:[{icon:'👕',name:'Product Name',variant:'Size: M',qty:1,price:'₹0'}], subtotal:'₹0', shipping:'Free', total:'₹0' }}
-        ])},
-      { title:'Checkout',       slug:'checkout', is_home:0, sections: JSON.stringify([
-          { id:uuidv4(), type:'checkout', data:{ heading:'Checkout', items:[{name:'Product Name × 1',qty:1,price:'₹0'}], subtotal:'₹0', shipping:'Free', total:'₹0' }}
-        ])}
-    ] : isEcom ? [
-      { title:'Home', slug:'home', is_home:1, sections: JSON.stringify([
-          { id:uuidv4(), type:'hero',         data:{ headline:`Welcome to ${siteName}`, subheadline:'Discover our curated collection — quality you can feel.', cta_label:'Shop Now', cta_url:'/products', bg_color:ts.primary, text_color:'#ffffff', layout:'centered' }},
-          { id:uuidv4(), type:'product_grid', data:{ heading:'Featured Products', products:[{icon:'⭐',name:'Product One',category:'',price:'₹0'},{icon:'🔥',name:'Product Two',category:'',price:'₹0'},{icon:'💎',name:'Product Three',category:'',price:'₹0'}]}},
-          { id:uuidv4(), type:'testimonials', data:{ heading:'Happy Customers', items:[{name:'Customer Name', role:'Verified Buyer', quote:'Absolutely love the quality — will order again!'}]}},
-          { id:uuidv4(), type:'contact',      data:{ heading:'Get in Touch', email:'', phone:'', address:'', show_form:true }}
-        ])}
-    ] : [
-      { title:'Home', slug:'home', is_home:1, sections: JSON.stringify([
-          { id:uuidv4(), type:'hero',     data:{ headline:`Welcome to ${siteName}`, subheadline:'We deliver exceptional results', cta_label:'Get Started', cta_url:'#contact', bg_color:ts.primary, text_color:'#ffffff', bg_image:'' }},
-          { id:uuidv4(), type:'about',    data:{ heading:'About Us', text:'Tell your story here. What makes you unique?', image:'', layout:'image_right' }},
-          { id:uuidv4(), type:'services', data:{ heading:'Our Services', items:[{icon:'⚡',title:'Service One',desc:'Description'},{icon:'🎯',title:'Service Two',desc:'Description'},{icon:'💎',title:'Service Three',desc:'Description'}]}},
-          { id:uuidv4(), type:'contact',  data:{ heading:'Get in Touch', email:'', phone:'', address:'', show_form:true }}
-        ])}
-    ]
+    const pagesToCreate = buildPagesForTheme(themeId, siteName, ts)
 
     try {
       for (const pg of pagesToCreate) {
@@ -151,6 +160,51 @@ exports.create = async (req, res) => {
   } catch(e) {
     console.error('[website.create] failed:', e.message)
     res.redirect('/dashboard/website?error=' + encodeURIComponent(e.message))
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   IMPORT THEME — replace all pages with theme starter content
+   POST /dashboard/website/:id/import-theme
+   Body: { themeId: 'ecom-spark' }
+   ═══════════════════════════════════════════════════════════════════════════ */
+exports.importTheme = async (req, res) => {
+  const user = req.session.user
+  const websiteId = parseInt(req.params.id)
+  const { themeId } = req.body
+  try {
+    const website = await db.first('SELECT * FROM ms_websites WHERE id=? AND account_id=?', [websiteId, user.id])
+    if (!website) return res.json({ ok: false, error: 'Not found' })
+
+    const ts = THEME_SETTINGS_MAP[themeId] || THEME_SETTINGS_MAP['default']
+    const existing = parseJSON(website.settings, {})
+    const siteName = website.title || 'My Website'
+
+    // 1. Update website settings with new theme defaults
+    const newSettings = JSON.stringify(Object.assign(existing, {
+      theme: themeId, primary: ts.primary, font: ts.font, text: ts.text, bg: ts.bg
+    }))
+    await db.execute('UPDATE ms_websites SET settings=? WHERE id=?', [newSettings, websiteId])
+
+    // 2. Delete all existing pages
+    await db.execute(`DELETE FROM ms_posts WHERE website_id=? AND post_type='page'`, [websiteId])
+
+    // 3. Insert theme starter pages
+    const pagesToCreate = buildPagesForTheme(themeId, siteName, ts)
+    let firstPageId = null
+    for (const pg of pagesToCreate) {
+      const meta = JSON.stringify({ is_home: pg.is_home, seo_title: '', seo_desc: '' })
+      const result = await db.execute(
+        `INSERT INTO ms_posts (account_id, website_id, post_type, title, slug, status, sections, meta) VALUES (?,?,?,?,?,?,?,?)`,
+        [user.id, websiteId, 'page', pg.title, pg.slug, 'published', pg.sections, meta]
+      )
+      if (pg.is_home) firstPageId = result.insertId
+    }
+
+    res.json({ ok: true, redirectUrl: '/dashboard/website/' + websiteId + '/editor' + (firstPageId ? '?page=' + firstPageId : '') })
+  } catch(e) {
+    console.error('[website.importTheme]', e.message)
+    res.json({ ok: false, error: e.message })
   }
 }
 

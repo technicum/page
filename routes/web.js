@@ -309,6 +309,7 @@ router.post('/dashboard/website/:id/page/:pageId/seo',        requireAuth, websi
 router.post('/dashboard/website/:id/page/:pageId/rename',     requireAuth, website.renamePage)
 router.post('/dashboard/website/:id/page/:pageId/delete',     requireAuth, website.deletePage)
 router.post('/dashboard/website/:id/settings',                requireAuth, website.saveSettings)
+router.post('/dashboard/website/:id/import-theme',            requireAuth, website.importTheme)
 router.post('/dashboard/website/:id/publish',                 requireAuth, website.publish)
 router.post('/dashboard/website/:id/delete',                  requireAuth, website.destroy)
 
