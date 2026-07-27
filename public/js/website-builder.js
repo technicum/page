@@ -558,6 +558,229 @@ function renderSectionPreview(sec) {
         '</form>' +
         '</div></div></section>';
 
+    // ── Real Estate section types ────────────────────────────────────────────
+    case 'property_search':
+      return '<section class="re-hero section">' +
+        '<div class="container" style="text-align:center;">' +
+        '<h1 ' + ce('headline') + '>' + escHtml(d.headline || 'Find Your Dream Home') + '</h1>' +
+        '<p ' + ce('subtext') + '>' + escHtml(d.subtext || '') + '</p>' +
+        '<div style="display:flex;gap:12px;margin:24px 0;padding:12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;">' +
+          '<div style="flex:1.5;padding:10px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#9ca3af;">📍 City or Area</div>' +
+          '<div style="flex:1;padding:10px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#9ca3af;">🏠 Type</div>' +
+          '<div style="flex:1;padding:10px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#9ca3af;">💰 Budget</div>' +
+          '<button type="button" class="re-search-btn btn-primary" style="background:' + escHtml(p) + ';color:#fff;padding:10px 24px;border:none;border-radius:8px;font-weight:700;" disabled>Search</button>' +
+        '</div>' +
+        (d.stats && d.stats.length ? '<div class="stats-grid">' + d.stats.map(function(s,si){ return '<div class="stat-item"><div class="stat-number" ' + ce(null,si,'num') + '>' + escHtml(s.num||'') + '</div><div class="stat-label" ' + ce(null,si,'label') + '>' + escHtml(s.label||'') + '</div></div>'; }).join('') + '</div>' : '') +
+        '</div></section>';
+
+    case 'property_listings': {
+      var plCanvasProps = (d.properties||[]).slice(0,3);
+      return '<section class="section section-alt">' +
+        '<div class="container">' +
+        (d.heading ? '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading) + '</h2>' + (d.subheading ? '<p ' + ce('subheading') + '>' + escHtml(d.subheading) + '</p>' : '') + '</div>' : '') +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;">' +
+        plCanvasProps.map(function(prop,i){
+          return '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;">' +
+            '<div style="background:linear-gradient(135deg,' + escHtml(p) + ',#2563eb);height:150px;display:flex;align-items:center;justify-content:center;position:relative;">' +
+              (prop.tag?'<div style="position:absolute;top:12px;left:12px;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px;">' + escHtml(prop.tag) + '</div>':'') +
+              '<div style="font-size:48px;opacity:0.3;">' + escHtml(prop.icon||'🏠') + '</div>' +
+            '</div>' +
+            '<div style="padding:14px;">' +
+              '<h3 style="font-size:15px;font-weight:700;margin:0 0 4px;" ' + ce(null,i,'title') + '>' + escHtml(prop.title||'Property') + '</h3>' +
+              '<p style="font-size:12px;color:#64748b;margin:0 0 10px;">📍 <span ' + ce(null,i,'location') + '>' + escHtml(prop.location||'') + '</span></p>' +
+              '<div style="display:flex;gap:10px;font-size:12px;color:#94a3b8;padding-bottom:10px;border-bottom:1px solid #f1f5f9;">' +
+                (prop.beds?'<span>🛏 '+prop.beds+'</span>':'') +
+                (prop.baths?'<span>🚿 '+prop.baths+'</span>':'') +
+                (prop.sqft?'<span>📐 '+prop.sqft+'</span>':'') +
+              '</div>' +
+              '<div class="prop-price" style="font-size:17px;font-weight:800;color:' + escHtml(p) + ';margin-top:10px;" ' + ce(null,i,'price') + '>' + escHtml(prop.price||'') + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+        '</div></div></section>';
+    }
+
+    case 'property_detail': {
+      var pdCanvasFeats = (d.features||[]).slice(0,6);
+      return '<section class="section">' +
+        '<div class="container">' +
+        '<div style="display:grid;grid-template-columns:1.3fr 0.7fr;gap:40px;align-items:start;">' +
+          '<div>' +
+            '<div style="background:linear-gradient(135deg,' + escHtml(p) + ',#2563eb);border-radius:16px;height:260px;display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:14px;">' +
+              (d.tag?'<div style="position:absolute;top:14px;left:14px;background:rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:12px;">' + escHtml(d.tag) + '</div>':'') +
+              '<div style="font-size:80px;opacity:0.25;">' + escHtml(d.icon||'🏠') + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div>' +
+            '<h1 style="font-size:22px;font-weight:800;margin:0 0 6px;" ' + ce('title') + '>' + escHtml(d.title||'Property') + '</h1>' +
+            '<p style="font-size:12px;color:#64748b;margin:0 0 12px;">📍 <span ' + ce('location') + '>' + escHtml(d.location||'') + '</span></p>' +
+            '<div class="prd-price" style="font-size:26px;font-weight:800;color:' + escHtml(p) + ';margin-bottom:16px;" ' + ce('price') + '>' + escHtml(d.price||'') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;background:#f8fafc;border-radius:10px;margin-bottom:14px;font-size:13px;text-align:center;">' +
+              [['🛏',(d.beds||0)+' Beds'],['🚿',(d.baths||0)+' Baths'],['📐',(d.sqft||0)+' sqft'],['🚗',(d.parking||0)+' Parking']].map(function(sp){ return '<div><div>'+sp[0]+'</div><div style="font-weight:700;">'+sp[1]+'</div></div>'; }).join('') +
+            '</div>' +
+            (pdCanvasFeats.length ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:14px;">' + pdCanvasFeats.map(function(f4){ return '<div style="font-size:12px;color:#374151;">✓ ' + escHtml(f4) + '</div>'; }).join('') + '</div>' : '') +
+            '<a class="btn-primary" style="display:block;text-align:center;background:' + escHtml(p) + ';color:#fff;padding:12px;border-radius:10px;font-weight:700;margin-bottom:8px;" onclick="return false;">Schedule a Visit</a>' +
+            '<a style="display:block;text-align:center;border:1.5px solid ' + escHtml(p) + ';color:' + escHtml(p) + ';padding:11px;border-radius:10px;font-weight:700;" onclick="return false;">Contact Agent</a>' +
+          '</div>' +
+        '</div>' +
+        '</div></section>';
+    }
+
+    case 'agents': {
+      var agCanvasItems2 = (d.items||[]).slice(0,4);
+      return '<section class="section section-alt">' +
+        '<div class="container">' +
+        (d.heading ? '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading) + '</h2>' + (d.subheading ? '<p ' + ce('subheading') + '>' + escHtml(d.subheading) + '</p>' : '') + '</div>' : '') +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;">' +
+        agCanvasItems2.map(function(ag,i){
+          return '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:24px;text-align:center;">' +
+            '<div class="agent-photo" style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,' + escHtml(p) + ',#2563eb);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 12px;">' + escHtml(ag.icon||'👤') + '</div>' +
+            '<div style="font-size:15px;font-weight:700;" ' + ce(null,i,'name') + '>' + escHtml(ag.name||'Agent') + '</div>' +
+            '<div class="agent-stat-n" style="font-size:12px;color:' + escHtml(p) + ';font-weight:600;margin:4px 0 12px;" ' + ce(null,i,'specialty') + '>' + escHtml(ag.specialty||'') + '</div>' +
+            '<div style="display:flex;justify-content:space-around;border-top:1px solid #f1f5f9;padding-top:12px;font-size:13px;">' +
+              '<div><div style="font-weight:800;color:' + escHtml(p) + ';">' + (ag.listings||0) + '</div><div style="font-size:11px;color:#94a3b8;">Listings</div></div>' +
+              '<div><div style="font-weight:800;color:' + escHtml(p) + ';">' + (ag.sold||0) + '</div><div style="font-size:11px;color:#94a3b8;">Sold</div></div>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+        '</div></div></section>';
+    }
+
+    case 'blog_posts': {
+      var bpCanvasPosts2 = (d.posts||[]).slice(0,3);
+      return '<section class="section">' +
+        '<div class="container">' +
+        (d.heading ? '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading) + '</h2>' + (d.subheading ? '<p ' + ce('subheading') + '>' + escHtml(d.subheading) + '</p>' : '') + '</div>' : '') +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;">' +
+        bpCanvasPosts2.map(function(post,i){
+          return '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;">' +
+            '<div style="background:linear-gradient(135deg,' + escHtml(p) + ',#2563eb);height:130px;display:flex;align-items:center;justify-content:center;">' +
+              '<div style="font-size:52px;opacity:0.25;">' + escHtml(post.icon||'📰') + '</div>' +
+            '</div>' +
+            '<div style="padding:16px;">' +
+              '<div class="blog-cat" style="font-size:11px;font-weight:700;color:' + escHtml(p) + ';letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;" ' + ce(null,i,'category') + '>' + escHtml(post.category||'') + '</div>' +
+              '<h3 style="font-size:15px;font-weight:700;margin:0 0 8px;line-height:1.3;" ' + ce(null,i,'title') + '>' + escHtml(post.title||'') + '</h3>' +
+              '<p style="font-size:13px;color:#64748b;line-height:1.6;margin:0 0 10px;" ' + ce(null,i,'excerpt') + '>' + escHtml((post.excerpt||'').slice(0,80)) + '</p>' +
+              '<div style="font-size:11px;color:#94a3b8;">' + escHtml(post.author||'') + ' · ' + escHtml(post.date||'') + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+        '</div></div></section>';
+    }
+
+    // ── Ecommerce section types ──────────────────────────────────────────────
+    case 'category_banner': {
+      var cbCanvasCats2 = (d.categories||[]).slice(0,4);
+      var cbColors2 = ['#1f2937','#3730a3',p,'#334155'];
+      return '<section class="section">' +
+        '<div class="container">' +
+        (d.heading ? '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading) + '</h2></div>' : '') +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">' +
+        cbCanvasCats2.map(function(cat,i){
+          return '<a onclick="return false;" style="background:' + escHtml(cat.color||cbColors2[i]||p) + ';border-radius:16px;padding:32px 20px;text-align:center;display:block;text-decoration:none;">' +
+            '<div style="font-size:40px;margin-bottom:10px;">' + escHtml(cat.icon||'🛍') + '</div>' +
+            '<div style="font-size:16px;font-weight:700;color:#fff;" ' + ce(null,i,'name') + '>' + escHtml(cat.name||'Category') + '</div>' +
+          '</a>';
+        }).join('') +
+        '</div></div></section>';
+    }
+
+    case 'product_grid': {
+      var pgCanvasProds2 = (d.products||[]).slice(0,4);
+      return '<section class="section section-alt">' +
+        '<div class="container">' +
+        (d.heading ? '<div class="section-heading"><h2 ' + ce('heading') + '>' + escHtml(d.heading) + '</h2></div>' : '') +
+        '<div class="product-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;">' +
+        pgCanvasProds2.map(function(pr,i){
+          return '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">' +
+            '<div style="background:linear-gradient(135deg,' + escHtml(p) + '22,' + escHtml(p) + '08);height:150px;display:flex;align-items:center;justify-content:center;position:relative;">' +
+              '<div style="font-size:64px;opacity:0.55;">' + escHtml(pr.icon||'🛍') + '</div>' +
+              (pr.badge?'<div style="position:absolute;top:10px;left:10px;background:' + escHtml(p) + ';color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;">' + escHtml(pr.badge) + '</div>':'') +
+            '</div>' +
+            '<div style="padding:12px;">' +
+              '<div style="font-size:11px;color:#9ca3af;margin-bottom:3px;" ' + ce(null,i,'category') + '>' + escHtml(pr.category||'') + '</div>' +
+              '<div style="font-size:14px;font-weight:700;margin-bottom:6px;" ' + ce(null,i,'name') + '>' + escHtml(pr.name||'') + '</div>' +
+              '<div style="font-size:16px;font-weight:800;color:' + escHtml(p) + ';" ' + ce(null,i,'price') + '>' + escHtml(pr.price||'') + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+        '</div></div></section>';
+    }
+
+    case 'product_detail': {
+      var pdCanvasSizes2 = d.sizes||['XS','S','M','L','XL'];
+      return '<section class="section">' +
+        '<div class="container">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;">' +
+          '<div style="background:linear-gradient(135deg,' + escHtml(p) + '18,' + escHtml(p) + '06);border-radius:16px;height:300px;display:flex;align-items:center;justify-content:center;">' +
+            '<div style="font-size:100px;opacity:0.4;">' + escHtml(d.icon||'👕') + '</div>' +
+          '</div>' +
+          '<div>' +
+            '<div style="font-size:11px;color:#9ca3af;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;" ' + ce('category') + '>' + escHtml(d.category||'') + '</div>' +
+            '<h1 style="font-size:26px;font-weight:800;margin:0 0 10px;" ' + ce('name') + '>' + escHtml(d.name||'Product Name') + '</h1>' +
+            '<div style="font-size:28px;font-weight:800;color:' + escHtml(p) + ';margin-bottom:16px;" ' + ce('price') + '>' + escHtml(d.price||'') + '</div>' +
+            '<p style="font-size:14px;color:#6b7280;margin-bottom:18px;line-height:1.7;" ' + ce('desc') + '>' + escHtml(d.desc||'') + '</p>' +
+            '<div style="margin-bottom:18px;"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Size</div>' +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + pdCanvasSizes2.slice(0,6).map(function(s){ return '<div style="border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 12px;font-size:13px;">' + escHtml(s) + '</div>'; }).join('') + '</div>' +
+            '</div>' +
+            '<button type="button" class="btn-primary" style="width:100%;background:' + escHtml(p) + ';color:#fff;padding:13px;border:none;border-radius:10px;font-weight:700;" disabled>Add to Cart</button>' +
+          '</div>' +
+        '</div>' +
+        '</div></section>';
+    }
+
+    case 'cart': {
+      var ctCanvasItems2 = (d.items||[]).slice(0,3);
+      return '<section class="section section-alt">' +
+        '<div class="container">' +
+        (d.heading ? '<h2 style="font-size:28px;font-weight:800;margin-bottom:24px;" ' + ce('heading') + '>' + escHtml(d.heading) + '</h2>' : '') +
+        '<div style="display:grid;grid-template-columns:1.4fr 0.6fr;gap:24px;">' +
+          '<div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:24px;">' +
+            ctCanvasItems2.map(function(item){
+              return '<div style="display:flex;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid #f3f4f6;">' +
+                '<div style="width:56px;height:56px;background:' + escHtml(p) + '16;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;">' + escHtml(item.icon||'🛍') + '</div>' +
+                '<div style="flex:1;"><div style="font-weight:700;">' + escHtml(item.name||'') + '</div><div style="font-size:13px;color:#9ca3af;">' + escHtml(item.variant||'') + '</div></div>' +
+                '<div style="font-weight:700;color:' + escHtml(p) + ';">' + escHtml(item.price||'') + '</div>' +
+              '</div>';
+            }).join('') +
+          '</div>' +
+          '<div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:24px;">' +
+            '<div style="font-weight:700;margin-bottom:16px;">Order Summary</div>' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:#6b7280;">Subtotal</span><span>' + escHtml(d.subtotal||'') + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:12px;"><span style="color:#6b7280;">Shipping</span><span>' + escHtml(d.shipping||'Free') + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-weight:700;font-size:16px;border-top:1.5px solid #e5e7eb;padding-top:12px;"><span>Total</span><span style="color:' + escHtml(p) + ';">' + escHtml(d.total||'') + '</span></div>' +
+            '<button type="button" class="btn-primary" style="width:100%;background:' + escHtml(p) + ';color:#fff;padding:12px;border:none;border-radius:10px;font-weight:700;margin-top:14px;" disabled>Checkout →</button>' +
+          '</div>' +
+        '</div>' +
+        '</div></section>';
+    }
+
+    case 'checkout': {
+      var coCanvasItems2 = (d.items||[]).slice(0,2);
+      return '<section class="section section-alt">' +
+        '<div class="container">' +
+        (d.heading ? '<h2 style="font-size:28px;font-weight:800;margin-bottom:24px;" ' + ce('heading') + '>' + escHtml(d.heading) + '</h2>' : '') +
+        '<div style="display:grid;grid-template-columns:1.4fr 0.6fr;gap:24px;">' +
+          '<div style="display:flex;flex-direction:column;gap:16px;">' +
+            '<div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:20px;">' +
+              '<div style="font-weight:700;margin-bottom:12px;">Contact Information</div>' +
+              ['Full Name','Email Address','Phone Number'].map(function(lbl){ return '<div style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;height:38px;margin-bottom:8px;display:flex;align-items:center;padding:0 12px;font-size:13px;color:#9ca3af;">'+lbl+'</div>'; }).join('') +
+            '</div>' +
+            '<div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:20px;">' +
+              '<div style="font-weight:700;margin-bottom:12px;">Shipping Address</div>' +
+              ['Address','City, State','PIN Code'].map(function(lbl){ return '<div style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;height:38px;margin-bottom:8px;display:flex;align-items:center;padding:0 12px;font-size:13px;color:#9ca3af;">'+lbl+'</div>'; }).join('') +
+            '</div>' +
+          '</div>' +
+          '<div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:20px;">' +
+            '<div style="font-weight:700;margin-bottom:14px;">Order Summary</div>' +
+            coCanvasItems2.map(function(item){ return '<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;"><span>' + escHtml(item.name||'') + '</span><span style="font-weight:600;">' + escHtml(item.price||'') + '</span></div>'; }).join('') +
+            '<div style="border-top:1.5px solid #f3f4f6;padding-top:12px;margin-top:8px;display:flex;justify-content:space-between;font-weight:700;"><span>Total</span><span style="color:' + escHtml(p) + ';">' + escHtml(d.total||'') + '</span></div>' +
+            '<button type="button" class="btn-primary" style="width:100%;background:' + escHtml(p) + ';color:#fff;padding:12px;border:none;border-radius:10px;font-weight:700;margin-top:16px;" disabled>Place Order</button>' +
+          '</div>' +
+        '</div>' +
+        '</div></section>';
+    }
+
     default:
       return '<div style="padding:40px;text-align:center;color:#9ca3af;font-size:13px;">Unknown section type: ' + escHtml(sec.type) + '</div>';
   }
@@ -884,6 +1107,63 @@ MediaPicker.open(function(f){\
       html += fI('subtext', 'Subtext', d.subtext);
       html += fI('placeholder', 'Input Placeholder', d.placeholder, 'Enter your email');
       html += fI('cta', 'Button Text', d.cta, 'Subscribe');
+      break;
+
+    // ── Real Estate ──────────────────────────────────────────────────────────
+    case 'property_search':
+      html += fI('headline', 'Headline', d.headline, 'Find Your Dream Home');
+      html += fI('subtext', 'Subtext', d.subtext, 'Thousands of verified properties...');
+      break;
+
+    case 'property_listings':
+      html += fI('heading', 'Heading', d.heading, 'Featured Properties');
+      html += fI('subheading', 'Subheading', d.subheading, 'Hand-picked by our agents');
+      break;
+
+    case 'property_detail':
+      html += fI('title', 'Property Title', d.title, '4 BHK Luxury Villa');
+      html += fI('location', 'Location', d.location, 'City, Area');
+      html += fI('price', 'Price', d.price, '₹2.8 Cr');
+      html += fI('tag', 'Tag', d.tag, 'For Sale');
+      html += fI('desc', 'Description', d.desc, 'Beautiful modern villa...');
+      break;
+
+    case 'agents':
+      html += fI('heading', 'Heading', d.heading, 'Meet Our Agents');
+      html += fI('subheading', 'Subheading', d.subheading);
+      break;
+
+    case 'blog_posts':
+      html += fI('heading', 'Heading', d.heading, 'Latest Articles');
+      html += fI('subheading', 'Subheading', d.subheading);
+      break;
+
+    // ── Ecommerce ────────────────────────────────────────────────────────────
+    case 'category_banner':
+      html += fI('heading', 'Heading', d.heading, 'Shop by Category');
+      break;
+
+    case 'product_grid':
+      html += fI('heading', 'Heading', d.heading, 'Featured Products');
+      break;
+
+    case 'product_detail':
+      html += fI('name', 'Product Name', d.name, 'Product Name');
+      html += fI('category', 'Category', d.category, 'Category');
+      html += fI('price', 'Price', d.price, '₹1,999');
+      html += fI('desc', 'Description', d.desc, 'Add your product description here...');
+      break;
+
+    case 'cart':
+      html += fI('heading', 'Heading', d.heading, 'Your Cart');
+      html += fI('subtotal', 'Subtotal', d.subtotal);
+      html += fI('shipping', 'Shipping', d.shipping, 'Free');
+      html += fI('total', 'Total', d.total);
+      break;
+
+    case 'checkout':
+      html += fI('heading', 'Heading', d.heading, 'Checkout');
+      html += fI('total', 'Total', d.total);
       break;
   }
 
@@ -1471,7 +1751,7 @@ var THEMES_LIST = [
   { id:'ecom-fresh',name:'Fresh Market', desc:'Clean white with emerald green — minimal modern ecommerce', tags:['ecommerce','clean','modern','green'], category:'Clean' },
   { id:'ecom-luxe', name:'Luxe',         desc:'Dark background with gold accents — premium luxury ecommerce', tags:['ecommerce','dark','luxury','gold'], category:'Dark' },
   { id:'ecom-spark',   name:'Spark',        desc:'Bold white with rose accents — energetic streetwear ecommerce', tags:['ecommerce','bold','modern','colorful'], category:'Bold' },
-  { id:'realestate',   name:'Estate',       desc:'Professional navy blue real estate with property listings, agents & blog', tags:['real estate','property','professional','blue'], category:'Professional' }
+  { id:'realestate',   name:'Real Estate',   desc:'Professional navy blue real estate with property listings, agents & blog', tags:['real estate','property','professional','blue'], category:'Professional' }
 ];
 
 /* Per-theme demo starter sections shown in the "import content" dialog */
@@ -1977,7 +2257,19 @@ var PREBUILT_CATS = [
   { id:'columns',      label:'Columns',      icon:'⬛', sub:'Multi-column layouts',            bg:'#f3f4f6' },
   { id:'rich_text',    label:'Rich Text',    icon:'📝', sub:'Text & content blocks',           bg:'#fefce8' },
   { id:'newsletter',   label:'Newsletter',   icon:'📧', sub:'Email subscribe sections',        bg:'#ecfdf5' },
-  { id:'contact',      label:'Contact',      icon:'📬', sub:'Contact forms & info',            bg:'#f8fafc' }
+  { id:'contact',      label:'Contact',      icon:'📬', sub:'Contact forms & info',            bg:'#f8fafc' },
+  // ── Real Estate theme sections ──────────────────────────────────────────
+  { id:'property_search',   label:'Property Search',  icon:'🔍', sub:'Search hero with filters',        bg:'#dbeafe', themes:['realestate'] },
+  { id:'property_listings', label:'Property Grid',    icon:'🏠', sub:'Property cards with specs',       bg:'#e0f2fe', themes:['realestate'] },
+  { id:'property_detail',   label:'Property Detail',  icon:'🏡', sub:'Single property detail page',     bg:'#dcfce7', themes:['realestate'] },
+  { id:'agents',            label:'Agents',           icon:'👔', sub:'Agent profile cards',             bg:'#ede9fe', themes:['realestate'] },
+  { id:'blog_posts',        label:'Blog Posts',       icon:'📰', sub:'Article / blog post grid',        bg:'#fef3c7', themes:['realestate'] },
+  // ── Ecommerce theme sections ────────────────────────────────────────────
+  { id:'category_banner',   label:'Categories',       icon:'🏷', sub:'Category card banners',           bg:'#fef3c7', themes:['ecom-fresh','ecom-luxe','ecom-spark'] },
+  { id:'product_grid',      label:'Product Grid',     icon:'🛍', sub:'Product cards with price',        bg:'#dcfce7', themes:['ecom-fresh','ecom-luxe','ecom-spark'] },
+  { id:'product_detail',    label:'Product Detail',   icon:'📦', sub:'Single product detail page',      bg:'#f5f3ff', themes:['ecom-fresh','ecom-luxe','ecom-spark'] },
+  { id:'cart',              label:'Cart',             icon:'🛒', sub:'Shopping cart page',              bg:'#fff1f2', themes:['ecom-fresh','ecom-luxe','ecom-spark'] },
+  { id:'checkout',          label:'Checkout',         icon:'💳', sub:'Checkout / payment page',         bg:'#eff6ff', themes:['ecom-fresh','ecom-luxe','ecom-spark'] }
 ];
 
 var PREBUILT_VARIANTS = {
@@ -2094,18 +2386,102 @@ var PREBUILT_VARIANTS = {
       data:{ heading:'Get in Touch', email:'contact@example.com', phone:'+91 98765 43210', address:'123 Main Street, City, State' } },
     { label:'Form Only', desc:'Clean form with heading, no contact details', color:'#fff',
       data:{ heading:'Send Us a Message', email:'', phone:'', address:'' } }
+  ],
+  // ── Real Estate sections ─────────────────────────────────────────────────
+  property_search: [
+    { label:'Full Hero Search', desc:'Full-screen hero with bg photo, search filters, and stats', color:'#0f4c81', tag:'popular',
+      data:{ headline:'Find Your Dream Home', subtext:'Thousands of verified properties across top cities.', stats:[{num:'2,500+',label:'Properties'},{num:'850+',label:'Families Served'},{num:'12+',label:'Years Experience'}], bg_image:'' } },
+    { label:'Simple Search Bar', desc:'Search bar with tagline, no stats or full-screen bg', color:'#0f4c81',
+      data:{ headline:'Search Properties', subtext:'Filter by location, type, and budget.', stats:[], bg_image:'' } }
+  ],
+  property_listings: [
+    { label:'3 Properties', desc:'Three property cards with price, beds, baths, and size', color:'#dbeafe', tag:'popular',
+      data:{ heading:'Featured Properties', subheading:'Hand-picked by our agents', properties:[
+        {icon:'🏠',title:'3 BHK Apartment',location:'City, Area',price:'₹1.8 Cr',beds:3,baths:2,sqft:1450,tag:'For Sale'},
+        {icon:'🏡',title:'4 BHK Villa',location:'City, Area',price:'₹2.4 Cr',beds:4,baths:3,sqft:2800,tag:'Featured'},
+        {icon:'🏢',title:'2 BHK Flat',location:'City, Area',price:'₹85 L',beds:2,baths:2,sqft:980,tag:'For Rent'}
+      ] } },
+    { label:'6 Properties', desc:'Six property listings — full listings grid', color:'#dbeafe',
+      data:{ heading:'All Listings', subheading:'Browse our complete collection', properties:[
+        {icon:'🏠',title:'3 BHK Apartment',location:'City, Area',price:'₹1.8 Cr',beds:3,baths:2,sqft:1450,tag:'For Sale'},
+        {icon:'🏡',title:'4 BHK Villa',location:'City, Area',price:'₹2.4 Cr',beds:4,baths:3,sqft:2800,tag:'For Sale'},
+        {icon:'🏢',title:'2 BHK Flat',location:'City, Area',price:'₹85 L',beds:2,baths:2,sqft:980,tag:'For Rent'},
+        {icon:'🏘',title:'Independent House',location:'City, Area',price:'₹1.2 Cr',beds:3,baths:2,sqft:1800,tag:'For Sale'},
+        {icon:'🏙',title:'Studio Apartment',location:'City, Area',price:'₹55 L',beds:1,baths:1,sqft:520,tag:'New'},
+        {icon:'🏗',title:'Commercial Space',location:'City, Area',price:'₹3.2 Cr',sqft:3200,tag:'For Sale'}
+      ] } }
+  ],
+  property_detail: [
+    { label:'Property Detail', desc:'Full property page with specs, features list, and CTA buttons', color:'#dbeafe', tag:'popular',
+      data:{ title:'4 BHK Luxury Villa', location:'City, Area', price:'₹2.8 Cr', icon:'🏠', tag:'For Sale', desc:'Beautiful modern villa with open floor plan and stunning views. Perfect for families looking for spacious living.', beds:4, baths:3, sqft:2800, parking:2, features:['Swimming Pool','Club House','Power Backup','24/7 Security','Landscaped Garden','Children Play Area'] } }
+  ],
+  agents: [
+    { label:'4 Agents', desc:'Four agent profile cards with listings, sold, and years stats', color:'#ede9fe', tag:'popular',
+      data:{ heading:'Meet Our Agents', subheading:'Expert professionals dedicated to finding you the perfect home', items:[
+        {icon:'👩',name:'Agent Name',specialty:'Luxury Residential',listings:48,sold:120,years:8},
+        {icon:'👨',name:'Agent Name',specialty:'Commercial & Investment',listings:35,sold:94,years:6},
+        {icon:'👩',name:'Agent Name',specialty:'Affordable Housing',listings:52,sold:145,years:10},
+        {icon:'👨',name:'Agent Name',specialty:'Plots & Land',listings:29,sold:67,years:5}
+      ] } },
+    { label:'3 Agents', desc:'Three agent profile cards', color:'#ede9fe',
+      data:{ heading:'Our Team', subheading:'Trusted experts ready to help', items:[
+        {icon:'👩',name:'Agent Name',specialty:'Luxury Residential',listings:45,sold:110,years:7},
+        {icon:'👨',name:'Agent Name',specialty:'Commercial',listings:38,sold:90,years:5},
+        {icon:'👩',name:'Agent Name',specialty:'Plots & Land',listings:28,sold:65,years:4}
+      ] } }
+  ],
+  blog_posts: [
+    { label:'3 Posts', desc:'Three blog article cards with category, excerpt, and author', color:'#fef3c7', tag:'popular',
+      data:{ heading:'Latest Articles', subheading:'Expert advice for smarter property decisions', posts:[
+        {icon:'🏠',category:'Buying Guide',title:'10 Things to Check Before Buying a Flat',excerpt:'From legal documentation to structural quality — the complete pre-purchase checklist.',author:'Your Name',date:'Jul 2026'},
+        {icon:'📈',category:'Market Trends',title:'Real Estate Market Outlook 2026',excerpt:'Key data on price movements and the best micro-markets for investment this year.',author:'Your Name',date:'Jul 2026'},
+        {icon:'🔑',category:'Selling Tips',title:'How to Price Your Property Right',excerpt:"Overpricing stalls deals. Here's how to find the perfect price point.",author:'Your Name',date:'Jul 2026'}
+      ] } },
+    { label:'2 Posts', desc:'Two featured article cards', color:'#fef3c7',
+      data:{ heading:'From the Blog', subheading:'', posts:[
+        {icon:'🏠',category:'Buying Guide',title:'Complete Home Buying Guide for First-Time Buyers',excerpt:'Everything you need to know before making your first property purchase.',author:'Your Name',date:'Jul 2026'},
+        {icon:'📈',category:'Investment',title:'Best Cities to Invest in Real Estate Right Now',excerpt:'Our experts analyze the top 5 cities offering the best returns.',author:'Your Name',date:'Jul 2026'}
+      ] } }
+  ],
+  // ── Ecommerce sections ────────────────────────────────────────────────────
+  category_banner: [
+    { label:'4 Categories', desc:'Four category banners with icon and color', color:'#f59e0b', tag:'popular',
+      data:{ heading:'Shop by Category', categories:[{name:'Category 1',icon:'👕',color:'#0f172a',url:'#'},{name:'Category 2',icon:'👖',color:'#1e293b',url:'#'},{name:'Category 3',icon:'🧥',color:'var(--primary)',url:'#'},{name:'Category 4',icon:'🧢',color:'#334155',url:'#'}] } },
+    { label:'3 Categories', desc:'Three category banners', color:'#f59e0b',
+      data:{ heading:'Browse Categories', categories:[{name:'Category 1',icon:'🛍',color:'#0f172a',url:'#'},{name:'Category 2',icon:'💎',color:'var(--primary)',url:'#'},{name:'Category 3',icon:'⭐',color:'#059669',url:'#'}] } }
+  ],
+  product_grid: [
+    { label:'4 Products', desc:'Four product cards in a grid', color:'#dcfce7', tag:'popular',
+      data:{ heading:'Featured Products', products:[{icon:'⭐',name:'Product One',category:'Category',price:'₹999',badge:'New'},{icon:'🔥',name:'Product Two',category:'Category',price:'₹1,499'},{icon:'💎',name:'Product Three',category:'Category',price:'₹2,999'},{icon:'🚀',name:'Product Four',category:'Category',price:'₹799'}] } },
+    { label:'6 Products', desc:'Six product cards — full product grid', color:'#dcfce7',
+      data:{ heading:'All Products', products:[{icon:'⭐',name:'Product 1',category:'Category',price:'₹999'},{icon:'🔥',name:'Product 2',category:'Category',price:'₹1,499'},{icon:'💎',name:'Product 3',category:'Category',price:'₹2,999'},{icon:'🚀',name:'Product 4',category:'Category',price:'₹799'},{icon:'🎯',name:'Product 5',category:'Category',price:'₹599'},{icon:'🌟',name:'Product 6',category:'Category',price:'₹1,299'}] } },
+    { label:'3 Products', desc:'Three hero products with badges', color:'#dcfce7',
+      data:{ heading:'New Arrivals', products:[{icon:'⭐',name:'Product One',category:'Category',price:'₹999',badge:'New'},{icon:'🔥',name:'Product Two',category:'Category',price:'₹1,499',badge:'Hot'},{icon:'💎',name:'Product Three',category:'Category',price:'₹2,999',badge:'Limited'}] } }
+  ],
+  product_detail: [
+    { label:'Product Page', desc:'Full product detail with sizes, colors, quantity, and buy button', color:'#f9fafb', tag:'popular',
+      data:{ name:'Product Name', category:'Category', price:'₹1,999', icon:'👕', desc:'Add your product description here. Talk about materials, fit, and what makes it special.', sizes:['XS','S','M','L','XL','XXL'], colors:['#1f2937','#6b7280','var(--primary)'] } }
+  ],
+  cart: [
+    { label:'Cart Page', desc:'Shopping cart with items, quantities, and order summary', color:'#f9fafb', tag:'popular',
+      data:{ heading:'Your Cart', items:[{icon:'👕',name:'Product Name',variant:'Size: M',qty:1,price:'₹1,999'}], subtotal:'₹1,999', shipping:'Free', total:'₹1,999' } }
+  ],
+  checkout: [
+    { label:'Checkout Page', desc:'Contact, shipping, and payment form with order summary', color:'#f9fafb', tag:'popular',
+      data:{ heading:'Checkout', items:[{name:'Product Name × 1',qty:1,price:'₹1,999'}], subtotal:'₹1,999', shipping:'Free', total:'₹1,999' } }
   ]
 };
 
 var _spActiveCat = 'hero';
 
 function openSectionPicker() {
-  _spActiveCat = 'hero';
+  var themeCats = PREBUILT_CATS.filter(function(c){ return c.themes && c.themes.indexOf(activeTheme) !== -1; });
+  _spActiveCat = themeCats.length ? themeCats[0].id : 'hero';
   _spSearch = '';
   var searchEl = document.getElementById('spSearch');
   if (searchEl) searchEl.value = '';
   spRenderSidebar();
-  spRenderGrid('hero');
+  spRenderGrid(_spActiveCat);
   document.getElementById('sectionPicker').style.display = 'flex';
 }
 
@@ -2117,14 +2493,25 @@ var _spSearch = '';
 
 function spRenderSidebar() {
   var el = document.getElementById('spSidebar');
-  el.innerHTML = '<div class="sp-cat-label">Section type</div>' +
-    PREBUILT_CATS.map(function(cat) {
-      var isActive = cat.id === _spActiveCat;
-      return '<div class="sp-cat-item' + (isActive ? ' active' : '') + '" onclick="spSetCat(\'' + cat.id + '\')">' +
-        '<span class="sp-cat-icon" style="background:' + (cat.bg || '#f3f4f6') + '">' + cat.icon + '</span>' +
-        escHtml(cat.label) +
-      '</div>';
-    }).join('');
+  var themeCats  = PREBUILT_CATS.filter(function(c){ return c.themes && c.themes.indexOf(activeTheme) !== -1; });
+  var genericCats = PREBUILT_CATS.filter(function(c){ return !c.themes; });
+  function renderCatItem(cat) {
+    var isActive = cat.id === _spActiveCat;
+    return '<div class="sp-cat-item' + (isActive ? ' active' : '') + '" onclick="spSetCat(\'' + cat.id + '\')">' +
+      '<span class="sp-cat-icon" style="background:' + (cat.bg || '#f3f4f6') + '">' + cat.icon + '</span>' +
+      escHtml(cat.label) +
+    '</div>';
+  }
+  var html = '';
+  if (themeCats.length) {
+    html += '<div class="sp-cat-label" style="color:var(--primary,#6366f1);">✦ This Theme</div>';
+    html += themeCats.map(renderCatItem).join('');
+    html += '<div class="sp-cat-label" style="margin-top:10px;">General</div>';
+  } else {
+    html += '<div class="sp-cat-label">Section type</div>';
+  }
+  html += genericCats.map(renderCatItem).join('');
+  el.innerHTML = html;
 }
 
 function spSetCat(catId) {
@@ -2762,6 +3149,317 @@ function _spRealisticPreview(type, d, BG, TC, AC, variant) {
                 '<div style="font-size:15px;color:#374151;padding-top:12px;">'+escHtml(row[1])+'</div>' +
               '</div>';
             }).join('') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // ── Real Estate ─────────────────────────────────────────────────────────
+    case 'property_search': {
+      var psStats = d.stats || [{num:'2,500+',label:'Properties'},{num:'850+',label:'Families Served'},{num:'12+',label:'Years'}];
+      return '<div style="background:#0f4c81;min-height:680px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 80px;text-align:center;">' +
+        '<div style="font-size:62px;font-weight:800;color:#ffffff;line-height:1.08;margin-bottom:16px;">'+escHtml(d.headline||'Find Your Dream Home')+'</div>' +
+        '<div style="font-size:18px;color:rgba(255,255,255,0.7);margin-bottom:44px;">'+escHtml(d.subtext||'Thousands of verified properties across top cities.')+'</div>' +
+        '<div style="background:#fff;border-radius:16px;padding:20px 24px;display:flex;gap:12px;width:100%;max-width:900px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">' +
+          '<div style="flex:1.5;border:1.5px solid #e5e7eb;border-radius:10px;height:52px;display:flex;align-items:center;padding:0 16px;font-size:14px;color:#9ca3af;">📍 City or Area</div>' +
+          '<div style="flex:1;border:1.5px solid #e5e7eb;border-radius:10px;height:52px;display:flex;align-items:center;padding:0 16px;font-size:14px;color:#9ca3af;">🏠 Type</div>' +
+          '<div style="flex:1;border:1.5px solid #e5e7eb;border-radius:10px;height:52px;display:flex;align-items:center;padding:0 16px;font-size:14px;color:#9ca3af;">💰 Budget</div>' +
+          '<div style="background:#0f4c81;border-radius:10px;height:52px;padding:0 32px;display:flex;align-items:center;font-size:15px;font-weight:700;color:#fff;white-space:nowrap;flex-shrink:0;">Search</div>' +
+        '</div>' +
+        (psStats.length ? '<div style="display:flex;gap:56px;margin-top:56px;">' +
+          psStats.slice(0,3).map(function(s){ return '<div style="text-align:center;"><div style="font-size:38px;font-weight:800;color:#fff;">'+escHtml(s.num||'')+'</div><div style="font-size:13px;color:rgba(255,255,255,0.65);margin-top:4px;">'+escHtml(s.label||'')+'</div></div>'; }).join('') +
+        '</div>' : '') +
+      '</div>';
+    }
+
+    case 'property_listings': {
+      var plProps = (d.properties || []).slice(0,3);
+      if (!plProps.length) plProps = [
+        {icon:'🏠',title:'3 BHK Apartment',location:'City, Area',price:'₹1.8 Cr',beds:3,baths:2,sqft:1450,tag:'For Sale'},
+        {icon:'🏡',title:'4 BHK Villa',location:'City, Area',price:'₹2.4 Cr',beds:4,baths:3,sqft:2800,tag:'Featured'},
+        {icon:'🏢',title:'2 BHK Flat',location:'City, Area',price:'₹85 L',beds:2,baths:2,sqft:980,tag:'For Rent'}
+      ];
+      return '<div style="background:#f8fafc;padding:80px 80px;">' +
+        '<div style="text-align:center;margin-bottom:48px;">' +
+          '<div style="font-size:48px;font-weight:800;color:#0f172a;">'+escHtml(d.heading||'Featured Properties')+'</div>' +
+          (d.subheading?'<div style="font-size:17px;color:#64748b;margin-top:10px;">'+escHtml(d.subheading)+'</div>':'') +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">' +
+          plProps.slice(0,3).map(function(p){
+            var ptag = p.tag||'';
+            var tagColor = ptag==='Featured'?'#f59e0b':'#0f4c81';
+            return '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;">' +
+              '<div style="background:linear-gradient(135deg,#0f4c81,#2563eb);height:180px;display:flex;align-items:center;justify-content:center;position:relative;">' +
+                '<div style="font-size:72px;opacity:0.18;position:absolute;">'+escHtml(p.icon||'🏠')+'</div>' +
+                (ptag?'<div style="position:absolute;top:14px;left:14px;background:'+tagColor+';color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;">'+escHtml(ptag)+'</div>':'') +
+                '<div style="position:absolute;bottom:14px;right:14px;background:rgba(255,255,255,0.15);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;">♡</div>' +
+              '</div>' +
+              '<div style="padding:20px;">' +
+                '<div style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:6px;">'+escHtml(p.title||'Property')+'</div>' +
+                '<div style="font-size:13px;color:#64748b;margin-bottom:14px;">📍 '+escHtml(p.location||'Location')+'</div>' +
+                '<div style="display:flex;gap:16px;font-size:12px;color:#64748b;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">' +
+                  (p.beds?'<span>🛏 '+p.beds+' Beds</span>':'') +
+                  (p.baths?'<span>🚿 '+p.baths+' Baths</span>':'') +
+                  (p.sqft?'<span>📐 '+p.sqft+'</span>':'') +
+                '</div>' +
+                '<div style="font-size:20px;font-weight:800;color:#0f4c81;">'+escHtml(p.price||'₹1 Cr')+'</div>' +
+              '</div>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    }
+
+    case 'property_detail': {
+      var pdFeats = (d.features || ['Swimming Pool','Club House','Power Backup','24/7 Security','Landscaped Garden','Children Play Area']).slice(0,6);
+      return '<div style="background:#fff;padding:64px 64px;">' +
+        '<div style="display:grid;grid-template-columns:1.3fr 0.7fr;gap:56px;">' +
+          '<div>' +
+            '<div style="background:linear-gradient(135deg,#0f4c81,#2563eb);border-radius:20px;height:340px;display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:20px;">' +
+              '<div style="font-size:110px;opacity:0.18;">'+escHtml(d.icon||'🏠')+'</div>' +
+              (d.tag?'<div style="position:absolute;top:20px;left:20px;background:#0f4c81;color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:20px;">'+escHtml(d.tag)+'</div>':'') +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">' +
+              [0,1,2,3].map(function(){ return '<div style="background:#dbeafe;border-radius:10px;height:68px;"></div>'; }).join('') +
+            '</div>' +
+          '</div>' +
+          '<div>' +
+            '<div style="font-size:30px;font-weight:800;color:#0f172a;margin-bottom:8px;">'+escHtml(d.title||'4 BHK Luxury Villa')+'</div>' +
+            '<div style="font-size:13px;color:#64748b;margin-bottom:18px;">📍 '+escHtml(d.location||'City, Area')+'</div>' +
+            '<div style="font-size:32px;font-weight:800;color:#0f4c81;margin-bottom:20px;">'+escHtml(d.price||'₹2.8 Cr')+'</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:16px;background:#f8fafc;border-radius:12px;margin-bottom:20px;">' +
+              [['🛏',d.beds||4,'Bedrooms'],['🚿',d.baths||3,'Bathrooms'],['📐',(d.sqft||2800)+' sqft','Area'],['🚗',d.parking||2,'Parking']].map(function(spec){
+                return '<div style="text-align:center;padding:8px;"><div style="font-size:18px;">'+spec[0]+'</div><div style="font-size:15px;font-weight:700;color:#0f172a;">'+spec[1]+'</div><div style="font-size:11px;color:#64748b;">'+spec[2]+'</div></div>';
+              }).join('') +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">' +
+              pdFeats.map(function(f3){ return '<div style="font-size:12px;color:#374151;">✓ '+escHtml(f3)+'</div>'; }).join('') +
+            '</div>' +
+            '<div style="display:flex;flex-direction:column;gap:10px;">' +
+              '<div style="background:#0f4c81;color:#fff;padding:14px;border-radius:10px;font-size:14px;font-weight:700;text-align:center;">Schedule a Visit</div>' +
+              '<div style="border:1.5px solid #0f4c81;color:#0f4c81;padding:13px;border-radius:10px;font-size:14px;font-weight:700;text-align:center;">Contact Agent</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    case 'agents': {
+      var agItems = (d.items || []).slice(0,4);
+      if (!agItems.length) agItems = [
+        {icon:'👩',name:'Agent Name',specialty:'Luxury Residential',listings:48,sold:120,years:8},
+        {icon:'👨',name:'Agent Name',specialty:'Commercial & Investment',listings:35,sold:94,years:6},
+        {icon:'👩',name:'Agent Name',specialty:'Affordable Housing',listings:52,sold:145,years:10},
+        {icon:'👨',name:'Agent Name',specialty:'Plots & Land',listings:29,sold:67,years:5}
+      ];
+      return '<div style="background:#f8fafc;padding:80px 80px;">' +
+        '<div style="text-align:center;margin-bottom:48px;">' +
+          '<div style="font-size:48px;font-weight:800;color:#0f172a;">'+escHtml(d.heading||'Meet Our Agents')+'</div>' +
+          (d.subheading?'<div style="font-size:16px;color:#64748b;margin-top:10px;">'+escHtml(d.subheading)+'</div>':'') +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat('+Math.min(agItems.length,4)+',1fr);gap:20px;">' +
+          agItems.map(function(ag){
+            return '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:24px;text-align:center;">' +
+              '<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#0f4c81,#2563eb);display:flex;align-items:center;justify-content:center;font-size:42px;margin:0 auto 14px;">'+escHtml(ag.icon||'👤')+'</div>' +
+              '<div style="font-size:17px;font-weight:700;color:#0f172a;margin-bottom:4px;">'+escHtml(ag.name||'Agent')+'</div>' +
+              '<div style="font-size:12px;color:#0f4c81;font-weight:600;margin-bottom:16px;">'+escHtml(ag.specialty||'Residential')+'</div>' +
+              '<div style="display:flex;justify-content:space-around;padding:12px 0;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;margin-bottom:16px;">' +
+                '<div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:#0f4c81;">'+(ag.listings||0)+'</div><div style="font-size:10px;color:#94a3b8;">Listings</div></div>' +
+                '<div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:#0f4c81;">'+(ag.sold||0)+'</div><div style="font-size:10px;color:#94a3b8;">Sold</div></div>' +
+                '<div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:#0f4c81;">'+(ag.years||0)+'y</div><div style="font-size:10px;color:#94a3b8;">Exp</div></div>' +
+              '</div>' +
+              '<div style="background:#0f4c81;color:#fff;padding:10px;border-radius:8px;font-size:13px;font-weight:600;">Contact</div>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    }
+
+    case 'blog_posts': {
+      var bpPosts = (d.posts || []).slice(0,3);
+      if (!bpPosts.length) bpPosts = [
+        {icon:'🏠',category:'Buying Guide',title:'10 Things to Check Before Buying a Flat',excerpt:'The complete pre-purchase checklist.',author:'Your Name',date:'Jul 2026'},
+        {icon:'📈',category:'Market Trends',title:'Real Estate Market Outlook 2026',excerpt:'Key data on price movements.',author:'Your Name',date:'Jul 2026'},
+        {icon:'🔑',category:'Selling Tips',title:'How to Price Your Property Right',excerpt:"Find the perfect price point.",author:'Your Name',date:'Jul 2026'}
+      ];
+      return '<div style="background:#fff;padding:80px 80px;">' +
+        '<div style="text-align:center;margin-bottom:48px;">' +
+          '<div style="font-size:48px;font-weight:800;color:#0f172a;">'+escHtml(d.heading||'Latest Articles')+'</div>' +
+          (d.subheading?'<div style="font-size:16px;color:#64748b;margin-top:10px;">'+escHtml(d.subheading)+'</div>':'') +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">' +
+          bpPosts.slice(0,3).map(function(post){
+            return '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;">' +
+              '<div style="background:linear-gradient(135deg,#0f4c81,#2563eb);height:160px;display:flex;align-items:center;justify-content:center;">' +
+                '<div style="font-size:72px;opacity:0.2;">'+escHtml(post.icon||'📰')+'</div>' +
+              '</div>' +
+              '<div style="padding:20px;">' +
+                '<div style="font-size:11px;font-weight:700;color:#0f4c81;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">'+escHtml(post.category||'Article')+'</div>' +
+                '<div style="font-size:17px;font-weight:700;color:#0f172a;margin-bottom:10px;line-height:1.35;">'+escHtml(post.title||'')+'</div>' +
+                '<div style="font-size:13px;color:#64748b;line-height:1.6;margin-bottom:16px;">'+escHtml(post.excerpt||'')+'</div>' +
+                '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+                  '<div style="font-size:12px;color:#94a3b8;">'+escHtml(post.author||'')+' · '+escHtml(post.date||'')+'</div>' +
+                  '<div style="font-size:12px;color:#0f4c81;font-weight:600;">Read →</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    }
+
+    // ── Ecommerce ────────────────────────────────────────────────────────────
+    case 'category_banner': {
+      var cbCats = (d.categories || [{name:'Category 1',icon:'👕'},{name:'Category 2',icon:'👖'},{name:'Category 3',icon:'🧥'},{name:'Category 4',icon:'🧢'}]).slice(0,4);
+      var cbColors = ['#1f2937','#3730a3','#0f4c81','#334155'];
+      return '<div style="background:#fff;padding:80px 80px;">' +
+        '<div style="text-align:center;font-size:48px;font-weight:800;color:#111827;margin-bottom:48px;">'+escHtml(d.heading||'Shop by Category')+'</div>' +
+        '<div style="display:grid;grid-template-columns:repeat('+cbCats.length+',1fr);gap:20px;">' +
+          cbCats.map(function(cat,ci){
+            var cbg = cbColors[ci] || cbColors[0];
+            return '<div style="background:'+cbg+';border-radius:20px;padding:40px 24px;text-align:center;">' +
+              '<div style="font-size:52px;margin-bottom:16px;">'+escHtml(cat.icon||'🛍')+'</div>' +
+              '<div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:10px;">'+escHtml(cat.name||'Category')+'</div>' +
+              '<div style="font-size:13px;color:rgba(255,255,255,0.6);">Shop Now →</div>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    }
+
+    case 'product_grid': {
+      var pgProds = (d.products || []).slice(0,4);
+      if (!pgProds.length) pgProds = [
+        {icon:'⭐',name:'Product One',category:'Category',price:'₹999',badge:'New'},
+        {icon:'🔥',name:'Product Two',category:'Category',price:'₹1,499'},
+        {icon:'💎',name:'Product Three',category:'Category',price:'₹2,999'},
+        {icon:'🚀',name:'Product Four',category:'Category',price:'₹799'}
+      ];
+      return '<div style="background:#f9fafb;padding:80px 80px;">' +
+        '<div style="text-align:center;font-size:48px;font-weight:800;color:#111827;margin-bottom:48px;">'+escHtml(d.heading||'Featured Products')+'</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">' +
+          pgProds.slice(0,4).map(function(p){
+            return '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">' +
+              '<div style="background:linear-gradient(135deg,'+AC+'22,'+AC+'08);height:160px;display:flex;align-items:center;justify-content:center;position:relative;">' +
+                '<div style="font-size:64px;opacity:0.65;">'+escHtml(p.icon||'🛍')+'</div>' +
+                (p.badge?'<div style="position:absolute;top:10px;left:10px;background:'+AC+';color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;">'+escHtml(p.badge)+'</div>':'') +
+              '</div>' +
+              '<div style="padding:14px;">' +
+                '<div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">'+escHtml(p.category||'Category')+'</div>' +
+                '<div style="font-size:15px;font-weight:700;color:#111827;margin-bottom:8px;">'+escHtml(p.name||'Product')+'</div>' +
+                '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+                  '<div style="font-size:17px;font-weight:800;color:'+AC+';">'+escHtml(p.price||'₹999')+'</div>' +
+                  '<div style="width:32px;height:32px;background:'+AC+';border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;line-height:1;">+</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    }
+
+    case 'product_detail': {
+      var pdSizes = d.sizes || ['XS','S','M','L','XL','XXL'];
+      return '<div style="background:#fff;padding:64px 64px;">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;">' +
+          '<div>' +
+            '<div style="background:linear-gradient(135deg,'+AC+'18,'+AC+'06);border-radius:20px;height:360px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">' +
+              '<div style="font-size:120px;opacity:0.45;">'+escHtml(d.icon||'👕')+'</div>' +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">' +
+              [0,1,2,3].map(function(){ return '<div style="background:'+AC+'14;border:1.5px solid '+AC+'22;border-radius:10px;height:68px;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.55;">'+escHtml(d.icon||'👕')+'</div>'; }).join('') +
+            '</div>' +
+          '</div>' +
+          '<div>' +
+            '<div style="font-size:11px;color:#9ca3af;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;">'+escHtml(d.category||'Category')+'</div>' +
+            '<div style="font-size:34px;font-weight:800;color:#111827;margin-bottom:14px;line-height:1.2;">'+escHtml(d.name||'Product Name')+'</div>' +
+            '<div style="font-size:36px;font-weight:800;color:'+AC+';margin-bottom:24px;">'+escHtml(d.price||'₹1,999')+'</div>' +
+            '<div style="font-size:14px;color:#6b7280;line-height:1.7;margin-bottom:28px;">'+escHtml((d.desc||'Add your product description here.').slice(0,100))+'</div>' +
+            '<div style="margin-bottom:24px;">' +
+              '<div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:10px;">Select Size</div>' +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+                pdSizes.slice(0,6).map(function(s){ return '<div style="border:1.5px solid #e5e7eb;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;color:#374151;">'+escHtml(s)+'</div>'; }).join('') +
+              '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:12px;">' +
+              '<div style="flex:1;background:'+AC+';color:#fff;padding:15px;border-radius:11px;font-size:15px;font-weight:700;text-align:center;">Add to Cart</div>' +
+              '<div style="width:52px;height:52px;border:1.5px solid #e5e7eb;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;">♡</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    case 'cart': {
+      var ctItems = (d.items || [{icon:'👕',name:'Product Name',variant:'Size: M',qty:1,price:'₹1,999'}]).slice(0,3);
+      return '<div style="background:#f9fafb;padding:64px 80px;">' +
+        '<div style="font-size:42px;font-weight:800;color:#111827;margin-bottom:36px;">'+escHtml(d.heading||'Your Cart')+'</div>' +
+        '<div style="display:grid;grid-template-columns:1.4fr 0.6fr;gap:28px;">' +
+          '<div style="background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;padding:28px;display:flex;flex-direction:column;gap:20px;">' +
+            ctItems.map(function(item,ii){
+              return (ii>0?'<div style="height:1px;background:#f3f4f6;margin:-10px 0;"></div>':'')+
+                '<div style="display:flex;gap:18px;align-items:center;">' +
+                  '<div style="width:72px;height:72px;background:'+AC+'16;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;">'+escHtml(item.icon||'🛍')+'</div>' +
+                  '<div style="flex:1;">' +
+                    '<div style="font-size:16px;font-weight:700;color:#111827;">'+escHtml(item.name||'Product')+'</div>' +
+                    '<div style="font-size:13px;color:#9ca3af;">'+escHtml(item.variant||'')+'</div>' +
+                  '</div>' +
+                  '<div style="text-align:right;">' +
+                    '<div style="font-size:17px;font-weight:700;color:'+AC+';">'+escHtml(item.price||'₹0')+'</div>' +
+                    '<div style="font-size:13px;color:#9ca3af;margin-top:4px;">Qty: '+(item.qty||1)+'</div>' +
+                  '</div>' +
+                '</div>';
+            }).join('') +
+          '</div>' +
+          '<div style="background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;padding:28px;">' +
+            '<div style="font-size:20px;font-weight:700;color:#111827;margin-bottom:20px;">Order Summary</div>' +
+            [['Subtotal',d.subtotal||'₹1,999'],['Shipping',d.shipping||'Free'],['Total',d.total||'₹1,999']].map(function(row,ri){
+              return '<div style="display:flex;justify-content:space-between;margin-bottom:14px;'+(ri===2?'padding-top:14px;border-top:1.5px solid #e5e7eb;font-weight:700;font-size:17px;':'')+'">' +
+                '<span style="color:'+(ri===2?'#111827':'#6b7280')+'">'+row[0]+'</span>' +
+                '<span style="color:'+(ri===2?AC:'#111827')+'">'+row[1]+'</span>' +
+              '</div>';
+            }).join('') +
+            '<div style="background:'+AC+';color:#fff;padding:15px;border-radius:11px;font-size:15px;font-weight:700;text-align:center;margin-top:8px;">Proceed to Checkout</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    case 'checkout': {
+      var coItems = (d.items || [{name:'Product Name × 1',price:'₹1,999'}]).slice(0,3);
+      return '<div style="background:#f9fafb;padding:64px 80px;">' +
+        '<div style="font-size:42px;font-weight:800;color:#111827;margin-bottom:36px;">'+escHtml(d.heading||'Checkout')+'</div>' +
+        '<div style="display:grid;grid-template-columns:1.4fr 0.6fr;gap:28px;">' +
+          '<div style="display:flex;flex-direction:column;gap:20px;">' +
+            '<div style="background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;padding:24px;">' +
+              '<div style="font-size:16px;font-weight:700;color:#111827;margin-bottom:16px;">Contact Information</div>' +
+              ['Full Name','Email Address','Phone Number'].map(function(lbl){
+                return '<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">'+lbl+'</div><div style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;height:40px;"></div></div>';
+              }).join('') +
+            '</div>' +
+            '<div style="background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;padding:24px;">' +
+              '<div style="font-size:16px;font-weight:700;color:#111827;margin-bottom:16px;">Shipping Address</div>' +
+              ['Address','City','PIN Code'].map(function(lbl){
+                return '<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">'+lbl+'</div><div style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;height:40px;"></div></div>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
+          '<div style="background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;padding:24px;">' +
+            '<div style="font-size:18px;font-weight:700;color:#111827;margin-bottom:20px;">Order Summary</div>' +
+            coItems.map(function(item){
+              return '<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:14px;">' +
+                '<span style="color:#374151;">'+escHtml(item.name||'Product')+'</span>' +
+                '<span style="font-weight:600;color:#111827;">'+escHtml(item.price||'₹0')+'</span>' +
+              '</div>';
+            }).join('') +
+            '<div style="height:1px;background:#f3f4f6;margin:16px 0;"></div>' +
+            [['Subtotal',d.subtotal||'₹1,999'],['Shipping',d.shipping||'Free'],['Total',d.total||'₹1,999']].map(function(row,ri){
+              return '<div style="display:flex;justify-content:space-between;margin-bottom:10px;'+(ri===2?'font-weight:700;font-size:16px;':'')+'">' +
+                '<span style="color:'+(ri===2?'#111827':'#6b7280')+'">'+row[0]+'</span>' +
+                '<span style="color:'+(ri===2?AC:'#374151')+'">'+row[1]+'</span>' +
+              '</div>';
+            }).join('') +
+            '<div style="background:'+AC+';color:#fff;padding:14px;border-radius:11px;font-size:14px;font-weight:700;text-align:center;margin-top:16px;">Place Order</div>' +
           '</div>' +
         '</div>' +
       '</div>';
