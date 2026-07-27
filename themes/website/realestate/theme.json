@@ -1,0 +1,8 @@
+{
+  "id": "realestate",
+  "name": "Estate",
+  "description": "Professional navy blue real estate theme with property listings, agents and blog",
+  "preview": ["#0f4c81", "#e0f2fe", "#1e293b"],
+  "font": "Plus Jakarta Sans",
+  "order": 7
+}

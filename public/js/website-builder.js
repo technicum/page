@@ -1470,7 +1470,8 @@ var THEMES_LIST = [
   { id:'bold',      name:'Dark',         desc:'Full dark theme with glass cards and neon purple glow', tags:['dark','bold','neon','modern'], category:'Dark' },
   { id:'ecom-fresh',name:'Fresh Market', desc:'Clean white with emerald green — minimal modern ecommerce', tags:['ecommerce','clean','modern','green'], category:'Clean' },
   { id:'ecom-luxe', name:'Luxe',         desc:'Dark background with gold accents — premium luxury ecommerce', tags:['ecommerce','dark','luxury','gold'], category:'Dark' },
-  { id:'ecom-spark',name:'Spark',        desc:'Bold white with rose accents — energetic streetwear ecommerce', tags:['ecommerce','bold','modern','colorful'], category:'Bold' }
+  { id:'ecom-spark',   name:'Spark',        desc:'Bold white with rose accents — energetic streetwear ecommerce', tags:['ecommerce','bold','modern','colorful'], category:'Bold' },
+  { id:'realestate',   name:'Estate',       desc:'Professional navy blue real estate with property listings, agents & blog', tags:['real estate','property','professional','blue'], category:'Professional' }
 ];
 
 /* Per-theme demo starter sections shown in the "import content" dialog */
@@ -1492,6 +1493,17 @@ var THEME_STARTER_SECTIONS = {
     { type:'services',     data:{ heading:'Latest Drops', items:[{icon:'🔥',title:'Oversized Tee',desc:'Heavy cotton, washed finish — built for the streets.',price:'₹899'},{icon:'⚡',title:'Cargo Shorts',desc:'6-pocket utility with elastic waistband.',price:'₹1,299'},{icon:'👟',title:'Sport Cap',desc:'Unstructured fit, embroidered logo.',price:'₹499'}] } },
     { type:'testimonials', data:{ heading:'The Community', items:[{name:'Dev T.',role:'Hype Collector',quote:'Every drop is straight 🔥 — sold out in minutes for a reason.'},{name:'Zara K.',role:'Style Creator',quote:'Finally a brand that actually has taste.'}] } },
     { type:'contact',      data:{ heading:'Hit Us Up', email:'hello@mystore.com', phone:'', address:'', show_form:true } }
+  ],
+  'realestate': [
+    { type:'property_search', data:{ headline:'Find Your Dream Home', subtext:'Thousands of verified properties. Your perfect home is one search away.', stats:[{num:'2,500+',label:'Properties'},{num:'850+',label:'Families'},{num:'12+',label:'Years'},{num:'98%',label:'Satisfaction'}], bg_image:'' } },
+    { type:'property_listings', data:{ heading:'Featured Properties', subheading:'Hand-picked by our agents', properties:[
+      {icon:'🏠',title:'3 BHK Apartment',location:'Bandra West, Mumbai',price:'₹1.8 Cr',beds:3,baths:2,sqft:1450,tag:'For Sale'},
+      {icon:'🏡',title:'4 BHK Villa',location:'Whitefield, Bangalore',price:'₹2.4 Cr',beds:4,baths:3,sqft:2800,tag:'Featured'},
+      {icon:'🏢',title:'2 BHK Flat',location:'Dwarka, Delhi',price:'₹85 L',beds:2,baths:2,sqft:980,tag:'New'}
+    ], cta_label:'View All Properties', cta_url:'#' } },
+    { type:'services',    data:{ heading:'Why Choose Us', items:[{icon:'🔑',title:'Verified Listings',desc:'Every property is personally inspected before listing.'},{icon:'📊',title:'Market Expertise',desc:'12+ years of data to help you buy at the right price.'},{icon:'🤝',title:'End-to-End Support',desc:'From home loan to registration, we guide every step.'}] } },
+    { type:'testimonials',data:{ heading:'What Our Clients Say', items:[{name:'Rajesh Kumar',role:'Home Buyer, Mumbai',quote:'Found our dream 3BHK in just 2 weeks. Incredible team!'},{name:'Priya Nair',role:'Property Investor',quote:'Best real estate experience I have ever had.'}] } },
+    { type:'contact',     data:{ heading:'Talk to an Agent', email:'hello@estate.in', phone:'+91 98765 43210', address:'', show_form:true } }
   ]
 };
 

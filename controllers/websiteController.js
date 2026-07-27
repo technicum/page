@@ -67,6 +67,49 @@ function buildPagesForTheme(themeId, siteName, ts) {
           { id:uuidv4(), type:'contact',      data:{ heading:'Get in Touch', email:'', phone:'', address:'', show_form:true }}
         ])}
     ]
+  } else if (themeId === 'realestate') {
+    return [
+      { title:'Home', slug:'home', is_home:1, sections: JSON.stringify([
+          { id:uuidv4(), type:'property_search', data:{ headline:`Find Your Dream Home with ${siteName}`, subtext:'Thousands of verified properties across top cities. Your perfect home is one search away.', stats:[{num:'2,500+',label:'Properties'},{num:'850+',label:'Happy Families'},{num:'12+',label:'Years'},{num:'98%',label:'Satisfaction'}], bg_image:'' }},
+          { id:uuidv4(), type:'property_listings', data:{ heading:'Featured Properties', subheading:'Hand-picked by our expert agents', properties:[
+            {icon:'🏠',title:'3 BHK Apartment',location:'Bandra West, Mumbai',price:'₹1.8 Cr',beds:3,baths:2,sqft:1450,tag:'For Sale'},
+            {icon:'🏡',title:'4 BHK Villa',location:'Whitefield, Bangalore',price:'₹2.4 Cr',beds:4,baths:3,sqft:2800,tag:'Featured'},
+            {icon:'🏢',title:'2 BHK Flat',location:'Dwarka, Delhi',price:'₹85 L',beds:2,baths:2,sqft:980,tag:'New'}
+          ], cta_label:'View All Properties', cta_url:'/properties'}},
+          { id:uuidv4(), type:'services', data:{ heading:'Why Choose Us', items:[{icon:'🔑',title:'Verified Listings',desc:'Every property is personally verified by our agents for complete peace of mind.'},{icon:'📊',title:'Market Expertise',desc:'12+ years of market data to help you buy or sell at the right price.'},{icon:'🤝',title:'End-to-End Support',desc:'From shortlisting to registration, we guide you through every step.'}]}},
+          { id:uuidv4(), type:'testimonials', data:{ heading:'What Our Clients Say', items:[{name:'Rajesh Kumar',role:'Home Buyer, Mumbai',quote:'Found our dream 3BHK in just 2 weeks. The team was incredibly professional and transparent throughout.'},{name:'Priya Singh',role:'Property Investor',quote:"Best real estate experience I've had. They knew exactly what I was looking for and didn't waste my time."},{name:'Ankit Sharma',role:'First-time Buyer',quote:'As a first-time buyer I had so many doubts. The team walked me through everything patiently.'}]}},
+          { id:uuidv4(), type:'contact', data:{ heading:'Talk to an Agent', email:'hello@estate.in', phone:'+91 98765 43210', address:'123 Business Park, Mumbai 400001', show_form:true }}
+        ])},
+      { title:'About', slug:'about', is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero', data:{ headline:`About ${siteName}`, subheadline:'Trusted real estate partner since 2012. Building relationships, not just transactions.', cta_label:'Meet Our Team', cta_url:'/agents', cta2_label:'Our Properties', cta2_url:'/properties', bg_color:ts.primary, text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'about', data:{ heading:'Our Story', text:`${siteName} was founded with a simple belief: buying or selling a home should be a joyful experience, not a stressful one. Over 12 years we've helped 850+ families find their perfect homes across India's top cities.`, image:'', layout:'image_right' }},
+          { id:uuidv4(), type:'stats', data:{ heading:'', items:[{number:'2,500+',label:'Active Listings',emoji:'🏠'},{number:'850+',label:'Happy Families',emoji:'👨‍👩‍👧'},{number:'12',label:'Years Experience',emoji:'🏆'},{number:'98%',label:'Client Satisfaction',emoji:'⭐'}]}},
+          { id:uuidv4(), type:'agents', data:{ heading:'Meet Our Agents', subheading:'Expert professionals dedicated to finding you the perfect home', items:[{icon:'👩',name:'Priya Sharma',specialty:'Luxury Residential',listings:48,sold:120,years:8},{icon:'👨',name:'Rahul Mehta',specialty:'Commercial & Investment',listings:35,sold:94,years:6},{icon:'👩',name:'Ananya Patel',specialty:'Affordable Housing',listings:52,sold:145,years:10},{icon:'👨',name:'Vikram Singh',specialty:'Plots & Land',listings:29,sold:67,years:5}]}}
+        ])},
+      { title:'Properties', slug:'properties', is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'property_search', data:{ headline:'Browse All Properties', subtext:'Filter by location, type, and budget to find your ideal home.', stats:[], bg_image:'' }},
+          { id:uuidv4(), type:'property_listings', data:{ heading:'All Listings', subheading:'', properties:[
+            {icon:'🏠',title:'3 BHK Apartment',location:'Bandra West, Mumbai',price:'₹1.8 Cr',beds:3,baths:2,sqft:1450,tag:'For Sale'},
+            {icon:'🏡',title:'4 BHK Villa',location:'Whitefield, Bangalore',price:'₹2.4 Cr',beds:4,baths:3,sqft:2800,tag:'For Sale'},
+            {icon:'🏢',title:'2 BHK Flat',location:'Dwarka, Delhi',price:'₹85 L',beds:2,baths:2,sqft:980,tag:'For Rent'},
+            {icon:'🏘️',title:'Independent House',location:'Koramangala, Bangalore',price:'₹1.2 Cr',beds:3,baths:2,sqft:1800,tag:'For Sale'},
+            {icon:'🏙️',title:'Studio Apartment',location:'Andheri East, Mumbai',price:'₹55 L',beds:1,baths:1,sqft:520,tag:'New'},
+            {icon:'🏗️',title:'Commercial Space',location:'Connaught Place, Delhi',price:'₹3.2 Cr',sqft:3200,tag:'For Sale'}
+          ]}}
+        ])},
+      { title:'Contact', slug:'contact', is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero', data:{ headline:'Get in Touch', subheadline:"Whether you're buying, selling, or just exploring — we'd love to hear from you.", cta_label:'', cta_url:'', bg_color:ts.primary, text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'contact', data:{ heading:'Reach Out to Us', email:'hello@estate.in', phone:'+91 98765 43210', address:'123 Business Park, Lower Parel, Mumbai 400013', show_form:true }}
+        ])},
+      { title:'Blog', slug:'blog', is_home:0, sections: JSON.stringify([
+          { id:uuidv4(), type:'hero', data:{ headline:'Real Estate Insights', subheadline:'Market trends, home buying guides, and investment tips from our experts.', cta_label:'', cta_url:'', bg_color:ts.primary, text_color:'#ffffff', layout:'centered' }},
+          { id:uuidv4(), type:'blog_posts', data:{ heading:'Latest Articles', subheading:'', posts:[
+            {icon:'🏠',category:'Buying Guide',title:'10 Things to Check Before Buying a Flat in Mumbai',excerpt:'From legal documentation to structural quality — a complete pre-purchase checklist every buyer should follow.',author:'Priya Sharma',date:'Jul 20, 2026'},
+            {icon:'📈',category:'Market Trends',title:'Bangalore Real Estate Market Report — Q2 2026',excerpt:'Key data on price movements, demand hotspots, and the best micro-markets for investment this quarter.',author:'Rahul Mehta',date:'Jul 12, 2026'},
+            {icon:'🔑',category:'Selling Tips',title:'How to Price Your Property Right in a Competitive Market',excerpt:'Overpricing stalls deals. Underpricing leaves money on the table. Here\'s how to find the sweet spot.',author:'Ananya Patel',date:'Jul 5, 2026'}
+          ]}}
+        ])}
+    ]
   } else {
     return [
       { title:'Home', slug:'home', is_home:1, sections: JSON.stringify([
@@ -108,12 +151,13 @@ exports.index = async (req, res) => {
    POST /dashboard/website/create
    ═══════════════════════════════════════════════════════════════════════════ */
 const THEME_SETTINGS_MAP = {
-  'default':    { font: 'Inter',               primary: '#6366f1', text: '#111827', bg: '#ffffff' },
-  'minimal':    { font: 'Playfair Display',    primary: '#b45309', text: '#1c1917', bg: '#fdf8f0' },
-  'bold':       { font: 'Inter',               primary: '#8b5cf6', text: '#e2e8f0', bg: '#0f0f1a' },
-  'ecom-fresh': { font: 'Inter',               primary: '#059669', text: '#111827', bg: '#ffffff' },
-  'ecom-luxe':  { font: 'Cormorant Garamond',  primary: '#d4af37', text: '#f5f0e8', bg: '#0a0a0f' },
-  'ecom-spark': { font: 'DM Sans',             primary: '#f43f5e', text: '#0f172a', bg: '#ffffff' }
+  'default':     { font: 'Inter',               primary: '#6366f1', text: '#111827', bg: '#ffffff' },
+  'minimal':     { font: 'Playfair Display',    primary: '#b45309', text: '#1c1917', bg: '#fdf8f0' },
+  'bold':        { font: 'Inter',               primary: '#8b5cf6', text: '#e2e8f0', bg: '#0f0f1a' },
+  'ecom-fresh':  { font: 'Inter',               primary: '#059669', text: '#111827', bg: '#ffffff' },
+  'ecom-luxe':   { font: 'Cormorant Garamond',  primary: '#d4af37', text: '#f5f0e8', bg: '#0a0a0f' },
+  'ecom-spark':  { font: 'DM Sans',             primary: '#f43f5e', text: '#0f172a', bg: '#ffffff' },
+  'realestate':  { font: 'Plus Jakarta Sans',   primary: '#0f4c81', text: '#1e293b', bg: '#ffffff' }
 }
 
 exports.create = async (req, res) => {
@@ -637,6 +681,75 @@ const THEME_DEMO_DATA = {
             ],
             subtotal:'₹5,696', shipping:'Free', total:'₹5,696'
           }}
+        ]
+      }
+    ]
+  },
+  'realestate': {
+    title: 'Horizon Realty',
+    settings: { font:'Plus Jakarta Sans', primary:'#0f4c81', text:'#1e293b', bg:'#ffffff', theme:'realestate', logo:'', tagline:'Find Your Perfect Home' },
+    pages: [
+      {
+        slug: 'home', title: 'Home', is_home: true,
+        sections: [
+          { id:'re1', type:'property_search', data:{ headline:'Find Your Dream Home', subtext:'2,500+ verified properties across Mumbai, Delhi, Bangalore & beyond.', stats:[{num:'2,500+',label:'Properties'},{num:'850+',label:'Happy Families'},{num:'12+',label:'Years'},{num:'98%',label:'Satisfaction'}], bg_image:'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1400&q=80&auto=format&fit=crop' }},
+          { id:'re2', type:'property_listings', data:{ heading:'Featured Properties', subheading:'Hand-picked by our expert agents', properties:[
+            { image:'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&auto=format&fit=crop', title:'Modern 3 BHK Apartment', location:'Bandra West, Mumbai', price:'₹1.8 Cr', beds:3, baths:2, sqft:1450, tag:'For Sale' },
+            { image:'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80&auto=format&fit=crop', title:'Luxury 4 BHK Villa with Pool', location:'Whitefield, Bangalore', price:'₹3.2 Cr', beds:4, baths:4, sqft:3800, tag:'Featured' },
+            { image:'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80&auto=format&fit=crop', title:'Cozy 2 BHK Independent House', location:'Dwarka, Delhi', price:'₹95 L', beds:2, baths:2, sqft:1100, tag:'New' }
+          ], cta_label:'View All Properties', cta_url:'/theme-demo/realestate/properties' }},
+          { id:'re3', type:'services', data:{ heading:'Why Choose Horizon Realty', items:[
+            { icon:'🔑', title:'10,000+ Verified Listings', desc:'Every property is personally inspected and legally verified by our senior agents before listing.' },
+            { icon:'📊', title:'12 Years of Market Data', desc:'Deep market intelligence across all major Indian cities to help you buy or invest at the right price.' },
+            { icon:'🤝', title:'End-to-End Support', desc:'From home loan guidance to registration, we support you through every step of the process.' },
+            { icon:'💰', title:'Best Price Guarantee', desc:'Our data-driven pricing ensures sellers get maximum value and buyers never overpay.' }
+          ]}},
+          { id:'re4', type:'testimonials', data:{ heading:"What Our Clients Say", items:[
+            { name:'Rajesh Kumar', role:'Home Buyer, Mumbai', quote:'Found our dream 3BHK in just 2 weeks. The team was professional and kept us informed at every step. Could not have done it without them.' },
+            { name:'Priya Nair', role:'Property Investor, Bangalore', quote:"Best real estate experience I've ever had. They knew exactly what I was looking for and matched me with the perfect investment property." },
+            { name:'Ankit Sharma', role:'First-Time Buyer, Delhi', quote:'As a first-time buyer I was overwhelmed. The Horizon team guided me patiently — from shortlisting to getting my home loan approved.' }
+          ]}},
+          { id:'re5', type:'contact', data:{ heading:'Talk to an Agent Today', email:'hello@horizonrealty.in', phone:'+91 98765 43210', address:'Level 8, One BKC, Bandra Kurla Complex, Mumbai 400051', show_form:true }}
+        ]
+      },
+      {
+        slug: 'about', title: 'About', is_home: false,
+        sections: [
+          { id:'ab1', type:'hero', data:{ headline:'About Horizon Realty', subheadline:'Trusted by 850+ families since 2012. We believe every client deserves a home they love.', cta_label:'Meet Our Team', cta_url:'/theme-demo/realestate/agents', cta2_label:'Browse Properties', cta2_url:'/theme-demo/realestate/properties', bg_color:'#0f4c81', text_color:'#ffffff', layout:'centered' }},
+          { id:'ab2', type:'about', data:{ heading:'Our Story', text:"Horizon Realty was founded in 2012 by a group of property professionals who believed the industry needed a more transparent, client-first approach. Today we operate across 12 cities with a team of 80+ specialists helping families find their perfect home — and investors find their next great opportunity.", image:'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80&auto=format&fit=crop', layout:'image_right' }},
+          { id:'ab3', type:'stats', data:{ heading:'', items:[{number:'2,500+',label:'Active Listings',emoji:'🏠'},{number:'850+',label:'Happy Families',emoji:'👨‍👩‍👧'},{number:'12',label:'Years Experience',emoji:'🏆'},{number:'12',label:'Cities',emoji:'🏙️'}]}}
+        ]
+      },
+      {
+        slug: 'properties', title: 'Properties', is_home: false,
+        sections: [
+          { id:'pr1', type:'property_search', data:{ headline:'Browse All Properties', subtext:'Filter by city, type, and budget. Updated daily with fresh listings.', stats:[], bg_image:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1400&q=80&auto=format&fit=crop' }},
+          { id:'pr2', type:'property_listings', data:{ heading:'All Listings', subheading:'', properties:[
+            { image:'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&auto=format&fit=crop', title:'Modern 3 BHK Apartment', location:'Bandra West, Mumbai', price:'₹1.8 Cr', beds:3, baths:2, sqft:1450, tag:'For Sale' },
+            { image:'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80&auto=format&fit=crop', title:'Luxury 4 BHK Villa with Pool', location:'Whitefield, Bangalore', price:'₹3.2 Cr', beds:4, baths:4, sqft:3800, tag:'Featured' },
+            { image:'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80&auto=format&fit=crop', title:'2 BHK Independent House', location:'Dwarka, Delhi', price:'₹95 L', beds:2, baths:2, sqft:1100, tag:'For Sale' },
+            { image:'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80&auto=format&fit=crop', title:'Heritage Bungalow', location:'Alipore, Kolkata', price:'₹4.5 Cr', beds:5, baths:4, sqft:5200, tag:'For Sale' },
+            { image:'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80&auto=format&fit=crop', title:'Studio Apartment', location:'Andheri East, Mumbai', price:'₹58 L', beds:1, baths:1, sqft:520, tag:'For Rent' },
+            { image:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80&auto=format&fit=crop', title:'3 BHK Penthouse', location:'Jubilee Hills, Hyderabad', price:'₹2.1 Cr', beds:3, baths:3, sqft:2200, tag:'New' }
+          ]}}
+        ]
+      },
+      {
+        slug: 'contact', title: 'Contact', is_home: false,
+        sections: [
+          { id:'co1', type:'hero', data:{ headline:'Get in Touch', subheadline:"Buying, selling, or just exploring? Our agents are ready to help you every step of the way.", cta_label:'', cta_url:'', bg_color:'#0f4c81', text_color:'#ffffff', layout:'centered' }},
+          { id:'co2', type:'contact', data:{ heading:'Reach Our Team', email:'hello@horizonrealty.in', phone:'+91 98765 43210', address:'Level 8, One BKC, Bandra Kurla Complex, Mumbai 400051', show_form:true }}
+        ]
+      },
+      {
+        slug: 'blog', title: 'Blog', is_home: false,
+        sections: [
+          { id:'bl1', type:'hero', data:{ headline:'Real Estate Insights', subheadline:'Market trends, buying guides, and investment tips from the Horizon team.', cta_label:'', cta_url:'', bg_color:'#0f4c81', text_color:'#ffffff', layout:'centered' }},
+          { id:'bl2', type:'blog_posts', data:{ heading:'Latest Articles', subheading:'Expert advice to help you make smarter property decisions', posts:[
+            { image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80&auto=format&fit=crop', category:'Buying Guide', title:'10 Things to Check Before Buying a Flat in Mumbai', excerpt:'From legal documentation to structural quality — the complete pre-purchase checklist every buyer needs before signing.', author:'Priya Sharma', date:'Jul 20, 2026' },
+            { image:'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80&auto=format&fit=crop', category:'Market Trends', title:'Bangalore Real Estate Market Report — Q2 2026', excerpt:'Key data on price movements, demand hotspots, and the best micro-markets for investment this quarter.', author:'Rahul Mehta', date:'Jul 12, 2026' },
+            { image:'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800&q=80&auto=format&fit=crop', category:'Selling Tips', title:'How to Price Your Property Right in a Competitive Market', excerpt:"Overpricing stalls deals. Underpricing leaves money on the table. Here's how our agents find the perfect price.", author:'Ananya Patel', date:'Jul 5, 2026' }
+          ]}}
         ]
       }
     ]
