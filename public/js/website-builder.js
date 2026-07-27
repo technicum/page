@@ -1533,10 +1533,26 @@ function tcUseTheme() {
     overlay.style.display = 'flex';
     return;
   }
-  // No starter sections — just apply theme directly
-  if (tid) { selectTheme(tid); saveStyles(); }
+  // No starter sections — apply theme defaults and reload
+  if (tid) {
+    var td = (typeof THEME_DEFAULTS !== 'undefined' && THEME_DEFAULTS[tid]) || {};
+    var body = {
+      theme:   tid,
+      primary: td.primary || siteSettings.primary,
+      font:    td.font    || siteSettings.font,
+      text:    td.text    || siteSettings.text  || '#111827',
+      bg:      td.bg      || siteSettings.bg    || '#ffffff'
+    };
+    document.getElementById('themeChooser').style.display = 'none';
+    fetch('/dashboard/website/' + WEBSITE_ID + '/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function() { window.location.reload(); })
+      .catch(function() { window.location.reload(); });
+    return;
+  }
   document.getElementById('themeChooser').style.display = 'none';
-  tcUpdateSwatch(tid);
 }
 
 function tcApplyTheme(importContent) {
