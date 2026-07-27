@@ -1544,6 +1544,14 @@ function tcApplyTheme(importContent) {
   var tid = _tcImportThemeId;
   _tcImportThemeId = null;
   if (!tid) return;
+
+  // Get the correct colors/font for the new theme
+  var td = (typeof THEME_DEFAULTS !== 'undefined' && THEME_DEFAULTS[tid]) || {};
+  var newPrimary = td.primary || siteSettings.primary;
+  var newFont    = td.font    || siteSettings.font;
+  var newText    = td.text    || siteSettings.text  || '#111827';
+  var newBg      = td.bg      || siteSettings.bg    || '#ffffff';
+
   if (importContent) {
     var starters = THEME_STARTER_SECTIONS[tid] || [];
     sections = starters.map(function(s) {
@@ -1553,9 +1561,17 @@ function tcApplyTheme(importContent) {
     renderCanvas();
     saveSections();
   }
-  selectTheme(tid);
-  tcUpdateSwatch(tid);
-  saveStyles(); // persist the theme change to the database
+
+  // Save theme + correct defaults to DB, then reload so everything is consistent
+  fetch('/dashboard/website/' + WEBSITE_ID + '/settings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ theme: tid, primary: newPrimary, font: newFont, text: newText, bg: newBg })
+  }).then(function() {
+    window.location.reload();
+  }).catch(function() {
+    window.location.reload(); // reload even on error so user sees something
+  });
 }
 
 function tcSetTag(tag, el) {

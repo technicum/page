@@ -500,6 +500,14 @@ var siteSettings    = {
   title:   '{{ website.title | replace("'", "\\'") }}'
 };
 var SITE_THEME = '{{ website.settings.theme or "default" }}';
+var THEME_DEFAULTS = {
+  'default':    { primary:'#6366f1', text:'#111827', bg:'#ffffff', font:'Inter' },
+  'minimal':    { primary:'#b45309', text:'#1c1917', bg:'#fdf8f0', font:'Playfair Display' },
+  'bold':       { primary:'#8b5cf6', text:'#e2e8f0', bg:'#0f0f1a', font:'Inter' },
+  'ecom-fresh': { primary:'#059669', text:'#111827', bg:'#ffffff', font:'Inter' },
+  'ecom-luxe':  { primary:'#d4af37', text:'#f5f0e8', bg:'#0a0a0f', font:'Cormorant Garamond' },
+  'ecom-spark': { primary:'#f43f5e', text:'#0f172a', bg:'#ffffff', font:'DM Sans' }
+};
 </script>
 
 <!-- SortableJS for drag & drop section reordering -->
