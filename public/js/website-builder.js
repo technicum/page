@@ -1534,7 +1534,7 @@ function tcUseTheme() {
     return;
   }
   // No starter sections — just apply theme directly
-  if (tid) selectTheme(tid);
+  if (tid) { selectTheme(tid); saveStyles(); }
   document.getElementById('themeChooser').style.display = 'none';
   tcUpdateSwatch(tid);
 }
@@ -1555,6 +1555,7 @@ function tcApplyTheme(importContent) {
   }
   selectTheme(tid);
   tcUpdateSwatch(tid);
+  saveStyles(); // persist the theme change to the database
 }
 
 function tcSetTag(tag, el) {
