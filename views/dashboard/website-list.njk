@@ -84,7 +84,9 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .wltc-card-desc{font-size:11px;color:#6b7280;line-height:1.5;margin-bottom:7px;}
 .wltc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:9px;}
 .wltc-tag{font-size:10px;color:#6b7280;background:#f3f4f6;padding:2px 7px;border-radius:20px;font-weight:500;}
-.wltc-sel-btn{width:100%;padding:8px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:#111827;color:#fff;font-family:inherit;transition:background .15s;}
+.wltc-prev-btn{flex:1;padding:8px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#374151;font-family:inherit;transition:all .15s;}
+.wltc-prev-btn:hover{border-color:#6366f1;color:#6366f1;}
+.wltc-sel-btn{flex:1;padding:8px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:#111827;color:#fff;font-family:inherit;transition:background .15s;}
 .wltc-sel-btn:hover{background:#000;}
 .wltc-card.selected .wltc-sel-btn{background:#6366f1;}
 .wltc-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-top:1px solid #e5e7eb;background:#fff;flex-shrink:0;}
@@ -224,6 +226,22 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
   </div>
 </div>
 
+<!-- Theme Preview Lightbox -->
+<div id="wlPrevModal" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.6);align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif;" onclick="if(event.target===this)wlClosePrev()">
+  <div style="background:#fff;border-radius:16px;overflow:hidden;width:380px;max-width:92vw;box-shadow:0 24px 64px rgba(0,0,0,.25);">
+    <div id="wlPrevThumb" style="height:255px;overflow:hidden;position:relative;background:#f3f4f6;"></div>
+    <div style="padding:20px 22px 22px;">
+      <div id="wlPrevName" style="font-size:16px;font-weight:800;color:#111827;margin-bottom:5px;"></div>
+      <div id="wlPrevDesc" style="font-size:13px;color:#6b7280;margin-bottom:12px;line-height:1.6;"></div>
+      <div id="wlPrevTags" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:18px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="wlClosePrev()" style="flex:1;padding:9px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#374151;font-family:inherit;">Close</button>
+        <button onclick="wlSelectFromPreview()" style="flex:1;padding:9px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:#111827;color:#fff;font-family:inherit;">Select this theme →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ── Theme list ── */
 var WL_THEMES = [
@@ -326,11 +344,29 @@ function wlRenderGrid(list) {
         '<div class="wltc-card-name">' + t.name + '</div>' +
         '<div class="wltc-card-desc">' + t.desc + '</div>' +
         '<div class="wltc-tags">' + t.tags.map(function(g){ return '<span class="wltc-tag">' + g + '</span>'; }).join('') + '</div>' +
-        '<button class="wltc-sel-btn" onclick="event.stopPropagation();wlPick(\'' + t.id + '\')">' + (isSel ? '✓ Selected' : 'Select') + '</button>' +
+        '<div style="display:flex;gap:7px;">' +
+          '<button class="wltc-prev-btn" onclick="event.stopPropagation();wlPreview(\'' + t.id + '\')">Preview</button>' +
+          '<button class="wltc-sel-btn" onclick="event.stopPropagation();wlPick(\'' + t.id + '\')">' + (isSel ? '✓ Selected' : 'Select') + '</button>' +
+        '</div>' +
       '</div>' +
     '</div>';
   }).join('');
 }
+
+/* ── Preview lightbox ── */
+var _wlPreviewId = null;
+function wlPreview(tid) {
+  _wlPreviewId = tid;
+  var t = WL_THEMES.find(function(x){ return x.id === tid; });
+  if (!t) return;
+  document.getElementById('wlPrevThumb').innerHTML = '<div style="width:240px;transform:scale(1.5);transform-origin:top left;pointer-events:none;">' + wlPreviewHTML(t) + '</div>';
+  document.getElementById('wlPrevName').textContent = t.name;
+  document.getElementById('wlPrevDesc').textContent = t.desc;
+  document.getElementById('wlPrevTags').innerHTML = t.tags.map(function(g){ return '<span class="wltc-tag">' + g + '</span>'; }).join('');
+  document.getElementById('wlPrevModal').style.display = 'flex';
+}
+function wlClosePrev() { document.getElementById('wlPrevModal').style.display = 'none'; }
+function wlSelectFromPreview() { wlClosePrev(); if (_wlPreviewId) wlPick(_wlPreviewId); }
 
 /* ── Rich preview thumbnails (matches tcPreviewHTML in website-builder.js) ── */
 function wlPreviewHTML(t) {

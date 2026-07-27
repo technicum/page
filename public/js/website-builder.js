@@ -1606,9 +1606,26 @@ function tcRenderGrid(list) {
   }).join('');
 }
 
+var _tcPreviewId = null;
 function tcPreview(tid) {
-  loadThemeCSS(tid);
-  document.getElementById('tcFooterLabel').textContent = tid;
+  _tcPreviewId = tid;
+  var t = THEMES_LIST.find(function(x){ return x.id === tid; });
+  if (!t) return;
+  // Scaled thumbnail
+  var thumb = document.getElementById('tcPrevModalThumb');
+  if (thumb) thumb.innerHTML = '<div style="width:240px;transform:scale(1.5);transform-origin:top left;pointer-events:none;">' + tcPreviewHTML(t) + '</div>';
+  var el = document.getElementById('tcPrevModalName'); if (el) el.textContent = t.name;
+  var el2 = document.getElementById('tcPrevModalDesc'); if (el2) el2.textContent = t.desc;
+  var el3 = document.getElementById('tcPrevModalTags');
+  if (el3) el3.innerHTML = t.tags.map(function(g){ return '<span class="tco-tag">' + g + '</span>'; }).join('');
+  document.getElementById('tcPrevModal').style.display = 'flex';
+}
+function tcClosePrevModal() {
+  document.getElementById('tcPrevModal').style.display = 'none';
+}
+function tcSelectFromPreview() {
+  tcClosePrevModal();
+  if (_tcPreviewId) tcPick(_tcPreviewId);
 }
 
 function tcPick(tid) {
