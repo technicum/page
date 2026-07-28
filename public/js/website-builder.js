@@ -1562,6 +1562,36 @@ function _deleteItem(id, sid, type) {
   });
 }
 
+/* Live-update the image preview inside the item modal */
+function _dimUpdateImgPreview(val) {
+  var p = document.getElementById('dim-img-preview');
+  if (!p) return;
+  if (val) {
+    if (p.tagName === 'IMG') {
+      p.src = val;
+      p.style.display = 'block';
+    } else {
+      p.outerHTML = '<img id="dim-img-preview" src="' + escHtml(val) + '" ' +
+        'style="width:100%;max-height:140px;object-fit:cover;border-radius:7px;margin-bottom:8px;display:block;" ' +
+        'onerror="this.style.display=\'none\'">';
+    }
+  } else {
+    if (p.tagName === 'IMG') {
+      p.outerHTML = '<div id="dim-img-preview" style="width:100%;height:72px;border-radius:7px;background:#f3f4f6;' +
+        'display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:8px;color:#d1d5db;">🖼️</div>';
+    }
+  }
+}
+
+/* Open MediaPicker for the item modal image field */
+function _dimBrowseImage() {
+  if (typeof MediaPicker === 'undefined') { alert('Media library not loaded'); return; }
+  MediaPicker.open(function(f) {
+    var el = document.getElementById('dim-f-image_url');
+    if (el) { el.value = f.url; el.dispatchEvent(new Event('input')); }
+  }, { type: 'image' });
+}
+
 /* Open the add / edit modal */
 function _openItemModal(sid, type, item) {
   var cfg    = DYNAMIC_ITEM_SECTIONS[type] || { itemLabel: 'Item', productType: 'physical' };
@@ -1574,13 +1604,14 @@ function _openItemModal(sid, type, item) {
   if (old) old.remove();
 
   var rows = [
-    { key:'name',          label:'Name *',                  ph:'e.g. 3 BHK Apartment',    ta:false },
-    { key:'price',         label:'Price',                   ph:'e.g. 2500000',             ta:false },
-    { key:'compare_price', label:'Compare / Strike Price',  ph:'e.g. 3000000',             ta:false },
-    { key:'collection',    label:'Category / Collection',   ph:cat || 'e.g. apartment',    ta:false },
-    { key:'description',   label:'Description',             ph:'',                         ta:true  },
-    { key:'image_url',     label:'Image URL',               ph:'https://…',                ta:false }
+    { key:'name',          label:'Name *',                 ph:'e.g. 3 BHK Apartment',    ta:false },
+    { key:'price',         label:'Price',                  ph:'e.g. 2500000',             ta:false },
+    { key:'compare_price', label:'Compare / Strike Price', ph:'e.g. 3000000',             ta:false },
+    { key:'collection',    label:'Category / Collection',  ph:cat || 'e.g. apartment',    ta:false },
+    { key:'description',   label:'Description',            ph:'',                         ta:true  }
   ];
+
+  var imgVal = isEdit ? (item.image_url || '') : '';
 
   var fieldsHtml = rows.map(function(f) {
     var val = isEdit ? (item[f.key] || '') : (f.key === 'collection' ? cat : '');
@@ -1596,6 +1627,28 @@ function _openItemModal(sid, type, item) {
       '<label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">' + f.label + '</label>' +
       inp + '</div>';
   }).join('');
+
+  /* Image field — media picker + live preview */
+  var imgFieldHtml =
+    '<div style="margin-bottom:10px;">' +
+      '<label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:6px;">Image</label>' +
+      (imgVal
+        ? '<img id="dim-img-preview" src="' + escHtml(imgVal) + '" ' +
+          'style="width:100%;max-height:140px;object-fit:cover;border-radius:7px;margin-bottom:8px;display:block;" ' +
+          'onerror="this.style.display=\'none\'">'
+        : '<div id="dim-img-preview" style="width:100%;height:72px;border-radius:7px;background:#f3f4f6;' +
+          'display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:8px;color:#d1d5db;">🖼️</div>'
+      ) +
+      '<div style="display:flex;gap:6px;">' +
+        '<input id="dim-f-image_url" value="' + escHtml(imgVal) + '" placeholder="https://…" ' +
+          'oninput="_dimUpdateImgPreview(this.value)" ' +
+          'style="flex:1;border:1.5px solid #e5e7eb;border-radius:7px;padding:8px 10px;font-size:12px;box-sizing:border-box;min-width:0;">' +
+        '<button type="button" onclick="_dimBrowseImage()" ' +
+          'style="flex-shrink:0;padding:0 11px;border:1.5px solid #e5e7eb;border-radius:7px;' +
+          'background:#f9fafb;cursor:pointer;font-size:12px;color:#374151;font-weight:500;white-space:nowrap;">📁 Browse</button>' +
+      '</div>' +
+    '</div>';
+  fieldsHtml += imgFieldHtml;
 
   var overlay = document.createElement('div');
   overlay.id  = 'dim-modal-overlay';
