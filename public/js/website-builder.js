@@ -1301,8 +1301,39 @@ var CATALOG_THEME_MAP = {
   'realestate': { label: 'Properties', itemLabel: 'Property', productType: 'property', icon: '🏠' }
 };
 var CATALOG_CONFIG = null;
+var catActiveType  = 'physical'; // currently selected type tab in catalog panel
 
-/* Custom themes can call this from sections.js:
+/* Type definitions for catalog tab switcher */
+var CATALOG_TYPES = {
+  physical: { label: 'Product',  plural: 'Products',   icon: '📦' },
+  property: { label: 'Property', plural: 'Properties', icon: '🏠' },
+  job:      { label: 'Job',      plural: 'Jobs',        icon: '💼' },
+  digital:  { label: 'Digital',  plural: 'Digital',     icon: '💾' },
+  service:  { label: 'Service',  plural: 'Services',    icon: '🛠'  }
+};
+
+/* Switch catalog panel to a different item type */
+function catSetType(ptype, label, icon) {
+  catActiveType = ptype;
+  var def = CATALOG_TYPES[ptype] || { label: label, plural: label + 's', icon: icon || '📦' };
+  /* Update DYNAMIC_ITEM_SECTIONS so _openItemModal picks up the right label/type */
+  DYNAMIC_ITEM_SECTIONS['catalog'] = { label: def.plural, itemLabel: def.label, productType: ptype };
+  /* Update Add button */
+  var addBtn = document.getElementById('cat-add-btn');
+  if (addBtn) addBtn.textContent = '+ Add ' + def.label;
+  /* Highlight active tab */
+  document.querySelectorAll('.cat-type-btn').forEach(function(b) {
+    var isActive = b.dataset.ptype === ptype;
+    b.style.borderColor  = isActive ? '#6366f1' : '#e5e7eb';
+    b.style.background   = isActive ? '#eef2ff' : '#fff';
+    b.style.color        = isActive ? '#4338ca' : '#6b7280';
+    b.style.fontWeight   = isActive ? '600' : '500';
+  });
+  /* Reload list */
+  catLoadItems();
+}
+
+/* Custom themes can call this from sections.js to set the default active tab:
    setCatalogConfig({ label:'Travel Packages', itemLabel:'Package', productType:'travel', icon:'✈️' }) */
 function setCatalogConfig(cfg) {
   CATALOG_CONFIG = cfg;
@@ -1315,34 +1346,30 @@ function _initCatalogConfig(themeId) {
 }
 
 function _applyCatalogConfig() {
-  var railBtn = document.getElementById('rb-catalog');
-  if (!railBtn) return;
+  /* Rail button is always visible — catalog panel is available on all themes */
+  var iconEl  = document.getElementById('rb-catalog-icon');
+  var labelEl = document.getElementById('rb-catalog-label');
   if (CATALOG_CONFIG) {
-    railBtn.style.display = '';
-    var iconEl  = document.getElementById('rb-catalog-icon');
-    var labelEl = document.getElementById('rb-catalog-label');
     if (iconEl)  iconEl.textContent  = CATALOG_CONFIG.icon  || '🗂️';
     if (labelEl) labelEl.textContent = CATALOG_CONFIG.label || 'Catalog';
-    /* Register 'catalog' as a valid type so _openItemModal gets the right label/productType */
-    DYNAMIC_ITEM_SECTIONS['catalog'] = {
-      label:       CATALOG_CONFIG.label,
-      itemLabel:   CATALOG_CONFIG.itemLabel,
-      productType: CATALOG_CONFIG.productType
-    };
-    PANEL_TITLES['catalog'] = CATALOG_CONFIG.label;
+    /* Set default active tab based on theme */
+    catActiveType = CATALOG_CONFIG.productType || 'physical';
   } else {
-    railBtn.style.display = 'none';
-    if (activePanel === 'catalog') closePanel();
+    if (iconEl)  iconEl.textContent  = '🗂️';
+    if (labelEl) labelEl.textContent = 'Catalog';
+    catActiveType = 'physical';
   }
+  var def = CATALOG_TYPES[catActiveType] || { label: 'Item', plural: 'Items', icon: '📦' };
+  DYNAMIC_ITEM_SECTIONS['catalog'] = { label: def.plural, itemLabel: def.label, productType: catActiveType };
+  PANEL_TITLES['catalog'] = CATALOG_CONFIG ? CATALOG_CONFIG.label : 'Catalog';
 }
 
-/* Runs when catalog panel is opened — loads collections filter + items */
+/* Runs when catalog panel is opened — syncs active tab, loads collections + items */
 function catLoadPanel() {
-  if (!CATALOG_CONFIG) return;
-  var labelEl = document.getElementById('cat-panel-label');
-  if (labelEl) labelEl.textContent = CATALOG_CONFIG.label;
-  var addBtn = document.getElementById('cat-add-btn');
-  if (addBtn)  addBtn.textContent  = '+ Add ' + CATALOG_CONFIG.itemLabel;
+  /* Highlight correct tab and update add button */
+  catSetType(catActiveType,
+    (CATALOG_TYPES[catActiveType] || {}).label || 'Item',
+    (CATALOG_TYPES[catActiveType] || {}).icon  || '📦');
   /* Populate collections dropdown */
   fetch('/dashboard/products/collections/list-json', { credentials: 'same-origin' })
     .then(function(r) { return r.json(); })
@@ -1356,20 +1383,21 @@ function catLoadPanel() {
         }).join('');
     })
     .catch(function(){});
-  catLoadItems();
+  /* catSetType already calls catLoadItems */
 }
 
 /* Fetch items and render into #cat-list */
 function catLoadItems() {
-  if (!CATALOG_CONFIG) return;
   var search = ((document.getElementById('cat-search')            || {}).value || '').toLowerCase();
   var coll   =  (document.getElementById('cat-collection-filter') || {}).value || '';
   var listEl = document.getElementById('cat-list');
   if (!listEl) return;
   listEl.innerHTML = '<div style="padding:10px 0;color:#9ca3af;font-size:12px;">Loading…</div>';
 
+  var def = CATALOG_TYPES[catActiveType] || { label: 'Item', plural: 'Items', icon: '📦' };
+
   var url = '/dashboard/products/list-json?site_id=' + encodeURIComponent(WEBSITE_ID) +
-            '&type=' + encodeURIComponent(CATALOG_CONFIG.productType) +
+            '&type=' + encodeURIComponent(catActiveType) +
             (coll ? '&collection=' + encodeURIComponent(coll) : '');
 
   fetch(url, { credentials: 'same-origin' })
@@ -1388,15 +1416,15 @@ function catLoadItems() {
       if (!items.length) {
         el.innerHTML =
           '<div style="padding:24px 0;text-align:center;color:#9ca3af;font-size:12px;">' +
-          '<div style="font-size:28px;margin-bottom:8px;">' + (CATALOG_CONFIG.icon || '📦') + '</div>' +
-          'No ' + CATALOG_CONFIG.label.toLowerCase() + ' yet.<br>Click <b>+ Add</b> to create one.</div>';
+          '<div style="font-size:28px;margin-bottom:8px;">' + def.icon + '</div>' +
+          'No ' + def.plural.toLowerCase() + ' yet.<br>Click <b>+ Add</b> to create one.</div>';
         return;
       }
       el.innerHTML = items.map(function(p) {
         var thumb = p.image_url
           ? '<img src="' + escHtml(p.image_url) + '" style="width:40px;height:40px;object-fit:cover;border-radius:6px;flex-shrink:0;">'
           : '<div style="width:40px;height:40px;border-radius:6px;background:#f3f4f6;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">' +
-            (CATALOG_CONFIG.icon || '📦') + '</div>';
+            def.icon + '</div>';
         var priceStr = p.price ? (p.currency || '₹') + p.price : '';
         var catStr   = p.collection ? ' · ' + p.collection : '';
         var stockBadge = (p.in_stock == 0)
