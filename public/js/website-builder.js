@@ -200,6 +200,11 @@ function renderSectionPreview(sec) {
     return attrs;
   }
 
+  // Theme-specific sections are handled by the active theme's sections.js
+  if (THEME_SECTIONS.canvas[sec.type]) {
+    return THEME_SECTIONS.canvas[sec.type](sec, d, { ce: ce, escHtml: escHtml, p: p });
+  }
+
   switch (sec.type) {
 
     case 'hero': {
@@ -559,21 +564,21 @@ function renderSectionPreview(sec) {
         '</div></div></section>';
 
     // ── Real Estate section types ────────────────────────────────────────────
-    case 'property_search':
-      return '<section class="re-hero section">' +
-        '<div class="container" style="text-align:center;">' +
-        '<h1 ' + ce('headline') + '>' + escHtml(d.headline || 'Find Your Dream Home') + '</h1>' +
-        '<p ' + ce('subtext') + '>' + escHtml(d.subtext || '') + '</p>' +
-        '<div style="display:flex;gap:12px;margin:24px 0;padding:12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;">' +
-          '<div style="flex:1.5;padding:10px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#9ca3af;">📍 City or Area</div>' +
-          '<div style="flex:1;padding:10px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#9ca3af;">🏠 Type</div>' +
-          '<div style="flex:1;padding:10px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#9ca3af;">💰 Budget</div>' +
-          '<button type="button" class="re-search-btn btn-primary" style="background:' + escHtml(p) + ';color:#fff;padding:10px 24px;border:none;border-radius:8px;font-weight:700;" disabled>Search</button>' +
-        '</div>' +
-        (d.stats && d.stats.length ? '<div class="stats-grid">' + d.stats.map(function(s,si){ return '<div class="stat-item"><div class="stat-number" ' + ce(null,si,'num') + '>' + escHtml(s.num||'') + '</div><div class="stat-label" ' + ce(null,si,'label') + '>' + escHtml(s.label||'') + '</div></div>'; }).join('') + '</div>' : '') +
-        '</div></section>';
+    // (handled by themes/website/realestate/sections.js via THEME_SECTIONS.canvas)
 
-    case 'property_listings': {
+    case 'property_listings':
+    case 'property_detail':
+    case 'agents':
+    case 'blog_posts':
+    case 'category_banner':
+    case 'product_grid':
+    case 'product_detail':
+    case 'cart':
+    case 'checkout':
+      // Handled by THEME_SECTIONS.canvas (loaded from theme's sections.js)
+      return '<div style="padding:40px;text-align:center;color:#9ca3af;font-size:13px;">Loading theme sections…</div>';
+
+    case '__dead__': {
       var plCanvasProps = (d.properties||[]).slice(0,3);
       return '<section class="section section-alt">' +
         '<div class="container">' +
@@ -831,6 +836,136 @@ function loadThemeCSS(themeName) {
     .catch(function(e) { console.warn('[canvas theme]', e); });
 }
 
+/* ═══════════════════════════════════════════
+   THEME SECTIONS — plugin system
+   Each theme can ship themes/website/<id>/sections.js
+   which calls registerThemeSections({ cats, variants,
+   preview, canvas, editPanel }).
+═══════════════════════════════════════════ */
+var THEME_SECTIONS = {
+  cats:      [],
+  variants:  {},
+  preview:   {},   // type → fn(type, d, BG, TC, AC, variant) → html
+  canvas:    {},   // type → fn(sec, d, helpers) → html
+  editPanel: {},   // type → fn(d, helpers) → html  [legacy]
+  fields:    {}    // type → [{key,type,label,ph,cols,colLabels,options,imageFields}]  [new API]
+};
+
+/* ── Schema field renderer (used by renderSectionEditPanel) ── */
+function _renderSchemaFields(fields, d, sid, fI, fT, fC, fS, fImg, itemsEditor) {
+  return fields.map(function(f) {
+    var val = d[f.key];
+    switch (f.type || 'text') {
+      case 'textarea': return fT(f.key, f.label, val);
+      case 'color':    return fC(f.key, f.label, val || f.default);
+      case 'select':   return fS(f.key, f.label, val || f.default, f.options || {});
+      case 'image':    return fImg(f.key, f.label, val, f.ph);
+      case 'items':    return itemsEditor(f.key, d[f.key] || [], f.cols || [], f.colLabels || f.cols || [], f.imageFields || []);
+      default:         return fI(f.key, f.label, val, f.ph);
+    }
+  }).join('');
+}
+
+/*
+ * registerThemeSections(def)
+ *
+ * Supports two call signatures:
+ *
+ * ── NEW (developer-friendly) ─────────────────────────────────────
+ * registerThemeSections({
+ *   property_search: {
+ *     cat:      { label, icon, sub, bg },
+ *     variants: [{ label, icon, sub, data }],   // optional, defaults to one entry
+ *     fields:   [{ key, type, label, ph, ... }], // schema → auto-renders edit panel
+ *     render(d, esc) { return `<div>...</div>`; }  // one fn for both canvas + preview
+ *   },
+ *   property_listings: { ... }
+ * })
+ *
+ * ── LEGACY ───────────────────────────────────────────────────────
+ * registerThemeSections({ cats, variants, preview, canvas, editPanel })
+ */
+function registerThemeSections(def) {
+  // Detect new format: keys are section type names (strings), values are section defs
+  var isNewFormat = def && !def.cats && !def.canvas && !def.editPanel &&
+    Object.keys(def).length > 0 &&
+    typeof def[Object.keys(def)[0]] === 'object' &&
+    (def[Object.keys(def)[0]].render || def[Object.keys(def)[0]].cat);
+
+  if (isNewFormat) {
+    THEME_SECTIONS.cats      = [];
+    THEME_SECTIONS.variants  = {};
+    THEME_SECTIONS.preview   = {};
+    THEME_SECTIONS.canvas    = {};
+    THEME_SECTIONS.editPanel = {};
+    THEME_SECTIONS.fields    = {};
+
+    Object.keys(def).forEach(function(type) {
+      var sec = def[type];
+
+      // cat
+      if (sec.cat) {
+        THEME_SECTIONS.cats.push(Object.assign({ id: type }, sec.cat));
+      }
+
+      // variants (default to one variant matching the cat)
+      THEME_SECTIONS.variants[type] = sec.variants || [
+        { type: type, label: (sec.cat && sec.cat.label) || type, icon: (sec.cat && sec.cat.icon) || '📄', sub: (sec.cat && sec.cat.sub) || '', data: {} }
+      ];
+
+      // render fn → canvas + preview
+      if (sec.render) {
+        var renderFn = sec.render;
+        THEME_SECTIONS.canvas[type] = function(secObj, d, h) {
+          return renderFn(d, h.escHtml);
+        };
+        THEME_SECTIONS.preview[type] = function(t, d, BG, TC, AC, variant) {
+          return renderFn(d, escHtml);
+        };
+      }
+
+      // fields → schema-based edit panel
+      if (sec.fields) {
+        THEME_SECTIONS.fields[type] = sec.fields;
+      }
+
+      // allow explicit editPanel override
+      if (sec.editPanel) {
+        THEME_SECTIONS.editPanel[type] = sec.editPanel;
+      }
+    });
+
+  } else {
+    // Legacy format
+    THEME_SECTIONS.cats      = def.cats      || [];
+    THEME_SECTIONS.variants  = def.variants  || {};
+    THEME_SECTIONS.preview   = def.preview   || {};
+    THEME_SECTIONS.canvas    = def.canvas    || {};
+    THEME_SECTIONS.editPanel = def.editPanel || {};
+    THEME_SECTIONS.fields    = def.fields    || {};
+  }
+
+  spRenderSidebar();
+}
+
+function loadThemeSections(themeName) {
+  var old = document.getElementById('__theme-sections-js');
+  if (old) old.remove();
+  // Reset registry
+  THEME_SECTIONS.cats      = [];
+  THEME_SECTIONS.variants  = {};
+  THEME_SECTIONS.preview   = {};
+  THEME_SECTIONS.canvas    = {};
+  THEME_SECTIONS.editPanel = {};
+  THEME_SECTIONS.fields    = {};
+  if (!themeName) return;
+  var s = document.createElement('script');
+  s.id  = '__theme-sections-js';
+  s.src = '/themes/website/' + themeName + '/sections.js?v=' + Date.now();
+  s.onerror = function() { /* theme has no custom sections — that's fine */ };
+  document.head.appendChild(s);
+}
+
 function scopeCSS(css, prefix) {
   if (!css) return '';
   // Remove @import
@@ -983,6 +1118,19 @@ MediaPicker.open(function(f){\
     return h;
   }
 
+  // Theme-specific section edit panels — schema-based (new API)
+  if (THEME_SECTIONS.fields[type]) {
+    html = _renderSchemaFields(THEME_SECTIONS.fields[type], d, sid, fI, fT, fC, fS, fImg, itemsEditor);
+    document.getElementById('sec-edit-fields').innerHTML = html;
+    return;
+  }
+  // Theme-specific section edit panels — legacy explicit fn
+  if (THEME_SECTIONS.editPanel[type]) {
+    html = THEME_SECTIONS.editPanel[type](d, { fI: fI, fT: fT, fC: fC, fS: fS, fImg: fImg, itemsEditor: itemsEditor, sid: sid });
+    document.getElementById('sec-edit-fields').innerHTML = html;
+    return;
+  }
+
   switch (type) {
     case 'hero':
       html += fS('layout', 'Layout', d.layout || 'centered', { 'centered':'Centered + dashboard visual', 'split':'Split — text & image side by side' });
@@ -1109,61 +1257,19 @@ MediaPicker.open(function(f){\
       html += fI('cta', 'Button Text', d.cta, 'Subscribe');
       break;
 
-    // ── Real Estate ──────────────────────────────────────────────────────────
+    // ── Real Estate / Ecom ───────────────────────────────────────────────────
+    // (Handled by theme's sections.js via THEME_SECTIONS.editPanel)
     case 'property_search':
-      html += fI('headline', 'Headline', d.headline, 'Find Your Dream Home');
-      html += fI('subtext', 'Subtext', d.subtext, 'Thousands of verified properties...');
-      break;
-
     case 'property_listings':
-      html += fI('heading', 'Heading', d.heading, 'Featured Properties');
-      html += fI('subheading', 'Subheading', d.subheading, 'Hand-picked by our agents');
-      break;
-
     case 'property_detail':
-      html += fI('title', 'Property Title', d.title, '4 BHK Luxury Villa');
-      html += fI('location', 'Location', d.location, 'City, Area');
-      html += fI('price', 'Price', d.price, '₹2.8 Cr');
-      html += fI('tag', 'Tag', d.tag, 'For Sale');
-      html += fI('desc', 'Description', d.desc, 'Beautiful modern villa...');
-      break;
-
     case 'agents':
-      html += fI('heading', 'Heading', d.heading, 'Meet Our Agents');
-      html += fI('subheading', 'Subheading', d.subheading);
-      break;
-
     case 'blog_posts':
-      html += fI('heading', 'Heading', d.heading, 'Latest Articles');
-      html += fI('subheading', 'Subheading', d.subheading);
-      break;
-
-    // ── Ecommerce ────────────────────────────────────────────────────────────
     case 'category_banner':
-      html += fI('heading', 'Heading', d.heading, 'Shop by Category');
-      break;
-
     case 'product_grid':
-      html += fI('heading', 'Heading', d.heading, 'Featured Products');
-      break;
-
     case 'product_detail':
-      html += fI('name', 'Product Name', d.name, 'Product Name');
-      html += fI('category', 'Category', d.category, 'Category');
-      html += fI('price', 'Price', d.price, '₹1,999');
-      html += fI('desc', 'Description', d.desc, 'Add your product description here...');
-      break;
-
     case 'cart':
-      html += fI('heading', 'Heading', d.heading, 'Your Cart');
-      html += fI('subtotal', 'Subtotal', d.subtotal);
-      html += fI('shipping', 'Shipping', d.shipping, 'Free');
-      html += fI('total', 'Total', d.total);
-      break;
-
     case 'checkout':
-      html += fI('heading', 'Heading', d.heading, 'Checkout');
-      html += fI('total', 'Total', d.total);
+      html += '<div style="padding:20px;color:#9ca3af;font-size:13px;text-align:center;">Theme section — fields load when theme is active.</div>';
       break;
   }
 
@@ -1589,6 +1695,7 @@ function selectTheme(themeId) {
   if (tc) tc.classList.add('selected');
   // Live preview in canvas
   loadThemeCSS(themeId);
+  loadThemeSections(themeId);
 }
 
 async function saveStyles() {
@@ -2257,19 +2364,9 @@ var PREBUILT_CATS = [
   { id:'columns',      label:'Columns',      icon:'⬛', sub:'Multi-column layouts',            bg:'#f3f4f6' },
   { id:'rich_text',    label:'Rich Text',    icon:'📝', sub:'Text & content blocks',           bg:'#fefce8' },
   { id:'newsletter',   label:'Newsletter',   icon:'📧', sub:'Email subscribe sections',        bg:'#ecfdf5' },
-  { id:'contact',      label:'Contact',      icon:'📬', sub:'Contact forms & info',            bg:'#f8fafc' },
-  // ── Real Estate theme sections ──────────────────────────────────────────
-  { id:'property_search',   label:'Property Search',  icon:'🔍', sub:'Search hero with filters',        bg:'#dbeafe', themes:['realestate'] },
-  { id:'property_listings', label:'Property Grid',    icon:'🏠', sub:'Property cards with specs',       bg:'#e0f2fe', themes:['realestate'] },
-  { id:'property_detail',   label:'Property Detail',  icon:'🏡', sub:'Single property detail page',     bg:'#dcfce7', themes:['realestate'] },
-  { id:'agents',            label:'Agents',           icon:'👔', sub:'Agent profile cards',             bg:'#ede9fe', themes:['realestate'] },
-  { id:'blog_posts',        label:'Blog Posts',       icon:'📰', sub:'Article / blog post grid',        bg:'#fef3c7', themes:['realestate'] },
-  // ── Ecommerce theme sections ────────────────────────────────────────────
-  { id:'category_banner',   label:'Categories',       icon:'🏷', sub:'Category card banners',           bg:'#fef3c7', themes:['ecom-fresh','ecom-luxe','ecom-spark'] },
-  { id:'product_grid',      label:'Product Grid',     icon:'🛍', sub:'Product cards with price',        bg:'#dcfce7', themes:['ecom-fresh','ecom-luxe','ecom-spark'] },
-  { id:'product_detail',    label:'Product Detail',   icon:'📦', sub:'Single product detail page',      bg:'#f5f3ff', themes:['ecom-fresh','ecom-luxe','ecom-spark'] },
-  { id:'cart',              label:'Cart',             icon:'🛒', sub:'Shopping cart page',              bg:'#fff1f2', themes:['ecom-fresh','ecom-luxe','ecom-spark'] },
-  { id:'checkout',          label:'Checkout',         icon:'💳', sub:'Checkout / payment page',         bg:'#eff6ff', themes:['ecom-fresh','ecom-luxe','ecom-spark'] }
+  { id:'contact',      label:'Contact',      icon:'📬', sub:'Contact forms & info',            bg:'#f8fafc' }
+  // Theme-specific sections are registered by each theme's sections.js
+  // via registerThemeSections() — see themes/website/<id>/sections.js
 ];
 
 var PREBUILT_VARIANTS = {
@@ -2387,95 +2484,16 @@ var PREBUILT_VARIANTS = {
     { label:'Form Only', desc:'Clean form with heading, no contact details', color:'#fff',
       data:{ heading:'Send Us a Message', email:'', phone:'', address:'' } }
   ],
-  // ── Real Estate sections ─────────────────────────────────────────────────
-  property_search: [
-    { label:'Full Hero Search', desc:'Full-screen hero with bg photo, search filters, and stats', color:'#0f4c81', tag:'popular',
-      data:{ headline:'Find Your Dream Home', subtext:'Thousands of verified properties across top cities.', stats:[{num:'2,500+',label:'Properties'},{num:'850+',label:'Families Served'},{num:'12+',label:'Years Experience'}], bg_image:'' } },
-    { label:'Simple Search Bar', desc:'Search bar with tagline, no stats or full-screen bg', color:'#0f4c81',
-      data:{ headline:'Search Properties', subtext:'Filter by location, type, and budget.', stats:[], bg_image:'' } }
-  ],
-  property_listings: [
-    { label:'3 Properties', desc:'Three property cards with price, beds, baths, and size', color:'#dbeafe', tag:'popular',
-      data:{ heading:'Featured Properties', subheading:'Hand-picked by our agents', properties:[
-        {icon:'🏠',title:'3 BHK Apartment',location:'City, Area',price:'₹1.8 Cr',beds:3,baths:2,sqft:1450,tag:'For Sale'},
-        {icon:'🏡',title:'4 BHK Villa',location:'City, Area',price:'₹2.4 Cr',beds:4,baths:3,sqft:2800,tag:'Featured'},
-        {icon:'🏢',title:'2 BHK Flat',location:'City, Area',price:'₹85 L',beds:2,baths:2,sqft:980,tag:'For Rent'}
-      ] } },
-    { label:'6 Properties', desc:'Six property listings — full listings grid', color:'#dbeafe',
-      data:{ heading:'All Listings', subheading:'Browse our complete collection', properties:[
-        {icon:'🏠',title:'3 BHK Apartment',location:'City, Area',price:'₹1.8 Cr',beds:3,baths:2,sqft:1450,tag:'For Sale'},
-        {icon:'🏡',title:'4 BHK Villa',location:'City, Area',price:'₹2.4 Cr',beds:4,baths:3,sqft:2800,tag:'For Sale'},
-        {icon:'🏢',title:'2 BHK Flat',location:'City, Area',price:'₹85 L',beds:2,baths:2,sqft:980,tag:'For Rent'},
-        {icon:'🏘',title:'Independent House',location:'City, Area',price:'₹1.2 Cr',beds:3,baths:2,sqft:1800,tag:'For Sale'},
-        {icon:'🏙',title:'Studio Apartment',location:'City, Area',price:'₹55 L',beds:1,baths:1,sqft:520,tag:'New'},
-        {icon:'🏗',title:'Commercial Space',location:'City, Area',price:'₹3.2 Cr',sqft:3200,tag:'For Sale'}
-      ] } }
-  ],
-  property_detail: [
-    { label:'Property Detail', desc:'Full property page with specs, features list, and CTA buttons', color:'#dbeafe', tag:'popular',
-      data:{ title:'4 BHK Luxury Villa', location:'City, Area', price:'₹2.8 Cr', icon:'🏠', tag:'For Sale', desc:'Beautiful modern villa with open floor plan and stunning views. Perfect for families looking for spacious living.', beds:4, baths:3, sqft:2800, parking:2, features:['Swimming Pool','Club House','Power Backup','24/7 Security','Landscaped Garden','Children Play Area'] } }
-  ],
-  agents: [
-    { label:'4 Agents', desc:'Four agent profile cards with listings, sold, and years stats', color:'#ede9fe', tag:'popular',
-      data:{ heading:'Meet Our Agents', subheading:'Expert professionals dedicated to finding you the perfect home', items:[
-        {icon:'👩',name:'Agent Name',specialty:'Luxury Residential',listings:48,sold:120,years:8},
-        {icon:'👨',name:'Agent Name',specialty:'Commercial & Investment',listings:35,sold:94,years:6},
-        {icon:'👩',name:'Agent Name',specialty:'Affordable Housing',listings:52,sold:145,years:10},
-        {icon:'👨',name:'Agent Name',specialty:'Plots & Land',listings:29,sold:67,years:5}
-      ] } },
-    { label:'3 Agents', desc:'Three agent profile cards', color:'#ede9fe',
-      data:{ heading:'Our Team', subheading:'Trusted experts ready to help', items:[
-        {icon:'👩',name:'Agent Name',specialty:'Luxury Residential',listings:45,sold:110,years:7},
-        {icon:'👨',name:'Agent Name',specialty:'Commercial',listings:38,sold:90,years:5},
-        {icon:'👩',name:'Agent Name',specialty:'Plots & Land',listings:28,sold:65,years:4}
-      ] } }
-  ],
-  blog_posts: [
-    { label:'3 Posts', desc:'Three blog article cards with category, excerpt, and author', color:'#fef3c7', tag:'popular',
-      data:{ heading:'Latest Articles', subheading:'Expert advice for smarter property decisions', posts:[
-        {icon:'🏠',category:'Buying Guide',title:'10 Things to Check Before Buying a Flat',excerpt:'From legal documentation to structural quality — the complete pre-purchase checklist.',author:'Your Name',date:'Jul 2026'},
-        {icon:'📈',category:'Market Trends',title:'Real Estate Market Outlook 2026',excerpt:'Key data on price movements and the best micro-markets for investment this year.',author:'Your Name',date:'Jul 2026'},
-        {icon:'🔑',category:'Selling Tips',title:'How to Price Your Property Right',excerpt:"Overpricing stalls deals. Here's how to find the perfect price point.",author:'Your Name',date:'Jul 2026'}
-      ] } },
-    { label:'2 Posts', desc:'Two featured article cards', color:'#fef3c7',
-      data:{ heading:'From the Blog', subheading:'', posts:[
-        {icon:'🏠',category:'Buying Guide',title:'Complete Home Buying Guide for First-Time Buyers',excerpt:'Everything you need to know before making your first property purchase.',author:'Your Name',date:'Jul 2026'},
-        {icon:'📈',category:'Investment',title:'Best Cities to Invest in Real Estate Right Now',excerpt:'Our experts analyze the top 5 cities offering the best returns.',author:'Your Name',date:'Jul 2026'}
-      ] } }
-  ],
-  // ── Ecommerce sections ────────────────────────────────────────────────────
-  category_banner: [
-    { label:'4 Categories', desc:'Four category banners with icon and color', color:'#f59e0b', tag:'popular',
-      data:{ heading:'Shop by Category', categories:[{name:'Category 1',icon:'👕',color:'#0f172a',url:'#'},{name:'Category 2',icon:'👖',color:'#1e293b',url:'#'},{name:'Category 3',icon:'🧥',color:'var(--primary)',url:'#'},{name:'Category 4',icon:'🧢',color:'#334155',url:'#'}] } },
-    { label:'3 Categories', desc:'Three category banners', color:'#f59e0b',
-      data:{ heading:'Browse Categories', categories:[{name:'Category 1',icon:'🛍',color:'#0f172a',url:'#'},{name:'Category 2',icon:'💎',color:'var(--primary)',url:'#'},{name:'Category 3',icon:'⭐',color:'#059669',url:'#'}] } }
-  ],
-  product_grid: [
-    { label:'4 Products', desc:'Four product cards in a grid', color:'#dcfce7', tag:'popular',
-      data:{ heading:'Featured Products', products:[{icon:'⭐',name:'Product One',category:'Category',price:'₹999',badge:'New'},{icon:'🔥',name:'Product Two',category:'Category',price:'₹1,499'},{icon:'💎',name:'Product Three',category:'Category',price:'₹2,999'},{icon:'🚀',name:'Product Four',category:'Category',price:'₹799'}] } },
-    { label:'6 Products', desc:'Six product cards — full product grid', color:'#dcfce7',
-      data:{ heading:'All Products', products:[{icon:'⭐',name:'Product 1',category:'Category',price:'₹999'},{icon:'🔥',name:'Product 2',category:'Category',price:'₹1,499'},{icon:'💎',name:'Product 3',category:'Category',price:'₹2,999'},{icon:'🚀',name:'Product 4',category:'Category',price:'₹799'},{icon:'🎯',name:'Product 5',category:'Category',price:'₹599'},{icon:'🌟',name:'Product 6',category:'Category',price:'₹1,299'}] } },
-    { label:'3 Products', desc:'Three hero products with badges', color:'#dcfce7',
-      data:{ heading:'New Arrivals', products:[{icon:'⭐',name:'Product One',category:'Category',price:'₹999',badge:'New'},{icon:'🔥',name:'Product Two',category:'Category',price:'₹1,499',badge:'Hot'},{icon:'💎',name:'Product Three',category:'Category',price:'₹2,999',badge:'Limited'}] } }
-  ],
-  product_detail: [
-    { label:'Product Page', desc:'Full product detail with sizes, colors, quantity, and buy button', color:'#f9fafb', tag:'popular',
-      data:{ name:'Product Name', category:'Category', price:'₹1,999', icon:'👕', desc:'Add your product description here. Talk about materials, fit, and what makes it special.', sizes:['XS','S','M','L','XL','XXL'], colors:['#1f2937','#6b7280','var(--primary)'] } }
-  ],
-  cart: [
-    { label:'Cart Page', desc:'Shopping cart with items, quantities, and order summary', color:'#f9fafb', tag:'popular',
-      data:{ heading:'Your Cart', items:[{icon:'👕',name:'Product Name',variant:'Size: M',qty:1,price:'₹1,999'}], subtotal:'₹1,999', shipping:'Free', total:'₹1,999' } }
-  ],
-  checkout: [
-    { label:'Checkout Page', desc:'Contact, shipping, and payment form with order summary', color:'#f9fafb', tag:'popular',
-      data:{ heading:'Checkout', items:[{name:'Product Name × 1',qty:1,price:'₹1,999'}], subtotal:'₹1,999', shipping:'Free', total:'₹1,999' } }
-  ]
+  // Theme-specific variants are registered by each theme's sections.js
+  // via registerThemeSections({ variants: { ... } })
+  __noop__: []
+  // Theme-specific variants are in each theme's sections.js → THEME_SECTIONS.variants
 };
 
 var _spActiveCat = 'hero';
 
 function openSectionPicker() {
-  var themeCats = PREBUILT_CATS.filter(function(c){ return c.themes && c.themes.indexOf(activeTheme) !== -1; });
+  var themeCats = THEME_SECTIONS.cats.slice();
   _spActiveCat = themeCats.length ? themeCats[0].id : 'hero';
   _spSearch = '';
   var searchEl = document.getElementById('spSearch');
@@ -2493,7 +2511,7 @@ var _spSearch = '';
 
 function spRenderSidebar() {
   var el = document.getElementById('spSidebar');
-  var themeCats  = PREBUILT_CATS.filter(function(c){ return c.themes && c.themes.indexOf(activeTheme) !== -1; });
+  var themeCats   = THEME_SECTIONS.cats.slice(); // loaded from theme's sections.js
   var genericCats = PREBUILT_CATS.filter(function(c){ return !c.themes; });
   function renderCatItem(cat) {
     var isActive = cat.id === _spActiveCat;
@@ -2543,8 +2561,9 @@ function _spCardHTML(catId, i, v) {
 }
 
 function spRenderGrid(catId, filter) {
-  var cat = PREBUILT_CATS.find(function(c){ return c.id === catId; });
-  var variants = PREBUILT_VARIANTS[catId] || [];
+  var cat = PREBUILT_CATS.find(function(c){ return c.id === catId; }) ||
+            THEME_SECTIONS.cats.find(function(c){ return c.id === catId; });
+  var variants = PREBUILT_VARIANTS[catId] || THEME_SECTIONS.variants[catId] || [];
   document.getElementById('spSectionTitle').textContent = cat ? cat.icon + ' ' + cat.label : catId;
   document.getElementById('spSectionSub').textContent = cat ? cat.sub : '';
 
@@ -2618,6 +2637,11 @@ function spPreviewHTML(type, idx, variant) {
 }
 
 function _spRealisticPreview(type, d, BG, TC, AC, variant) {
+  // Theme-specific section previews handled by theme's sections.js
+  if (THEME_SECTIONS.preview[type]) {
+    return THEME_SECTIONS.preview[type](type, d, BG, TC, AC, variant);
+  }
+
   var dark = TC === '#ffffff';
   var muted = dark ? 'rgba(255,255,255,0.55)' : '#6b7280';
   var cardBg = dark ? 'rgba(255,255,255,0.07)' : '#ffffff';
@@ -3154,8 +3178,21 @@ function _spRealisticPreview(type, d, BG, TC, AC, variant) {
       '</div>';
     }
 
-    // ── Real Estate ─────────────────────────────────────────────────────────
-    case 'property_search': {
+    // ── Real Estate / Ecom ──────────────────────────────────────────────────
+    // (Handled by theme's sections.js via THEME_SECTIONS.preview)
+    case 'property_search':
+    case 'property_listings':
+    case 'property_detail':
+    case 'agents':
+    case 'blog_posts':
+    case 'category_banner':
+    case 'product_grid':
+    case 'product_detail':
+    case 'cart':
+    case 'checkout':
+      return '<div style="background:' + BG + ';min-height:200px;display:flex;align-items:center;justify-content:center;"><div style="text-align:center;color:#9ca3af;font-size:13px;">Loading theme sections…</div></div>';
+
+    case '__dead_re_ecom__': { /* unreachable — old implementations kept for reference */
       var psStats = d.stats || [{num:'2,500+',label:'Properties'},{num:'850+',label:'Families Served'},{num:'12+',label:'Years'}];
       return '<div style="background:#0f4c81;min-height:680px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 80px;text-align:center;">' +
         '<div style="font-size:62px;font-weight:800;color:#ffffff;line-height:1.08;margin-bottom:16px;">'+escHtml(d.headline||'Find Your Dream Home')+'</div>' +
@@ -3482,6 +3519,7 @@ function _spRealisticPreview(type, d, BG, TC, AC, variant) {
 renderCanvas();
 togglePanel('pages');
 loadThemeCSS(activeTheme);
+loadThemeSections(activeTheme);
 // Init swatch in styles panel
 (function(){
   var t = THEMES_LIST.find(function(x){ return x.id === activeTheme; });
