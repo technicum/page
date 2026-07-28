@@ -23,7 +23,7 @@ var MediaPicker = (function () {
 
   // ── CSS ─────────────────────────────────────────────────────────────────────
   var CSS = [
-    '#mpOverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);}',
+    '#mpOverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);}',
     '#mpModal{background:#fff;border-radius:14px;width:min(900px,96vw);height:min(620px,92vh);display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.28);overflow:hidden;}',
     '/* Header */',
     '#mpHeader{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #e5e7eb;flex-shrink:0;background:#fff;}',
