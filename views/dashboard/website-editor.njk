@@ -340,6 +340,9 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
     <button class="rail-btn" id="rb-styles"   onclick="togglePanel('styles')"   title="Themes">
       <span class="ri">🎨</span><span class="rl">Style & Themes</span>
     </button>
+    <button class="rail-btn" id="rb-catalog" onclick="togglePanel('catalog')" title="Catalog" style="display:none;">
+      <span class="ri" id="rb-catalog-icon">🛍️</span><span class="rl" id="rb-catalog-label">Catalog</span>
+    </button>
     <div class="rail-sep"></div>
     <button class="rail-btn" id="rb-seo"      onclick="togglePanel('seo')"      title="SEO">
       <span class="ri">🔍</span><span class="rl">SEO</span>
@@ -451,6 +454,26 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
           <input class="fi" id="st-logo" value="{{ website.settings.logo or '' }}" placeholder="https://...">
         </div>
         <button onclick="saveSettings()" style="width:100%;padding:9px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Save Settings</button>
+      </div>
+
+      <!-- Catalog — Products / Properties (theme-aware) -->
+      <div class="panel-section" id="ps-catalog">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span id="cat-panel-label" style="font-size:11px;font-weight:700;color:#374151;letter-spacing:0.5px;text-transform:uppercase;">Products</span>
+          <button id="cat-add-btn" onclick="catOpenNewItem()"
+            style="padding:5px 10px;font-size:11px;background:#111827;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:600;">+ Add</button>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          <input id="cat-search" placeholder="Search…" oninput="catFilterList()"
+            style="flex:1;padding:6px 8px;font-size:12px;border:1.5px solid #e5e7eb;border-radius:7px;font-family:inherit;min-width:0;">
+          <select id="cat-collection-filter" onchange="catFilterList()"
+            style="padding:6px 4px;font-size:11px;border:1.5px solid #e5e7eb;border-radius:7px;background:#fff;font-family:inherit;max-width:110px;">
+            <option value="">All</option>
+          </select>
+        </div>
+        <div id="cat-list" style="overflow-y:auto;max-height:calc(100vh - 230px);">
+          <div style="color:#9ca3af;font-size:12px;padding:10px 0;">Loading…</div>
+        </div>
       </div>
 
       <!-- Section Edit (dynamic) -->

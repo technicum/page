@@ -132,16 +132,18 @@ router.get('/template-preview',       site.templatePreview)
 router.get('/template-preview-frame', site.templatePreviewFrame)
 
 // Products
-router.get ('/dashboard/products',                     requireAuth, product.index)
-router.get ('/dashboard/products/collections',         requireAuth, product.collectionsPage)
-router.post('/dashboard/products/create',              requireAuth, product.create)
-router.post('/dashboard/products/update',  requireAuth, product.update)
-router.post('/dashboard/products/delete',  requireAuth, product.destroy)
-router.post('/dashboard/products/reorder',             requireAuth, product.reorder)
-router.post('/dashboard/products/upload-image',        requireAuth, product.uploadImage)
-router.post('/dashboard/products/collections/create',  requireAuth, product.createCollection)
-router.post('/dashboard/products/collections/update',  requireAuth, product.updateCollection)
-router.post('/dashboard/products/collections/delete',  requireAuth, product.deleteCollection)
+router.get ('/dashboard/products',                          requireAuth, product.index)
+router.get ('/dashboard/products/collections',              requireAuth, product.collectionsPage)
+router.get ('/dashboard/products/list-json',                requireAuth, product.listJson)            // ← builder API
+router.get ('/dashboard/products/collections/list-json',    requireAuth, product.collectionsListJson) // ← builder API
+router.post('/dashboard/products/create',                   requireAuth, product.create)
+router.post('/dashboard/products/update',                   requireAuth, product.update)
+router.post('/dashboard/products/delete',                   requireAuth, product.destroy)
+router.post('/dashboard/products/reorder',                  requireAuth, product.reorder)
+router.post('/dashboard/products/upload-image',             requireAuth, product.uploadImage)
+router.post('/dashboard/products/collections/create',       requireAuth, product.createCollection)
+router.post('/dashboard/products/collections/update',       requireAuth, product.updateCollection)
+router.post('/dashboard/products/collections/delete',       requireAuth, product.deleteCollection)
 
 // Dashboard
 router.get ('/dashboard',          requireAuth, dash.index)

@@ -230,6 +230,37 @@ exports.destroy = async (req, res) => {
   res.json({ ok: true })
 }
 
+/* GET /dashboard/products/list-json — used by website builder inline manager
+   ?site_id=X   filter by site (required)
+   ?type=Y      filter by ms_products.type (optional, e.g. "property")
+   ?collection= filter by collection slug (optional)             */
+exports.listJson = async (req, res) => {
+  const user = req.session.user
+  const { site_id, type, collection } = req.query
+  if (!site_id) return res.json({ ok: false, error: 'site_id required' })
+  let sql    = 'SELECT * FROM ms_products WHERE account_id = ? AND site_id = ?'
+  const args = [user.id, site_id]
+  if (type)       { sql += ' AND type = ?';       args.push(type)       }
+  if (collection) { sql += ' AND (collection = ? OR collection LIKE ? OR collection LIKE ? OR collection LIKE ?)';
+                    args.push(collection, collection + ',%', '%,' + collection, '%,' + collection + ',%') }
+  sql += ' ORDER BY sort_order ASC, id ASC'
+  const products = await db.query(sql, args) || []
+  res.json({ ok: true, products })
+}
+
+/* GET /dashboard/products/collections/list-json — used by website builder */
+exports.collectionsListJson = async (req, res) => {
+  const user = req.session.user
+  let collections = []
+  try {
+    collections = await db.query(
+      'SELECT * FROM ms_collections WHERE account_id = ? ORDER BY sort_order ASC, name ASC',
+      [user.id]
+    ) || []
+  } catch(e) { /* table may not exist yet */ }
+  res.json({ ok: true, collections })
+}
+
 /* POST /dashboard/products/reorder */
 exports.reorder = async (req, res) => {
   const user = req.session.user

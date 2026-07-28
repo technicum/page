@@ -50,6 +50,7 @@ function togglePanel(name) {
   var rb = document.getElementById('rb-' + name);
   if (rb) rb.classList.add('active');
   if (name === 'pages') renderPageList();
+  if (name === 'catalog') catLoadPanel();
 }
 
 function closePanel() {
@@ -1122,12 +1123,14 @@ MediaPicker.open(function(f){\
   if (THEME_SECTIONS.fields[type]) {
     html = _renderSchemaFields(THEME_SECTIONS.fields[type], d, sid, fI, fT, fC, fS, fImg, itemsEditor);
     document.getElementById('sec-edit-fields').innerHTML = html;
+    _appendDynamicManager(sid, type, d);
     return;
   }
   // Theme-specific section edit panels — legacy explicit fn
   if (THEME_SECTIONS.editPanel[type]) {
     html = THEME_SECTIONS.editPanel[type](d, { fI: fI, fT: fT, fC: fC, fS: fS, fImg: fImg, itemsEditor: itemsEditor, sid: sid });
     document.getElementById('sec-edit-fields').innerHTML = html;
+    _appendDynamicManager(sid, type, d);
     return;
   }
 
@@ -1274,6 +1277,425 @@ MediaPicker.open(function(f){\
   }
 
   document.getElementById('sec-edit-fields').innerHTML = html;
+  _appendDynamicManager(sid, type, d);
+}
+
+/* ═══════════════════════════════════════════
+   DYNAMIC SECTION ITEM MANAGER
+   (Products / Properties inline in edit panel)
+═══════════════════════════════════════════ */
+
+/* Which section types get the inline item manager, and how */
+var DYNAMIC_ITEM_SECTIONS = {
+  product_grid:      { label: 'Products',   itemLabel: 'Product',  productType: 'physical' },
+  property_listings: { label: 'Properties', itemLabel: 'Property', productType: 'property' }
+};
+
+/* ═══════════════════════════════════════════
+   CATALOG SIDEBAR PANEL
+   Theme-aware product / property manager.
+   Call setCatalogConfig() from a custom sections.js
+   to override the built-in CATALOG_THEME_MAP.
+═══════════════════════════════════════════ */
+var CATALOG_THEME_MAP = {
+  'ecom-fresh': { label: 'Products',   itemLabel: 'Product',  productType: 'physical', icon: '🛍️' },
+  'ecom-luxe':  { label: 'Products',   itemLabel: 'Product',  productType: 'physical', icon: '🛍️' },
+  'ecom-spark': { label: 'Products',   itemLabel: 'Product',  productType: 'physical', icon: '🛍️' },
+  'realestate': { label: 'Properties', itemLabel: 'Property', productType: 'property', icon: '🏠' }
+};
+var CATALOG_CONFIG = null;
+
+/* Custom themes can call this from sections.js:
+   setCatalogConfig({ label:'Travel Packages', itemLabel:'Package', productType:'travel', icon:'✈️' }) */
+function setCatalogConfig(cfg) {
+  CATALOG_CONFIG = cfg;
+  _applyCatalogConfig();
+}
+
+function _initCatalogConfig(themeId) {
+  CATALOG_CONFIG = CATALOG_THEME_MAP[themeId !== undefined ? themeId : SITE_THEME] || null;
+  _applyCatalogConfig();
+}
+
+function _applyCatalogConfig() {
+  var railBtn = document.getElementById('rb-catalog');
+  if (!railBtn) return;
+  if (CATALOG_CONFIG) {
+    railBtn.style.display = '';
+    var iconEl  = document.getElementById('rb-catalog-icon');
+    var labelEl = document.getElementById('rb-catalog-label');
+    if (iconEl)  iconEl.textContent  = CATALOG_CONFIG.icon  || '🗂️';
+    if (labelEl) labelEl.textContent = CATALOG_CONFIG.label || 'Catalog';
+    /* Register 'catalog' as a valid type so _openItemModal gets the right label/productType */
+    DYNAMIC_ITEM_SECTIONS['catalog'] = {
+      label:       CATALOG_CONFIG.label,
+      itemLabel:   CATALOG_CONFIG.itemLabel,
+      productType: CATALOG_CONFIG.productType
+    };
+    PANEL_TITLES['catalog'] = CATALOG_CONFIG.label;
+  } else {
+    railBtn.style.display = 'none';
+    if (activePanel === 'catalog') closePanel();
+  }
+}
+
+/* Runs when catalog panel is opened — loads collections filter + items */
+function catLoadPanel() {
+  if (!CATALOG_CONFIG) return;
+  var labelEl = document.getElementById('cat-panel-label');
+  if (labelEl) labelEl.textContent = CATALOG_CONFIG.label;
+  var addBtn = document.getElementById('cat-add-btn');
+  if (addBtn)  addBtn.textContent  = '+ Add ' + CATALOG_CONFIG.itemLabel;
+  /* Populate collections dropdown */
+  fetch('/dashboard/products/collections/list-json', { credentials: 'same-origin' })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      var sel = document.getElementById('cat-collection-filter');
+      if (!sel) return;
+      var cols = res.collections || [];
+      sel.innerHTML = '<option value="">All</option>' +
+        cols.map(function(c) {
+          return '<option value="' + escHtml(c.name) + '">' + escHtml(c.name) + '</option>';
+        }).join('');
+    })
+    .catch(function(){});
+  catLoadItems();
+}
+
+/* Fetch items and render into #cat-list */
+function catLoadItems() {
+  if (!CATALOG_CONFIG) return;
+  var search = ((document.getElementById('cat-search')            || {}).value || '').toLowerCase();
+  var coll   =  (document.getElementById('cat-collection-filter') || {}).value || '';
+  var listEl = document.getElementById('cat-list');
+  if (!listEl) return;
+  listEl.innerHTML = '<div style="padding:10px 0;color:#9ca3af;font-size:12px;">Loading…</div>';
+
+  var url = '/dashboard/products/list-json?site_id=' + encodeURIComponent(WEBSITE_ID) +
+            '&type=' + encodeURIComponent(CATALOG_CONFIG.productType) +
+            (coll ? '&collection=' + encodeURIComponent(coll) : '');
+
+  fetch(url, { credentials: 'same-origin' })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      var el = document.getElementById('cat-list');
+      if (!el) return;
+      if (!res.ok) { el.innerHTML = '<p style="color:#ef4444;font-size:12px;">Error loading.</p>'; return; }
+      var items = res.products || [];
+      if (search) {
+        items = items.filter(function(p) {
+          return (p.name || '').toLowerCase().indexOf(search) !== -1 ||
+                 (p.description || '').toLowerCase().indexOf(search) !== -1;
+        });
+      }
+      if (!items.length) {
+        el.innerHTML =
+          '<div style="padding:24px 0;text-align:center;color:#9ca3af;font-size:12px;">' +
+          '<div style="font-size:28px;margin-bottom:8px;">' + (CATALOG_CONFIG.icon || '📦') + '</div>' +
+          'No ' + CATALOG_CONFIG.label.toLowerCase() + ' yet.<br>Click <b>+ Add</b> to create one.</div>';
+        return;
+      }
+      el.innerHTML = items.map(function(p) {
+        var thumb = p.image_url
+          ? '<img src="' + escHtml(p.image_url) + '" style="width:40px;height:40px;object-fit:cover;border-radius:6px;flex-shrink:0;">'
+          : '<div style="width:40px;height:40px;border-radius:6px;background:#f3f4f6;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">' +
+            (CATALOG_CONFIG.icon || '📦') + '</div>';
+        var priceStr = p.price ? (p.currency || '₹') + p.price : '';
+        var catStr   = p.collection ? ' · ' + p.collection : '';
+        var stockBadge = (p.in_stock == 0)
+          ? '<span style="font-size:10px;background:#fef2f2;color:#ef4444;padding:1px 5px;border-radius:4px;margin-left:4px;">Out of stock</span>'
+          : '';
+        var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(p))));
+        return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f3f4f6;">' +
+          thumb +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-size:12px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
+              escHtml(p.name || '') + stockBadge +
+            '</div>' +
+            '<div style="font-size:11px;color:#6b7280;">' + escHtml(priceStr + catStr) + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:3px;flex-shrink:0;">' +
+            '<button onclick="catEditEncoded(\'' + encoded + '\')" ' +
+              'style="padding:3px 7px;font-size:11px;border:1px solid #d1d5db;border-radius:5px;background:#fff;cursor:pointer;">Edit</button>' +
+            '<button onclick="catDeleteItem(' + p.id + ')" ' +
+              'style="padding:3px 7px;font-size:11px;border:1px solid #fca5a5;border-radius:5px;background:#fff;color:#ef4444;cursor:pointer;">✕</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    })
+    .catch(function() {
+      var el = document.getElementById('cat-list');
+      if (el) el.innerHTML = '<p style="color:#ef4444;font-size:12px;">Error loading.</p>';
+    });
+}
+
+function catFilterList() { catLoadItems(); }
+
+function catOpenNewItem() {
+  _openItemModal('_catalog_', 'catalog', null);
+}
+
+function catEditEncoded(encoded) {
+  try {
+    var item = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    _openItemModal('_catalog_', 'catalog', item);
+  } catch(e) { _openItemModal('_catalog_', 'catalog', null); }
+}
+
+function catDeleteItem(id) {
+  if (!confirm('Delete this item? This cannot be undone.')) return;
+  fetch('/dashboard/products/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify({ id: id })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) { if (res.ok) catLoadItems(); });
+}
+
+/* Appends the manage-items strip below the schema fields */
+function _appendDynamicManager(sid, type, d) {
+  var cfg = DYNAMIC_ITEM_SECTIONS[type];
+  if (!cfg) return;
+  var container = document.getElementById('sec-edit-fields');
+  if (!container) return;
+
+  var wrap = document.createElement('div');
+  wrap.id  = 'dim-manager';
+  wrap.innerHTML =
+    '<div style="margin-top:16px;padding-top:14px;border-top:1.5px solid #e5e7eb;">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
+        '<span style="font-size:11px;font-weight:700;color:#374151;letter-spacing:0.6px;text-transform:uppercase;">' +
+          '📦 Manage ' + cfg.label +
+        '</span>' +
+        '<button onclick="_openItemModal(\'' + sid + '\',\'' + type + '\',null)" ' +
+          'style="background:#6366f1;color:#fff;border:none;border-radius:6px;' +
+          'padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;">' +
+          '+ Add ' + cfg.itemLabel +
+        '</button>' +
+      '</div>' +
+      '<div id="dim-list" style="font-size:12px;color:#9ca3af;padding:4px 0;">Loading…</div>' +
+    '</div>';
+  container.appendChild(wrap);
+
+  /* Load items scoped to this site + category filter */
+  _loadItemsList(sid, type, (d && d.category) || '');
+}
+
+/* Fetch product list and render into #dim-list */
+function _loadItemsList(sid, type, categoryFilter) {
+  var cfg = DYNAMIC_ITEM_SECTIONS[type];
+  if (!cfg) return;
+  var url = '/dashboard/products/list-json?site_id=' + encodeURIComponent(WEBSITE_ID) +
+            '&type=' + encodeURIComponent(cfg.productType) +
+            (categoryFilter ? '&collection=' + encodeURIComponent(categoryFilter) : '');
+
+  fetch(url, { credentials: 'same-origin' })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      var list = document.getElementById('dim-list');
+      if (!list) return;
+      if (!res.ok) { list.textContent = 'Could not load items.'; return; }
+      var items = res.products || [];
+      if (!items.length) {
+        list.innerHTML =
+          '<div style="padding:10px 0;color:#9ca3af;font-size:12px;">' +
+          'No ' + cfg.label.toLowerCase() + ' yet. Click "+ Add" to create the first one.' +
+          '</div>';
+        return;
+      }
+      list.innerHTML = items.map(function(p) {
+        var thumb = p.image_url
+          ? '<img src="' + escHtml(p.image_url) + '" style="width:34px;height:34px;object-fit:cover;border-radius:5px;flex-shrink:0;">'
+          : '<div style="width:34px;height:34px;border-radius:5px;background:#f3f4f6;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;">📦</div>';
+        var priceStr = p.price ? (p.currency || '₹') + ' ' + p.price : '';
+        var catStr   = p.collection ? ' · ' + p.collection : '';
+        /* Encode item as base64 to avoid attribute escaping issues */
+        var encoded  = btoa(unescape(encodeURIComponent(JSON.stringify(p))));
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6;">' +
+          thumb +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-size:12px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
+              escHtml(p.name || '') +
+            '</div>' +
+            '<div style="font-size:11px;color:#6b7280;">' + escHtml(priceStr + catStr) + '</div>' +
+          '</div>' +
+          '<button onclick="_openItemModalEncoded(\'' + sid + '\',\'' + type + '\',\'' + encoded + '\')" ' +
+            'style="padding:3px 8px;font-size:11px;border:1px solid #d1d5db;border-radius:5px;background:#fff;cursor:pointer;white-space:nowrap;">Edit</button> ' +
+          '<button onclick="_deleteItem(' + p.id + ',\'' + sid + '\',\'' + type + '\')" ' +
+            'style="padding:3px 8px;font-size:11px;border:1px solid #fca5a5;border-radius:5px;background:#fff;color:#ef4444;cursor:pointer;">✕</button>' +
+        '</div>';
+      }).join('');
+    })
+    .catch(function() {
+      var list = document.getElementById('dim-list');
+      if (list) list.textContent = 'Error loading items.';
+    });
+}
+
+/* Helper — decodes base64 item before opening modal (avoids HTML-attr escaping problems) */
+function _openItemModalEncoded(sid, type, encoded) {
+  try {
+    var item = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    _openItemModal(sid, type, item);
+  } catch(e) { _openItemModal(sid, type, null); }
+}
+
+/* Delete a product and refresh the list */
+function _deleteItem(id, sid, type) {
+  if (!confirm('Delete this item? This cannot be undone.')) return;
+  fetch('/dashboard/products/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify({ id: id })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    if (res.ok) {
+      var sec = sections.find(function(s){ return s.id === sid; });
+      _loadItemsList(sid, type, (sec && sec.data && sec.data.category) || '');
+      /* Also refresh catalog sidebar if it's visible */
+      if (document.getElementById('cat-list')) catLoadItems();
+    }
+  });
+}
+
+/* Open the add / edit modal */
+function _openItemModal(sid, type, item) {
+  var cfg    = DYNAMIC_ITEM_SECTIONS[type] || { itemLabel: 'Item', productType: 'physical' };
+  var isEdit = !!(item && item.id);
+  var sec    = sections.find(function(s){ return s.id === sid; });
+  var cat    = (sec && sec.data && sec.data.category) || '';
+
+  /* Remove any existing modal */
+  var old = document.getElementById('dim-modal-overlay');
+  if (old) old.remove();
+
+  var rows = [
+    { key:'name',          label:'Name *',                  ph:'e.g. 3 BHK Apartment',    ta:false },
+    { key:'price',         label:'Price',                   ph:'e.g. 2500000',             ta:false },
+    { key:'compare_price', label:'Compare / Strike Price',  ph:'e.g. 3000000',             ta:false },
+    { key:'collection',    label:'Category / Collection',   ph:cat || 'e.g. apartment',    ta:false },
+    { key:'description',   label:'Description',             ph:'',                         ta:true  },
+    { key:'image_url',     label:'Image URL',               ph:'https://…',                ta:false }
+  ];
+
+  var fieldsHtml = rows.map(function(f) {
+    var val = isEdit ? (item[f.key] || '') : (f.key === 'collection' ? cat : '');
+    var inp = f.ta
+      ? '<textarea id="dim-f-' + f.key + '" placeholder="' + escHtml(f.ph) + '" ' +
+        'style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:8px 10px;' +
+        'font-size:13px;resize:vertical;min-height:70px;box-sizing:border-box;font-family:inherit;">' +
+        escHtml(val) + '</textarea>'
+      : '<input id="dim-f-' + f.key + '" value="' + escHtml(val) + '" placeholder="' + escHtml(f.ph) + '" ' +
+        'style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:8px 10px;' +
+        'font-size:13px;box-sizing:border-box;">';
+    return '<div style="margin-bottom:10px;">' +
+      '<label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">' + f.label + '</label>' +
+      inp + '</div>';
+  }).join('');
+
+  var overlay = document.createElement('div');
+  overlay.id  = 'dim-modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML =
+    '<div style="background:#fff;border-radius:14px;width:480px;max-width:calc(100vw - 40px);' +
+    'max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.28);">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;' +
+        'padding:18px 20px 14px;border-bottom:1px solid #f3f4f6;position:sticky;top:0;background:#fff;">' +
+        '<span style="font-size:15px;font-weight:700;color:#111827;">' +
+          (isEdit ? 'Edit' : 'Add') + ' ' + cfg.itemLabel +
+        '</span>' +
+        '<button onclick="document.getElementById(\'dim-modal-overlay\').remove()" ' +
+          'style="background:none;border:none;font-size:22px;color:#6b7280;cursor:pointer;line-height:1;">×</button>' +
+      '</div>' +
+      '<div style="padding:18px 20px;">' +
+        '<input type="hidden" id="dim-f-id" value="' + (isEdit ? item.id : '') + '">' +
+        '<input type="hidden" id="dim-f-ptype" value="' + escHtml(cfg.productType) + '">' +
+        fieldsHtml +
+        '<div id="dim-modal-err" style="color:#ef4444;font-size:12px;min-height:16px;margin-bottom:10px;"></div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
+          '<button onclick="document.getElementById(\'dim-modal-overlay\').remove()" ' +
+            'style="padding:9px 18px;font-size:13px;border:1.5px solid #e5e7eb;border-radius:8px;' +
+            'background:#fff;cursor:pointer;font-weight:500;">Cancel</button>' +
+          '<button id="dim-save-btn" onclick="_saveItemModal(\'' + sid + '\',\'' + type + '\')" ' +
+            'style="padding:9px 18px;font-size:13px;background:#6366f1;color:#fff;border:none;' +
+            'border-radius:8px;font-weight:600;cursor:pointer;">' +
+            (isEdit ? 'Save Changes' : 'Create ' + cfg.itemLabel) +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+
+  var nameEl = document.getElementById('dim-f-name');
+  if (nameEl) setTimeout(function(){ nameEl.focus(); }, 60);
+}
+
+/* Save from modal (create or update) */
+function _saveItemModal(sid, type) {
+  var id       = (document.getElementById('dim-f-id')           || {}).value || '';
+  var prodType = (document.getElementById('dim-f-ptype')        || {}).value || 'physical';
+  var name     = ((document.getElementById('dim-f-name')        || {}).value || '').trim();
+  if (!name) {
+    var errEl = document.getElementById('dim-modal-err');
+    if (errEl) errEl.textContent = 'Name is required.';
+    return;
+  }
+  var body = {
+    site_id:       WEBSITE_ID,
+    type:          prodType,
+    name:          name,
+    price:         (document.getElementById('dim-f-price')         || {}).value || '',
+    compare_price: (document.getElementById('dim-f-compare_price') || {}).value || '',
+    collection:    (document.getElementById('dim-f-collection')    || {}).value || '',
+    description:   (document.getElementById('dim-f-description')   || {}).value || '',
+    image_url:     (document.getElementById('dim-f-image_url')     || {}).value || '',
+    currency:      'INR',
+    in_stock:      1,
+    status:        1
+  };
+  if (id) body.id = id;
+  var url = id ? '/dashboard/products/update' : '/dashboard/products/create';
+
+  var btn = document.getElementById('dim-save-btn');
+  if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify(body)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    if (!res.ok) {
+      var errEl = document.getElementById('dim-modal-err');
+      if (errEl) errEl.textContent = res.error || 'Could not save.';
+      if (btn) { btn.textContent = id ? 'Save Changes' : 'Create'; btn.disabled = false; }
+      return;
+    }
+    var overlay = document.getElementById('dim-modal-overlay');
+    if (overlay) overlay.remove();
+    /* Refresh the appropriate list */
+    if (type === 'catalog') {
+      catLoadItems();
+    } else {
+      var sec = sections.find(function(s){ return s.id === sid; });
+      _loadItemsList(sid, type, (sec && sec.data && sec.data.category) || '');
+      /* Also refresh catalog sidebar if it's visible */
+      if (document.getElementById('cat-list')) catLoadItems();
+    }
+  })
+  .catch(function() {
+    var errEl = document.getElementById('dim-modal-err');
+    if (errEl) errEl.textContent = 'Network error — please try again.';
+    if (btn) { btn.textContent = id ? 'Save Changes' : 'Create'; btn.disabled = false; }
+  });
 }
 
 /* Data setters (from edit panel — only update canvas, NOT the panel) */
@@ -1696,6 +2118,7 @@ function selectTheme(themeId) {
   // Live preview in canvas
   loadThemeCSS(themeId);
   loadThemeSections(themeId);
+  _initCatalogConfig(themeId);
 }
 
 async function saveStyles() {
@@ -3520,6 +3943,7 @@ renderCanvas();
 togglePanel('pages');
 loadThemeCSS(activeTheme);
 loadThemeSections(activeTheme);
+_initCatalogConfig();
 // Init swatch in styles panel
 (function(){
   var t = THEMES_LIST.find(function(x){ return x.id === activeTheme; });
