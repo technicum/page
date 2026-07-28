@@ -1123,14 +1123,12 @@ MediaPicker.open(function(f){\
   if (THEME_SECTIONS.fields[type]) {
     html = _renderSchemaFields(THEME_SECTIONS.fields[type], d, sid, fI, fT, fC, fS, fImg, itemsEditor);
     document.getElementById('sec-edit-fields').innerHTML = html;
-    _appendDynamicManager(sid, type, d);
     return;
   }
   // Theme-specific section edit panels — legacy explicit fn
   if (THEME_SECTIONS.editPanel[type]) {
     html = THEME_SECTIONS.editPanel[type](d, { fI: fI, fT: fT, fC: fC, fS: fS, fImg: fImg, itemsEditor: itemsEditor, sid: sid });
     document.getElementById('sec-edit-fields').innerHTML = html;
-    _appendDynamicManager(sid, type, d);
     return;
   }
 
@@ -1277,7 +1275,6 @@ MediaPicker.open(function(f){\
   }
 
   document.getElementById('sec-edit-fields').innerHTML = html;
-  _appendDynamicManager(sid, type, d);
 }
 
 /* ═══════════════════════════════════════════
@@ -2840,7 +2837,9 @@ var PREBUILT_CATS = [
   { id:'columns',      label:'Columns',      icon:'⬛', sub:'Multi-column layouts',            bg:'#f3f4f6' },
   { id:'rich_text',    label:'Rich Text',    icon:'📝', sub:'Text & content blocks',           bg:'#fefce8' },
   { id:'newsletter',   label:'Newsletter',   icon:'📧', sub:'Email subscribe sections',        bg:'#ecfdf5' },
-  { id:'contact',      label:'Contact',      icon:'📬', sub:'Contact forms & info',            bg:'#f8fafc' }
+  { id:'contact',      label:'Contact',      icon:'📬', sub:'Contact forms & info',            bg:'#f8fafc' },
+  { id:'product_grid',      label:'Products',    icon:'🛍️', sub:'Dynamic product grid from your catalog',     bg:'#dcfce7' },
+  { id:'property_listings', label:'Properties',  icon:'🏠', sub:'Dynamic property listings from your catalog', bg:'#e0f2fe' }
   // Theme-specific sections are registered by each theme's sections.js
   // via registerThemeSections() — see themes/website/<id>/sections.js
 ];
@@ -2959,6 +2958,22 @@ var PREBUILT_VARIANTS = {
       data:{ heading:'Get in Touch', email:'contact@example.com', phone:'+91 98765 43210', address:'123 Main Street, City, State' } },
     { label:'Form Only', desc:'Clean form with heading, no contact details', color:'#fff',
       data:{ heading:'Send Us a Message', email:'', phone:'', address:'' } }
+  ],
+  product_grid: [
+    { label:'Product Grid', desc:'Responsive grid of products loaded dynamically from your catalog', color:'#dcfce7', tag:'dynamic',
+      data:{ heading:'Our Products', subheading:'Handpicked for you', limit:'6', category:'', sort_by:'newest' } },
+    { label:'Category Shop', desc:'Filter by a specific category — great for landing pages', color:'#d1fae5',
+      data:{ heading:'Shop Collection', subheading:'', limit:'8', category:'', sort_by:'newest' } },
+    { label:'Featured Only', desc:'Show just 3–4 hero products above the fold', color:'#ecfdf5',
+      data:{ heading:'Featured Products', subheading:'Our best sellers', limit:'4', category:'', sort_by:'featured' } }
+  ],
+  property_listings: [
+    { label:'Property Grid', desc:'Grid of properties with price, location, and key details', color:'#e0f2fe', tag:'dynamic',
+      data:{ heading:'Featured Properties', subheading:'Hand-picked by our agents', limit:'6', category:'', sort_by:'newest' } },
+    { label:'New Listings', desc:'Highlight the latest additions from your property catalog', color:'#bae6fd',
+      data:{ heading:'New Listings', subheading:'Fresh properties added this week', limit:'9', category:'', sort_by:'newest' } },
+    { label:'By Price', desc:'Show properties sorted from lowest to highest price', color:'#e0f7fa',
+      data:{ heading:'Properties', subheading:'Sorted by price', limit:'6', category:'', sort_by:'price_asc' } }
   ],
   // Theme-specific variants are registered by each theme's sections.js
   // via registerThemeSections({ variants: { ... } })

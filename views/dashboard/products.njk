@@ -46,6 +46,7 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .pc-type.digital{background:#eff6ff;color:#1d4ed8;}
 .pc-type.service{background:#f0fdf4;color:#15803d;}
 .pc-type.job{background:#faf5ff;color:#7c3aed;}
+.pc-type.property{background:#e0f2fe;color:#0369a1;}
 
 /* status dot top-right */
 .pc-status{position:absolute;top:11px;right:11px;width:8px;height:8px;border-radius:50%;}
@@ -202,6 +203,9 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
         <button class="type-tab" data-filter="job" onclick="filterType('job',this)">
           💼 Jobs <span class="count" id="cnt-job">0</span>
         </button>
+        <button class="type-tab" data-filter="property" onclick="filterType('property',this)">
+          🏠 Properties <span class="count" id="cnt-property">0</span>
+        </button>
       </div>
 
       <!-- Collection filter chips (shown for non-job tabs) -->
@@ -228,6 +232,28 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
             {% if p.collection %}<div class="pc-location">📍 {{ p.collection }}</div>{% endif %}
             {% if p.description %}<div class="pc-desc">{{ p.description | truncate(80) }}</div>{% endif %}
             {% if p.file_url %}<a href="{{ p.file_url }}" target="_blank" class="pc-apply-btn">Apply →</a>{% endif %}
+          </div>
+
+          {% elif p.type == 'property' %}
+          <!-- ── Property card ── -->
+          <div class="pc-img" style="background:#e0f2fe;">
+            {% if p.image_url %}
+            <img src="{{ p.image_url }}" alt="{{ p.name }}" onerror="this.style.display='none';this.parentNode.innerHTML='🏠'">
+            {% else %}🏠{% endif %}
+            <span class="pc-type property">Property</span>
+            <span class="pc-status {{ 'active' if p.status else 'inactive' }}"></span>
+          </div>
+          <div class="pc-body">
+            <div class="pc-name">{{ p.name }}</div>
+            {% if p.duration %}<span class="job-badge" style="background:#e0f2fe;color:#0369a1;">{{ p.duration }}</span>{% endif %}
+            {% if p.collection %}<div class="pc-location">📍 {{ p.collection }}</div>{% endif %}
+            {% if p.description %}<div class="pc-desc">{{ p.description | truncate(80) }}</div>{% endif %}
+            <div class="pc-price-row">
+              {% if p.price %}<span class="pc-price">₹{{ p.price | int }}</span>
+              {% if p.compare_price and p.compare_price > p.price %}<span class="pc-compare">₹{{ p.compare_price | int }}</span>{% endif %}
+              {% else %}<span class="pc-price" style="color:#d1d5db;font-weight:400;font-size:13px;">Price on request</span>{% endif %}
+            </div>
+            {% if not p.in_stock %}<div class="pc-stock">Not available</div>{% endif %}
           </div>
 
           {% else %}
@@ -311,6 +337,11 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
             <div class="type-opt-icon">💼</div>
             <div class="type-opt-label">Job</div>
             <div class="type-opt-sub">Hiring listing</div>
+          </div>
+          <div class="type-opt" data-type="property" onclick="selectType('property')">
+            <div class="type-opt-icon">🏠</div>
+            <div class="type-opt-label">Property</div>
+            <div class="type-opt-sub">Real estate listing</div>
           </div>
         </div>
       </div>
@@ -545,7 +576,7 @@ function filterType(type, btn) {
 /* ── Collection chips ── */
 function buildCollectionChips(typeFilter) {
   var container = document.getElementById('collection-tabs');
-  // Don't show chips for job tab or if no non-job products
+  // Don't show chips for job tab
   if (typeFilter === 'job') { container.style.display = 'none'; return; }
   var cols = new Set();
   ALL_PRODUCTS.forEach(function(p) {
@@ -591,28 +622,43 @@ function selectType(type) {
   document.getElementById('p-type').value = type;
   document.querySelectorAll('.type-opt').forEach(function(o){ o.classList.toggle('selected', o.dataset.type === type); });
 
-  var isJob = type === 'job';
+  var isJob      = type === 'job';
+  var isProperty = type === 'property';
 
   // product-type conditionals
   document.getElementById('field-file').classList.toggle('show', type === 'digital');
-  document.getElementById('field-duration').classList.toggle('show', type === 'service');
-  document.getElementById('field-stock').classList.toggle('show', type === 'physical');
+  document.getElementById('field-duration').classList.toggle('show', type === 'service' || isProperty);
+  document.getElementById('field-stock').classList.toggle('show', type === 'physical' || isProperty);
 
   // job-type conditionals
   document.getElementById('field-jobtype').classList.toggle('show', isJob);
   document.getElementById('field-location').classList.toggle('show', isJob);
   document.getElementById('field-apply').classList.toggle('show', isJob);
 
-  // shared fields: hide for job
+  // shared fields
   document.getElementById('field-collection').style.display = isJob ? 'none' : '';
   document.getElementById('price-row-wrap').style.display = isJob ? 'none' : '';
 
   // dynamic labels
-  document.getElementById('p-name-label').textContent = isJob ? 'Job Title *' : 'Name *';
-  document.getElementById('p-desc-label').textContent = isJob ? 'Job Description / Requirements' : 'Description';
-  document.getElementById('p-image-label').textContent = isJob ? 'Company Logo (optional)' : 'Product Image';
-  document.getElementById('p-name').placeholder = isJob ? 'e.g. Sales Manager' : 'e.g. Handmade Candle Set';
-  document.getElementById('p-description').placeholder = isJob ? 'What we\'re looking for...' : 'Short description...';
+  document.getElementById('p-name-label').textContent    = isJob ? 'Job Title *' : (isProperty ? 'Property Name *' : 'Name *');
+  document.getElementById('p-desc-label').textContent    = isJob ? 'Job Description / Requirements' : 'Description';
+  document.getElementById('p-image-label').textContent   = isJob ? 'Company Logo (optional)' : (isProperty ? 'Property Image' : 'Product Image');
+  document.getElementById('p-name').placeholder          = isJob ? 'e.g. Sales Manager' : (isProperty ? 'e.g. 3 BHK Apartment' : 'e.g. Handmade Candle Set');
+  document.getElementById('p-description').placeholder   = isJob ? "What we're looking for..." : (isProperty ? 'Describe the property...' : 'Short description...');
+
+  // duration label context: "Property Type" for property, "Duration" for service
+  var durLabel = document.querySelector('#field-duration label');
+  if (durLabel) durLabel.textContent = isProperty ? 'Property Type' : 'Duration';
+  document.getElementById('p-duration').placeholder = isProperty ? 'e.g. 3 BHK, Villa, Flat' : 'e.g. 1 hour, 30 min';
+
+  // stock label context: "Available" for property
+  var stockLabel = document.querySelector('#field-stock label');
+  if (stockLabel) {
+    var stockCheck = document.getElementById('p-in-stock');
+    stockLabel.innerHTML = '';
+    if (stockCheck) stockLabel.appendChild(stockCheck);
+    stockLabel.append(' ' + (isProperty ? 'Available' : 'In stock'));
+  }
 }
 
 /* ── Open add modal ── */
@@ -637,8 +683,9 @@ function openEditModal(id) {
   var p = ALL_PRODUCTS.find(function(x){ return x.id === id; });
   if (!p) return;
   editingId = id;
-  var isJob = p.type === 'job';
-  document.getElementById('modal-title-text').textContent = isJob ? 'Edit job' : 'Edit product';
+  var isJob      = p.type === 'job';
+  var isProperty = p.type === 'property';
+  document.getElementById('modal-title-text').textContent = isJob ? 'Edit job' : (isProperty ? 'Edit property' : 'Edit product');
   document.getElementById('modal-save-btn').textContent = 'Save changes';
   document.getElementById('type-selector-wrap').style.display = 'none';
   document.getElementById('p-type').value = p.type;
@@ -646,20 +693,8 @@ function openEditModal(id) {
   document.getElementById('p-name').value = p.name || '';
   document.getElementById('p-description').value = p.description || '';
 
-  // Set labels
-  document.getElementById('p-name-label').textContent = isJob ? 'Job Title *' : 'Name *';
-  document.getElementById('p-desc-label').textContent = isJob ? 'Job Description / Requirements' : 'Description';
-  document.getElementById('p-image-label').textContent = isJob ? 'Company Logo (optional)' : 'Product Image';
-
-  // Show/hide sections
-  document.getElementById('price-row-wrap').style.display = isJob ? 'none' : '';
-  document.getElementById('field-collection').style.display = isJob ? 'none' : '';
-  document.getElementById('field-file').classList.toggle('show', p.type === 'digital');
-  document.getElementById('field-duration').classList.toggle('show', p.type === 'service');
-  document.getElementById('field-stock').classList.toggle('show', p.type === 'physical');
-  document.getElementById('field-jobtype').classList.toggle('show', isJob);
-  document.getElementById('field-location').classList.toggle('show', isJob);
-  document.getElementById('field-apply').classList.toggle('show', isJob);
+  /* Use selectType to set all labels/visibility consistently */
+  selectType(p.type);
 
   if (isJob) {
     document.getElementById('p-jobtype').value = p.duration || '';
@@ -670,7 +705,6 @@ function openEditModal(id) {
     document.getElementById('p-compare').value = p.compare_price || '';
     document.getElementById('p-file').value = p.file_url || '';
     document.getElementById('p-duration').value = p.duration || '';
-    // Parse existing collection JSON and pre-check matching boxes
     var existingCols = parseCollections(p.collection);
     rebuildCollectionChecks(existingCols);
   }
@@ -938,7 +972,7 @@ function removeCollection(id, btn) {
 
 /* ── Update counts ── */
 function updateCounts() {
-  var types = ['physical','digital','service','job'];
+  var types = ['physical','digital','service','job','property'];
   document.getElementById('cnt-all').textContent = document.querySelectorAll('.product-card').length;
   types.forEach(function(t){
     var el = document.getElementById('cnt-' + t);
