@@ -1,0 +1,1 @@
+{"id":"google-analytics","name":"Google Analytics","description":"Connect GA4 to track visitors, page views and conversions.","icon":"📊","category":"analytics","version":"1.0.0","author":"PageZaper","config":[{"key":"measurementId","type":"text","label":"Measurement ID","placeholder":"G-XXXXXXXXXX","hint":"GA4 → Admin → Data Streams → your stream","required":true}]}

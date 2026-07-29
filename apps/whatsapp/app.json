@@ -1,0 +1,37 @@
+{
+  "id": "whatsapp",
+  "name": "WhatsApp Button",
+  "description": "Add a floating WhatsApp chat button to your site. Visitors can message you instantly.",
+  "icon": "💬",
+  "category": "communication",
+  "version": "1.0.0",
+  "author": "PageZaper",
+  "targets": ["website", "minisite"],
+  "config": [
+    {
+      "key": "phone",
+      "type": "tel",
+      "label": "WhatsApp Number",
+      "placeholder": "919876543210",
+      "hint": "Include country code, no + or spaces. E.g. 919876543210",
+      "required": true
+    },
+    {
+      "key": "message",
+      "type": "text",
+      "label": "Pre-filled Message",
+      "placeholder": "Hi! I'd like to know more.",
+      "required": false
+    },
+    {
+      "key": "position",
+      "type": "select",
+      "label": "Position",
+      "options": [
+        { "value": "bottom-right", "label": "Bottom right" },
+        { "value": "bottom-left",  "label": "Bottom left"  }
+      ],
+      "default": "bottom-right"
+    }
+  ]
+}

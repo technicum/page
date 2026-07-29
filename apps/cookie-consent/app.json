@@ -1,0 +1,50 @@
+{
+  "id": "cookie-consent",
+  "name": "Cookie Consent",
+  "description": "Show a GDPR-friendly cookie consent banner to visitors. Customise the message and button text.",
+  "icon": "🍪",
+  "category": "legal",
+  "version": "1.0.0",
+  "author": "PageZaper",
+  "targets": ["website"],
+  "config": [
+    {
+      "key": "message",
+      "type": "textarea",
+      "label": "Banner Message",
+      "placeholder": "We use cookies to improve your experience on our site.",
+      "default": "We use cookies to improve your experience on our site.",
+      "required": true
+    },
+    {
+      "key": "buttonText",
+      "type": "text",
+      "label": "Accept Button Text",
+      "placeholder": "Got it",
+      "default": "Got it",
+      "required": true
+    },
+    {
+      "key": "position",
+      "type": "select",
+      "label": "Position",
+      "options": [
+        { "value": "bottom", "label": "Bottom bar" },
+        { "value": "top",    "label": "Top bar"    }
+      ],
+      "default": "bottom"
+    },
+    {
+      "key": "bgColor",
+      "type": "color",
+      "label": "Banner Background",
+      "default": "#1f2937"
+    },
+    {
+      "key": "textColor",
+      "type": "color",
+      "label": "Text Color",
+      "default": "#f9fafb"
+    }
+  ]
+}

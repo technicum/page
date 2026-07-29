@@ -20,6 +20,7 @@ const themeUpload = multer({ dest: os.tmpdir() })
 const { db }     = require('../config/db')
 const product    = require('../controllers/productController')
 const gallery    = require('../controllers/galleryController')
+const appMgr     = require('../config/appManager')
 const website    = require('../controllers/websiteController')
 
 // ── Debug route (REMOVE IN PRODUCTION) ───────────────────────────────────────
@@ -151,6 +152,28 @@ router.get ('/dashboard/galleries/list-json',requireAuth, gallery.listJson)
 router.post('/dashboard/galleries/create',   requireAuth, gallery.create)
 router.post('/dashboard/galleries/update',   requireAuth, gallery.update)
 router.post('/dashboard/galleries/delete',   requireAuth, gallery.destroy)
+
+// Apps API — list available apps for a target, save app config per site
+router.get('/dashboard/apps/list', requireAuth, (req, res) => {
+  const target = req.query.target || 'website'
+  res.json({ ok: true, apps: appMgr.getApps(target) })
+})
+router.post('/dashboard/apps/save', requireAuth, async (req, res) => {
+  const user   = req.session.user
+  const { site_id, target, apps } = req.body
+  if (!site_id) return res.json({ ok: false, error: 'site_id required' })
+  try {
+    // Ensure apps column exists
+    try { await db.execute('ALTER TABLE ms_sites ADD COLUMN apps LONGTEXT DEFAULT NULL') } catch(e) {}
+    await db.execute(
+      'UPDATE ms_sites SET apps=? WHERE id=? AND account_id=?',
+      [JSON.stringify(apps || {}), site_id, user.id]
+    )
+    res.json({ ok: true })
+  } catch(e) {
+    res.json({ ok: false, error: e.message })
+  }
+})
 
 // Dashboard
 router.get ('/dashboard',          requireAuth, dash.index)

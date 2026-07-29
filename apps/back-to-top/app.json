@@ -1,0 +1,28 @@
+{
+  "id": "back-to-top",
+  "name": "Back to Top",
+  "description": "Show a scroll-to-top button when visitors scroll down. Smooth and lightweight.",
+  "icon": "⬆️",
+  "category": "navigation",
+  "version": "1.0.0",
+  "author": "PageZaper",
+  "targets": ["website"],
+  "config": [
+    {
+      "key": "color",
+      "type": "color",
+      "label": "Button Color",
+      "default": "#6366f1"
+    },
+    {
+      "key": "position",
+      "type": "select",
+      "label": "Position",
+      "options": [
+        { "value": "bottom-right", "label": "Bottom right" },
+        { "value": "bottom-left",  "label": "Bottom left"  }
+      ],
+      "default": "bottom-right"
+    }
+  ]
+}
