@@ -1,5 +1,6 @@
-const { db } = require('../config/db')
+const { db }      = require('../config/db')
 const { v4: uuidv4 } = require('uuid')
+const appManager  = require('../config/appManager')
 
 /* ── helpers ────────────────────────────────────────────────────────────────── */
 function slug(str) {
@@ -819,7 +820,12 @@ exports.publicSite = async (req, res) => {
                   pages.find(p => p.is_home) ||
                   pages[0]
 
-  res.render('website-public.njk', { website, pages, current })
+  // Render enabled apps
+  let siteApps = {}
+  try { siteApps = JSON.parse(website.apps || '{}') } catch(e) {}
+  const { headHtml, bodyEndHtml } = appManager.renderApps('website', siteApps)
+
+  res.render('website-public.njk', { website, pages, current, appHeadHtml: headHtml, appBodyEndHtml: bodyEndHtml })
   } catch(e) {
     console.error('[publicSite] error:', e.message)
     res.status(500).send('Something went wrong loading this website.')
