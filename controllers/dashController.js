@@ -197,7 +197,8 @@ exports.biolinkBuilder = async (req, res) => {
     userForms,
     userBookingEvents,
     siteAppsJson,
-    baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
+    baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com',
+    serverIp:   process.env.SERVER_IP   || ''
   })
 }
 

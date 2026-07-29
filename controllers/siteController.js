@@ -513,6 +513,46 @@ exports.delete = async (req, res) => {
   res.redirect('/dashboard')
 }
 
+// ── Set / remove custom domain for mini site ──────────────────────────────────
+exports.setDomain = async (req, res) => {
+  try {
+    const user   = req.session.user
+    const siteId = parseInt(req.body.site_id) || 0
+    const domain = (req.body.domain || '').toLowerCase().trim()
+
+    const site = await db.first('SELECT id FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
+    if (!site) return res.json({ ok: false, error: 'Site not found.' })
+
+    // Remove domain
+    if (!domain) {
+      await db.execute('UPDATE ms_sites SET custom_domain = NULL WHERE id = ?', [siteId])
+      return res.json({ ok: true, domain: null })
+    }
+
+    // Validate: allow abc.com or xyz.abc.com but not paths or protocols
+    if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(domain)) {
+      return res.json({ ok: false, error: 'Invalid domain format. Use abc.com or sub.abc.com' })
+    }
+    // Block the platform's own domain
+    const baseDomain = (process.env.BASE_DOMAIN || '').toLowerCase()
+    if (baseDomain && (domain === baseDomain || domain.endsWith('.' + baseDomain))) {
+      return res.json({ ok: false, error: 'Cannot use the platform domain. Enter your own domain.' })
+    }
+
+    // Uniqueness check across both tables
+    const existsSite = await db.first('SELECT id FROM ms_sites WHERE custom_domain = ? AND id != ?', [domain, siteId])
+    if (existsSite) return res.json({ ok: false, error: 'That domain is already connected to another site.' })
+    const existsWeb = await db.first('SELECT id FROM ms_websites WHERE custom_domain = ?', [domain])
+    if (existsWeb) return res.json({ ok: false, error: 'That domain is already connected to another website.' })
+
+    await db.execute('UPDATE ms_sites SET custom_domain = ? WHERE id = ?', [domain, siteId])
+    return res.json({ ok: true, domain })
+  } catch (err) {
+    console.error('setDomain', err)
+    return res.json({ ok: false, error: err.message })
+  }
+}
+
 exports.templatePreview = async (req, res) => {
   const slug    = (req.query.id || 'minimal').replace(/[^a-z0-9-]/g, '')
   const all     = themeManager.loadAll()

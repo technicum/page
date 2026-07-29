@@ -554,6 +554,57 @@ textarea.field-input{resize:vertical;min-height:52px;}
       </div>
     </div>
 
+    <!-- Custom Domain -->
+    <div class="acc" id="accDomain">
+      <div class="acc-head" onclick="toggleAcc('accDomain')">
+        <span class="acc-icon">🌐</span>
+        <span class="acc-label">Custom Domain</span>
+        <span class="acc-chevron">›</span>
+      </div>
+      <div class="acc-body">
+        <p style="font-size:12px;color:#6b7280;margin:0 0 10px;line-height:1.5;">Connect your own domain (e.g. <strong>abc.com</strong>) or a subdomain of your domain (e.g. <strong>links.abc.com</strong>).</p>
+
+        {% if site.custom_domain %}
+        <div id="domainConnected" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:600;color:#16a34a;margin-bottom:2px;">✅ Connected</div>
+          <div style="font-size:13px;color:#15803d;font-weight:500;">{{ site.custom_domain }}</div>
+        </div>
+        {% else %}
+        <div id="domainConnected" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:600;color:#16a34a;margin-bottom:2px;">✅ Connected</div>
+          <div id="domainConnectedText" style="font-size:13px;color:#15803d;font-weight:500;"></div>
+        </div>
+        {% endif %}
+
+        <div class="fg">
+          <label class="fg-label">Your domain</label>
+          <input class="fg-input" id="customDomainInput" placeholder="abc.com or links.abc.com"
+            value="{{ site.custom_domain or '' }}"
+            oninput="document.getElementById('domainMsg').textContent=''">
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <button onclick="saveDomain()" style="flex:1;padding:8px;background:#6366f1;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Connect Domain</button>
+          {% if site.custom_domain %}
+          <button onclick="removeDomain()" id="domainRemoveBtn" style="padding:8px 12px;background:#fee2e2;color:#dc2626;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Remove</button>
+          {% else %}
+          <button onclick="removeDomain()" id="domainRemoveBtn" style="display:none;padding:8px 12px;background:#fee2e2;color:#dc2626;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Remove</button>
+          {% endif %}
+        </div>
+        <div id="domainMsg" style="font-size:12px;margin-top:6px;color:#6b7280;"></div>
+
+        <div style="margin-top:14px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+          <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">DNS Setup</div>
+          <div style="font-size:12px;color:#475569;line-height:1.7;">
+            Add one of these records with your domain registrar:<br>
+            <strong>For root domain (abc.com):</strong><br>
+            Type: <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px;">A</code> &nbsp; Value: <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px;">{{ serverIp or 'Your server IP' }}</code><br><br>
+            <strong>For subdomain (links.abc.com):</strong><br>
+            Type: <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px;">CNAME</code> &nbsp; Value: <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px;">{{ site.subdomain }}.{{ baseDomain }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /tabSettings -->
 
   <!-- BLOCKS TAB -->
@@ -2143,6 +2194,60 @@ function blAppsSaveConfig() {
       setTimeout(function() { if (msgEl) msgEl.textContent = ''; }, 2000);
     }
     if (ok) blAppsCloseConfig();
+  });
+}
+
+/* ── Custom Domain ───────────────────────────────────────────────────────────── */
+function saveDomain() {
+  var input  = document.getElementById('customDomainInput');
+  var msgEl  = document.getElementById('domainMsg');
+  var domain = (input.value || '').trim().toLowerCase()
+    .replace(/^https?:\/\//i, '').replace(/\/.*/,'');
+
+  if (!domain) { msgEl.style.color='#ef4444'; msgEl.textContent='Enter a domain name first.'; return; }
+
+  msgEl.style.color='#6b7280'; msgEl.textContent='Saving…';
+  fetch('/dashboard/site/set-domain', {
+    method: 'POST', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ site_id: SITE_ID, domain: domain })
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    if (data.ok) {
+      msgEl.style.color='#059669'; msgEl.textContent='✅ Domain connected! Set up your DNS to go live.';
+      input.value = domain;
+      var connectedDiv  = document.getElementById('domainConnected');
+      var connectedText = document.getElementById('domainConnectedText');
+      var removeBtn     = document.getElementById('domainRemoveBtn');
+      if (connectedDiv)  { connectedDiv.style.display=''; }
+      if (connectedText) { connectedText.textContent = domain; }
+      if (removeBtn)     { removeBtn.style.display=''; }
+    } else {
+      msgEl.style.color='#ef4444'; msgEl.textContent = data.error || 'Failed to save domain.';
+    }
+  }).catch(function() {
+    msgEl.style.color='#ef4444'; msgEl.textContent='Network error. Try again.';
+  });
+}
+
+function removeDomain() {
+  if (!confirm('Remove custom domain?')) return;
+  var msgEl = document.getElementById('domainMsg');
+  msgEl.style.color='#6b7280'; msgEl.textContent='Removing…';
+  fetch('/dashboard/site/set-domain', {
+    method: 'POST', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ site_id: SITE_ID, domain: '' })
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    if (data.ok) {
+      msgEl.style.color='#059669'; msgEl.textContent='Domain removed.';
+      document.getElementById('customDomainInput').value = '';
+      var connectedDiv = document.getElementById('domainConnected');
+      var removeBtn    = document.getElementById('domainRemoveBtn');
+      if (connectedDiv) connectedDiv.style.display='none';
+      if (removeBtn)    removeBtn.style.display='none';
+    } else {
+      msgEl.style.color='#ef4444'; msgEl.textContent = data.error || 'Failed.';
+    }
   });
 }
 

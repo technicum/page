@@ -4227,3 +4227,59 @@ _initCatalogConfig();
   var t = THEMES_LIST.find(function(x){ return x.id === activeTheme; });
   if (t) tcUpdateSwatch(t.id);
 })();
+
+/* ═══════════════════════════════════════════
+   CUSTOM DOMAIN — Website
+═══════════════════════════════════════════ */
+function wsSaveDomain() {
+  var input  = document.getElementById('wsDomainInput');
+  var msgEl  = document.getElementById('wsDomainMsg');
+  var domain = (input.value || '').trim().toLowerCase()
+    .replace(/^https?:\/\//i, '').replace(/\/.*/,'').replace(/\s/g,'');
+
+  if (!domain) { msgEl.style.color='#ef4444'; msgEl.textContent='Enter a domain name first.'; return; }
+
+  msgEl.style.color='#6b7280'; msgEl.textContent='Saving…';
+  fetch('/dashboard/website/' + WEBSITE_ID + '/set-domain', {
+    method: 'POST', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ domain: domain })
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    if (data.ok) {
+      msgEl.style.color='#059669'; msgEl.textContent='✅ Domain connected! Set up your DNS below to go live.';
+      input.value = domain;
+      var connectedDiv  = document.getElementById('wsDomainConnected');
+      var connectedText = document.getElementById('wsDomainConnectedText');
+      var removeBtn     = document.getElementById('wsDomainRemoveBtn');
+      if (connectedDiv)  { connectedDiv.style.display=''; }
+      if (connectedText) { connectedText.textContent = domain; }
+      if (removeBtn)     { removeBtn.style.display=''; }
+    } else {
+      msgEl.style.color='#ef4444'; msgEl.textContent = data.error || 'Failed to save domain.';
+    }
+  }).catch(function() {
+    msgEl.style.color='#ef4444'; msgEl.textContent='Network error. Try again.';
+  });
+}
+
+function wsRemoveDomain() {
+  if (!confirm('Remove custom domain from this website?')) return;
+  var msgEl = document.getElementById('wsDomainMsg');
+  msgEl.style.color='#6b7280'; msgEl.textContent='Removing…';
+  fetch('/dashboard/website/' + WEBSITE_ID + '/set-domain', {
+    method: 'POST', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ domain: '' })
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    if (data.ok) {
+      msgEl.style.color='#059669'; msgEl.textContent='Domain removed.';
+      document.getElementById('wsDomainInput').value = '';
+      var connectedDiv = document.getElementById('wsDomainConnected');
+      var removeBtn    = document.getElementById('wsDomainRemoveBtn');
+      if (connectedDiv) connectedDiv.style.display='none';
+      if (removeBtn)    removeBtn.style.display='none';
+    } else {
+      msgEl.style.color='#ef4444'; msgEl.textContent = data.error || 'Failed.';
+    }
+  });
+}

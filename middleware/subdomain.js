@@ -1,6 +1,7 @@
 const { db }               = require('../config/db')
 const themeManager         = require('../config/themeManager')
 const { loadFormsForAccount } = require('../controllers/formController')
+const websiteController    = require('../controllers/websiteController')
 
 async function subdomainMiddleware(req, res, next) {
   // req.hostname respects trust proxy and reads the real host header
@@ -49,6 +50,18 @@ async function serveSite(req, res, next, lookup) {
          WHERE s.custom_domain = ?`,
         [lookup.customDomain]
       )
+
+      // If not a mini-site, check if this is a website custom domain
+      if (!site) {
+        const website = await db.first(
+          'SELECT * FROM ms_websites WHERE custom_domain = ?',
+          [lookup.customDomain]
+        )
+        if (website) {
+          if (!website.is_published) return res.status(200).send(pageDraft({ title: website.title, subdomain: website.subdomain }))
+          return websiteController.serveWebsiteByDomain(req, res, website)
+        }
+      }
     }
 
     if (!site) {

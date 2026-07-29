@@ -305,6 +305,10 @@ router.post('/admin/aliases/update',         requireAuth, requireAdmin, admin.up
 router.post('/admin/aliases/delete',         requireAuth, requireAdmin, admin.deleteAlias)
 router.post('/admin/reset-to-default',       requireAuth, requireAdmin, admin.resetToDefault)
 
+// ── Custom domain management ──────────────────────────────────────────────────
+router.post('/dashboard/site/set-domain',     requireAuth, site.setDomain)
+router.post('/dashboard/website/:id/set-domain', requireAuth, website.setDomain)
+
 // ── Chat — public API (no auth) ───────────────────────────────────────────────
 router.get ('/api/chat/settings/:siteId', chat.widgetSettings)
 router.post('/api/chat/session',          chat.startSession)

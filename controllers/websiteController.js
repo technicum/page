@@ -295,7 +295,9 @@ exports.editor = async (req, res) => {
       title: website.title + ' — Editor',
       activePage: 'website',
       user, website, pages, activeSitePage,
-      siteAppsJson: siteAppsRaw
+      siteAppsJson: siteAppsRaw,
+      baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com',
+      serverIp:   process.env.SERVER_IP   || ''
     })
   } catch(e) {
     console.error('[editor] error:', e.message)
@@ -799,6 +801,80 @@ exports.destroy = async (req, res) => {
    GET /w/:subdomain
    GET /w/:subdomain/:pageSlug
    ═══════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SET CUSTOM DOMAIN — connect / remove a custom domain for a website
+   POST /dashboard/website/:id/set-domain
+   ═══════════════════════════════════════════════════════════════════════════ */
+exports.setDomain = async (req, res) => {
+  try {
+    const user      = req.session.user
+    const websiteId = parseInt(req.params.id) || 0
+    const domain    = (req.body.domain || '').toLowerCase().trim()
+
+    const website = await db.first('SELECT id FROM ms_websites WHERE id = ? AND account_id = ?', [websiteId, user.id])
+    if (!website) return res.json({ ok: false, error: 'Website not found.' })
+
+    // Remove domain
+    if (!domain) {
+      await db.execute('UPDATE ms_websites SET custom_domain = NULL WHERE id = ?', [websiteId])
+      return res.json({ ok: true, domain: null })
+    }
+
+    // Validate format: abc.com or xyz.abc.com — no protocols, no paths
+    if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(domain)) {
+      return res.json({ ok: false, error: 'Invalid domain format. Use abc.com or sub.abc.com' })
+    }
+    const baseDomain = (process.env.BASE_DOMAIN || '').toLowerCase()
+    if (baseDomain && (domain === baseDomain || domain.endsWith('.' + baseDomain))) {
+      return res.json({ ok: false, error: 'Cannot use the platform domain. Enter your own domain.' })
+    }
+
+    // Uniqueness across both ms_sites and ms_websites
+    const existsSite = await db.first('SELECT id FROM ms_sites WHERE custom_domain = ?', [domain])
+    if (existsSite) return res.json({ ok: false, error: 'That domain is already connected to another site.' })
+    const existsWeb  = await db.first('SELECT id FROM ms_websites WHERE custom_domain = ? AND id != ?', [domain, websiteId])
+    if (existsWeb) return res.json({ ok: false, error: 'That domain is already connected to another website.' })
+
+    await db.execute('UPDATE ms_websites SET custom_domain = ? WHERE id = ?', [domain, websiteId])
+    return res.json({ ok: true, domain })
+  } catch (err) {
+    console.error('website.setDomain', err)
+    return res.json({ ok: false, error: err.message })
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PUBLIC — render website by custom domain (called from subdomain middleware)
+   ═══════════════════════════════════════════════════════════════════════════ */
+exports.serveWebsiteByDomain = async (req, res, website) => {
+  const pageSlug = req.path.replace(/^\/+|\/+$/g, '') || null
+  try {
+    website.settings = parseJSON(website.settings, {})
+    const pages = await db.query(
+      `SELECT *, JSON_EXTRACT(meta,'$.is_home') AS is_home, JSON_EXTRACT(meta,'$.seo_title') AS seo_title, JSON_EXTRACT(meta,'$.seo_desc') AS seo_desc
+       FROM ms_posts WHERE website_id=? AND post_type='page' AND status='published' ORDER BY id ASC`,
+      [website.id]
+    )
+    pages.forEach(p => {
+      p.sections  = parseJSON(p.sections, [])
+      p.is_home   = p.is_home == 1 || p.is_home === '1' || p.is_home === true
+      p.is_published = 1
+    })
+    if (!pages.length) return res.status(404).send('No pages published')
+    const current = (pageSlug ? pages.find(p => p.slug === pageSlug) : null) ||
+                    pages.find(p => p.is_home) ||
+                    pages[0]
+
+    let siteApps = {}
+    try { siteApps = JSON.parse(website.apps || '{}') } catch(e) {}
+    const { headHtml, bodyEndHtml } = appManager.renderApps('website', siteApps)
+    res.render('website-public.njk', { website, pages, current, appHeadHtml: headHtml, appBodyEndHtml: bodyEndHtml })
+  } catch(e) {
+    console.error('[serveWebsiteByDomain]', e.message)
+    res.status(500).send('Something went wrong loading this website.')
+  }
+}
+
 exports.publicSite = async (req, res) => {
   const { subdomain, pageSlug } = req.params
   try {

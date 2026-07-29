@@ -457,6 +457,52 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
           <input class="fi" id="st-logo" value="{{ website.settings.logo or '' }}" placeholder="https://...">
         </div>
         <button onclick="saveSettings()" style="width:100%;padding:9px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Save Settings</button>
+
+        <!-- ── Custom Domain ── -->
+        <div style="margin-top:20px;border-top:1px solid #f0f0f0;padding-top:16px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;margin-bottom:10px;">🌐 Custom Domain</div>
+          <p style="font-size:12px;color:#6b7280;margin:0 0 10px;line-height:1.5;">Connect your own domain (e.g. <strong>mysite.com</strong>) instead of <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px;font-size:11px;">pagezapper.com/w/{{ website.subdomain }}</code>.</p>
+
+          {% if website.custom_domain %}
+          <div id="wsDomainConnected" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+            <div style="font-size:11px;font-weight:600;color:#16a34a;margin-bottom:2px;">✅ Connected</div>
+            <div style="font-size:13px;color:#15803d;font-weight:500;">{{ website.custom_domain }}</div>
+          </div>
+          {% else %}
+          <div id="wsDomainConnected" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+            <div style="font-size:11px;font-weight:600;color:#16a34a;margin-bottom:2px;">✅ Connected</div>
+            <div id="wsDomainConnectedText" style="font-size:13px;color:#15803d;font-weight:500;"></div>
+          </div>
+          {% endif %}
+
+          <div class="field-group" style="margin-bottom:6px;">
+            <label class="fl">Your domain</label>
+            <input class="fi" id="wsDomainInput" placeholder="mysite.com or shop.mysite.com"
+              value="{{ website.custom_domain or '' }}"
+              oninput="document.getElementById('wsDomainMsg').textContent=''">
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="wsSaveDomain()" style="flex:1;padding:8px;background:#6366f1;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Connect</button>
+            {% if website.custom_domain %}
+            <button onclick="wsRemoveDomain()" id="wsDomainRemoveBtn" style="padding:8px 12px;background:#fee2e2;color:#dc2626;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Remove</button>
+            {% else %}
+            <button onclick="wsRemoveDomain()" id="wsDomainRemoveBtn" style="display:none;padding:8px 12px;background:#fee2e2;color:#dc2626;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Remove</button>
+            {% endif %}
+          </div>
+          <div id="wsDomainMsg" style="font-size:12px;margin-top:6px;color:#6b7280;"></div>
+
+          <div style="margin-top:12px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+            <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px;">DNS Setup Instructions</div>
+            <div style="font-size:11px;color:#475569;line-height:1.8;">
+              <strong>Root domain (mysite.com)</strong><br>
+              Type: <code style="background:#e2e8f0;padding:1px 4px;border-radius:3px;">A</code> → Value: your server IP<br>
+              {% if serverIp %}<code style="background:#e2e8f0;padding:1px 4px;border-radius:3px;">{{ serverIp }}</code>{% endif %}<br><br>
+              <strong>Subdomain (shop.mysite.com)</strong><br>
+              Type: <code style="background:#e2e8f0;padding:1px 4px;border-radius:3px;">CNAME</code> → Value:<br>
+              <code style="background:#e2e8f0;padding:1px 4px;border-radius:3px;">pagezapper.com/w/{{ website.subdomain }}</code>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Catalog — all item types with tab switcher -->
