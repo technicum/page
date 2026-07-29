@@ -161,12 +161,17 @@ exports.deleteCollection = async (req, res) => {
 /* POST /dashboard/products/create */
 exports.create = async (req, res) => {
   const user = req.session.user
-  const { site_id, type, name, description, price, compare_price, currency, image_url, file_url, duration, collection } = req.body
+  const { site_id, type, name, description, price, compare_price, currency, image_url, file_url, duration, collection, images } = req.body
   if (!name || !name.trim()) return res.json({ ok: false, error: 'Name is required.' })
 
+  // Ensure images column exists (auto-migrate)
+  try { await db.execute('ALTER TABLE ms_products ADD COLUMN images LONGTEXT DEFAULT NULL') } catch(e) { /* already exists */ }
+
+  const imgJson = Array.isArray(images) ? JSON.stringify(images) : (images || null)
+
   const id = await db.lastId(
-    `INSERT INTO ms_products (account_id, site_id, type, name, description, price, compare_price, currency, image_url, file_url, duration, collection)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO ms_products (account_id, site_id, type, name, description, price, compare_price, currency, image_url, file_url, duration, collection, images)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       user.id,
       site_id || null,
@@ -179,7 +184,8 @@ exports.create = async (req, res) => {
       image_url || '',
       file_url || '',
       duration || '',
-      collection || ''
+      collection || '',
+      imgJson
     ]
   )
 
@@ -190,14 +196,19 @@ exports.create = async (req, res) => {
 /* POST /dashboard/products/update */
 exports.update = async (req, res) => {
   const user = req.session.user
-  const { id, site_id, type, name, description, price, compare_price, currency, image_url, file_url, duration, collection, in_stock, status } = req.body
+  const { id, site_id, type, name, description, price, compare_price, currency, image_url, file_url, duration, collection, in_stock, status, images } = req.body
 
   const existing = await db.first('SELECT id FROM ms_products WHERE id = ? AND account_id = ?', [id, user.id])
   if (!existing) return res.json({ ok: false, error: 'Product not found.' })
 
+  // Ensure images column exists (auto-migrate)
+  try { await db.execute('ALTER TABLE ms_products ADD COLUMN images LONGTEXT DEFAULT NULL') } catch(e) { /* already exists */ }
+
+  const imgJson = Array.isArray(images) ? JSON.stringify(images) : (images || null)
+
   await db.execute(
     `UPDATE ms_products
-     SET site_id=?, type=?, name=?, description=?, price=?, compare_price=?, currency=?, image_url=?, file_url=?, duration=?, collection=?, in_stock=?, status=?
+     SET site_id=?, type=?, name=?, description=?, price=?, compare_price=?, currency=?, image_url=?, file_url=?, duration=?, collection=?, in_stock=?, status=?, images=?
      WHERE id=? AND account_id=?`,
     [
       site_id || null,
@@ -213,6 +224,7 @@ exports.update = async (req, res) => {
       collection || '',
       in_stock == '0' ? 0 : 1,
       status == '0' ? 0 : 1,
+      imgJson,
       id,
       user.id
     ]

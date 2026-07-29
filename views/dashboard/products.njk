@@ -395,6 +395,18 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
         </div>
       </div>
 
+      <!-- Gallery images -->
+      <div class="field">
+        <label>Gallery Images <span style="font-weight:400;color:#9ca3af;text-transform:none;letter-spacing:0;">(optional — additional product photos)</span></label>
+        <div id="p-gallery-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+          <div id="p-gallery-add-btn" onclick="addGalleryImages()"
+               style="width:72px;height:72px;border:2px dashed #d1d5db;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#9ca3af;font-size:22px;background:#f9fafb;transition:border-color .15s,color .15s;"
+               onmouseenter="this.style.borderColor='#6366f1';this.style.color='#6366f1';"
+               onmouseleave="this.style.borderColor='#d1d5db';this.style.color='#9ca3af';">+</div>
+        </div>
+        <input type="hidden" id="p-images-json" value="[]">
+      </div>
+
       <!-- Digital only: file URL -->
       <div class="field conditional" id="field-file">
         <label>Download link / File URL</label>
@@ -719,6 +731,10 @@ function openEditModal(id) {
   }
 
   setImagePreview(p.image_url || '');
+  // Load gallery images
+  try { pGalleryImages = JSON.parse(p.images || '[]') || []; } catch(e) { pGalleryImages = []; }
+  if (!Array.isArray(pGalleryImages)) pGalleryImages = [];
+  renderGalleryGrid();
   document.getElementById('p-in-stock').checked = p.in_stock != '0';
   document.getElementById('p-status').checked = p.status != '0';
   document.getElementById('field-status').classList.add('show');
@@ -739,6 +755,45 @@ function clearForm(){
   // Uncheck all collection checkboxes
   document.querySelectorAll('#p-collection-list input[type=checkbox]').forEach(function(b){ b.checked = false; });
   setImagePreview('');
+  pGalleryImages = [];
+  renderGalleryGrid();
+}
+
+/* ── Product gallery images ── */
+var pGalleryImages = [];
+
+function addGalleryImages() {
+  if (typeof MediaPicker === 'undefined') { alert('Media library not loaded.'); return; }
+  MediaPicker.open(function(files) {
+    var added = Array.isArray(files) ? files : [files];
+    added.forEach(function(f) {
+      if (pGalleryImages.indexOf(f.url) === -1) pGalleryImages.push(f.url);
+    });
+    renderGalleryGrid();
+  }, { type: 'image', multi: true });
+}
+
+function removeGalleryImage(idx) {
+  pGalleryImages.splice(idx, 1);
+  renderGalleryGrid();
+}
+
+function renderGalleryGrid() {
+  var grid = document.getElementById('p-gallery-grid');
+  if (!grid) return;
+  var thumbs = pGalleryImages.map(function(url, i) {
+    return '<div style="position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:1.5px solid #e5e7eb;flex-shrink:0;">' +
+      '<img src="' + url.replace(/"/g,'&quot;') + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.opacity=.3">' +
+      '<button onclick="removeGalleryImage(' + i + ')" title="Remove" ' +
+        'style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:17px;height:17px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;">✕</button>' +
+    '</div>';
+  }).join('');
+  thumbs += '<div id="p-gallery-add-btn" onclick="addGalleryImages()" ' +
+    'style="width:72px;height:72px;border:2px dashed #d1d5db;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#9ca3af;font-size:22px;background:#f9fafb;flex-shrink:0;transition:border-color .15s,color .15s;" ' +
+    'onmouseenter="this.style.borderColor=\'#6366f1\';this.style.color=\'#6366f1\';" ' +
+    'onmouseleave="this.style.borderColor=\'#d1d5db\';this.style.color=\'#9ca3af\';">+</div>';
+  grid.innerHTML = thumbs;
+  document.getElementById('p-images-json').value = JSON.stringify(pGalleryImages);
 }
 
 function setImagePreview(url) {
@@ -787,6 +842,7 @@ function saveProduct() {
     name: name,
     description: document.getElementById('p-description').value,
     image_url: document.getElementById('p-image').value,
+    images: pGalleryImages,
     status: document.getElementById('p-status').checked ? '1' : '0'
   };
 
