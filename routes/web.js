@@ -19,6 +19,7 @@ const os     = require('os')
 const themeUpload = multer({ dest: os.tmpdir() })
 const { db }     = require('../config/db')
 const product    = require('../controllers/productController')
+const gallery    = require('../controllers/galleryController')
 const website    = require('../controllers/websiteController')
 
 // ── Debug route (REMOVE IN PRODUCTION) ───────────────────────────────────────
@@ -144,6 +145,12 @@ router.post('/dashboard/products/upload-image',             requireAuth, product
 router.post('/dashboard/products/collections/create',       requireAuth, product.createCollection)
 router.post('/dashboard/products/collections/update',       requireAuth, product.updateCollection)
 router.post('/dashboard/products/collections/delete',       requireAuth, product.deleteCollection)
+
+router.get ('/dashboard/galleries',          requireAuth, gallery.index)
+router.get ('/dashboard/galleries/list-json',requireAuth, gallery.listJson)
+router.post('/dashboard/galleries/create',   requireAuth, gallery.create)
+router.post('/dashboard/galleries/update',   requireAuth, gallery.update)
+router.post('/dashboard/galleries/delete',   requireAuth, gallery.destroy)
 
 // Dashboard
 router.get ('/dashboard',          requireAuth, dash.index)

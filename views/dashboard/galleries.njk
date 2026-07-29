@@ -1,0 +1,361 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+*{box-sizing:border-box;}
+body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
+.dash-main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+
+.topbar{height:56px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.topbar-title{font-size:15px;font-weight:700;color:#111827;flex:1;}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;background:#111827;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+.btn-primary:hover{opacity:.85;}
+
+.page{max-width:1100px;margin:0 auto;padding:32px 24px 60px;width:100%;}
+
+/* ── Gallery grid ── */
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
+.gallery-card{background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:box-shadow .15s;}
+.gallery-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.gallery-cover{width:100%;height:150px;object-fit:cover;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:36px;color:#d1d5db;cursor:pointer;}
+.gallery-cover img{width:100%;height:100%;object-fit:cover;}
+.gallery-body{padding:12px 14px;}
+.gallery-name{font-size:14px;font-weight:600;color:#111827;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gallery-meta{font-size:11px;color:#6b7280;}
+.gallery-actions{display:flex;gap:6px;padding:10px 13px;border-top:1px solid #f3f4f6;}
+.btn-edit-sm{flex:1;padding:6px 10px;background:#fff;color:#374151;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s;}
+.btn-edit-sm:hover{background:#f9fafb;}
+.btn-del-sm{width:30px;height:30px;border:1px solid #e5e7eb;background:#fff;color:#9ca3af;border-radius:7px;font-size:14px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.btn-del-sm:hover{border-color:#fca5a5;color:#ef4444;background:#fef2f2;}
+
+/* ── Images strip ── */
+.gallery-strip{display:flex;gap:4px;padding:8px 10px;overflow-x:auto;border-top:1px solid #f3f4f6;}
+.gallery-strip img{width:44px;height:44px;object-fit:cover;border-radius:5px;flex-shrink:0;}
+.gallery-strip-more{width:44px;height:44px;border-radius:5px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#6b7280;flex-shrink:0;}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:80px 24px;color:#9ca3af;}
+.empty-state-icon{font-size:52px;margin-bottom:16px;}
+.empty-state h3{font-size:16px;font-weight:600;color:#374151;margin:0 0 6px;}
+.empty-state p{font-size:13px;margin:0 0 20px;}
+
+/* ── Modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:14px;width:min(620px,100%);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.2);overflow:hidden;}
+.modal-head{display:flex;align-items:center;padding:18px 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;}
+.modal-head h3{flex:1;margin:0;font-size:15px;font-weight:700;color:#111827;}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af;padding:0;line-height:1;}
+.modal-close:hover{color:#374151;}
+.modal-body{padding:20px;overflow-y:auto;flex:1;}
+.modal-foot{padding:14px 20px;border-top:1px solid #e5e7eb;display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
+
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+.field input[type=text],.field textarea,.field select{width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;color:#111827;transition:border-color .15s;outline:none;background:#fff;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#6366f1;}
+.field textarea{min-height:70px;resize:vertical;}
+
+/* ── Image picker UI in modal ── */
+.img-thumb-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.img-thumb-item{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:2px solid #e5e7eb;background:#f3f4f6;}
+.img-thumb-item img{width:100%;height:100%;object-fit:cover;}
+.img-thumb-remove{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+.img-add-btn{width:80px;height:80px;border:2px dashed #d1d5db;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#9ca3af;font-size:24px;background:#f9fafb;transition:border-color .15s,color .15s;}
+.img-add-btn:hover{border-color:#6366f1;color:#6366f1;}
+
+.status-toggle{display:flex;align-items:center;gap:10px;margin-top:4px;}
+.toggle-switch{position:relative;width:40px;height:22px;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#e5e7eb;border-radius:22px;transition:.2s;}
+.toggle-slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle-switch input:checked + .toggle-slider{background:#6366f1;}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(18px);}
+
+.modal-msg{font-size:13px;padding:0;margin:0;}
+.modal-msg.err{color:#ef4444;}
+.modal-msg.ok{color:#16a34a;}
+
+.cover-field{display:flex;gap:12px;align-items:flex-start;}
+.cover-thumb{width:80px;height:80px;border:2px dashed #e5e7eb;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0;background:#f9fafb;}
+.cover-thumb img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+  {% include "dashboard/_sidebar.njk" %}
+  <main class="dash-main">
+
+    <div class="topbar">
+      <div class="topbar-title">🖼 Galleries</div>
+      <button class="btn-primary" onclick="openModal()">+ New Gallery</button>
+    </div>
+
+    <div class="page">
+      {% if galleries.length == 0 %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🖼️</div>
+        <h3>No galleries yet</h3>
+        <p>Create your first gallery and add images from your media library.</p>
+        <button class="btn-primary" onclick="openModal()">+ Create Gallery</button>
+      </div>
+      {% else %}
+      <div class="gallery-grid" id="gallery-grid">
+        {% for g in galleries %}
+        <div class="gallery-card" data-id="{{ g.id }}">
+          <div class="gallery-cover" onclick="openEdit({{ g | dump | safe }})">
+            {% if g.cover_url %}
+            <img src="{{ g.cover_url }}" alt="{{ g.name }}" onerror="this.parentNode.innerHTML='🖼️'">
+            {% elif g.images and g.images.length > 0 %}
+            <img src="{{ g.images[0] }}" alt="{{ g.name }}" onerror="this.parentNode.innerHTML='🖼️'">
+            {% else %}
+            🖼️
+            {% endif %}
+          </div>
+          <div class="gallery-body">
+            <div class="gallery-name" title="{{ g.name }}">{{ g.name }}</div>
+            <div class="gallery-meta">{{ g.images.length }} image{{ 's' if g.images.length != 1 }}{% if not g.status %} · <span style="color:#ef4444;">Draft</span>{% endif %}</div>
+          </div>
+          {% if g.images and g.images.length > 0 %}
+          <div class="gallery-strip">
+            {% for img in g.images %}{% if loop.index <= 5 %}
+            <img src="{{ img }}" alt="">
+            {% endif %}{% endfor %}
+            {% if g.images.length > 5 %}
+            <div class="gallery-strip-more">+{{ g.images.length - 5 }}</div>
+            {% endif %}
+          </div>
+          {% endif %}
+          <div class="gallery-actions">
+            <button class="btn-edit-sm" onclick="openEdit({{ g | dump | safe }})">✏️ Edit</button>
+            <button class="btn-del-sm" onclick="deleteGallery({{ g.id }}, this)" title="Delete">🗑</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+
+<!-- ── Create / Edit Modal ── -->
+<div class="modal-overlay" id="gallery-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modal-title">New Gallery</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="g-id">
+
+      <div class="field">
+        <label>Gallery Name *</label>
+        <input type="text" id="g-name" placeholder="e.g. Wedding Reception, Product Shots…">
+      </div>
+
+      <div class="field">
+        <label>Description</label>
+        <textarea id="g-description" placeholder="Optional short description…"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Cover Image</label>
+        <div class="cover-field">
+          <div class="cover-thumb" id="g-cover-thumb" onclick="pickCoverImage()">
+            <span id="g-cover-placeholder" style="font-size:24px;">🖼️</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;justify-content:center;">
+            <button type="button" onclick="pickCoverImage()"
+                    style="padding:7px 14px;border:1.5px solid #6366f1;border-radius:8px;background:#eef2ff;color:#4338ca;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+              📁 Browse Media
+            </button>
+            <button type="button" onclick="clearCover()" id="g-cover-clear"
+                    style="padding:5px 10px;border:1px solid #e5e7eb;border-radius:7px;background:#fff;color:#6b7280;font-size:12px;cursor:pointer;font-family:inherit;display:none;">
+              ✕ Remove cover
+            </button>
+          </div>
+        </div>
+        <input type="hidden" id="g-cover-url">
+      </div>
+
+      <div class="field">
+        <label>Gallery Images</label>
+        <div class="img-thumb-grid" id="g-images-grid">
+          <div class="img-add-btn" onclick="addImages()" title="Add images">+</div>
+        </div>
+        <input type="hidden" id="g-images-json" value="[]">
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <div class="status-toggle">
+          <label class="toggle-switch">
+            <input type="checkbox" id="g-status" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <span style="font-size:13px;color:#374151;">Published</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <span class="modal-msg" id="modal-msg"></span>
+      <button class="btn-primary" id="modal-save-btn" onclick="saveGallery()" style="background:#6366f1;">Save Gallery</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/media-picker.js"></script>
+<script>
+var ALL_GALLERIES = {{ galleries | dump | safe }};
+var editingId = null;
+var currentImages = [];
+
+/* ── Open / close modal ── */
+function openModal() {
+  editingId = null;
+  currentImages = [];
+  document.getElementById('modal-title').textContent = 'New Gallery';
+  document.getElementById('g-id').value = '';
+  document.getElementById('g-name').value = '';
+  document.getElementById('g-description').value = '';
+  document.getElementById('g-status').checked = true;
+  setCoverPreview('');
+  renderImageGrid();
+  document.getElementById('modal-msg').textContent = '';
+  document.getElementById('gallery-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('g-name').focus(); }, 80);
+}
+
+function openEdit(g) {
+  editingId = g.id;
+  currentImages = Array.isArray(g.images) ? g.images.slice() : [];
+  document.getElementById('modal-title').textContent = 'Edit Gallery';
+  document.getElementById('g-id').value = g.id;
+  document.getElementById('g-name').value = g.name || '';
+  document.getElementById('g-description').value = g.description || '';
+  document.getElementById('g-status').checked = !!g.status;
+  setCoverPreview(g.cover_url || '');
+  renderImageGrid();
+  document.getElementById('modal-msg').textContent = '';
+  document.getElementById('gallery-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('gallery-modal').classList.remove('open');
+}
+document.getElementById('gallery-modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+/* ── Cover image ── */
+function pickCoverImage() {
+  if (typeof MediaPicker === 'undefined') { alert('Media library not loaded.'); return; }
+  MediaPicker.open(function(file) {
+    setCoverPreview(file.url);
+  }, { type: 'image' });
+}
+
+function setCoverPreview(url) {
+  var thumb = document.getElementById('g-cover-thumb');
+  var inp   = document.getElementById('g-cover-url');
+  var clear = document.getElementById('g-cover-clear');
+  inp.value = url || '';
+  if (url) {
+    thumb.innerHTML = '<img src="' + url.replace(/"/g,'&quot;') + '" alt="cover" onerror="setCoverPreview(\'\')">';
+    if (clear) clear.style.display = '';
+  } else {
+    thumb.innerHTML = '<span id="g-cover-placeholder" style="font-size:24px;">🖼️</span>';
+    if (clear) clear.style.display = 'none';
+  }
+}
+
+function clearCover() { setCoverPreview(''); }
+
+/* ── Gallery images ── */
+function addImages() {
+  if (typeof MediaPicker === 'undefined') { alert('Media library not loaded.'); return; }
+  MediaPicker.open(function(files) {
+    var added = Array.isArray(files) ? files : [files];
+    added.forEach(function(f) {
+      if (currentImages.indexOf(f.url) === -1) currentImages.push(f.url);
+    });
+    renderImageGrid();
+  }, { type: 'image', multi: true });
+}
+
+function removeImage(idx) {
+  currentImages.splice(idx, 1);
+  renderImageGrid();
+}
+
+function renderImageGrid() {
+  var grid = document.getElementById('g-images-grid');
+  var html = currentImages.map(function(url, i) {
+    return '<div class="img-thumb-item">' +
+      '<img src="' + url.replace(/"/g,'&quot;') + '" alt="" onerror="this.style.opacity=.3">' +
+      '<button class="img-thumb-remove" onclick="removeImage(' + i + ')" title="Remove">✕</button>' +
+    '</div>';
+  }).join('');
+  html += '<div class="img-add-btn" onclick="addImages()" title="Add images">+</div>';
+  grid.innerHTML = html;
+  document.getElementById('g-images-json').value = JSON.stringify(currentImages);
+}
+
+/* ── Save ── */
+function saveGallery() {
+  var btn  = document.getElementById('modal-save-btn');
+  var msg  = document.getElementById('modal-msg');
+  var name = document.getElementById('g-name').value.trim();
+  if (!name) { msg.textContent = 'Name is required.'; msg.className = 'modal-msg err'; return; }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  msg.textContent = ''; msg.className = 'modal-msg';
+
+  var id  = document.getElementById('g-id').value;
+  var url = id ? '/dashboard/galleries/update' : '/dashboard/galleries/create';
+
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id:          id || undefined,
+      name:        name,
+      description: document.getElementById('g-description').value.trim(),
+      cover_url:   document.getElementById('g-cover-url').value,
+      images:      currentImages,
+      status:      document.getElementById('g-status').checked ? 1 : 0
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    btn.disabled = false; btn.textContent = 'Save Gallery';
+    if (!d.ok) { msg.textContent = d.error || 'Error saving.'; msg.className = 'modal-msg err'; return; }
+    window.location.reload();
+  })
+  .catch(function(){
+    btn.disabled = false; btn.textContent = 'Save Gallery';
+    msg.textContent = 'Network error.'; msg.className = 'modal-msg err';
+  });
+}
+
+/* ── Delete ── */
+function deleteGallery(id, btn) {
+  if (!confirm('Delete this gallery?')) return;
+  btn.textContent = '…'; btn.disabled = true;
+  fetch('/dashboard/galleries/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: id })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (!d.ok) { btn.textContent = '🗑'; btn.disabled = false; alert(d.error || 'Could not delete.'); return; }
+    var card = document.querySelector('.gallery-card[data-id="' + id + '"]');
+    if (card) card.remove();
+    ALL_GALLERIES = ALL_GALLERIES.filter(function(g){ return g.id !== id; });
+    if (!ALL_GALLERIES.length) window.location.reload();
+  })
+  .catch(function(){ btn.textContent = '🗑'; btn.disabled = false; });
+}
+</script>
+{% endblock %}
