@@ -303,6 +303,7 @@ router.get ('/admin/aliases',                requireAuth, requireAdmin, admin.al
 router.post('/admin/aliases/create',         requireAuth, requireAdmin, admin.createAlias)
 router.post('/admin/aliases/update',         requireAuth, requireAdmin, admin.updateAlias)
 router.post('/admin/aliases/delete',         requireAuth, requireAdmin, admin.deleteAlias)
+router.post('/admin/reset-to-default',       requireAuth, requireAdmin, admin.resetToDefault)
 
 // ── Chat — public API (no auth) ───────────────────────────────────────────────
 router.get ('/api/chat/settings/:siteId', chat.widgetSettings)

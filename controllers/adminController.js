@@ -11,15 +11,19 @@ const THEMES_DIR = path.join(__dirname, '../themes')
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 exports.index = async (req, res) => {
-  const [userCount] = await db.query('SELECT COUNT(*) as c FROM ms_accounts')
-  const [siteCount] = await db.query('SELECT COUNT(*) as c FROM ms_sites')
-  const themes      = Object.values(themeManager.loadAll())
+  const [userCount]    = await db.query('SELECT COUNT(*) as c FROM ms_accounts')
+  const [siteCount]    = await db.query('SELECT COUNT(*) as c FROM ms_sites')
+  const [websiteCount] = await db.query('SELECT COUNT(*) as c FROM ms_websites')
+  const themes         = Object.values(themeManager.loadAll())
   res.render('admin/index.njk', {
     title: 'Admin',
     user: req.session.user,
-    userCount: userCount ? userCount.c : 0,
-    siteCount: siteCount ? siteCount.c : 0,
-    themeCount: themes.length
+    userCount:    userCount    ? userCount.c    : 0,
+    siteCount:    siteCount    ? siteCount.c    : 0,
+    websiteCount: websiteCount ? websiteCount.c : 0,
+    themeCount:   themes.length,
+    flash_success: req.flash('success'),
+    flash_errors:  req.flash('errors')
   })
 }
 
@@ -356,6 +360,39 @@ exports.stopImpersonation = (req, res) => {
     req.session.adminUser = null
   }
   res.redirect('/admin/users')
+}
+
+// ── Reset to default (wipe all non-admin data) ────────────────────────────────
+exports.resetToDefault = async (req, res) => {
+  const me = req.session.user
+
+  // Safety: only the logged-in admin can trigger this, and they must confirm
+  if (req.body.confirm !== 'RESET') {
+    req.flash('errors', ['Reset cancelled — confirmation text did not match.'])
+    return res.redirect('/admin')
+  }
+
+  try {
+    // Delete all websites and their related data
+    await db.execute('DELETE FROM ms_websites')
+
+    // Delete all mini-sites (ms_sites) and their posts/blocks
+    await db.execute('DELETE FROM ms_posts')
+    await db.execute('DELETE FROM ms_sites')
+
+    // Delete all non-admin users (keep the current admin safe)
+    await db.execute('DELETE FROM ms_accounts WHERE is_admin = 0')
+
+    // Also remove media belonging to deleted users (orphan cleanup)
+    // ms_media rows reference user_id; non-admin users are gone so clean up
+    await db.execute('DELETE FROM ms_media WHERE user_id NOT IN (SELECT id FROM ms_accounts)')
+
+    req.flash('success', 'Platform reset. All sites, mini-sites, and non-admin users have been deleted.')
+  } catch (e) {
+    req.flash('errors', ['Reset failed: ' + e.message])
+  }
+
+  res.redirect('/admin')
 }
 
 // ── Change user password ──────────────────────────────────────────────────────

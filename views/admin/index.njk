@@ -50,8 +50,12 @@ body{background:var(--off);}
         <div class="stat-label">Total Users</div>
       </div>
       <div class="stat-card">
+        <div class="stat-num">{{ websiteCount }}</div>
+        <div class="stat-label">Websites</div>
+      </div>
+      <div class="stat-card">
         <div class="stat-num">{{ siteCount }}</div>
-        <div class="stat-label">Total Sites</div>
+        <div class="stat-label">Mini Sites</div>
       </div>
       <div class="stat-card">
         <div class="stat-num">{{ themeCount }}</div>
@@ -63,6 +67,45 @@ body{background:var(--off);}
       <a class="ql-btn" href="/admin/users">👤 Manage Users</a>
       <a class="ql-btn" href="/debug">🔧 Debug Info</a>
     </div>
+
+    {% if flash_success %}
+    <div style="margin-top:24px;background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;padding:12px 16px;border-radius:8px;font-size:14px;">✅ {{ flash_success }}</div>
+    {% endif %}
+    {% if flash_errors %}
+    {% for e in flash_errors %}
+    <div style="margin-top:24px;background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:12px 16px;border-radius:8px;font-size:14px;">⚠️ {{ e }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <div style="margin-top:48px;padding:24px;background:#fff5f5;border:1px solid #fecaca;border-radius:12px;">
+      <h2 style="font-size:16px;font-weight:700;color:#991b1b;margin:0 0 6px;">⚠️ Danger Zone</h2>
+      <p style="font-size:13px;color:#7f1d1d;margin:0 0 16px;">This will permanently delete all websites, mini-sites, and every user account that is not an admin. This cannot be undone.</p>
+      <button onclick="document.getElementById('resetModal').style.display='flex'" style="background:#dc2626;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🗑️ Reset to Default</button>
+    </div>
   </main>
+</div>
+
+<!-- Reset confirmation modal -->
+<div id="resetModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:32px;width:440px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <h2 style="font-size:20px;font-weight:700;color:#dc2626;margin:0 0 8px;">⚠️ Confirm Platform Reset</h2>
+    <p style="font-size:14px;color:#374151;margin:0 0 20px;line-height:1.6;">
+      This will <strong>permanently delete</strong>:<br>
+      • All websites (ms_websites)<br>
+      • All mini-sites &amp; their blocks (ms_sites, ms_posts)<br>
+      • All user accounts except admins<br><br>
+      Type <strong>RESET</strong> below to confirm.
+    </p>
+    <form method="POST" action="/admin/reset-to-default">
+      <input type="text" name="confirm" placeholder='Type RESET to confirm' autocomplete="off"
+        style="width:100%;box-sizing:border-box;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:16px;color:#111;">
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button type="button" onclick="document.getElementById('resetModal').style.display='none'"
+          style="padding:10px 20px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:14px;cursor:pointer;color:#374151;">Cancel</button>
+        <button type="submit"
+          style="padding:10px 20px;border-radius:8px;border:none;background:#dc2626;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">Delete Everything</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}
