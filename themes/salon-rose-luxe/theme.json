@@ -1,21 +1,44 @@
 {
   "name": "Salon Rose Luxe",
-  "description": "Warm terracotta salon theme with animated avatar rings and shimmer CTA.",
+  "description": "Warm terracotta biolink for luxury salons and beauty lounges — signature services, client reviews, VIP email list.",
   "for": ["minisite"],
-  "categories": ["beauty", "Salon", "parlour"],
-  "preview": "",
+  "categories": ["beauty", "wellness"],
+  "tags": ["salon", "luxury", "terracotta", "warm", "beauty"],
+  "order": 31,
   "default_appearance": {
     "bgColor": "#fdf6f0", "btnColor": "#D85A30", "btnTextColor": "#ffffff",
-    "textColor": "#2d1a0e", "btnStyle": "filled", "btnRadius": "50",
-    "bgType": "color", "fontFamily": "inter",
-    "animationStyle": "slide-up", "animationStagger": "120"
+    "textColor": "#2c1a0e", "btnStyle": "filled", "btnRadius": "10",
+    "bgType": "color", "fontFamily": "playfair",
+    "animationStyle": "fade", "animationStagger": "80"
   },
   "default_blocks": [
-    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Glamour Lounge", "bio":"Beauty & Hair Studio · NYC · ⭐ 4.9 (2.4k reviews)" },
-    { "id":"b2", "type":"link",    "enabled":true, "title":"📅 Book appointment", "url":"#" },
-    { "id":"b3", "type":"heading", "enabled":true, "text":"Our Services", "size":"h3", "align":"center" },
-    { "id":"b4", "type":"service", "enabled":true, "title":"Haircut & Style", "description":"Precision cut with blow dry finish", "price":"$45+", "duration":"60 min", "btn_text":"Book now", "btn_url":"#" },
-    { "id":"b5", "type":"service", "enabled":true, "title":"Balayage", "description":"Hand-painted highlights", "price":"$120+", "duration":"180 min", "btn_text":"Book now", "btn_url":"#" },
-    { "id":"b6", "type":"socials", "enabled":true, "instagram":"https://instagram.com", "tiktok":"https://tiktok.com" }
+    { "id":"b1",  "type":"avatar",          "enabled":true, "photo":"", "name":"Glamour Lounge", "bio":"NYC's Premier Beauty Destination · 5-Star Rated · Walk-ins welcome 💄" },
+    { "id":"b2",  "type":"announcement",    "enabled":true, "text":"✨ Book 2 services and get 15% off — use code GLAM15 at checkout!", "bg_color":"#fde8de", "text_color":"#9a3412" },
+    { "id":"b3",  "type":"link",            "enabled":true, "title":"📅 Book Now", "url":"#" },
+    { "id":"b4",  "type":"divider",         "enabled":true, "style":"dots", "spacing":"10" },
+    { "id":"b5",  "type":"heading",         "enabled":true, "text":"Signature Services", "size":"h3", "align":"center" },
+    { "id":"b6",  "type":"service",         "enabled":true, "title":"Haircut & Style", "description":"Consultation · Wash & blowdry · Cut & finish · Complimentary scalp massage", "price":"From $45", "duration":"60 min", "btn_text":"Book", "btn_url":"#" },
+    { "id":"b7",  "type":"service",         "enabled":true, "title":"Balayage & Colour", "description":"Custom colour consultation · Balayage or highlights · Toner · Blowdry finish", "price":"From $120", "duration":"3 hrs", "btn_text":"Book", "btn_url":"#" },
+    { "id":"b8",  "type":"service",         "enabled":true, "title":"Keratin Smoothing Treatment", "description":"Frizz-free smooth results · Lasts 3–6 months · All hair types welcome", "price":"From $180", "duration":"2.5 hrs", "btn_text":"Book", "btn_url":"#" },
+    { "id":"b9",  "type":"service",         "enabled":true, "title":"Lash Extensions", "description":"Classic, hybrid, or volume · Natural to dramatic · 2–3 week retention", "price":"From $80", "duration":"90 min", "btn_text":"Book", "btn_url":"#" },
+    { "id":"b10", "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b11", "type":"heading",         "enabled":true, "text":"Client Love 💕", "size":"h3", "align":"center" },
+    { "id":"b12", "type":"testimonial",     "enabled":true, "quote":"Glamour Lounge is the only place I trust with my hair. The balayage they did last month has gotten me so many compliments. Worth every penny and the team are absolute angels!", "name":"Lauren K.", "role":"Regular Client, NYC", "rating":"5" },
+    { "id":"b13", "type":"reviews",         "enabled":true, "heading":"", "items":[
+        { "review":"Got my keratin treatment done here — hair is silky smooth and frizz-free for the first time in years. Already booked my next appointment.", "name":"Monica S.", "rating":"5" },
+        { "review":"Lash extensions are flawless. Natural-looking but so dramatic. They lasted a full 3 weeks with minimal fill needed!", "name":"Tanya R.", "rating":"5" },
+        { "review":"Came in for a haircut on a whim and left feeling like a completely different person. The stylist just got it.", "name":"Ashley P.", "rating":"5" }
+    ]},
+    { "id":"b14", "type":"email_collector", "enabled":true, "heading":"💌 Join the VIP list — early booking access & exclusive offers", "placeholder":"Enter your email", "btn_text":"Join VIP List" },
+    { "id":"b15", "type":"business_hours",  "enabled":true, "heading":"Opening Hours", "hours":[
+        { "day":"Monday",    "open":"10:00 AM", "close":"07:00 PM", "closed":false },
+        { "day":"Tuesday",   "open":"09:00 AM", "close":"08:00 PM", "closed":false },
+        { "day":"Wednesday", "open":"09:00 AM", "close":"08:00 PM", "closed":false },
+        { "day":"Thursday",  "open":"09:00 AM", "close":"08:00 PM", "closed":false },
+        { "day":"Friday",    "open":"09:00 AM", "close":"09:00 PM", "closed":false },
+        { "day":"Saturday",  "open":"08:00 AM", "close":"08:00 PM", "closed":false },
+        { "day":"Sunday",    "open":"10:00 AM", "close":"06:00 PM", "closed":false }
+    ]},
+    { "id":"b16", "type":"socials",         "enabled":true, "instagram":"https://instagram.com", "tiktok":"https://tiktok.com" }
   ]
 }

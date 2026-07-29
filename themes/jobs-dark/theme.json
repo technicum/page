@@ -12,12 +12,29 @@
     "animationStyle": "slide-up", "animationStagger": "100"
   },
   "default_blocks": [
-    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"HireEdge Placements", "bio":"Connecting talent with opportunity · Mumbai · Pan India 🏢" },
-    { "id":"b2", "type":"link",    "enabled":true, "title":"📋 Submit your CV →", "url":"#" },
-    { "id":"b3", "type":"heading", "enabled":true, "text":"Active Openings", "size":"h3", "align":"center" },
-    { "id":"b4", "type":"link",    "enabled":true, "title":"Senior Relationship Manager · HDFC Bank · ₹8–12 LPA", "url":"#" },
-    { "id":"b5", "type":"link",    "enabled":true, "title":"React Developer · TCS · ₹10–16 LPA · Remote", "url":"#" },
-    { "id":"b6", "type":"link",    "enabled":true, "title":"BPO Team Leader · Infosys BPM · ₹4–6 LPA", "url":"#" },
-    { "id":"b7", "type":"socials", "enabled":true, "linkedin":"https://linkedin.com", "instagram":"https://instagram.com" }
+    { "id":"b1",  "type":"avatar",          "enabled":true, "photo":"", "name":"HireEdge Placements", "bio":"Connecting talent with opportunity · Pan India · 1,200+ companies hiring 🏢" },
+    { "id":"b2",  "type":"announcement",    "enabled":true, "text":"📌 New openings added daily — submit your CV now to be considered for active roles", "bg_color":"#1e3a5f", "text_color":"#93c5fd" },
+    { "id":"b3",  "type":"link",            "enabled":true, "title":"📋 Submit Your CV →", "url":"#" },
+    { "id":"b4",  "type":"link",            "enabled":true, "title":"📞 Speak with a Recruiter", "url":"#" },
+    { "id":"b5",  "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b6",  "type":"heading",         "enabled":true, "text":"Active Openings", "size":"h3", "align":"center" },
+    { "id":"b7",  "type":"product",         "enabled":true, "title":"Senior Relationship Manager · HDFC Bank", "description":"Mumbai · ₹8–12 LPA · 5+ yrs exp · Banking background required", "price":"", "btn_text":"Apply Now", "btn_url":"#" },
+    { "id":"b8",  "type":"product",         "enabled":true, "title":"React Developer · TCS", "description":"Remote / Hyderabad · ₹10–16 LPA · 3+ yrs exp · React + TypeScript", "price":"", "btn_text":"Apply Now", "btn_url":"#" },
+    { "id":"b9",  "type":"product",         "enabled":true, "title":"BPO Team Leader · Infosys BPM", "description":"Pune · ₹4–6 LPA · 2+ yrs exp · Voice / Non-voice process", "price":"", "btn_text":"Apply Now", "btn_url":"#" },
+    { "id":"b10", "type":"banner",          "enabled":true, "text":"🤝 Partner companies: HDFC · TCS · Infosys · Wipro · Accenture · Capgemini", "bg_color":"#1e293b", "text_color":"#93c5fd" },
+    { "id":"b11", "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b12", "type":"heading",         "enabled":true, "text":"Placed Candidates Say", "size":"h3", "align":"center" },
+    { "id":"b13", "type":"testimonial",     "enabled":true, "quote":"HireEdge got me an interview at HDFC within a week of submitting my CV. The recruiter prepped me for every round. Couldn't have asked for better support!", "name":"Amit D.", "role":"Relationship Manager, HDFC Bank", "rating":"5" },
+    { "id":"b14", "type":"reviews",         "enabled":true, "heading":"", "items":[
+        { "review":"Professional, transparent process. Got placed at TCS — exactly the role and salary I was targeting.", "name":"Priya S.", "rating":"5" },
+        { "review":"No spam, no fake promises. Genuine placements with real companies. Highly recommend.", "name":"Rohit M.", "rating":"5" }
+    ]},
+    { "id":"b15", "type":"faq",             "enabled":true, "heading":"Got Questions?", "items":[
+        { "question":"Is the placement service free for candidates?", "answer":"Yes, absolutely free for job seekers. We are paid by the hiring company, never by the candidate." },
+        { "question":"What industries do you work with?", "answer":"Banking, IT, BPO, logistics, healthcare, retail and more. We work with 1,200+ companies across India." },
+        { "question":"How long does placement take?", "answer":"Typically 2–4 weeks from CV submission to offer letter, depending on the role and your profile." }
+    ]},
+    { "id":"b16", "type":"email_collector", "enabled":true, "heading":"📬 Get matched to the right job", "placeholder":"Enter your email", "btn_text":"Find Me a Job" },
+    { "id":"b17", "type":"socials",         "enabled":true, "linkedin":"https://linkedin.com", "instagram":"https://instagram.com" }
   ]
 }

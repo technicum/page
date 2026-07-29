@@ -12,12 +12,28 @@
     "animationStyle": "fade", "animationStagger": "80"
   },
   "default_blocks": [
-    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Priya Mehta", "bio":"SEBI RIA · CFP · AMFI ARN Holder · 15 years experience" },
-    { "id":"b2", "type":"link",    "enabled":true, "title":"📊 Book a free portfolio review →", "url":"#" },
-    { "id":"b3", "type":"heading", "enabled":true, "text":"What I Offer", "size":"h3", "align":"center" },
-    { "id":"b4", "type":"link",    "enabled":true, "title":"📊 Mutual Funds & SIP · Goal-based investing", "url":"#" },
-    { "id":"b5", "type":"link",    "enabled":true, "title":"🛡️ Life & Health Insurance · Best-fit coverage", "url":"#" },
-    { "id":"b6", "type":"link",    "enabled":true, "title":"🧮 SIP Calculator · Plan your investments", "url":"#" },
-    { "id":"b7", "type":"socials", "enabled":true, "linkedin":"https://linkedin.com", "youtube":"https://youtube.com" }
+    { "id":"b1",  "type":"avatar",          "enabled":true, "photo":"", "name":"Priya Mehta", "bio":"SEBI RIA · CFP · AMFI ARN Holder · 15+ years helping families build wealth 📈" },
+    { "id":"b2",  "type":"announcement",    "enabled":true, "text":"📊 Free portfolio health check for new clients — limited slots this month!", "bg_color":"#eef2ff", "text_color":"#1e3a8a" },
+    { "id":"b3",  "type":"link",            "enabled":true, "title":"📊 Book a Free Portfolio Review →", "url":"#" },
+    { "id":"b4",  "type":"banner",          "enabled":true, "text":"📈 ₹40 Cr+ AUM managed · SEBI RIA Reg. No. INA000XXXXX · 15+ years · 200+ families served", "bg_color":"#f1f5f9", "text_color":"#1B3A6B" },
+    { "id":"b5",  "type":"divider",         "enabled":true, "style":"dots", "spacing":"10" },
+    { "id":"b6",  "type":"heading",         "enabled":true, "text":"How I Can Help You", "size":"h3", "align":"center" },
+    { "id":"b7",  "type":"service",         "enabled":true, "title":"Mutual Funds & SIP Planning", "description":"Goal-based investing · Retirement · Education · Tax saving ELSS", "price":"₹2,499 / year", "duration":"Ongoing advisory", "btn_text":"Get Started", "btn_url":"#" },
+    { "id":"b8",  "type":"service",         "enabled":true, "title":"Life & Health Insurance", "description":"Term plan analysis · Best-fit coverage · Compare across all insurers", "price":"Free consultation", "duration":"One-time review", "btn_text":"Get Started", "btn_url":"#" },
+    { "id":"b9",  "type":"service",         "enabled":true, "title":"Tax Planning & ITR Filing", "description":"80C, HRA, NPS, ELSS optimization · ITR filing support included", "price":"₹1,999 / year", "duration":"Annual advisory", "btn_text":"Get Started", "btn_url":"#" },
+    { "id":"b10", "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b11", "type":"heading",         "enabled":true, "text":"Client Testimonials", "size":"h3", "align":"center" },
+    { "id":"b12", "type":"testimonial",     "enabled":true, "quote":"Priya has been managing our family's finances for 8 years. Our portfolio has grown 3x and she's always available when we have questions. Truly a trusted advisor.", "name":"Manish & Deepa S.", "role":"Business Owners, Pune", "rating":"5" },
+    { "id":"b13", "type":"reviews",         "enabled":true, "heading":"", "items":[
+        { "review":"Started my SIP journey 3 years ago with Priya's guidance. Already at ₹18 lakhs! She explains everything in simple terms.", "name":"Rahul K.", "rating":"5" },
+        { "review":"Got the right term plan at half the premium my bank was charging. Should have consulted her years ago!", "name":"Anjali T.", "rating":"5" }
+    ]},
+    { "id":"b14", "type":"faq",             "enabled":true, "heading":"Common Questions", "items":[
+        { "question":"Is my money safe with a SEBI RIA?", "answer":"Absolutely. SEBI RIAs are regulated and fiduciary advisors — we work in YOUR best interest, not for commissions. Your money stays in your own demat/MF account at all times." },
+        { "question":"What is the minimum investment to start?", "answer":"You can start a SIP with as little as ₹500/month. For comprehensive advisory, I typically work with clients who have ₹2L+ to invest. Book a free call to discuss your situation." },
+        { "question":"How do I track my investments?", "answer":"All your investments are visible in your own Kuvera or Zerodha account. I also send monthly portfolio summaries and review calls every quarter." }
+    ]},
+    { "id":"b15", "type":"email_collector", "enabled":true, "heading":"📩 Get weekly market insights & wealth tips", "placeholder":"Enter your email", "btn_text":"Subscribe Free" },
+    { "id":"b16", "type":"socials",         "enabled":true, "linkedin":"https://linkedin.com", "youtube":"https://youtube.com" }
   ]
 }

@@ -12,12 +12,25 @@
     "animationStyle": "slide-left", "animationStagger": "100"
   },
   "default_blocks": [
-    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Arjun Verma", "bio":"SEBI Reg. Analyst · Options Trader · 9 yrs · 4,200+ students 📈" },
-    { "id":"b2", "type":"link",    "enabled":true, "title":"🎓 Join the academy →", "url":"#" },
-    { "id":"b3", "type":"heading", "enabled":true, "text":"Courses", "size":"h3", "align":"center" },
-    { "id":"b4", "type":"product", "enabled":true, "title":"Options Mastery Pro", "description":"12 weeks · Live sessions", "price":"₹9,999", "btn_text":"Enroll now", "btn_url":"#" },
-    { "id":"b5", "type":"product", "enabled":true, "title":"Intraday Scalping", "description":"6 weeks · Recorded", "price":"₹4,999", "btn_text":"Enroll now", "btn_url":"#" },
-    { "id":"b6", "type":"link",    "enabled":true, "title":"📺 YouTube channel · Free trading videos", "url":"#" },
-    { "id":"b7", "type":"link",    "enabled":true, "title":"💬 Telegram community · Daily market calls", "url":"#" }
+    { "id":"b1",  "type":"avatar",          "enabled":true, "photo":"", "name":"Arjun Verma", "bio":"SEBI Reg. Research Analyst · 9 yrs trading · Options + Intraday · 4,200+ students 📈" },
+    { "id":"b2",  "type":"announcement",    "enabled":true, "text":"🔴 LIVE MARKET CALL every morning at 9AM on Telegram — free for members!", "bg_color":"#1a1a1a", "text_color":"#00D964" },
+    { "id":"b3",  "type":"link",            "enabled":true, "title":"🎓 Join TradeVault Academy →", "url":"#" },
+    { "id":"b4",  "type":"link",            "enabled":true, "title":"💬 Free Telegram Community", "url":"#" },
+    { "id":"b5",  "type":"banner",          "enabled":true, "text":"📊  NIFTY: 24,850 ▲  |  BANK NIFTY: 52,200 ▲  |  SENSEX: 81,450 ▲", "bg_color":"#111111", "text_color":"#00D964" },
+    { "id":"b6",  "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b7",  "type":"heading",         "enabled":true, "text":"Courses", "size":"h3", "align":"center" },
+    { "id":"b8",  "type":"product",         "enabled":true, "title":"Options Mastery Pro", "description":"12 weeks · Live sessions · Greeks, spreads, hedging · Certificate included", "price":"₹9,999", "btn_text":"Enroll Now →", "btn_url":"#" },
+    { "id":"b9",  "type":"product",         "enabled":true, "title":"Intraday Scalping Blueprint", "description":"6 weeks · Recorded + Live Q&A · Lifetime access · Price action strategies", "price":"₹4,999", "btn_text":"Enroll Now →", "btn_url":"#" },
+    { "id":"b10", "type":"product",         "enabled":true, "title":"Fundamental Analysis Masterclass", "description":"4 weeks · Value investing · DCF · Sector analysis · For long-term investors", "price":"₹2,999", "btn_text":"Enroll Now →", "btn_url":"#" },
+    { "id":"b11", "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b12", "type":"heading",         "enabled":true, "text":"Student Results 🏆", "size":"h3", "align":"center" },
+    { "id":"b13", "type":"testimonial",     "enabled":true, "quote":"Went from losing money every month to being consistently profitable. Arjun's options strategies are the most practical I've seen. The 12-week course changed my trading completely.", "name":"Kiran B.", "role":"Options Trader, Pune", "rating":"5" },
+    { "id":"b14", "type":"reviews",         "enabled":true, "heading":"", "items":[
+        { "review":"The scalping course paid for itself in the first week. Arjun's setups are clear, simple, and work consistently.", "name":"Ravi T.", "rating":"5" },
+        { "review":"Best investment I made this year. The Telegram community alone is worth it — 24/7 market discussions.", "name":"Priya N.", "rating":"5" },
+        { "review":"SEBI registration gives confidence. Arjun is transparent about drawdowns too, not just wins. That's rare.", "name":"Shyam K.", "rating":"5" }
+    ]},
+    { "id":"b15", "type":"email_collector", "enabled":true, "heading":"📊 Free daily market analysis in your inbox", "placeholder":"Enter your email", "btn_text":"Send Me Analysis" },
+    { "id":"b16", "type":"socials",         "enabled":true, "youtube":"https://youtube.com", "telegram":"https://t.me/tradevault", "linkedin":"https://linkedin.com" }
   ]
 }

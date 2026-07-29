@@ -11,12 +11,29 @@
     "animationStyle": "fade", "animationStagger": "80"
   },
   "default_blocks": [
-    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Your Name", "bio":"Real Estate Broker · 10+ years experience · Finding your perfect home 🏠" },
-    { "id":"b2", "type":"link",    "enabled":true, "title":"🏠 Schedule a Site Visit", "url":"#" },
-    { "id":"b3", "type":"link",    "enabled":true, "title":"💬 WhatsApp Me Now", "url":"#" },
-    { "id":"b4", "type":"heading", "enabled":true, "text":"Featured Properties", "size":"h3", "align":"center" },
-    { "id":"b5", "type":"banner",  "enabled":true, "text":"3BHK Premium Apartment · Gurgaon · ₹1.2 Cr", "btn_text":"View Details", "btn_url":"#" },
-    { "id":"b6", "type":"banner",  "enabled":true, "text":"2BHK Ready to Move · Powai, Mumbai · ₹85 Lac", "btn_text":"View Details", "btn_url":"#" },
-    { "id":"b7", "type":"socials", "enabled":true, "instagram":"https://instagram.com", "linkedin":"https://linkedin.com" }
+    { "id":"b1",  "type":"avatar",       "enabled":true, "photo":"", "name":"Your Name", "bio":"RERA Certified Broker · 10+ years · 500+ properties sold · Finding your perfect home 🏠" },
+    { "id":"b2",  "type":"announcement", "enabled":true, "text":"🏠 New listings added every week — register now for pre-launch prices!", "bg_color":"#ccfbf1", "text_color":"#134e4a" },
+    { "id":"b3",  "type":"link",         "enabled":true, "title":"🏠 Schedule a Free Site Visit", "url":"#" },
+    { "id":"b4",  "type":"link",         "enabled":true, "title":"💬 WhatsApp Me Now", "url":"#" },
+    { "id":"b5",  "type":"divider",      "enabled":true, "style":"dots", "spacing":"10" },
+    { "id":"b6",  "type":"heading",      "enabled":true, "text":"Featured Properties", "size":"h3", "align":"center" },
+    { "id":"b7",  "type":"product",      "enabled":true, "title":"3 BHK Premium Apartment · Gurgaon", "description":"Ready to move · 1,450 sqft · Sec 67 · Close to metro", "price":"₹1.2 Cr", "btn_text":"View Details", "btn_url":"#" },
+    { "id":"b8",  "type":"product",      "enabled":true, "title":"2 BHK Modern Flat · Powai, Mumbai", "description":"New launch · 980 sqft · Lake-facing · Semi-furnished", "price":"₹85 Lac", "btn_text":"View Details", "btn_url":"#" },
+    { "id":"b9",  "type":"product",      "enabled":true, "title":"4 BHK Villa · Whitefield, Bengaluru", "description":"Gated community · 2,800 sqft · Pool & gym · BBMP approved", "price":"₹2.4 Cr", "btn_text":"View Details", "btn_url":"#" },
+    { "id":"b10", "type":"banner",       "enabled":true, "text":"🔑 Register now for exclusive pre-launch pricing on upcoming projects", "bg_color":"#0f766e", "text_color":"#ffffff", "btn_text":"Register Interest", "btn_url":"#" },
+    { "id":"b11", "type":"divider",      "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b12", "type":"heading",      "enabled":true, "text":"Client Testimonials", "size":"h3", "align":"center" },
+    { "id":"b13", "type":"testimonial",  "enabled":true, "quote":"Found our dream home in just 3 site visits! Very knowledgeable, patient, and helped us negotiate a great price. Would recommend to anyone.", "name":"Ankit & Priya S.", "role":"Home Buyers, Gurgaon", "rating":"5" },
+    { "id":"b14", "type":"reviews",      "enabled":true, "heading":"", "items":[
+        { "review":"Excellent support throughout the buying process — from shortlisting to registration. Very professional.", "name":"Suresh K.", "rating":"5" },
+        { "review":"Helped me find a great investment property. Deep knowledge of the local market and future projects.", "name":"Kavita M.", "rating":"5" }
+    ]},
+    { "id":"b15", "type":"faq",          "enabled":true, "heading":"Common Questions", "items":[
+        { "question":"What documents do I need to buy a property?", "answer":"You'll need PAN card, Aadhaar, ITR for last 2 years, bank statements, and Form 60 if applicable. I'll guide you through the complete process." },
+        { "question":"What is RERA and why does it matter?", "answer":"RERA (Real Estate Regulation Act) protects buyers from delays and fraud. Always buy RERA-registered properties — I only deal with RERA-certified projects." },
+        { "question":"How long does the home loan process take?", "answer":"Typically 10–15 working days once all documents are submitted. I work with partner banks to make this smoother for my clients." }
+    ]},
+    { "id":"b16", "type":"contact_form", "enabled":true, "heading":"Looking for a property? Let's talk", "show_name":true, "show_email":true, "show_phone":true, "show_message":true, "btn_text":"Send Enquiry" },
+    { "id":"b17", "type":"socials",      "enabled":true, "instagram":"https://instagram.com", "linkedin":"https://linkedin.com", "youtube":"https://youtube.com" }
   ]
 }

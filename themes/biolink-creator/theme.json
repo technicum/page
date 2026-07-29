@@ -11,11 +11,20 @@
     "animationStyle": "slide-up", "animationStagger": "120"
   },
   "default_blocks": [
-    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"@yourchannel", "bio":"Content Creator · Making videos you love 🎬" },
-    { "id":"b2", "type":"socials", "enabled":true, "instagram":"https://instagram.com", "youtube":"https://youtube.com", "tiktok":"https://tiktok.com" },
-    { "id":"b3", "type":"heading", "enabled":true, "text":"Quick Links", "size":"h3", "align":"center" },
-    { "id":"b4", "type":"link",    "enabled":true, "title":"Subscribe to my channel", "url":"#", "icon":"▶️" },
-    { "id":"b5", "type":"link",    "enabled":true, "title":"Shop my presets", "url":"#", "icon":"🛍️" },
-    { "id":"b6", "type":"link",    "enabled":true, "title":"Book a collab", "url":"#", "icon":"🤝" }
+    { "id":"b1",  "type":"avatar",          "enabled":true, "photo":"", "name":"@yourchannel", "bio":"Content Creator · Cinematic travel & tech vlogs 🎬 · 500K+ subscribers" },
+    { "id":"b2",  "type":"announcement",    "enabled":true, "text":"🎬 New video every Wednesday & Saturday — Subscribe so you don't miss it!", "bg_color":"#fff1f2", "text_color":"#9f1239" },
+    { "id":"b3",  "type":"link",            "enabled":true, "title":"▶️ Watch my latest video", "url":"#", "icon":"▶️" },
+    { "id":"b4",  "type":"link",            "enabled":true, "title":"🛍️ Shop my Presets & LUTs", "url":"#" },
+    { "id":"b5",  "type":"divider",         "enabled":true, "style":"dots", "spacing":"12" },
+    { "id":"b6",  "type":"heading",         "enabled":true, "text":"Creator Store", "size":"h3", "align":"center" },
+    { "id":"b7",  "type":"product",         "enabled":true, "title":"Cinematic Lightroom Preset Pack", "description":"30 professional presets · Works on mobile & desktop", "price":"₹799", "btn_text":"Get Presets →", "btn_url":"#" },
+    { "id":"b8",  "type":"product",         "enabled":true, "title":"Social Media Growth Course", "description":"8 modules · How I grew to 500K · Self-paced", "price":"₹2,499", "btn_text":"Enroll Now →", "btn_url":"#" },
+    { "id":"b9",  "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b10", "type":"heading",         "enabled":true, "text":"What subscribers say", "size":"h3", "align":"center" },
+    { "id":"b11", "type":"testimonial",     "enabled":true, "quote":"Your preset pack completely changed how my photos look. Worth every rupee — I got 3x more engagement after using them!", "name":"Shreya K.", "role":"Travel Photographer", "rating":"5" },
+    { "id":"b12", "type":"heading",         "enabled":true, "text":"Work With Me", "size":"h3", "align":"center" },
+    { "id":"b13", "type":"paragraph",       "enabled":true, "text":"Open to brand collaborations, sponsored videos, and speaking events. Let's create something amazing together.", "align":"center" },
+    { "id":"b14", "type":"email_collector", "enabled":true, "heading":"Join my inner circle 📩", "placeholder":"Enter your email", "btn_text":"Subscribe" },
+    { "id":"b15", "type":"socials",         "enabled":true, "instagram":"https://instagram.com", "youtube":"https://youtube.com", "tiktok":"https://tiktok.com" }
   ]
 }

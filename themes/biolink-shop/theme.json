@@ -11,11 +11,22 @@
     "animationStyle": "slide-up", "animationStagger": "100"
   },
   "default_blocks": [
-    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"My Online Store", "bio":"Quality products, fast delivery 🚀" },
-    { "id":"b2", "type":"heading", "enabled":true, "text":"Featured Products", "size":"h3", "align":"center" },
-    { "id":"b3", "type":"product", "enabled":true, "title":"Handmade Candle Set", "description":"Set of 3 scented candles", "price":"₹499", "btn_text":"Buy now", "btn_url":"#" },
-    { "id":"b4", "type":"product", "enabled":true, "title":"Premium Skincare Kit", "description":"Glow serum + moisturiser", "price":"₹1,299", "btn_text":"Buy now", "btn_url":"#" },
-    { "id":"b5", "type":"link",    "enabled":true, "title":"🛍️ Shop All Products", "url":"#" },
-    { "id":"b6", "type":"socials", "enabled":true, "instagram":"https://instagram.com" }
+    { "id":"b1",  "type":"avatar",          "enabled":true, "photo":"", "name":"My Online Store", "bio":"Handcrafted lifestyle goods · Fast delivery across India 🚀" },
+    { "id":"b2",  "type":"announcement",    "enabled":true, "text":"🚚 Free delivery on orders above ₹999 · COD available", "bg_color":"#fff7ed", "text_color":"#9a3412" },
+    { "id":"b3",  "type":"coupon",          "enabled":true, "heading":"First order discount 🎉", "description":"Use code at checkout to get 15% off your first order", "code":"WELCOME15", "expiry":"31 Dec 2026" },
+    { "id":"b4",  "type":"heading",         "enabled":true, "text":"Featured Products", "size":"h3", "align":"center" },
+    { "id":"b5",  "type":"product",         "enabled":true, "title":"Handmade Candle Set", "description":"Set of 3 long-burn soy wax candles in vanilla, jasmine & sandalwood", "price":"₹499", "btn_text":"Buy Now", "btn_url":"#" },
+    { "id":"b6",  "type":"product",         "enabled":true, "title":"Premium Skincare Kit", "description":"Glow serum + day moisturiser + under-eye cream · Dermatologist tested", "price":"₹1,299", "btn_text":"Buy Now", "btn_url":"#" },
+    { "id":"b7",  "type":"product",         "enabled":true, "title":"Aromatherapy Oil Set", "description":"6 essential oils · lavender, eucalyptus, peppermint & more", "price":"₹699", "btn_text":"Buy Now", "btn_url":"#" },
+    { "id":"b8",  "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b9",  "type":"heading",         "enabled":true, "text":"What our customers say ⭐", "size":"h3", "align":"center" },
+    { "id":"b10", "type":"reviews",         "enabled":true, "heading":"", "items":[
+        { "review":"The candle set is absolutely divine — smells amazing and burns for hours. Already ordered twice!", "name":"Priya S.", "rating":"5" },
+        { "review":"Skincare kit transformed my skin in 2 weeks. Finally found something that works for Indian skin!", "name":"Rohan M.", "rating":"5" },
+        { "review":"Packaging was beautiful, delivery was super fast. Will definitely shop here again 🙌", "name":"Anita R.", "rating":"5" }
+    ]},
+    { "id":"b11", "type":"link",            "enabled":true, "title":"🛍️ Browse All Products", "url":"#" },
+    { "id":"b12", "type":"email_collector", "enabled":true, "heading":"Get exclusive deals first 🔔", "placeholder":"Enter your email", "btn_text":"Subscribe" },
+    { "id":"b13", "type":"socials",         "enabled":true, "instagram":"https://instagram.com", "facebook":"https://facebook.com" }
   ]
 }

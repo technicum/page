@@ -12,12 +12,26 @@
     "animationStyle": "bounce", "animationStagger": "100"
   },
   "default_blocks": [
-    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"PlacePro Network", "bio":"Jobs · Internships · Placements · 3,200+ openings 🚀" },
-    { "id":"b2", "type":"link",    "enabled":true, "title":"🔎 Browse Jobs", "url":"#" },
-    { "id":"b3", "type":"link",    "enabled":true, "title":"💬 Chat with us", "url":"#" },
-    { "id":"b4", "type":"heading", "enabled":true, "text":"Featured Openings", "size":"h3", "align":"center" },
-    { "id":"b5", "type":"link",    "enabled":true, "title":"Customer Success Lead · Zepto · ₹7–11 LPA 🔥", "url":"#" },
-    { "id":"b6", "type":"link",    "enabled":true, "title":"Operations Manager · Delhivery · ₹9–14 LPA", "url":"#" },
-    { "id":"b7", "type":"socials", "enabled":true, "linkedin":"https://linkedin.com", "instagram":"https://instagram.com" }
+    { "id":"b1",  "type":"avatar",          "enabled":true, "photo":"", "name":"PlacePro Network", "bio":"Jobs · Internships · Placements · 3,200+ openings this month 🚀" },
+    { "id":"b2",  "type":"announcement",    "enabled":true, "text":"🔥 3,200+ live openings — New jobs added every day. Apply before they close!", "bg_color":"#FF6B00", "text_color":"#ffffff" },
+    { "id":"b3",  "type":"link",            "enabled":true, "title":"🔎 Browse All Jobs", "url":"#" },
+    { "id":"b4",  "type":"link",            "enabled":true, "title":"📤 Upload Resume", "url":"#" },
+    { "id":"b5",  "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b6",  "type":"heading",         "enabled":true, "text":"🔥 Hot This Week", "size":"h3", "align":"center" },
+    { "id":"b7",  "type":"banner",          "enabled":true, "text":"💼 Customer Success Lead · Zepto · Mumbai · ₹7–11 LPA", "bg_color":"#1a1a1a", "text_color":"#FF6B00", "btn_text":"Apply →", "btn_url":"#" },
+    { "id":"b8",  "type":"banner",          "enabled":true, "text":"⚙️ Operations Manager · Delhivery · Pan India · ₹9–14 LPA", "bg_color":"#1a1a1a", "text_color":"#FF6B00", "btn_text":"Apply →", "btn_url":"#" },
+    { "id":"b9",  "type":"banner",          "enabled":true, "text":"📞 Sales Manager · Swiggy · Bengaluru · ₹10–15 LPA", "bg_color":"#1a1a1a", "text_color":"#FF6B00", "btn_text":"Apply →", "btn_url":"#" },
+    { "id":"b10", "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b11", "type":"heading",         "enabled":true, "text":"Sectors We Place In", "size":"h3", "align":"center" },
+    { "id":"b12", "type":"paragraph",       "enabled":true, "text":"Tech 🖥️  ·  Logistics 🚛  ·  BFSI 🏦  ·  Sales 📞  ·  Operations ⚙️  ·  BPO 💬  ·  Retail 🛒  ·  Healthcare 🏥", "align":"center" },
+    { "id":"b13", "type":"divider",         "enabled":true, "style":"dots", "spacing":"10" },
+    { "id":"b14", "type":"heading",         "enabled":true, "text":"Success Stories", "size":"h3", "align":"center" },
+    { "id":"b15", "type":"testimonial",     "enabled":true, "quote":"Got placed at Zepto within 2 weeks of submitting my resume! The team was super helpful with interview prep. Couldn't have done it without PlacePro!", "name":"Rahul V.", "role":"Operations Lead, Zepto", "rating":"5" },
+    { "id":"b16", "type":"reviews",         "enabled":true, "heading":"", "items":[
+        { "review":"Placed 3 times through PlacePro in 4 years — each time a better role. They really care about your career!", "name":"Sneha T.", "rating":"5" },
+        { "review":"Got a remote tech job I didn't even know existed. Their network is unbeatable!", "name":"Karan P.", "rating":"5" }
+    ]},
+    { "id":"b17", "type":"email_collector", "enabled":true, "heading":"📬 Get matching jobs to your inbox daily", "placeholder":"Enter your email", "btn_text":"Get Job Alerts" },
+    { "id":"b18", "type":"socials",         "enabled":true, "linkedin":"https://linkedin.com", "instagram":"https://instagram.com", "whatsapp":"919876543210" }
   ]
 }

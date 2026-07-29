@@ -12,12 +12,29 @@
     "animationStyle": "slide-up", "animationStagger": "100"
   },
   "default_blocks": [
-    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"Rajesh Kumar", "bio":"Certified Bank DSA Partner · ARN-084721 · IRDAI-1234567" },
-    { "id":"b2", "type":"link",    "enabled":true, "title":"🏦 Check loan eligibility →", "url":"#" },
-    { "id":"b3", "type":"heading", "enabled":true, "text":"Loan Products", "size":"h3", "align":"center" },
-    { "id":"b4", "type":"link",    "enabled":true, "title":"🏠 Home Loan · From 8.4%", "url":"#" },
-    { "id":"b5", "type":"link",    "enabled":true, "title":"⚡ Personal Loan · Instant approval · 10.5%", "url":"#" },
-    { "id":"b6", "type":"link",    "enabled":true, "title":"🏢 Business Loan · No collateral · 12%", "url":"#" },
-    { "id":"b7", "type":"socials", "enabled":true, "linkedin":"https://linkedin.com", "youtube":"https://youtube.com" }
+    { "id":"b1",  "type":"avatar",       "enabled":true, "photo":"", "name":"Rajesh Kumar", "bio":"Certified Bank DSA Partner · IRDAI Agent · Serving 500+ clients across India 🏦" },
+    { "id":"b2",  "type":"announcement", "enabled":true, "text":"✅ Get loan approval in 24 hours — minimum documents, maximum speed!", "bg_color":"#1a2e45", "text_color":"#F5A623" },
+    { "id":"b3",  "type":"link",         "enabled":true, "title":"🏦 Check Your Loan Eligibility →", "url":"#" },
+    { "id":"b4",  "type":"link",         "enabled":true, "title":"💬 WhatsApp: +91 98765 43210", "url":"#" },
+    { "id":"b5",  "type":"divider",      "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b6",  "type":"heading",      "enabled":true, "text":"Loan Products", "size":"h3", "align":"center" },
+    { "id":"b7",  "type":"service",      "enabled":true, "title":"Home Loan", "description":"Up to ₹5 Cr · Minimal docs · Transfer from any bank · PMAY benefit available", "price":"From 8.40% p.a.", "duration":"Processing fee waived", "btn_text":"Apply Now", "btn_url":"#" },
+    { "id":"b8",  "type":"service",      "enabled":true, "title":"Personal Loan", "description":"₹50K–₹25L · No collateral · Instant approval for salaried & self-employed", "price":"From 10.50% p.a.", "duration":"Disbursal in 24 hrs", "btn_text":"Apply Now", "btn_url":"#" },
+    { "id":"b9",  "type":"service",      "enabled":true, "title":"Business Loan", "description":"Up to ₹50L · No collateral · For shops, manufacturers & service providers", "price":"From 12% p.a.", "duration":"7-day disbursal", "btn_text":"Apply Now", "btn_url":"#" },
+    { "id":"b10", "type":"banner",       "enabled":true, "text":"🤝 Partner banks: HDFC · ICICI · Axis · SBI · Kotak · Bajaj Finance · Tata Capital", "bg_color":"#1a2e45", "text_color":"#F5A623" },
+    { "id":"b11", "type":"divider",      "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b12", "type":"heading",      "enabled":true, "text":"What clients say", "size":"h3", "align":"center" },
+    { "id":"b13", "type":"testimonial",  "enabled":true, "quote":"Got my home loan approved in 3 days — better rate than my own bank was offering! Rajesh handled all the paperwork. Absolutely brilliant service.", "name":"Sunita & Anil P.", "role":"Home Loan Customers, Mumbai", "rating":"5" },
+    { "id":"b14", "type":"reviews",      "enabled":true, "heading":"", "items":[
+        { "review":"Personal loan approved in 18 hours. Everything done on WhatsApp — minimal hassle, maximum speed!", "name":"Vivek S.", "rating":"5" },
+        { "review":"Transferred my expensive home loan to a lower rate through Rajesh. Saving ₹4,200 every month now!", "name":"Preeti M.", "rating":"5" }
+    ]},
+    { "id":"b15", "type":"faq",          "enabled":true, "heading":"Frequently Asked", "items":[
+        { "question":"What documents do I need for a personal loan?", "answer":"For salaried: PAN, Aadhaar, 3 months' salary slips, 6 months' bank statements. For self-employed: PAN, Aadhaar, ITR for 2 years, business proof. I'll guide you through everything." },
+        { "question":"Will my loan get approved if I have a low CIBIL score?", "answer":"Score above 700 gets the best rates. Between 650–700 we can still find solutions. Below 650, I can help you improve your score first. Call me for a free assessment." },
+        { "question":"What is the processing fee?", "answer":"Processing fees vary by bank (0.5%–2% of loan amount). For most of my partner banks, I can get fees waived or reduced. Mention you're coming through LoanBridge." }
+    ]},
+    { "id":"b16", "type":"contact_form", "enabled":true, "heading":"Apply Now — Get a callback in 2 hours", "show_name":true, "show_email":false, "show_phone":true, "show_message":true, "btn_text":"Submit Application" },
+    { "id":"b17", "type":"socials",      "enabled":true, "linkedin":"https://linkedin.com", "youtube":"https://youtube.com", "whatsapp":"919876543210" }
   ]
 }

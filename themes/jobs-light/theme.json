@@ -12,12 +12,25 @@
     "animationStyle": "fade", "animationStagger": "80"
   },
   "default_blocks": [
-    { "id":"b1", "type":"avatar",  "enabled":true, "photo":"", "name":"CareerBridge India", "bio":"Job Placement · Pune & Remote · 1,800+ candidates placed 🎯" },
-    { "id":"b2", "type":"link",    "enabled":true, "title":"📄 Upload your resume", "url":"#" },
-    { "id":"b3", "type":"link",    "enabled":true, "title":"💬 WhatsApp us now", "url":"#" },
-    { "id":"b4", "type":"heading", "enabled":true, "text":"Active Openings", "size":"h3", "align":"center" },
-    { "id":"b5", "type":"link",    "enabled":true, "title":"BPO Executive · Cognizant · ₹3–5 LPA · Fresher ok", "url":"#" },
-    { "id":"b6", "type":"link",    "enabled":true, "title":"Sales Executive · ICICI Bank · ₹4–7 LPA", "url":"#" },
-    { "id":"b7", "type":"socials", "enabled":true, "linkedin":"https://linkedin.com" }
+    { "id":"b1",  "type":"avatar",          "enabled":true, "photo":"", "name":"CareerBridge India", "bio":"Job Placement · Pune & Remote · 1,800+ candidates placed this year 🎯" },
+    { "id":"b2",  "type":"announcement",    "enabled":true, "text":"🎯 1,800 candidates placed this year — let us find your next opportunity!", "bg_color":"#d1fae5", "text_color":"#065f46" },
+    { "id":"b3",  "type":"link",            "enabled":true, "title":"📄 Upload Your Resume", "url":"#" },
+    { "id":"b4",  "type":"link",            "enabled":true, "title":"💬 WhatsApp Us Now", "url":"#" },
+    { "id":"b5",  "type":"banner",          "enabled":true, "text":"✅ 95% placement rate · Free resume review · Interview prep included", "bg_color":"#ecfdf5", "text_color":"#064e3b" },
+    { "id":"b6",  "type":"divider",         "enabled":true, "style":"dots", "spacing":"10" },
+    { "id":"b7",  "type":"heading",         "enabled":true, "text":"Active Openings", "size":"h3", "align":"center" },
+    { "id":"b8",  "type":"product",         "enabled":true, "title":"BPO Executive · Cognizant", "description":"₹3–5 LPA · Fresher welcome · Multiple cities available", "price":"", "btn_text":"Apply →", "btn_url":"#" },
+    { "id":"b9",  "type":"product",         "enabled":true, "title":"Sales Executive · ICICI Bank", "description":"₹4–7 LPA · Banking experience preferred · Pune & Mumbai", "price":"", "btn_text":"Apply →", "btn_url":"#" },
+    { "id":"b10", "type":"product",         "enabled":true, "title":"Digital Marketing Associate · Series A Startup", "description":"₹4–8 LPA · Social media + performance marketing · Remote-friendly", "price":"", "btn_text":"Apply →", "btn_url":"#" },
+    { "id":"b11", "type":"divider",         "enabled":true, "style":"line", "spacing":"10" },
+    { "id":"b12", "type":"heading",         "enabled":true, "text":"What our candidates say", "size":"h3", "align":"center" },
+    { "id":"b13", "type":"testimonial",     "enabled":true, "quote":"CareerBridge helped me land my first job right out of college. The team gave me solid interview prep and I got an offer from Cognizant in 10 days!", "name":"Ritu G.", "role":"BPO Executive, Cognizant", "rating":"5" },
+    { "id":"b14", "type":"reviews",         "enabled":true, "heading":"", "items":[
+        { "review":"Switched careers with CareerBridge's help — from retail to banking. The guidance was spot on!", "name":"Vikram P.", "rating":"5" },
+        { "review":"Fast, friendly, and effective. Got placed in 3 weeks. No hidden fees, totally free!", "name":"Sanya K.", "rating":"5" }
+    ]},
+    { "id":"b15", "type":"email_collector", "enabled":true, "heading":"📬 Get daily job alerts by email", "placeholder":"Enter your email", "btn_text":"Send Me Jobs" },
+    { "id":"b16", "type":"contact_form",    "enabled":true, "heading":"Ask us anything", "show_name":true, "show_email":false, "show_phone":true, "show_message":true, "btn_text":"Submit" },
+    { "id":"b17", "type":"socials",         "enabled":true, "linkedin":"https://linkedin.com", "instagram":"https://instagram.com" }
   ]
 }
