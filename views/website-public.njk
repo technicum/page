@@ -465,6 +465,7 @@ footer a{color:#9ca3af;text-decoration:none;}footer a:hover{color:#fff;}
 .checkout-total{font-size:17px;font-weight:800;color:var(--text);border-top:2px solid #e5e7eb;padding-top:14px;margin-top:4px;display:flex;justify-content:space-between;}
 </style>
 <link rel="stylesheet" href="/themes/website/{{ activeTheme }}/theme.css">
+{% if appHeadHtml %}{{ appHeadHtml | safe }}{% endif %}
 </head>
 <body>
 
@@ -1319,5 +1320,6 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowRight') pzLbNav(1);
 });
 </script>
+{% if appBodyEndHtml %}{{ appBodyEndHtml | safe }}{% endif %}
 </body>
 </html>

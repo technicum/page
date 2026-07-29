@@ -343,6 +343,9 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
     <button class="rail-btn" id="rb-catalog" onclick="togglePanel('catalog')" title="Catalog">
       <span class="ri" id="rb-catalog-icon">🗂️</span><span class="rl" id="rb-catalog-label">Catalog</span>
     </button>
+    <button class="rail-btn" id="rb-apps" onclick="togglePanel('apps')" title="Apps">
+      <span class="ri">🔌</span><span class="rl">Apps</span>
+    </button>
     <div class="rail-sep"></div>
     <button class="rail-btn" id="rb-seo"      onclick="togglePanel('seo')"      title="SEO">
       <span class="ri">🔍</span><span class="rl">SEO</span>
@@ -482,6 +485,23 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
         </div>
       </div>
 
+      <!-- Apps panel -->
+      <div class="panel-section" id="ps-apps">
+        <div id="apps-list" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="color:#9ca3af;font-size:12px;padding:10px 0;text-align:center;">Loading apps…</div>
+        </div>
+        <!-- Per-app config drawer -->
+        <div id="apps-config-drawer" style="display:none;margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+            <button onclick="appsCloseConfig()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#6b7280;padding:0;">← back</button>
+            <span id="apps-config-title" style="font-size:13px;font-weight:600;color:#111827;"></span>
+          </div>
+          <div id="apps-config-fields"></div>
+          <button onclick="appsSaveConfig()" style="width:100%;margin-top:10px;padding:9px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Save App Settings</button>
+          <div id="apps-config-msg" style="font-size:12px;margin-top:6px;color:#9ca3af;text-align:center;"></div>
+        </div>
+      </div>
+
       <!-- Section Edit (dynamic) -->
       <div class="panel-section" id="ps-section-edit">
         <button class="sec-edit-back" onclick="backFromEdit()">← Back to sections</button>
@@ -508,6 +528,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 </div>
 
 <!-- Nunjucks data — rendered server-side -->
+<script id="_siteAppsJson" type="application/json">{{ siteAppsJson | safe }}</script>
 <script>
 const WEBSITE_ID  = {{ website.id }};
 const SUBDOMAIN   = '{{ website.subdomain }}';

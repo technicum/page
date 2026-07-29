@@ -182,6 +182,9 @@ exports.biolinkBuilder = async (req, res) => {
     ) || []
   } catch(e) { /* ignore */ }
 
+  let siteAppsJson = '{}'
+  try { siteAppsJson = JSON.stringify(JSON.parse(site.apps || '{}')) } catch(e) {}
+
   res.render('dashboard/biolink-builder.njk', {
     title: 'Bio Link Editor',
     user,
@@ -193,6 +196,7 @@ exports.biolinkBuilder = async (req, res) => {
     productCollections,
     userForms,
     userBookingEvents,
+    siteAppsJson,
     baseDomain: process.env.BASE_DOMAIN || 'pagezapper.com'
   })
 }

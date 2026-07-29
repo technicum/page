@@ -288,10 +288,14 @@ exports.editor = async (req, res) => {
 
     let activeSitePage = pages.find(p => p.id === pageId) || pages.find(p => p.is_home) || pages[0] || null
 
+    let siteAppsRaw = '{}'
+    try { siteAppsRaw = JSON.stringify(JSON.parse(website.apps || '{}')) } catch(e) {}
+
     res.render('dashboard/website-editor.njk', {
       title: website.title + ' — Editor',
       activePage: 'website',
-      user, website, pages, activeSitePage
+      user, website, pages, activeSitePage,
+      siteAppsJson: siteAppsRaw
     })
   } catch(e) {
     console.error('[editor] error:', e.message)

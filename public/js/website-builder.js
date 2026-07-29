@@ -36,7 +36,7 @@ var SEC_DEF = {
 /* ═══════════════════════════════════════════
    PANEL
 ═══════════════════════════════════════════ */
-var PANEL_TITLES = { pages:'Pages', elements:'Add Section', styles:'Styles', seo:'SEO', settings:'Site Settings', 'section-edit':'Edit Section' };
+var PANEL_TITLES = { pages:'Pages', elements:'Add Section', styles:'Styles', seo:'SEO', settings:'Site Settings', 'section-edit':'Edit Section', apps:'Apps' };
 
 function togglePanel(name) {
   if (activePanel === name) { closePanel(); return; }
@@ -51,6 +51,7 @@ function togglePanel(name) {
   if (rb) rb.classList.add('active');
   if (name === 'pages') renderPageList();
   if (name === 'catalog') catLoadPanel();
+  if (name === 'apps') appsLoadPanel();
 }
 
 function closePanel() {
@@ -4030,6 +4031,187 @@ function _spRealisticPreview(type, d, BG, TC, AC, variant) {
       '</div>';
     }
   }
+}
+
+/* ═══════════════════════════════════════════
+   APPS / PLUGINS
+═══════════════════════════════════════════ */
+var _appsData        = [];       // all apps from server
+var _appsState       = {};       // current enabled+config per appId  { appId: { enabled, ...fields } }
+var _appsConfigAppId = null;     // which app's config drawer is open
+
+/* Merge saved state from server on page load — injected by websiteController */
+try { _appsState = JSON.parse(document.getElementById('_siteAppsJson').textContent || '{}'); } catch(e) { _appsState = {}; }
+
+/* Load the apps panel: fetch app list then render */
+function appsLoadPanel() {
+  var listEl = document.getElementById('apps-list');
+  var drawer = document.getElementById('apps-config-drawer');
+  if (!listEl) return;
+  drawer.style.display = 'none';
+  listEl.innerHTML = '<div style="color:#9ca3af;font-size:12px;padding:10px 0;text-align:center;">Loading apps…</div>';
+
+  fetch('/dashboard/apps/list?target=website', { credentials: 'same-origin' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      _appsData = data.apps || [];
+      appsRenderList();
+    })
+    .catch(function() {
+      listEl.innerHTML = '<div style="color:#ef4444;font-size:12px;padding:10px 0;text-align:center;">Failed to load apps.</div>';
+    });
+}
+
+/* Render cards for all discovered apps */
+function appsRenderList() {
+  var listEl = document.getElementById('apps-list');
+  if (!listEl) return;
+
+  if (!_appsData.length) {
+    listEl.innerHTML = '<div style="text-align:center;padding:24px 12px;">' +
+      '<div style="font-size:32px;margin-bottom:8px;">🔌</div>' +
+      '<div style="font-size:13px;color:#6b7280;">No apps installed yet.</div>' +
+      '<div style="font-size:11px;color:#9ca3af;margin-top:4px;">Add apps to <code>apps/website/</code></div>' +
+    '</div>';
+    return;
+  }
+
+  var html = _appsData.map(function(app) {
+    var saved   = _appsState[app.id] || {};
+    var enabled = !!saved.enabled;
+    var hasConfig = app.config && app.config.length > 0;
+
+    return '<div style="background:#fff;border:1.5px solid ' + (enabled ? '#6366f1' : '#e5e7eb') + ';border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;">' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<span style="font-size:22px;flex-shrink:0;">' + escHtml(app.icon || '🔌') + '</span>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:13px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(app.name) + '</div>' +
+          '<div style="font-size:11px;color:#9ca3af;">' + escHtml(app.description || '') + '</div>' +
+        '</div>' +
+        /* Toggle switch */
+        '<label style="position:relative;display:inline-flex;align-items:center;cursor:pointer;flex-shrink:0;">' +
+          '<input type="checkbox" ' + (enabled ? 'checked' : '') + ' onchange="appsToggle(\'' + escHtml(app.id) + '\',this.checked)" style="opacity:0;width:0;height:0;position:absolute;">' +
+          '<div style="width:36px;height:20px;background:' + (enabled ? '#6366f1' : '#d1d5db') + ';border-radius:20px;position:relative;transition:background .2s;">' +
+            '<div style="position:absolute;top:2px;left:' + (enabled ? '18px' : '2px') + ';width:16px;height:16px;background:#fff;border-radius:50%;transition:left .2s;"></div>' +
+          '</div>' +
+        '</label>' +
+      '</div>' +
+      (hasConfig && enabled
+        ? '<button onclick="appsOpenConfig(\'' + escHtml(app.id) + '\')" style="width:100%;padding:6px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;font-family:inherit;">⚙ Configure</button>'
+        : '') +
+    '</div>';
+  }).join('');
+
+  listEl.innerHTML = html;
+}
+
+/* Toggle an app on/off and save immediately */
+function appsToggle(appId, enabled) {
+  if (!_appsState[appId]) _appsState[appId] = {};
+  _appsState[appId].enabled = enabled;
+  /* Re-render list so toggle switch + configure button update */
+  appsRenderList();
+  appsPersist();
+}
+
+/* Open config drawer for an app */
+function appsOpenConfig(appId) {
+  _appsConfigAppId = appId;
+  var app = _appsData.find(function(a) { return a.id === appId; });
+  if (!app) return;
+
+  var listEl  = document.getElementById('apps-list');
+  var drawer  = document.getElementById('apps-config-drawer');
+  var titleEl = document.getElementById('apps-config-title');
+  var fieldsEl= document.getElementById('apps-config-fields');
+  var msgEl   = document.getElementById('apps-config-msg');
+
+  if (titleEl) titleEl.textContent = app.icon + ' ' + app.name;
+  if (msgEl)   msgEl.textContent   = '';
+
+  var saved  = _appsState[appId] || {};
+  var fields = app.config || [];
+
+  var html = fields.map(function(field) {
+    var val = saved[field.key] !== undefined ? saved[field.key] : (field.default !== undefined ? field.default : '');
+
+    var input = '';
+    if (field.type === 'select' && field.options) {
+      input = '<select id="appcf-' + escHtml(field.key) + '" style="width:100%;padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;background:#fff;font-family:inherit;">' +
+        field.options.map(function(opt) {
+          var optVal   = typeof opt === 'object' ? opt.value : opt;
+          var optLabel = typeof opt === 'object' ? opt.label : opt;
+          return '<option value="' + escHtml(String(optVal)) + '"' + (String(val) === String(optVal) ? ' selected' : '') + '>' + escHtml(optLabel) + '</option>';
+        }).join('') +
+      '</select>';
+    } else if (field.type === 'textarea') {
+      input = '<textarea id="appcf-' + escHtml(field.key) + '" rows="3" style="width:100%;padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box;font-family:inherit;resize:vertical;" placeholder="' + escHtml(field.placeholder || '') + '">' + escHtml(String(val)) + '</textarea>';
+    } else if (field.type === 'color') {
+      input = '<input type="color" id="appcf-' + escHtml(field.key) + '" value="' + escHtml(String(val)) + '" style="width:100%;height:36px;border:1.5px solid #e5e7eb;border-radius:7px;cursor:pointer;">';
+    } else {
+      input = '<input type="' + (field.type === 'password' ? 'password' : 'text') + '" id="appcf-' + escHtml(field.key) + '" value="' + escHtml(String(val)) + '" placeholder="' + escHtml(field.placeholder || '') + '" style="width:100%;padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box;font-family:inherit;">';
+    }
+
+    return '<div style="margin-bottom:10px;">' +
+      '<label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">' +
+        escHtml(field.label) + (field.required ? '<span style="color:#ef4444;"> *</span>' : '') +
+      '</label>' +
+      input +
+      (field.hint ? '<div style="font-size:11px;color:#9ca3af;margin-top:3px;">' + escHtml(field.hint) + '</div>' : '') +
+    '</div>';
+  }).join('');
+
+  if (!html) html = '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:8px 0;">No settings for this app.</div>';
+  if (fieldsEl) fieldsEl.innerHTML = html;
+
+  listEl.style.display  = 'none';
+  drawer.style.display  = 'block';
+}
+
+function appsCloseConfig() {
+  _appsConfigAppId = null;
+  var listEl = document.getElementById('apps-list');
+  var drawer = document.getElementById('apps-config-drawer');
+  if (listEl) listEl.style.display = '';
+  if (drawer) drawer.style.display = 'none';
+}
+
+/* Read config fields from the drawer and save */
+function appsSaveConfig() {
+  if (!_appsConfigAppId) return;
+  var app  = _appsData.find(function(a) { return a.id === _appsConfigAppId; });
+  var msgEl = document.getElementById('apps-config-msg');
+  if (!app) return;
+
+  var saved = _appsState[_appsConfigAppId] || {};
+  saved.enabled = true;
+  (app.config || []).forEach(function(field) {
+    var el = document.getElementById('appcf-' + field.key);
+    if (el) saved[field.key] = el.value;
+  });
+  _appsState[_appsConfigAppId] = saved;
+
+  appsPersist(function(ok) {
+    if (msgEl) {
+      msgEl.style.color = ok ? '#059669' : '#ef4444';
+      msgEl.textContent = ok ? 'Saved!' : 'Save failed.';
+      setTimeout(function() { if (msgEl) msgEl.textContent = ''; }, 2000);
+    }
+    if (ok) appsCloseConfig();
+  });
+}
+
+/* POST current _appsState to server */
+function appsPersist(callback) {
+  fetch('/dashboard/apps/save', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ site_id: WEBSITE_ID, apps: _appsState })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) { if (callback) callback(data.ok); })
+  .catch(function() { if (callback) callback(false); });
 }
 
 /* ═══════════════════════════════════════════

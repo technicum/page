@@ -310,6 +310,7 @@ textarea.field-input{resize:vertical;min-height:52px;}
     <button class="pt active" id="tabBtnBlocks" onclick="showTab('blocks')">Blocks</button>
     <button class="pt" id="tabBtnSettings" onclick="showTab('settings')">Settings</button>
     <button class="pt" id="tabBtnContact" onclick="showTab('contact')">Contact</button>
+    <button class="pt" id="tabBtnApps" onclick="showTab('apps')">Apps</button>
   </div>
 
   <!-- CONTACT INFO TAB (static, undeletable) -->
@@ -564,6 +565,23 @@ textarea.field-input{resize:vertical;min-height:52px;}
     </div>
   </div>
 
+  <!-- APPS TAB -->
+  <div class="tab-content" id="tabApps" style="padding:14px 12px;">
+    <div id="bl-apps-list" style="display:flex;flex-direction:column;gap:10px;">
+      <div style="color:#9ca3af;font-size:12px;padding:10px 0;text-align:center;">Loading apps…</div>
+    </div>
+    <!-- Per-app config drawer -->
+    <div id="bl-apps-config-drawer" style="display:none;margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+        <button onclick="blAppsCloseConfig()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#6b7280;padding:0;">← back</button>
+        <span id="bl-apps-config-title" style="font-size:13px;font-weight:600;color:#111827;"></span>
+      </div>
+      <div id="bl-apps-config-fields"></div>
+      <button onclick="blAppsSaveConfig()" style="width:100%;margin-top:10px;padding:9px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Save App Settings</button>
+      <div id="bl-apps-config-msg" style="font-size:12px;margin-top:6px;color:#9ca3af;text-align:center;"></div>
+    </div>
+  </div>
+
   <!-- Pinned add-block footer (always visible) -->
   <div class="panel-footer">
     <button class="btn-add-block-bottom" onclick="openAddModal()">+ Add block</button>
@@ -606,6 +624,7 @@ textarea.field-input{resize:vertical;min-height:52px;}
 <input type="file" id="hiddenFileInput" accept="image/*" style="display:none">
 <script src="/js/media-picker.js"></script>
 
+<script id="_blSiteAppsJson" type="application/json">{{ siteAppsJson | safe }}</script>
 <script>
 /* ── Server data ─────────────────────────────── */
 var BLOCKS       = {{ (blocks or []) | safejson }};
@@ -762,13 +781,14 @@ function toggleAcc(id){
 
 /* ── Tabs ────────────────────────────────────── */
 function showTab(tab){
-  ['blocks','settings','contact'].forEach(function(t){
+  ['blocks','settings','contact','apps'].forEach(function(t){
     var pane=document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
     var btn =document.getElementById('tabBtn'+t.charAt(0).toUpperCase()+t.slice(1));
     if(pane) pane.style.display = (t===tab) ? '' : 'none';
     if(pane) pane.classList.toggle('active', t===tab);
     if(btn)  btn.classList.toggle('active', t===tab);
   });
+  if (tab === 'apps') blAppsLoadPanel();
 }
 
 /* ── Copy URL ────────────────────────────────── */
@@ -1966,6 +1986,177 @@ function generateAIBios() {
 document.getElementById('aiModal').addEventListener('click', function(e){
   if(e.target === this) closeAIModal();
 });
+</script>
+
+<script>
+/* ═══════════════════════════════════════════
+   BIOLINK BUILDER — APPS / PLUGINS
+═══════════════════════════════════════════ */
+var _blAppsData        = [];
+var _blAppsState       = {};
+var _blAppsConfigAppId = null;
+
+try { _blAppsState = JSON.parse(document.getElementById('_blSiteAppsJson').textContent || '{}'); } catch(e) { _blAppsState = {}; }
+
+function _blEsc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function blAppsLoadPanel() {
+  var listEl = document.getElementById('bl-apps-list');
+  var drawer = document.getElementById('bl-apps-config-drawer');
+  if (!listEl) return;
+  if (drawer) drawer.style.display = 'none';
+  listEl.innerHTML = '<div style="color:#9ca3af;font-size:12px;padding:10px 0;text-align:center;">Loading apps…</div>';
+
+  fetch('/dashboard/apps/list?target=minisite', { credentials: 'same-origin' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      _blAppsData = data.apps || [];
+      blAppsRenderList();
+    })
+    .catch(function() {
+      listEl.innerHTML = '<div style="color:#ef4444;font-size:12px;padding:10px 0;text-align:center;">Failed to load apps.</div>';
+    });
+}
+
+function blAppsRenderList() {
+  var listEl = document.getElementById('bl-apps-list');
+  if (!listEl) return;
+
+  if (!_blAppsData.length) {
+    listEl.innerHTML = '<div style="text-align:center;padding:24px 12px;">' +
+      '<div style="font-size:32px;margin-bottom:8px;">🔌</div>' +
+      '<div style="font-size:13px;color:#6b7280;">No apps installed yet.</div>' +
+      '<div style="font-size:11px;color:#9ca3af;margin-top:4px;">Add apps to <code>apps/minisite/</code></div>' +
+    '</div>';
+    return;
+  }
+
+  var html = _blAppsData.map(function(app) {
+    var saved   = _blAppsState[app.id] || {};
+    var enabled = !!saved.enabled;
+    var hasConfig = app.config && app.config.length > 0;
+
+    return '<div style="background:#fff;border:1.5px solid ' + (enabled ? '#6366f1' : '#e5e7eb') + ';border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;">' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<span style="font-size:22px;flex-shrink:0;">' + _blEsc(app.icon || '🔌') + '</span>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:13px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + _blEsc(app.name) + '</div>' +
+          '<div style="font-size:11px;color:#9ca3af;">' + _blEsc(app.description || '') + '</div>' +
+        '</div>' +
+        '<label style="position:relative;display:inline-flex;align-items:center;cursor:pointer;flex-shrink:0;">' +
+          '<input type="checkbox" ' + (enabled ? 'checked' : '') + ' onchange="blAppsToggle(\'' + _blEsc(app.id) + '\',this.checked)" style="opacity:0;width:0;height:0;position:absolute;">' +
+          '<div style="width:36px;height:20px;background:' + (enabled ? '#6366f1' : '#d1d5db') + ';border-radius:20px;position:relative;transition:background .2s;">' +
+            '<div style="position:absolute;top:2px;left:' + (enabled ? '18px' : '2px') + ';width:16px;height:16px;background:#fff;border-radius:50%;transition:left .2s;"></div>' +
+          '</div>' +
+        '</label>' +
+      '</div>' +
+      (hasConfig && enabled
+        ? '<button onclick="blAppsOpenConfig(\'' + _blEsc(app.id) + '\')" style="width:100%;padding:6px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;font-family:inherit;">⚙ Configure</button>'
+        : '') +
+    '</div>';
+  }).join('');
+
+  listEl.innerHTML = html;
+}
+
+function blAppsToggle(appId, enabled) {
+  if (!_blAppsState[appId]) _blAppsState[appId] = {};
+  _blAppsState[appId].enabled = enabled;
+  blAppsRenderList();
+  blAppsPersist();
+}
+
+function blAppsOpenConfig(appId) {
+  _blAppsConfigAppId = appId;
+  var app = _blAppsData.find(function(a) { return a.id === appId; });
+  if (!app) return;
+
+  var listEl   = document.getElementById('bl-apps-list');
+  var drawer   = document.getElementById('bl-apps-config-drawer');
+  var titleEl  = document.getElementById('bl-apps-config-title');
+  var fieldsEl = document.getElementById('bl-apps-config-fields');
+  var msgEl    = document.getElementById('bl-apps-config-msg');
+
+  if (titleEl) titleEl.textContent = app.icon + ' ' + app.name;
+  if (msgEl)   msgEl.textContent   = '';
+
+  var saved  = _blAppsState[appId] || {};
+  var fields = app.config || [];
+
+  var html = fields.map(function(field) {
+    var val = saved[field.key] !== undefined ? saved[field.key] : (field.default !== undefined ? field.default : '');
+    var input = '';
+    if (field.type === 'select' && field.options) {
+      input = '<select id="blappcf-' + _blEsc(field.key) + '" style="width:100%;padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;background:#fff;font-family:inherit;">' +
+        field.options.map(function(opt) {
+          var ov = typeof opt === 'object' ? opt.value : opt;
+          var ol = typeof opt === 'object' ? opt.label : opt;
+          return '<option value="' + _blEsc(String(ov)) + '"' + (String(val) === String(ov) ? ' selected' : '') + '>' + _blEsc(ol) + '</option>';
+        }).join('') + '</select>';
+    } else if (field.type === 'textarea') {
+      input = '<textarea id="blappcf-' + _blEsc(field.key) + '" rows="3" style="width:100%;padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box;font-family:inherit;resize:vertical;" placeholder="' + _blEsc(field.placeholder || '') + '">' + _blEsc(String(val)) + '</textarea>';
+    } else {
+      input = '<input type="' + (field.type === 'password' ? 'password' : 'text') + '" id="blappcf-' + _blEsc(field.key) + '" value="' + _blEsc(String(val)) + '" placeholder="' + _blEsc(field.placeholder || '') + '" style="width:100%;padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:13px;box-sizing:border-box;font-family:inherit;">';
+    }
+    return '<div style="margin-bottom:10px;">' +
+      '<label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">' + _blEsc(field.label) + (field.required ? '<span style="color:#ef4444;"> *</span>' : '') + '</label>' +
+      input +
+      (field.hint ? '<div style="font-size:11px;color:#9ca3af;margin-top:3px;">' + _blEsc(field.hint) + '</div>' : '') +
+    '</div>';
+  }).join('');
+
+  if (!html) html = '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:8px 0;">No settings for this app.</div>';
+  if (fieldsEl) fieldsEl.innerHTML = html;
+  if (listEl) listEl.style.display = 'none';
+  if (drawer) drawer.style.display = 'block';
+}
+
+function blAppsCloseConfig() {
+  _blAppsConfigAppId = null;
+  var listEl = document.getElementById('bl-apps-list');
+  var drawer = document.getElementById('bl-apps-config-drawer');
+  if (listEl) listEl.style.display = '';
+  if (drawer) drawer.style.display = 'none';
+}
+
+function blAppsSaveConfig() {
+  if (!_blAppsConfigAppId) return;
+  var app   = _blAppsData.find(function(a) { return a.id === _blAppsConfigAppId; });
+  var msgEl = document.getElementById('bl-apps-config-msg');
+  if (!app) return;
+
+  var saved = _blAppsState[_blAppsConfigAppId] || {};
+  saved.enabled = true;
+  (app.config || []).forEach(function(field) {
+    var el = document.getElementById('blappcf-' + field.key);
+    if (el) saved[field.key] = el.value;
+  });
+  _blAppsState[_blAppsConfigAppId] = saved;
+
+  blAppsPersist(function(ok) {
+    if (msgEl) {
+      msgEl.style.color = ok ? '#059669' : '#ef4444';
+      msgEl.textContent = ok ? 'Saved!' : 'Save failed.';
+      setTimeout(function() { if (msgEl) msgEl.textContent = ''; }, 2000);
+    }
+    if (ok) blAppsCloseConfig();
+  });
+}
+
+function blAppsPersist(callback) {
+  fetch('/dashboard/apps/save', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ site_id: SITE_ID, apps: _blAppsState })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) { if (callback) callback(data.ok); })
+  .catch(function() { if (callback) callback(false); });
+}
 </script>
 </body>
 </html>
