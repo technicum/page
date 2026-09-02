@@ -2,7 +2,39 @@ const { db }          = require('../config/db')
 const themeManager    = require('../config/themeManager')
 const { geocodeCity } = require('../config/geocode')
 
+// ── Dashboard home — account-wide overview stats ─────────────────────────────
 exports.index = async (req, res) => {
+  const user = req.session.user
+
+  const [siteRow, leadRow, formRow, bookingRow] = await Promise.all([
+    db.first('SELECT COUNT(*) AS c FROM ms_sites WHERE account_id = ?', [user.id]),
+    db.first(
+      `SELECT COUNT(*) AS c FROM ms_leads l
+       JOIN ms_sites s ON l.site_id = s.id
+       WHERE s.account_id = ?`, [user.id]
+    ).catch(() => ({ c: 0 })),
+    db.first('SELECT COUNT(*) AS c FROM ms_forms WHERE account_id = ?', [user.id]).catch(() => ({ c: 0 })),
+    db.first(
+      `SELECT COUNT(*) AS c FROM ms_bookings b
+       JOIN ms_sites s ON b.site_id = s.id
+       WHERE s.account_id = ? AND b.status = 'confirmed'`, [user.id]
+    ).catch(() => ({ c: 0 }))
+  ])
+
+  res.render('dashboard/overview.njk', {
+    title: 'Dashboard',
+    user,
+    activePage: 'dashboard',
+    siteCount:    (siteRow    && siteRow.c)    || 0,
+    leadCount:    (leadRow    && leadRow.c)    || 0,
+    formCount:    (formRow    && formRow.c)    || 0,
+    bookingCount: (bookingRow && bookingRow.c) || 0,
+    flash_success: req.flash('success')
+  })
+}
+
+// ── Mini Site listing — every site the account has created ──────────────────
+exports.miniSites = async (req, res) => {
   const user       = req.session.user
   const rows       = await db.query('SELECT * FROM ms_sites WHERE account_id = ? ORDER BY id ASC', [user.id])
   const categories = await db.query('SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC')
@@ -29,9 +61,9 @@ exports.index = async (req, res) => {
   const draftCount     = rows.length - publishedCount
 
   res.render('dashboard/index.njk', {
-    title: 'Dashboard',
+    title: 'Mini Sites',
     user,
-    activePage: 'dashboard',
+    activePage: 'minisites',
     sites:    rows,      // flat array — used for data island / openInfoModal
     siteRows,            // grouped array — used for table rendering
     categories: categories || [],

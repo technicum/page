@@ -177,6 +177,7 @@ router.post('/dashboard/apps/save', requireAuth, async (req, res) => {
 
 // Dashboard
 router.get ('/dashboard',          requireAuth, dash.index)
+router.get ('/dashboard/sites',    requireAuth, dash.miniSites)
 router.get ('/dashboard/wizard',   requireAuth, dash.wizard)
 router.get ('/dashboard/settings', requireAuth, dash.settings)
 router.post('/dashboard/settings', requireAuth, dash.updateSettings)

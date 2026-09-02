@@ -510,7 +510,7 @@ exports.delete = async (req, res) => {
 
   await db.execute('DELETE FROM ms_sites WHERE id = ? AND account_id = ?', [siteId, user.id])
   req.flash('success', 'Site deleted.')
-  res.redirect('/dashboard')
+  res.redirect('/dashboard/sites')
 }
 
 // ── Set / remove custom domain for mini site ──────────────────────────────────
