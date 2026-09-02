@@ -126,6 +126,45 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
 .overlay{display:none;position:fixed;inset:0;z-index:250;}
 .overlay.open{display:block;}
 
+/* ── Listings (products / services / jobs) ── */
+.listings-section{margin-top:44px;}
+.listings-head{margin-bottom:14px;}
+.listings-title{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:var(--ink);}
+.listings-sub{font-size:13px;color:var(--ink-faint);margin-top:2px;}
+.listings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.listing-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow 0.2s;}
+.listing-card:hover{box-shadow:0 8px 28px rgba(0,0,0,0.1);border-color:var(--border-md);}
+.listing-img{height:120px;background:var(--paper);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.listing-img img{width:100%;height:100%;object-fit:cover;}
+.listing-img .listing-icon{font-size:32px;opacity:0.4;}
+.listing-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;}
+.listing-type{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+.listing-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.listing-biz{font-size:12px;color:var(--ink-faint);margin-bottom:8px;}
+.listing-price{font-size:15px;font-weight:700;color:var(--ink);margin-top:auto;}
+.listing-foot{padding:0 16px 14px;}
+.btn-interest{width:100%;background:var(--ink);color:#fff;border:none;padding:9px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s;}
+.btn-interest:hover{opacity:.85;}
+
+/* ── Interest modal ── */
+.im-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,24,0.45);z-index:900;align-items:center;justify-content:center;}
+.im-overlay.open{display:flex;}
+.im-box{background:#fff;border-radius:var(--radius-lg);width:100%;max-width:380px;margin:16px;padding:24px;}
+.im-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.im-sub{font-size:12.5px;color:var(--ink-faint);margin-bottom:18px;}
+.im-field{margin-bottom:12px;}
+.im-field label{display:block;font-size:11px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.im-field input,.im-field textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border-md);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;}
+.im-field input:focus,.im-field textarea:focus{border-color:var(--blue);}
+.im-actions{display:flex;gap:8px;margin-top:16px;}
+.im-actions button{flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;}
+.im-cancel{background:none;border:1.5px solid var(--border-md);color:var(--ink-muted);}
+.im-submit{background:var(--ink);border:none;color:#fff;}
+.im-submit:disabled{opacity:.5;cursor:not-allowed;}
+.im-msg{font-size:12px;margin-top:10px;}
+.im-msg.ok{color:#16a34a;}
+.im-msg.err{color:#dc2626;}
+
 @media(max-width:768px){
   nav{padding:0 16px;}
   .search-hero{padding:14px 16px;}
@@ -137,6 +176,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
   .radius-bar{padding:12px 16px;}
   .page-wrap{padding:20px 16px 60px;}
   .cards-grid{grid-template-columns:repeat(2,1fr);}
+  .listings-grid{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 {% endblock %}
@@ -325,7 +365,147 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
   </div>
   {% endif %}
 
+  <!-- ── Products, services & jobs ── -->
+  {% if listings.length %}
+  <div class="listings-section">
+    <div class="listings-head">
+      <div class="listings-title">
+        {% if type == 'physical' %}Products{% elif type == 'service' %}Services{% elif type == 'job' %}Jobs{% elif type == 'digital' %}Digital listings{% else %}Products, services &amp; jobs{% endif %}
+        {% if q %} matching "{{ q }}"{% endif %}
+      </div>
+      <div class="listings-sub">Listed by businesses on PageZaper — contact the seller directly, no checkout needed.</div>
+    </div>
+    <div class="listings-grid">
+      {% for item in listings %}
+      {% set icons = { physical: '🛍', digital: '💾', service: '🛠', job: '💼' } %}
+      {% set labels = { physical: 'Product', digital: 'Digital', service: 'Service', job: 'Job' } %}
+      <div class="listing-card">
+        <div class="listing-img">
+          {% if item.image_url %}
+            <img src="{{ item.image_url }}" alt="{{ item.name }}" onerror="this.parentElement.innerHTML='<span class=listing-icon>{{ icons[item.type] or '🏷' }}</span>'">
+          {% else %}
+            <span class="listing-icon">{{ icons[item.type] or '🏷' }}</span>
+          {% endif %}
+        </div>
+        <div class="listing-body">
+          <div class="listing-type">{{ labels[item.type] or item.type }}</div>
+          <div class="listing-name">{{ item.name }}</div>
+          <div class="listing-biz">via {{ item.site_title }}{% if item.site_settings.city %} · {{ item.site_settings.city }}{% endif %}</div>
+          {% if item.price %}
+          <div class="listing-price">
+            {% if item.type == 'job' %}Salary: {% endif %}₹{{ item.price }}{% if item.type == 'service' and item.duration %} / {{ item.duration }}{% endif %}
+          </div>
+          {% endif %}
+        </div>
+        <div class="listing-foot">
+          <button class="btn-interest" data-id="{{ item.id }}" data-name="{{ item.name }}" data-type="{{ item.type }}" onclick="openInterestModalFromBtn(this)">
+            {% if item.type == 'job' %}Apply now{% else %}I'm interested{% endif %}
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
 </div>
+
+<!-- ── Interest / apply modal ── -->
+<div class="im-overlay" id="im-overlay">
+  <div class="im-box">
+    <div class="im-title" id="im-title">I'm interested</div>
+    <div class="im-sub" id="im-sub">Leave your details and the business will get in touch.</div>
+    <div class="im-field">
+      <label>Your name</label>
+      <input type="text" id="im-name" placeholder="Full name">
+    </div>
+    <div class="im-field">
+      <label>Phone number</label>
+      <input type="tel" id="im-phone" placeholder="10-digit mobile number">
+    </div>
+    <div class="im-field">
+      <label>Email (optional)</label>
+      <input type="email" id="im-email" placeholder="you@example.com">
+    </div>
+    <div class="im-field">
+      <label>Message (optional)</label>
+      <textarea id="im-message" rows="2" placeholder="Anything the business should know"></textarea>
+    </div>
+    <div class="im-actions">
+      <button class="im-cancel" onclick="closeInterestModal()">Cancel</button>
+      <button class="im-submit" id="im-submit-btn" onclick="submitInterest()">Send</button>
+    </div>
+    <div class="im-msg" id="im-msg"></div>
+  </div>
+</div>
+
+<script>
+var IM_PRODUCT_ID = null
+
+function openInterestModalFromBtn(btn) {
+  openInterestModal(btn.getAttribute('data-id'), btn.getAttribute('data-name'), btn.getAttribute('data-type'))
+}
+
+function openInterestModal(productId, name, type) {
+  IM_PRODUCT_ID = productId
+  document.getElementById('im-title').textContent = type === 'job' ? 'Apply for ' + name : "I'm interested in " + name
+  document.getElementById('im-sub').textContent = type === 'job'
+    ? 'Leave your details and the business will review your application.'
+    : 'Leave your details and the business will get in touch.'
+  document.getElementById('im-name').value = ''
+  document.getElementById('im-phone').value = ''
+  document.getElementById('im-email').value = ''
+  document.getElementById('im-message').value = ''
+  document.getElementById('im-msg').textContent = ''
+  document.getElementById('im-msg').className = 'im-msg'
+  document.getElementById('im-overlay').classList.add('open')
+}
+function closeInterestModal() {
+  document.getElementById('im-overlay').classList.remove('open')
+}
+function submitInterest() {
+  var btn = document.getElementById('im-submit-btn')
+  var msg = document.getElementById('im-msg')
+  var name  = document.getElementById('im-name').value.trim()
+  var phone = document.getElementById('im-phone').value.trim()
+  if (!name || !phone) {
+    msg.textContent = 'Name and phone are required.'
+    msg.className = 'im-msg err'
+    return
+  }
+  btn.disabled = true
+  btn.textContent = 'Sending…'
+  fetch('/api/products/' + IM_PRODUCT_ID + '/interest', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: name,
+      phone: phone,
+      email: document.getElementById('im-email').value.trim(),
+      message: document.getElementById('im-message').value.trim()
+    })
+  }).then(function(r){ return r.json() }).then(function(d) {
+    if (d.ok) {
+      msg.textContent = '✓ Sent! The business will contact you soon.'
+      msg.className = 'im-msg ok'
+      setTimeout(closeInterestModal, 1400)
+    } else {
+      msg.textContent = d.error || 'Something went wrong.'
+      msg.className = 'im-msg err'
+      btn.disabled = false
+      btn.textContent = 'Send'
+    }
+  }).catch(function() {
+    msg.textContent = 'Network error — please try again.'
+    msg.className = 'im-msg err'
+    btn.disabled = false
+    btn.textContent = 'Send'
+  })
+}
+document.getElementById('im-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeInterestModal()
+})
+</script>
 
 <script>
 (function() {

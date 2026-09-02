@@ -295,3 +295,50 @@ exports.uploadImage = async (req, res) => {
     res.json({ ok: true, url })
   })
 }
+
+/* POST /api/products/:id/interest — public, no auth.
+   A customer browsing search results expresses interest in (or applies for)
+   a product/service/job. Creates a Lead against the owning business — no cart,
+   no payment, this just plugs the listing into the seller's existing Leads CRM. */
+exports.expressInterest = async (req, res) => {
+  try {
+    const productId = parseInt(req.params.id) || 0
+    const name    = (req.body.name    || '').trim()
+    const phone   = (req.body.phone   || '').trim()
+    const email   = (req.body.email   || '').trim()
+    const message = (req.body.message || '').trim()
+
+    if (!productId)      return res.json({ ok: false, error: 'Invalid listing.' })
+    if (!name || !phone) return res.json({ ok: false, error: 'Name and phone are required.' })
+
+    const product = await db.first(
+      'SELECT id, account_id, site_id, name, type FROM ms_products WHERE id = ? AND status = 1',
+      [productId]
+    )
+    if (!product) return res.json({ ok: false, error: 'Listing not found.' })
+
+    // Products aren't always pinned to one site — fall back to the account's first site
+    let siteId = product.site_id
+    if (!siteId) {
+      const fallback = await db.first(
+        'SELECT id FROM ms_sites WHERE account_id = ? ORDER BY id ASC LIMIT 1',
+        [product.account_id]
+      )
+      siteId = fallback && fallback.id
+    }
+    if (!siteId) return res.json({ ok: false, error: 'This listing has no active site.' })
+
+    const verb  = product.type === 'job' ? 'Applied for' : 'Interested in'
+    const notes = `${verb}: ${product.name}` + (message ? `\n\n${message}` : '')
+
+    await db.execute(
+      `INSERT INTO ms_leads (site_id, name, email, phone, source, source_id, stage, notes)
+       VALUES (?, ?, ?, ?, 'product', ?, 'new', ?)`,
+      [siteId, name, email, phone, productId, notes]
+    )
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('expressInterest', err)
+    res.json({ ok: false, error: 'Something went wrong. Please try again.' })
+  }
+}

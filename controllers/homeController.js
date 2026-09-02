@@ -3,11 +3,27 @@ const axios                         = require('axios')
 const { suggestLocations }          = require('../config/geocode')
 
 exports.index = async (req, res) => {
-  res.render('home.njk', { title: 'PageZaper' })
+  // ── Homepage launcher tile counts (businesses / products / services / jobs) ──
+  const [sitesRow, productsRow, servicesRow, jobsRow] = await Promise.all([
+    db.first(`SELECT COUNT(*) AS c FROM ms_sites WHERE is_published = 1 AND parent_site_id IS NULL`).catch(() => ({ c: 0 })),
+    db.first(`SELECT COUNT(*) AS c FROM ms_products WHERE status = 1 AND type = 'physical'`).catch(() => ({ c: 0 })),
+    db.first(`SELECT COUNT(*) AS c FROM ms_products WHERE status = 1 AND type = 'service'`).catch(() => ({ c: 0 })),
+    db.first(`SELECT COUNT(*) AS c FROM ms_products WHERE status = 1 AND type = 'job'`).catch(() => ({ c: 0 }))
+  ])
+
+  res.render('home.njk', {
+    title: 'PageZaper',
+    tileCounts: {
+      businesses: (sitesRow    && sitesRow.c)    || 0,
+      products:   (productsRow && productsRow.c) || 0,
+      services:   (servicesRow && servicesRow.c) || 0,
+      jobs:       (jobsRow     && jobsRow.c)      || 0
+    }
+  })
 }
 
 exports.search = async (req, res) => {
-  const { q = '', city = '', state = '', lat = '', lng = '', radius = '25', category_id = '' } = req.query
+  const { q = '', city = '', state = '', lat = '', lng = '', radius = '25', category_id = '', type = '' } = req.query
 
   const userLat    = parseFloat(lat)
   const userLng    = parseFloat(lng)
@@ -100,8 +116,41 @@ exports.search = async (req, res) => {
     categories = await db.query('SELECT id, name, icon FROM ms_categories WHERE status = 1 ORDER BY sort_order ASC, name ASC')
   } catch(e) { results = [] }
 
+  // ── Products, services & job posts matching the same search ────────────────
+  // These live inside each business's catalogue (ms_products) — surfaced here so
+  // a customer searching "purse" or "haircut" finds the item, not just the business.
+  let listings = []
+  try {
+    let lsql = `SELECT p.id, p.type, p.name, p.description, p.price, p.currency,
+                       p.image_url, p.duration,
+                       s.title AS site_title, s.subdomain, s.settings AS site_settings
+                FROM ms_products p
+                JOIN ms_sites s ON s.id = p.site_id
+                WHERE p.status = 1 AND s.is_published = 1 AND s.parent_site_id IS NULL`
+    const lparams = []
+    if (q) {
+      lsql += ' AND (p.name LIKE ? OR p.description LIKE ?)'
+      lparams.push(`%${q}%`, `%${q}%`)
+    }
+    if (city) {
+      lsql += ' AND JSON_EXTRACT(s.settings, "$.city") LIKE ?'
+      lparams.push(`%${city}%`)
+    }
+    if (state) {
+      lsql += ' AND s.state LIKE ?'
+      lparams.push(`%${state}%`)
+    }
+    if (type) {
+      lsql += ' AND p.type = ?'
+      lparams.push(type)
+    }
+    lsql += ' ORDER BY p.created_at DESC LIMIT 24'
+    listings = await db.query(lsql, lparams)
+    listings = listings.map(p => ({ ...p, site_settings: JSON.parse(p.site_settings || '{}') }))
+  } catch(e) { listings = [] }
+
   res.render('search.njk', {
-    title: 'Search', results, q, city, state,
+    title: 'Search', results, listings, q, city, state, type,
     lat, lng, radius: userRadius, category_id,
     categories: categories || [],
     hasCoords

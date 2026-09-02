@@ -147,6 +147,9 @@ router.post('/dashboard/products/collections/create',       requireAuth, product
 router.post('/dashboard/products/collections/update',       requireAuth, product.updateCollection)
 router.post('/dashboard/products/collections/delete',       requireAuth, product.deleteCollection)
 
+// Products/services/jobs — public "express interest" (no auth, creates a Lead for the seller)
+router.post('/api/products/:id/interest', product.expressInterest)
+
 router.get ('/dashboard/galleries',          requireAuth, gallery.index)
 router.get ('/dashboard/galleries/list-json',requireAuth, gallery.listJson)
 router.post('/dashboard/galleries/create',   requireAuth, gallery.create)
