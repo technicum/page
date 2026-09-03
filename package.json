@@ -1,6 +1,6 @@
 {
   "name": "pagezaper",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "PageZaper - Mini site builder platform",
   "main": "app.js",
   "scripts": {
