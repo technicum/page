@@ -106,6 +106,38 @@ section{padding:64px 40px;}
 .card-foot{padding:11px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
 .card-location{font-size:12px;color:var(--ink-faint);display:flex;align-items:center;gap:4px;}
 .card-visit{font-size:12px;font-weight:600;color:var(--blue);}
+/* ── Listing cards (services / products near you) ── */
+.listing-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow 0.2s;}
+.listing-card:hover{box-shadow:0 8px 28px rgba(0,0,0,0.1);border-color:var(--border-md);}
+.listing-img{height:120px;background:var(--paper);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.listing-img img{width:100%;height:100%;object-fit:cover;}
+.listing-img .listing-icon{font-size:32px;opacity:0.4;}
+.listing-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;}
+.listing-type{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+.listing-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.listing-biz{font-size:12px;color:var(--ink-faint);margin-bottom:8px;}
+.listing-price{font-size:15px;font-weight:700;color:var(--ink);margin-top:auto;}
+.listing-foot{padding:0 16px 14px;}
+.btn-interest{width:100%;background:var(--ink);color:#fff;border:none;padding:9px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s;}
+.btn-interest:hover{opacity:.85;}
+/* ── Interest / apply modal (shared by services & products near you) ── */
+.im-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,24,0.45);z-index:900;align-items:center;justify-content:center;}
+.im-overlay.open{display:flex;}
+.im-box{background:#fff;border-radius:var(--radius-lg);width:100%;max-width:380px;margin:16px;padding:24px;}
+.im-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.im-sub{font-size:12.5px;color:var(--ink-faint);margin-bottom:18px;}
+.im-field{margin-bottom:12px;}
+.im-field label{display:block;font-size:11px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.im-field input,.im-field textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border-md);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;}
+.im-field input:focus,.im-field textarea:focus{border-color:var(--blue);}
+.im-actions{display:flex;gap:8px;margin-top:16px;}
+.im-actions button{flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;}
+.im-cancel{background:none;border:1.5px solid var(--border-md);color:var(--ink-muted);}
+.im-submit{background:var(--ink);border:none;color:#fff;}
+.im-submit:disabled{opacity:.5;cursor:not-allowed;}
+.im-msg{font-size:12px;margin-top:10px;}
+.im-msg.ok{color:#16a34a;}
+.im-msg.err{color:#dc2626;}
 .categories-bg{background:var(--off);}
 .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;}
 .cat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px 14px;text-align:center;cursor:pointer;transition:all 0.2s;text-decoration:none;display:block;}
@@ -351,6 +383,60 @@ function closeMobileNav(){
 
 <div class="divider"></div>
 
+<section id="services-near-you">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Fresh listings</div>
+      <div class="section-title">Services near <span id="services-city-label">you</span></div>
+    </div>
+    <a class="see-all" id="services-see-all" href="/search?type=service">See all →</a>
+  </div>
+  <div class="cards-grid" id="services-grid">
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="business-near-you">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Local &amp; nearby</div>
+      <div class="section-title">Business near <span id="biz-city-label">you</span></div>
+    </div>
+    <a class="see-all" id="business-see-all" href="/search?type=business">See all →</a>
+  </div>
+  <div class="cards-grid" id="business-grid">
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="products-near-you">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Just listed</div>
+      <div class="section-title">Products near <span id="products-city-label">you</span></div>
+    </div>
+    <a class="see-all" id="products-see-all" href="/search?type=physical">See all →</a>
+  </div>
+  <div class="cards-grid" id="products-grid">
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
 <section id="categories" class="categories-bg">
   <div class="section-header">
     <div>
@@ -425,12 +511,119 @@ function closeMobileNav(){
   <span class="footer-copy">© 2026 PageZaper</span>
 </footer>
 
+<!-- ── Interest / apply modal (services & products near you) ── -->
+<div class="im-overlay" id="im-overlay">
+  <div class="im-box">
+    <div class="im-title" id="im-title">I'm interested</div>
+    <div class="im-sub" id="im-sub">Leave your details and the business will get in touch.</div>
+    <div class="im-field">
+      <label>Your name</label>
+      <input type="text" id="im-name" placeholder="Full name">
+    </div>
+    <div class="im-field">
+      <label>Phone number</label>
+      <input type="tel" id="im-phone" placeholder="10-digit mobile number">
+    </div>
+    <div class="im-field">
+      <label>Email (optional)</label>
+      <input type="email" id="im-email" placeholder="you@example.com">
+    </div>
+    <div class="im-field">
+      <label>Message (optional)</label>
+      <textarea id="im-message" rows="2" placeholder="Anything the business should know"></textarea>
+    </div>
+    <div class="im-actions">
+      <button class="im-cancel" onclick="closeInterestModal()">Cancel</button>
+      <button class="im-submit" id="im-submit-btn" onclick="submitInterest()">Send</button>
+    </div>
+    <div class="im-msg" id="im-msg"></div>
+  </div>
+</div>
+
+<script>
+var IM_PRODUCT_ID = null
+
+function openInterestModalFromBtn(btn) {
+  openInterestModal(btn.getAttribute('data-id'), btn.getAttribute('data-name'), btn.getAttribute('data-type'))
+}
+function openInterestModal(productId, name, type) {
+  IM_PRODUCT_ID = productId
+  document.getElementById('im-title').textContent = type === 'job' ? 'Apply for ' + name : "I'm interested in " + name
+  document.getElementById('im-sub').textContent = type === 'job'
+    ? 'Leave your details and the business will review your application.'
+    : 'Leave your details and the business will get in touch.'
+  document.getElementById('im-name').value = ''
+  document.getElementById('im-phone').value = ''
+  document.getElementById('im-email').value = ''
+  document.getElementById('im-message').value = ''
+  document.getElementById('im-msg').textContent = ''
+  document.getElementById('im-msg').className = 'im-msg'
+  document.getElementById('im-overlay').classList.add('open')
+}
+function closeInterestModal() {
+  document.getElementById('im-overlay').classList.remove('open')
+}
+function submitInterest() {
+  var btn = document.getElementById('im-submit-btn')
+  var msg = document.getElementById('im-msg')
+  var name  = document.getElementById('im-name').value.trim()
+  var phone = document.getElementById('im-phone').value.trim()
+  if (!name || !phone) {
+    msg.textContent = 'Name and phone are required.'
+    msg.className = 'im-msg err'
+    return
+  }
+  btn.disabled = true
+  btn.textContent = 'Sending…'
+  fetch('/api/products/' + IM_PRODUCT_ID + '/interest', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: name,
+      phone: phone,
+      email: document.getElementById('im-email').value.trim(),
+      message: document.getElementById('im-message').value.trim()
+    })
+  }).then(function(r){ return r.json() }).then(function(d) {
+    if (d.ok) {
+      msg.textContent = '✓ Sent! The business will contact you soon.'
+      msg.className = 'im-msg ok'
+      setTimeout(closeInterestModal, 1400)
+    } else {
+      msg.textContent = d.error || 'Something went wrong.'
+      msg.className = 'im-msg err'
+      btn.disabled = false
+      btn.textContent = 'Send'
+    }
+  }).catch(function() {
+    msg.textContent = 'Network error — please try again.'
+    msg.className = 'im-msg err'
+    btn.disabled = false
+    btn.textContent = 'Send'
+  })
+}
+document.getElementById('im-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeInterestModal()
+})
+</script>
+
 <script>
 (function() {
   var BASE       = '{{ base_domain }}'
   var nearLabel  = document.getElementById('near-city-label')
   var grid       = document.getElementById('nearby-grid')
   var seeAllLink = document.getElementById('see-all-link')
+
+  // ── Services / Business / Products near you ────────────────────────────────
+  var servicesGrid   = document.getElementById('services-grid')
+  var servicesLabel  = document.getElementById('services-city-label')
+  var servicesSeeAll = document.getElementById('services-see-all')
+  var businessGrid   = document.getElementById('business-grid')
+  var businessLabel  = document.getElementById('biz-city-label')
+  var businessSeeAll = document.getElementById('business-see-all')
+  var productsGrid   = document.getElementById('products-grid')
+  var productsLabel  = document.getElementById('products-city-label')
+  var productsSeeAll = document.getElementById('products-see-all')
 
   // Location picker
   var hfCity    = document.getElementById('hf-city')
@@ -445,16 +638,16 @@ function closeMobileNav(){
   var hlocInp   = document.getElementById('hloc-inp')
   var hlocRes   = document.getElementById('hloc-results')
 
-  // ── Render nearby cards ───────────────────────────────────────────────────────
-  function renderCards(results) {
+  // ── Render nearby cards (used by both "Near you" and "Business near you") ───
+  function renderCards(targetGrid, results) {
     if (!results || !results.length) {
-      grid.innerHTML = '<p style="color:var(--ink-faint);font-size:14px;padding:20px 0;">No businesses found near this location yet.</p>'
+      targetGrid.innerHTML = '<p style="color:var(--ink-faint);font-size:14px;padding:20px 0;">No businesses found near this location yet.</p>'
       return
     }
     var bands    = ['#dbeafe','#d1fae5','#fef3c7','#fce7f3','#ede9fe','#ccfbf1']
     var avatarbg = ['#bfdbfe','#a7f3d0','#fde68a','#fbcfe8','#ddd6fe','#99f6e4']
     var PIN_SVG  = '<svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
-    grid.innerHTML = results.map(function(s, i) {
+    targetGrid.innerHTML = results.map(function(s, i) {
       var ci   = i % 6
       var icon = s.cat_icon    || '🏪'
       var cat  = s.cat_name    || 'Business'
@@ -492,7 +685,53 @@ function closeMobileNav(){
   function loadNearby(city, lat, lng) {
     var url = '/api/nearby?city=' + encodeURIComponent(city || '')
     if (lat && lng) url += '&lat=' + lat + '&lng=' + lng + '&radius=25'
-    fetch(url).then(function(r){return r.json()}).then(function(d){renderCards(d.results)}).catch(function(){renderCards([])})
+    fetch(url).then(function(r){return r.json()}).then(function(d){
+      renderCards(grid, d.results)
+      renderCards(businessGrid, d.results)
+    }).catch(function(){
+      renderCards(grid, [])
+      renderCards(businessGrid, [])
+    })
+  }
+
+  // ── Render listing cards (services / products near you) ─────────────────────
+  var LISTING_ICONS  = { physical: '🛍', digital: '💾', service: '🛠', job: '💼' }
+  var LISTING_LABELS = { physical: 'Product', digital: 'Digital', service: 'Service', job: 'Job' }
+  var LISTING_EMPTY  = { service: 'No services found near this location yet.', physical: 'No products found near this location yet.' }
+
+  function renderListingCards(targetGrid, results, type) {
+    if (!results || !results.length) {
+      targetGrid.innerHTML = '<p style="color:var(--ink-faint);font-size:14px;padding:20px 0;">' + (LISTING_EMPTY[type] || 'Nothing found near this location yet.') + '</p>'
+      return
+    }
+    targetGrid.innerHTML = results.map(function(item) {
+      var icon = LISTING_ICONS[item.type] || '🏷'
+      var img  = item.image_url
+        ? '<img src="' + item.image_url + '" alt="" onerror="this.parentElement.innerHTML=\'<span class=listing-icon>' + icon + '</span>\'">'
+        : '<span class="listing-icon">' + icon + '</span>'
+      var settings = item.site_settings || {}
+      var bizLine  = 'via ' + item.site_title + (settings.city ? ' · ' + settings.city : '')
+      var price = item.price
+        ? '<div class="listing-price">' + (item.type === 'job' ? 'Salary: ' : '') + '₹' + item.price + (item.type === 'service' && item.duration ? ' / ' + item.duration : '') + '</div>'
+        : ''
+      var btnLabel = item.type === 'job' ? 'Apply now' : "I'm interested"
+      return '<div class="listing-card">' +
+        '<div class="listing-img">' + img + '</div>' +
+        '<div class="listing-body">' +
+          '<div class="listing-type">' + (LISTING_LABELS[item.type] || item.type) + '</div>' +
+          '<div class="listing-name">' + item.name + '</div>' +
+          '<div class="listing-biz">' + bizLine + '</div>' +
+          price +
+        '</div>' +
+        '<div class="listing-foot"><button class="btn-interest" data-id="' + item.id + '" data-name="' + item.name.replace(/"/g,'&quot;') + '" data-type="' + item.type + '" onclick="openInterestModalFromBtn(this)">' + btnLabel + '</button></div>' +
+      '</div>'
+    }).join('')
+  }
+
+  function loadListings(type, targetGrid, city, lat, lng) {
+    var url = '/api/nearby-listings?type=' + encodeURIComponent(type) + '&city=' + encodeURIComponent(city || '')
+    if (lat && lng) url += '&lat=' + lat + '&lng=' + lng + '&radius=25'
+    fetch(url).then(function(r){return r.json()}).then(function(d){renderListingCards(targetGrid, d.results, type)}).catch(function(){renderListingCards(targetGrid, [], type)})
   }
 
   // ── Set location (updates display, hidden fields, nearby cards, quick-tags) ──
@@ -508,9 +747,16 @@ function closeMobileNav(){
     hlocClear.classList.toggle('show',   !!(opts.city || opts.state || opts.lat))
 
     nearLabel.textContent = opts.city || opts.state || 'you'
+    if (servicesLabel) servicesLabel.textContent = opts.city || opts.state || 'you'
+    if (businessLabel) businessLabel.textContent = opts.city || opts.state || 'you'
+    if (productsLabel) productsLabel.textContent = opts.city || opts.state || 'you'
+
     var seeUrl = '/search?city=' + encodeURIComponent(opts.city||'') + '&state=' + encodeURIComponent(opts.state||'')
     if (opts.lat) seeUrl += '&lat=' + opts.lat + '&lng=' + opts.lng + '&radius=25'
     if (seeAllLink) seeAllLink.href = seeUrl
+    if (servicesSeeAll) servicesSeeAll.href = seeUrl + '&type=service'
+    if (businessSeeAll) businessSeeAll.href = seeUrl + '&type=business'
+    if (productsSeeAll) productsSeeAll.href = seeUrl + '&type=physical'
 
     document.querySelectorAll('#quick-tags .qtag').forEach(function(a) {
       var u = new URL(a.href, location.href)
@@ -520,6 +766,8 @@ function closeMobileNav(){
     })
 
     loadNearby(opts.city || '', opts.lat, opts.lng)
+    loadListings('service',  servicesGrid, opts.city || '', opts.lat, opts.lng)
+    loadListings('physical', productsGrid, opts.city || '', opts.lat, opts.lng)
     closeDrop()
   }
 
@@ -628,8 +876,10 @@ function closeMobileNav(){
     )
   })
 
-  // ── Load all vendors by default (All India) ──────────────────────────────────
+  // ── Load all vendors/listings by default (All India) ─────────────────────────
   loadNearby('')
+  loadListings('service',  servicesGrid, '')
+  loadListings('physical', productsGrid, '')
 })()
 </script>
 

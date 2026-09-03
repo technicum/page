@@ -85,6 +85,7 @@ router.get('/sitemap.xml', home.sitemap)
 router.get('/api/detect-city',      home.detectCity)
 router.get('/api/reverse-geocode',  home.reverseGeocode)
 router.get('/api/nearby',           home.nearby)
+router.get('/api/nearby-listings',  home.nearbyListings)
 router.get('/api/location-suggest', home.locationSuggest)
 
 // Reviews — public

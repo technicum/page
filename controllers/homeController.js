@@ -432,3 +432,46 @@ exports.nearby = async (req, res) => {
   } catch(e) { results = [] }
   res.json({ results })
 }
+
+// ── AJAX: nearby services/products for homepage cards ─────────────────────────
+// Mirrors exports.nearby above, but pulls from each business's catalogue
+// (ms_products) instead of ms_sites, scoped to a single product type
+// ('service' or 'physical') so the same endpoint backs both homepage sections.
+exports.nearbyListings = async (req, res) => {
+  const { type = '', city = '', lat = '', lng = '', radius = '25' } = req.query
+  const uLat = parseFloat(lat), uLng = parseFloat(lng)
+  const hasCoords = !isNaN(uLat) && !isNaN(uLng)
+  let results = []
+  try {
+    let sql, params
+    if (hasCoords) {
+      sql = `SELECT p.id, p.type, p.name, p.price, p.currency, p.image_url, p.duration,
+                    s.title AS site_title, s.subdomain, s.settings AS site_settings,
+                    ROUND(6371 * ACOS(LEAST(1, GREATEST(-1,
+                      COS(RADIANS(?)) * COS(RADIANS(s.lat)) * COS(RADIANS(s.lng) - RADIANS(?)) +
+                      SIN(RADIANS(?)) * SIN(RADIANS(s.lat))
+                    ))), 1) AS distance_km
+             FROM ms_products p
+             JOIN ms_sites s ON s.id = p.site_id
+             WHERE p.status = 1 AND s.is_published = 1 AND s.parent_site_id IS NULL
+               AND s.lat IS NOT NULL AND s.lng IS NOT NULL`
+      params = [uLat, uLng, uLat]
+      if (type) { sql += ' AND p.type = ?'; params.push(type) }
+      sql += ' HAVING distance_km <= ? ORDER BY distance_km ASC LIMIT 8'
+      params.push(parseInt(radius) || 25)
+    } else {
+      sql = `SELECT p.id, p.type, p.name, p.price, p.currency, p.image_url, p.duration,
+                    s.title AS site_title, s.subdomain, s.settings AS site_settings
+             FROM ms_products p
+             JOIN ms_sites s ON s.id = p.site_id
+             WHERE p.status = 1 AND s.is_published = 1 AND s.parent_site_id IS NULL`
+      params = []
+      if (type) { sql += ' AND p.type = ?'; params.push(type) }
+      if (city) { sql += ' AND JSON_EXTRACT(s.settings, "$.city") LIKE ?'; params.push(`%${city}%`) }
+      sql += ' ORDER BY p.created_at DESC LIMIT 8'
+    }
+    results = await db.query(sql, params)
+    results = results.map(p => ({ ...p, site_settings: JSON.parse(p.site_settings || '{}') }))
+  } catch(e) { results = [] }
+  res.json({ results })
+}
