@@ -119,35 +119,39 @@ exports.search = async (req, res) => {
   // ── Products, services & job posts matching the same search ────────────────
   // These live inside each business's catalogue (ms_products) — surfaced here so
   // a customer searching "purse" or "haircut" finds the item, not just the business.
+  // type=business means "businesses only" — there's no such product type, so skip
+  // the listings query entirely rather than relying on it matching zero rows.
   let listings = []
-  try {
-    let lsql = `SELECT p.id, p.type, p.name, p.description, p.price, p.currency,
-                       p.image_url, p.duration,
-                       s.title AS site_title, s.subdomain, s.settings AS site_settings
-                FROM ms_products p
-                JOIN ms_sites s ON s.id = p.site_id
-                WHERE p.status = 1 AND s.is_published = 1 AND s.parent_site_id IS NULL`
-    const lparams = []
-    if (q) {
-      lsql += ' AND (p.name LIKE ? OR p.description LIKE ?)'
-      lparams.push(`%${q}%`, `%${q}%`)
-    }
-    if (city) {
-      lsql += ' AND JSON_EXTRACT(s.settings, "$.city") LIKE ?'
-      lparams.push(`%${city}%`)
-    }
-    if (state) {
-      lsql += ' AND s.state LIKE ?'
-      lparams.push(`%${state}%`)
-    }
-    if (type) {
-      lsql += ' AND p.type = ?'
-      lparams.push(type)
-    }
-    lsql += ' ORDER BY p.created_at DESC LIMIT 24'
-    listings = await db.query(lsql, lparams)
-    listings = listings.map(p => ({ ...p, site_settings: JSON.parse(p.site_settings || '{}') }))
-  } catch(e) { listings = [] }
+  if (type !== 'business') {
+    try {
+      let lsql = `SELECT p.id, p.type, p.name, p.description, p.price, p.currency,
+                         p.image_url, p.duration,
+                         s.title AS site_title, s.subdomain, s.settings AS site_settings
+                  FROM ms_products p
+                  JOIN ms_sites s ON s.id = p.site_id
+                  WHERE p.status = 1 AND s.is_published = 1 AND s.parent_site_id IS NULL`
+      const lparams = []
+      if (q) {
+        lsql += ' AND (p.name LIKE ? OR p.description LIKE ?)'
+        lparams.push(`%${q}%`, `%${q}%`)
+      }
+      if (city) {
+        lsql += ' AND JSON_EXTRACT(s.settings, "$.city") LIKE ?'
+        lparams.push(`%${city}%`)
+      }
+      if (state) {
+        lsql += ' AND s.state LIKE ?'
+        lparams.push(`%${state}%`)
+      }
+      if (type) {
+        lsql += ' AND p.type = ?'
+        lparams.push(type)
+      }
+      lsql += ' ORDER BY p.created_at DESC LIMIT 24'
+      listings = await db.query(lsql, lparams)
+      listings = listings.map(p => ({ ...p, site_settings: JSON.parse(p.site_settings || '{}') }))
+    } catch(e) { listings = [] }
+  }
 
   res.render('search.njk', {
     title: 'Search', results, listings, q, city, state, type,
