@@ -241,9 +241,6 @@ function closeMobileNav(){
       <input type="hidden" id="hf-lat"   name="lat">
       <input type="hidden" id="hf-lng"   name="lng">
       <div class="search-box">
-        <svg class="search-icon" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input class="search-input" type="text" name="q" placeholder="Search salon, purse, tutor, job title…" autocomplete="off">
-        <div class="search-sep"></div>
         <select class="search-type-select" name="type" onchange="this.classList.toggle('has-val', this.value !== '')">
           <option value="">Are you looking for?</option>
           <option value="business">Businesses</option>
@@ -251,6 +248,9 @@ function closeMobileNav(){
           <option value="service">Services</option>
           <option value="job">Jobs</option>
         </select>
+        <div class="search-sep"></div>
+        <svg class="search-icon" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" type="text" name="q" placeholder="Search salon, purse, tutor, job title…" autocomplete="off">
         <div class="search-sep"></div>
         <div class="location-wrap" id="hloc-wrap">
           <svg class="location-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
