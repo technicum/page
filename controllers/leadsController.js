@@ -8,7 +8,7 @@ function cleanTags(raw) {
 }
 
 // ── Auto-capture helper (called from other controllers) ───────────────────────
-exports.captureLead = async ({ siteId, name, email, phone, source, sourceId }) => {
+exports.captureLead = async ({ siteId, name, email, phone, source, sourceId, notes }) => {
   try {
     // Avoid duplicates from the same source record
     if (source !== 'manual' && sourceId) {
@@ -19,9 +19,9 @@ exports.captureLead = async ({ siteId, name, email, phone, source, sourceId }) =
       if (existing) return
     }
     await db.execute(
-      `INSERT INTO ms_leads (site_id, name, email, phone, source, source_id)
-       VALUES (?,?,?,?,?,?)`,
-      [siteId, name || null, email || null, phone || null, source, sourceId || null]
+      `INSERT INTO ms_leads (site_id, name, email, phone, source, source_id, notes)
+       VALUES (?,?,?,?,?,?,?)`,
+      [siteId, name || null, email || null, phone || null, source, sourceId || null, notes || '']
     )
   } catch (err) {
     console.error('leadsController.captureLead', err)

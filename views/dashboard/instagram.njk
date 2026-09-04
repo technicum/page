@@ -1,0 +1,311 @@
+{% extends "layouts/base.njk" %}
+{% block head %}
+<style>
+*{box-sizing:border-box;}
+body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
+.layout{display:flex;min-height:100vh;}
+.dash-main{flex:1;display:flex;flex-direction:column;min-width:0;}
+
+:root{
+  --violet:#7c3aed;--violet-light:#f5f3ff;
+  --amber:#b45309;--amber-light:#fffbeb;
+  --red:#dc2626;--red-light:#fef2f2;
+}
+
+/* ── Topbar ───────────────────────────────────── */
+.topbar{height:56px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.topbar-title{font-size:15px;font-weight:700;color:#111827;flex:1;}
+.tn-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;user-select:none;}
+.user-dropdown{position:absolute;top:calc(100% + 8px);right:24px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;overflow:hidden;display:none;z-index:400;}
+.user-dropdown.open{display:block;}
+.ud-name{padding:12px 14px;font-size:12px;font-weight:600;color:#6b7280;border-bottom:1px solid #f3f4f6;}
+.ud-item{display:block;padding:9px 14px;font-size:13px;color:#374151;text-decoration:none;}
+.ud-item:hover{background:#f9fafb;}
+.ud-item.danger{color:#ef4444;}
+
+/* ── Page ─────────────────────────────────────── */
+.page{max-width:820px;margin:0 auto;padding:32px 24px 60px;width:100%;}
+.page-header{margin-bottom:24px;}
+.page-title{font-size:22px;font-weight:700;color:#111827;}
+.page-sub{font-size:13px;color:#9ca3af;margin-top:2px;max-width:520px;}
+
+.flash-ok{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;font-size:13px;color:#15803d;margin-bottom:20px;}
+.flash-err{background:var(--red-light);border:1px solid #fecaca;border-radius:8px;padding:12px 16px;font-size:13px;color:var(--red);margin-bottom:20px;}
+
+.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;font-size:12.5px;color:#92400e;margin-bottom:20px;line-height:1.5;}
+
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#9ca3af;margin:28px 0 10px;}
+.section-label:first-child{margin-top:0;}
+
+/* ── Empty state / connect ───────────────────── */
+.connect-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:28px;text-align:center;}
+.connect-ic{font-size:32px;margin-bottom:10px;}
+.connect-title{font-size:15px;font-weight:700;color:#111827;margin-bottom:4px;}
+.connect-desc{font-size:13px;color:#6b7280;max-width:420px;margin:0 auto 20px;line-height:1.5;}
+.connect-form{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.select-site{font-size:13px;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;color:#111827;background:#fff;min-width:200px;}
+.btn{font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:linear-gradient(135deg,#8b5cf6,#c026d3);color:#fff;}
+.btn-primary:hover{opacity:0.92;}
+.btn-secondary{background:#f7f7f8;color:#374151;border:1px solid #e5e7eb;}
+.btn-secondary:hover{background:#f0f0f1;}
+.btn-danger-text{background:none;color:#ef4444;font-weight:600;font-size:12.5px;padding:4px 8px;}
+
+/* ── Connected account card ───────────────────── */
+.ig-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;margin-bottom:16px;overflow:hidden;}
+.ig-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #f3f4f6;}
+.ig-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.ig-username{font-size:14px;font-weight:700;color:#111827;}
+.ig-site{font-size:12px;color:#9ca3af;margin-top:1px;}
+.ig-status{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;padding:3px 9px;border-radius:20px;}
+.ig-status.active{background:#f0fdf4;color:#16a34a;}
+.ig-status.error{background:var(--red-light);color:var(--red);}
+
+.ig-body{padding:16px 20px;}
+.rule-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.rule-card{border:1px solid #e5e7eb;border-radius:10px;padding:14px;}
+.rule-card.paused{opacity:0.55;}
+.rule-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.rule-name{font-size:13px;font-weight:700;color:#111827;}
+.rule-count{font-size:11px;color:#9ca3af;}
+.rule-actions{margin-left:auto;display:flex;gap:6px;}
+.rule-actions form{display:inline;}
+.rule-actions button{font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;color:#374151;cursor:pointer;}
+.rule-actions button:hover{background:#f7f7f8;}
+.rule-field{margin-bottom:8px;}
+.rule-field label{display:block;font-size:11px;font-weight:600;color:#9ca3af;margin-bottom:3px;}
+.rule-field input, .rule-field textarea, .rule-field select{width:100%;font-size:12.5px;padding:7px 10px;border:1px solid #e5e7eb;border-radius:7px;color:#111827;font-family:inherit;}
+.rule-field textarea{resize:vertical;min-height:44px;}
+.rule-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.rule-save{margin-top:4px;}
+
+.add-rule{border:1px dashed #d1d5db;border-radius:10px;padding:14px;}
+.add-rule summary{font-size:12.5px;font-weight:600;color:#2563eb;cursor:pointer;list-style:none;}
+.add-rule summary::-webkit-details-marker{display:none;}
+.add-rule[open] summary{margin-bottom:12px;}
+
+.ig-foot{padding:12px 20px;border-top:1px solid #f3f4f6;display:flex;justify-content:flex-end;}
+
+/* ── Activity table ───────────────────────────── */
+.activity-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;}
+.activity-row{display:flex;align-items:flex-start;gap:12px;padding:13px 18px;border-bottom:1px solid #f3f4f6;}
+.activity-row:last-child{border-bottom:none;}
+.av-body{flex:1;min-width:0;}
+.av-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.av-user{font-size:13px;font-weight:600;color:#111827;}
+.av-badge{font-size:9.5px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;padding:2px 7px;border-radius:5px;}
+.av-badge.sent{background:#f0fdf4;color:#16a34a;}
+.av-badge.skipped_no_match{background:#f7f7f8;color:#9ca3af;}
+.av-badge.skipped_duplicate{background:var(--amber-light);color:var(--amber);}
+.av-badge.skipped_rate_limit{background:var(--amber-light);color:var(--amber);}
+.av-badge.error{background:var(--red-light);color:var(--red);}
+.av-text{font-size:12.5px;color:#6b7280;margin-top:2px;}
+.av-meta{font-size:11.5px;color:#9ca3af;margin-top:2px;}
+.av-time{font-size:11.5px;color:#9ca3af;white-space:nowrap;flex-shrink:0;}
+.activity-empty{padding:28px 20px;text-align:center;color:#9ca3af;font-size:13px;}
+
+@media(max-width:768px){
+  .page{padding:20px 16px 50px;}
+  .rule-grid{grid-template-columns:1fr;}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="layout">
+  {% include "dashboard/_sidebar.njk" %}
+
+  <div class="dash-main">
+    <div class="topbar">
+      <div class="topbar-title">Instagram Auto-DM</div>
+      <div class="user-menu-wrap" style="position:relative;">
+        <div class="tn-avatar" onclick="toggleUserMenu()">{{ user.name | first | upper }}</div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="ud-name">{{ user.name }}</div>
+          <a class="ud-item" href="/dashboard/settings">⚙️ Settings</a>
+          <a class="ud-item danger" href="/logout">← Log out</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="page-header">
+        <div class="page-title">Instagram Auto-DM</div>
+        <div class="page-sub">Automatically DM anyone who comments a keyword on your Instagram posts — great for "comment PRICE for details" style offers.</div>
+      </div>
+
+      {% if flash_success and flash_success.length %}
+      <div class="flash-ok">✓ {{ flash_success[0] }}</div>
+      {% endif %}
+      {% if flash_errors and flash_errors.length %}
+      <div class="flash-err">⚠ {{ flash_errors[0] }}</div>
+      {% endif %}
+
+      {% if not metaConfigured %}
+      <div class="notice">⚠ This server hasn't been configured for Instagram yet (Meta app credentials are missing). Connecting will not work until that's set up — see the setup checklist at the bottom of <code>controllers/instagramController.js</code>.</div>
+      {% endif %}
+
+      {% if not accounts.length %}
+      <div class="connect-card">
+        <div class="connect-ic">📸</div>
+        <div class="connect-title">Connect your Instagram account</div>
+        <div class="connect-desc">Link an Instagram Business or Creator account (linked to a Facebook Page) to start auto-replying to comments with a DM.</div>
+        {% if sites.length %}
+        <form class="connect-form" method="GET" action="/dashboard/instagram/connect">
+          <select class="select-site" name="site_id">
+            {% for site in sites %}
+            <option value="{{ site.id }}">{{ site.title }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary" type="submit">Connect Instagram</button>
+        </form>
+        {% else %}
+        <a class="btn btn-primary" href="/dashboard/wizard">Create a mini site first →</a>
+        {% endif %}
+      </div>
+      {% else %}
+
+      <div class="section-label">Connected accounts</div>
+      {% for account in accounts %}
+      <div class="ig-card">
+        <div class="ig-head">
+          <div class="ig-avatar">📸</div>
+          <div>
+            <div class="ig-username">@{{ account.ig_username or 'unknown' }}</div>
+            <div class="ig-site">{{ account.site_title }}</div>
+          </div>
+          <div class="ig-status {{ account.status }}">{{ account.status }}</div>
+        </div>
+
+        <div class="ig-body">
+          {% if account.status == 'error' %}
+          <div class="notice" style="margin-bottom:14px;">⚠ Last error: {{ account.last_error }} — try disconnecting and reconnecting this account.</div>
+          {% endif %}
+
+          <div class="rule-list">
+            {% for rule in rulesByAccount[account.id] %}
+            <div class="rule-card {% if not rule.is_active %}paused{% endif %}">
+              <form method="POST" action="/dashboard/instagram/rules/{{ rule.id }}/update">
+                <div class="rule-top">
+                  <span class="rule-name">{{ rule.name }}</span>
+                  <span class="rule-count">triggered {{ rule.times_triggered }}×</span>
+                  <div class="rule-actions">
+                    <button type="submit" formaction="/dashboard/instagram/rules/{{ rule.id }}/update" name="toggle" value="1">{% if rule.is_active %}Pause{% else %}Resume{% endif %}</button>
+                    <button type="submit" formaction="/dashboard/instagram/rules/{{ rule.id }}/delete" onclick="return confirm('Delete this rule?')">Delete</button>
+                  </div>
+                </div>
+                <div class="rule-grid">
+                  <div class="rule-field">
+                    <label>Keywords (comma-separated)</label>
+                    <input type="text" name="keywords" value="{{ rule.keywords }}">
+                  </div>
+                  <div class="rule-field">
+                    <label>Match</label>
+                    <select name="match_type">
+                      <option value="any" {% if rule.match_type == 'any' %}selected{% endif %}>Any keyword</option>
+                      <option value="all" {% if rule.match_type == 'all' %}selected{% endif %}>All keywords</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="rule-field">
+                  <label>Public reply (optional — posted publicly under the comment)</label>
+                  <input type="text" name="public_reply" value="{{ rule.public_reply }}" placeholder="Check your DMs! 📩">
+                </div>
+                <div class="rule-field">
+                  <label>DM message</label>
+                  <textarea name="dm_message">{{ rule.dm_message }}</textarea>
+                </div>
+                <button class="btn btn-secondary rule-save" type="submit">Save changes</button>
+              </form>
+            </div>
+            {% else %}
+            <div style="font-size:12.5px;color:#9ca3af;">No rules yet — add one below so comments actually trigger a DM.</div>
+            {% endfor %}
+          </div>
+
+          <details class="add-rule">
+            <summary>+ Add a keyword rule</summary>
+            <form method="POST" action="/dashboard/instagram/rules">
+              <input type="hidden" name="ig_account_id" value="{{ account.id }}">
+              <div class="rule-grid">
+                <div class="rule-field">
+                  <label>Rule name</label>
+                  <input type="text" name="name" placeholder="Pricing DM" value="Pricing DM">
+                </div>
+                <div class="rule-field">
+                  <label>Match</label>
+                  <select name="match_type">
+                    <option value="any">Any keyword</option>
+                    <option value="all">All keywords</option>
+                  </select>
+                </div>
+              </div>
+              <div class="rule-field">
+                <label>Keywords (comma-separated)</label>
+                <input type="text" name="keywords" placeholder="price, cost, details">
+              </div>
+              <div class="rule-field">
+                <label>Public reply (optional)</label>
+                <input type="text" name="public_reply" placeholder="Check your DMs! 📩">
+              </div>
+              <div class="rule-field">
+                <label>DM message</label>
+                <textarea name="dm_message" placeholder="Hey! Thanks for your interest — here's our latest pricing..."></textarea>
+              </div>
+              <button class="btn btn-primary rule-save" type="submit">Add rule</button>
+            </form>
+          </details>
+        </div>
+
+        <div class="ig-foot">
+          <form method="POST" action="/dashboard/instagram/{{ account.id }}/disconnect" onsubmit="return confirm('Disconnect @{{ account.ig_username }}? Existing rules will stop firing.')">
+            <button class="btn btn-danger-text" type="submit">Disconnect this account</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+
+      {% if sites.length > accounts.length %}
+      <form class="connect-form" method="GET" action="/dashboard/instagram/connect" style="justify-content:flex-start;margin-bottom:8px;">
+        <select class="select-site" name="site_id">
+          {% for site in sites %}
+          <option value="{{ site.id }}">{{ site.title }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-secondary" type="submit">+ Connect another site's Instagram</button>
+      </form>
+      {% endif %}
+
+      <div class="section-label">Recent activity</div>
+      <div class="activity-card">
+        {% for e in events %}
+        <div class="activity-row">
+          <div class="av-body">
+            <div class="av-top">
+              <span class="av-badge {{ e.status }}">{{ e.status | replace('_', ' ') }}</span>
+              <span class="av-user">{% if e.commenter_username %}@{{ e.commenter_username }}{% else %}Someone{% endif %}</span>
+              {% if e.rule_name %}<span class="av-meta">→ {{ e.rule_name }}</span>{% endif %}
+            </div>
+            <div class="av-text">"{{ e.comment_text }}"</div>
+            <div class="av-meta">{{ e.site_title }}</div>
+          </div>
+          <div class="av-time">{{ e.created_at }}</div>
+        </div>
+        {% else %}
+        <div class="activity-empty">No comments processed yet — this fills in as people comment on your posts.</div>
+        {% endfor %}
+      </div>
+
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleUserMenu(){ document.getElementById('userDropdown').classList.toggle('open') }
+document.addEventListener('click', function(e){
+  var wrap = document.querySelector('.user-menu-wrap')
+  if (wrap && !wrap.contains(e.target)) document.getElementById('userDropdown').classList.remove('open')
+})
+</script>
+{% endblock %}

@@ -133,7 +133,12 @@ app.use(session({
 // Middleware
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
+// `verify` stashes the raw request buffer on req.rawBody -- needed to check
+// Meta's X-Hub-Signature-256 header on the Instagram webhook (signature is
+// computed over the exact raw bytes, not the re-serialized parsed JSON).
+app.use(express.json({
+  verify: (req, res, buf) => { req.rawBody = buf }
+}))
 app.use(flash())
 
 // Static files

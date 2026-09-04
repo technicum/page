@@ -22,6 +22,7 @@ const product    = require('../controllers/productController')
 const gallery    = require('../controllers/galleryController')
 const appMgr     = require('../config/appManager')
 const website    = require('../controllers/websiteController')
+const instagram  = require('../controllers/instagramController')
 
 // ── Debug route (REMOVE IN PRODUCTION) ───────────────────────────────────────
 router.get('/debug', async (req, res) => {
@@ -330,6 +331,19 @@ router.post  ('/dashboard/leads/:id/stage',    requireAuth, leads.updateStage)
 router.post  ('/dashboard/leads/:id/tags',     requireAuth, leads.updateTags)
 router.post  ('/dashboard/leads/:id/notes',    requireAuth, leads.updateNotes)
 router.delete('/dashboard/leads/:id',          requireAuth, leads.destroy)
+
+// ── Instagram Auto-DM ─────────────────────────────────────────────────────────
+router.get ('/dashboard/instagram',                   requireAuth, instagram.index)
+router.get ('/dashboard/instagram/connect',            requireAuth, instagram.connectStart)
+router.get ('/dashboard/instagram/callback',           requireAuth, instagram.connectCallback)
+router.post('/dashboard/instagram/:id/disconnect',     requireAuth, instagram.disconnect)
+router.post('/dashboard/instagram/rules',              requireAuth, instagram.createRule)
+router.post('/dashboard/instagram/rules/:id/update',   requireAuth, instagram.updateRule)
+router.post('/dashboard/instagram/rules/:id/delete',   requireAuth, instagram.deleteRule)
+
+// ── Instagram Auto-DM — Meta webhook (public, no auth; signature-verified) ───
+router.get ('/webhooks/instagram', instagram.webhookVerify)
+router.post('/webhooks/instagram', instagram.webhookReceive)
 
 // ── Chat — dashboard (auth required) ─────────────────────────────────────────
 router.get ('/dashboard/chat',                        requireAuth, chat.inbox)
