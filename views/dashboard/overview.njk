@@ -6,10 +6,18 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .layout{display:flex;min-height:100vh;}
 .dash-main{flex:1;display:flex;flex-direction:column;min-width:0;}
 
+:root{
+  --amber:#b45309;--amber-light:#fffbeb;
+  --violet:#7c3aed;--violet-light:#f5f3ff;
+}
+
 /* ── Topbar ───────────────────────────────────── */
-.topbar{height:56px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100;flex-shrink:0;}
-.topbar-title{font-size:15px;font-weight:700;color:#111827;flex:1;}
-.user-menu-wrap{position:relative;}
+.topbar{height:56px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.topbar-title{font-size:15px;font-weight:700;color:#111827;}
+.topbar-search{flex:1;max-width:360px;display:flex;align-items:center;gap:8px;background:#f7f7f8;border:1px solid #e5e7eb;border-radius:8px;padding:7px 12px;color:#9ca3af;font-size:13px;}
+.topbar-search .ts-kbd{margin-left:auto;font-size:10.5px;background:#fff;border:1px solid #e5e7eb;border-radius:5px;padding:1px 5px;color:#9ca3af;}
+.topbar-spacer{flex:1;}
+.user-menu-wrap{position:relative;flex-shrink:0;}
 .tn-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;user-select:none;}
 .user-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;overflow:hidden;display:none;z-index:400;}
 .user-dropdown.open{display:block;}
@@ -19,30 +27,93 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
 .ud-item.danger{color:#ef4444;}
 
 /* ── Page content ────────────────────────────── */
-.page{max-width:860px;margin:0 auto;padding:32px 24px 60px;width:100%;}
-.page-header{margin-bottom:28px;}
+.page{max-width:900px;margin:0 auto;padding:32px 24px 60px;width:100%;}
+.page-header{margin-bottom:24px;}
 .page-title{font-size:22px;font-weight:700;color:#111827;}
 .page-sub{font-size:13px;color:#9ca3af;margin-top:2px;}
 
 /* ── Flash ───────────────────────────────────── */
 .flash-ok{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;font-size:13px;color:#15803d;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
 
-/* ── Overview stats ──────────────────────────── */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-.stat-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px 20px;text-decoration:none;display:block;transition:border-color .15s,box-shadow .15s;}
+/* ── Setup checklist ── */
+.setup-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px 24px 20px;margin-bottom:24px;}
+.setup-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:12px;}
+.setup-title-wrap{display:flex;align-items:center;gap:12px;min-width:0;}
+.setup-ring{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;}
+.setup-ring::after{content:'';position:absolute;inset:4px;background:#fff;border-radius:50%;}
+.setup-ring span{position:relative;font-size:11px;font-weight:800;color:#111827;}
+.setup-title{font-size:15px;font-weight:700;color:#111827;}
+.setup-sub{font-size:12.5px;color:#6b7280;margin-top:1px;}
+.setup-steps{display:flex;flex-direction:column;gap:2px;}
+.setup-step{display:flex;align-items:center;gap:14px;padding:11px 8px;border-radius:8px;transition:background .12s;}
+.setup-step:hover{background:#f7f7f8;}
+.step-check{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.step-check.done{background:#f0fdf4;color:#16a34a;}
+.step-check.todo{background:#f7f7f8;color:#9ca3af;border:1.5px solid #e5e7eb;}
+.step-body{flex:1;min-width:0;}
+.step-name{font-size:13.5px;font-weight:600;color:#111827;}
+.step-name.done{color:#6b7280;text-decoration:line-through;text-decoration-color:#e5e7eb;}
+.step-desc{font-size:12px;color:#9ca3af;margin-top:1px;}
+.step-cta{font-size:12.5px;font-weight:600;color:#2563eb;white-space:nowrap;padding:6px 12px;border-radius:7px;background:#eff4ff;flex-shrink:0;}
+
+/* ── Quick actions ── */
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#9ca3af;margin-bottom:10px;}
+.quick-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
+.quick-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .15s,box-shadow .15s;}
+.quick-card:hover{border-color:#c7d2fe;box-shadow:0 2px 10px rgba(99,102,241,.08);}
+.quick-ic{width:36px;height:36px;border-radius:9px;background:#eff4ff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.quick-name{font-size:13.5px;font-weight:600;color:#111827;}
+.quick-desc{font-size:11.5px;color:#9ca3af;margin-top:1px;}
+
+/* ── Overview stats (secondary) ──────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+.stat-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px 18px;text-decoration:none;display:block;transition:border-color .15s,box-shadow .15s;}
 .stat-card:hover{border-color:#c7d2fe;box-shadow:0 2px 8px rgba(99,102,241,.08);}
-.stat-icon{font-size:20px;margin-bottom:10px;}
-.stat-num{font-size:30px;font-weight:800;color:#111827;letter-spacing:-1px;line-height:1;}
-.stat-label{font-size:12px;color:#6b7280;margin-top:6px;font-weight:500;}
+.stat-num{font-size:22px;font-weight:800;color:#111827;letter-spacing:-0.6px;line-height:1;}
+.stat-label{font-size:11.5px;color:#6b7280;margin-top:5px;font-weight:500;}
+
+/* ── Recent activity ── */
+.activity-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;}
+.activity-row{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-bottom:1px solid #e5e7eb;}
+.activity-row:last-child{border-bottom:none;}
+.ar-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ar-icon.lead{background:var(--amber-light);}
+.ar-icon.form{background:#f0fdf4;}
+.ar-icon.booking{background:#eff4ff;}
+.ar-icon.chat{background:var(--violet-light);}
+.ar-body{flex:1;min-width:0;}
+.ar-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.ar-badge{font-size:9.5px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;padding:2px 7px;border-radius:5px;}
+.ar-badge.lead{background:var(--amber-light);color:var(--amber);}
+.ar-badge.form{background:#f0fdf4;color:#16a34a;}
+.ar-badge.booking{background:#eff4ff;color:#2563eb;}
+.ar-badge.chat{background:var(--violet-light);color:var(--violet);}
+.ar-name{font-size:13.5px;font-weight:600;color:#111827;}
+.ar-snippet{font-size:12.5px;color:#6b7280;margin-top:2px;}
+.ar-site{font-size:11.5px;color:#9ca3af;margin-top:2px;}
+.ar-time{font-size:11.5px;color:#9ca3af;white-space:nowrap;flex-shrink:0;}
+.activity-empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:32px 20px;}
+.activity-empty-ic{font-size:26px;margin-bottom:8px;opacity:0.7;}
+.activity-empty-title{font-size:13px;font-weight:600;color:#111827;margin-bottom:2px;}
+.activity-empty-sub{font-size:12px;color:#9ca3af;max-width:320px;}
+.activity-footer{display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 20px;}
+.activity-footer-title{font-size:12.5px;font-weight:600;color:#6b7280;}
+.activity-footer-sub{font-size:11.5px;color:#9ca3af;margin-top:2px;max-width:320px;}
 
 /* ── Mobile ──────────────────────────────────── */
 @media(max-width:1024px){
   .page{padding:20px 14px 50px;}
 }
+@media(max-width:900px){
+  .quick-row{grid-template-columns:1fr;}
+}
 @media(max-width:640px){
   .stats-row{grid-template-columns:1fr 1fr;}
   .stat-card{padding:16px;}
   .stat-num{font-size:24px;}
+  .setup-step{align-items:flex-start;}
+  .step-cta{margin-left:36px;margin-top:6px;}
+  .topbar-search{display:none;}
 }
 </style>
 {% endblock %}
@@ -55,6 +126,8 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
     <!-- ── Topbar ── -->
     <div class="topbar">
       <div class="topbar-title">Dashboard</div>
+      <div class="topbar-search">🔍 Jump to leads, forms, settings…<span class="ts-kbd">⌘K</span></div>
+      <div class="topbar-spacer"></div>
       <div class="user-menu-wrap">
         <div class="tn-avatar" onclick="toggleUserMenu()">{{ user.name | first | upper }}</div>
         <div class="user-dropdown" id="userDropdown">
@@ -76,29 +149,143 @@ body{font-family:"Inter",system-ui,sans-serif;background:#f7f7f8;margin:0;}
         <div class="page-sub">Here's what's happening across your account.</div>
       </div>
 
-      <!-- ── Overview stats ── -->
+      <!-- ── Setup checklist: replaces a blank page with a guided next step ── -->
+      {% if completedSteps < totalSteps %}
+      <div class="setup-card">
+        <div class="setup-head">
+          <div class="setup-title-wrap">
+            <div class="setup-ring" style="background:conic-gradient(#2563eb 0deg {{ (completedSteps / totalSteps * 360) }}deg, #e5e7eb {{ (completedSteps / totalSteps * 360) }}deg 360deg);"><span>{{ completedSteps }}/{{ totalSteps }}</span></div>
+            <div>
+              <div class="setup-title">Finish setting up your account</div>
+              <div class="setup-sub">A couple more steps and customers can find and contact you.</div>
+            </div>
+          </div>
+        </div>
+        <div class="setup-steps">
+          <div class="setup-step">
+            <div class="step-check {% if stepDone.site %}done{% else %}todo{% endif %}">{% if stepDone.site %}✓{% else %}1{% endif %}</div>
+            <div class="step-body">
+              <div class="step-name {% if stepDone.site %}done{% endif %}">Create your mini site</div>
+              <div class="step-desc">{% if stepDone.site %}{{ firstSiteName }} is live{% else %}Create your first mini site to get started{% endif %}</div>
+            </div>
+            {% if not stepDone.site %}<a class="step-cta" href="/dashboard/wizard">Create →</a>{% endif %}
+          </div>
+          <div class="setup-step">
+            <div class="step-check {% if stepDone.form %}done{% else %}todo{% endif %}">{% if stepDone.form %}✓{% else %}2{% endif %}</div>
+            <div class="step-body">
+              <div class="step-name {% if stepDone.form %}done{% endif %}">Add your first form</div>
+              <div class="step-desc">{% if stepDone.form %}Your forms are collecting entries{% else %}Add a form so visitors can reach you{% endif %}</div>
+            </div>
+            {% if not stepDone.form %}<a class="step-cta" href="/dashboard/forms/new">Add →</a>{% endif %}
+          </div>
+          <div class="setup-step">
+            <div class="step-check {% if stepDone.product %}done{% else %}todo{% endif %}">{% if stepDone.product %}✓{% else %}3{% endif %}</div>
+            <div class="step-body">
+              <div class="step-name {% if stepDone.product %}done{% endif %}">Add a product or service</div>
+              <div class="step-desc">{% if stepDone.product %}{{ productCount }} item{% if productCount != 1 %}s{% endif %} in your catalogue{% else %}Your catalogue is empty — customers can't buy anything yet{% endif %}</div>
+            </div>
+            {% if not stepDone.product %}<a class="step-cta" href="/dashboard/products">Add now →</a>{% endif %}
+          </div>
+          <div class="setup-step">
+            <div class="step-check {% if stepDone.booking %}done{% else %}todo{% endif %}">{% if stepDone.booking %}✓{% else %}4{% endif %}</div>
+            <div class="step-body">
+              <div class="step-name {% if stepDone.booking %}done{% endif %}">Turn on booking</div>
+              <div class="step-desc">{% if stepDone.booking %}Customers can book appointments directly from your site{% else %}Let customers book appointments directly from your site{% endif %}</div>
+            </div>
+            {% if not stepDone.booking %}<a class="step-cta" href="/dashboard/booking">Set up →</a>{% endif %}
+          </div>
+          <div class="setup-step">
+            <div class="step-check todo">5</div>
+            <div class="step-body">
+              <div class="step-name">Connect your leads</div>
+              <div class="step-desc">Sync new leads to Google Sheets or get email alerts</div>
+            </div>
+            <a class="step-cta" href="/dashboard/leads">Connect →</a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- ── Quick actions: the 3 things most accounts do next, without hunting the sidebar ── -->
+      <div class="section-label">Quick actions</div>
+      <div class="quick-row">
+        <a class="quick-card" href="/dashboard/products">
+          <div class="quick-ic">🛍</div>
+          <div>
+            <div class="quick-name">Add a product</div>
+            <div class="quick-desc">List something to sell</div>
+          </div>
+        </a>
+        {% if siteUrl %}
+        <a class="quick-card" href="{{ siteUrl }}" target="_blank" rel="noopener">
+        {% else %}
+        <a class="quick-card" href="/dashboard/sites">
+        {% endif %}
+          <div class="quick-ic">🔗</div>
+          <div>
+            <div class="quick-name">Share your site</div>
+            <div class="quick-desc">{% if siteUrl %}Copy your public link{% else %}Create a site to get a link{% endif %}</div>
+          </div>
+        </a>
+        <a class="quick-card" href="/dashboard/leads">
+          <div class="quick-ic">🎯</div>
+          <div>
+            <div class="quick-name">View leads</div>
+            <div class="quick-desc">See who's reached out</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- ── Stats: kept, but demoted to secondary status ── -->
+      <div class="section-label">Account at a glance</div>
       <div class="stats-row">
         <a class="stat-card" href="/dashboard/sites">
-          <div class="stat-icon">✨</div>
           <div class="stat-num">{{ siteCount }}</div>
           <div class="stat-label">Mini Sites</div>
         </a>
         <a class="stat-card" href="/dashboard/leads">
-          <div class="stat-icon">🎯</div>
           <div class="stat-num">{{ leadCount }}</div>
           <div class="stat-label">Leads</div>
         </a>
         <a class="stat-card" href="/dashboard/forms">
-          <div class="stat-icon">📋</div>
           <div class="stat-num">{{ formCount }}</div>
           <div class="stat-label">Forms</div>
         </a>
         <a class="stat-card" href="/dashboard/booking">
-          <div class="stat-icon">📅</div>
           <div class="stat-num">{{ bookingCount }}</div>
           <div class="stat-label">Bookings</div>
         </a>
       </div>
+
+      <!-- ── Recent activity: real leads/forms/bookings/chat, newest first ── -->
+      <div class="section-label">Recent activity</div>
+      <div class="activity-card">
+        {% for row in activity %}
+        <div class="activity-row">
+          <div class="ar-icon {{ row.badgeClass }}">{{ row.icon }}</div>
+          <div class="ar-body">
+            <div class="ar-top"><span class="ar-badge {{ row.badgeClass }}">{{ row.badge }}</span><span class="ar-name">{{ row.name }}</span></div>
+            <div class="ar-snippet">{{ row.snippet }}</div>
+            {% if row.site_title %}<div class="ar-site">{{ row.site_title }}</div>{% endif %}
+          </div>
+          <div class="ar-time">{{ row.time }}</div>
+        </div>
+        {% endfor %}
+
+        {% if activity.length %}
+        <div class="activity-footer">
+          <div class="activity-footer-title">That's everything so far</div>
+          <div class="activity-footer-sub">New leads, form submissions and bookings will show up above as they come in.</div>
+        </div>
+        {% else %}
+        <div class="activity-empty">
+          <div class="activity-empty-ic">🌱</div>
+          <div class="activity-empty-title">Nothing here yet</div>
+          <div class="activity-empty-sub">New leads, form submissions and bookings will show up here as they come in.</div>
+        </div>
+        {% endif %}
+      </div>
+
     </div>
   </div>
 </div>

@@ -220,7 +220,7 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
 <nav>
   <a class="logo" href="/">page<em>zaper</em></a>
   <ul class="nav-links">
-    <li><a href="#explore">Explore</a></li>
+    <li><a href="#services-near-you">Explore</a></li>
     <li><a href="#categories">Categories</a></li>
     <li><a href="#how">For business</a></li>
     <li><a href="/register">Pricing</a></li>
@@ -238,7 +238,7 @@ footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-i
 </nav>
 
 <div class="nav-mobile" id="navMobile">
-  <a href="#explore" onclick="closeMobileNav()">Explore</a>
+  <a href="#services-near-you" onclick="closeMobileNav()">Explore</a>
   <a href="#categories" onclick="closeMobileNav()">Categories</a>
   <a href="#how" onclick="closeMobileNav()">For business</a>
   <a href="/register" onclick="closeMobileNav()">Pricing</a>
@@ -359,27 +359,6 @@ function closeMobileNav(){
     <a class="qtag" href="/search?q=photographer">📸 Photographer</a>
   </div>
 </div>
-
-<div class="divider"></div>
-
-<section id="explore">
-  <div class="section-header">
-    <div>
-      <div class="section-label">Featured</div>
-      <div class="section-title">Near <span id="near-city-label">you</span></div>
-    </div>
-    <a class="see-all" id="see-all-link" href="/search">See all →</a>
-  </div>
-  <div class="cards-grid" id="nearby-grid">
-    <!-- skeleton -->
-    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
-    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
-    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
-    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
-    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
-    <div class="skel-card"><div class="skeleton skel-icon"></div><div class="skeleton skel-badge"></div><div class="skeleton skel-name"></div><div class="skeleton skel-desc"></div><div class="skeleton skel-loc"></div></div>
-  </div>
-</section>
 
 <div class="divider"></div>
 
@@ -610,9 +589,6 @@ document.getElementById('im-overlay').addEventListener('click', function(e) {
 <script>
 (function() {
   var BASE       = '{{ base_domain }}'
-  var nearLabel  = document.getElementById('near-city-label')
-  var grid       = document.getElementById('nearby-grid')
-  var seeAllLink = document.getElementById('see-all-link')
 
   // ── Services / Business / Products near you ────────────────────────────────
   var servicesGrid   = document.getElementById('services-grid')
@@ -686,10 +662,8 @@ document.getElementById('im-overlay').addEventListener('click', function(e) {
     var url = '/api/nearby?city=' + encodeURIComponent(city || '')
     if (lat && lng) url += '&lat=' + lat + '&lng=' + lng + '&radius=25'
     fetch(url).then(function(r){return r.json()}).then(function(d){
-      renderCards(grid, d.results)
       renderCards(businessGrid, d.results)
     }).catch(function(){
-      renderCards(grid, [])
       renderCards(businessGrid, [])
     })
   }
@@ -746,14 +720,12 @@ document.getElementById('im-overlay').addEventListener('click', function(e) {
     hlocDisp.classList.toggle('has-val', !!(opts.city || opts.state || opts.lat))
     hlocClear.classList.toggle('show',   !!(opts.city || opts.state || opts.lat))
 
-    nearLabel.textContent = opts.city || opts.state || 'you'
     if (servicesLabel) servicesLabel.textContent = opts.city || opts.state || 'you'
     if (businessLabel) businessLabel.textContent = opts.city || opts.state || 'you'
     if (productsLabel) productsLabel.textContent = opts.city || opts.state || 'you'
 
     var seeUrl = '/search?city=' + encodeURIComponent(opts.city||'') + '&state=' + encodeURIComponent(opts.state||'')
     if (opts.lat) seeUrl += '&lat=' + opts.lat + '&lng=' + opts.lng + '&radius=25'
-    if (seeAllLink) seeAllLink.href = seeUrl
     if (servicesSeeAll) servicesSeeAll.href = seeUrl + '&type=service'
     if (businessSeeAll) businessSeeAll.href = seeUrl + '&type=business'
     if (productsSeeAll) productsSeeAll.href = seeUrl + '&type=physical'

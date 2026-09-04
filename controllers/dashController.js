@@ -2,11 +2,39 @@ const { db }          = require('../config/db')
 const themeManager    = require('../config/themeManager')
 const { geocodeCity } = require('../config/geocode')
 
+// ── Dashboard home helpers ────────────────────────────────────────────────────
+function timeAgo(date) {
+  if (!date) return ''
+  const diff = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
+  if (diff < 60)     return 'just now'
+  if (diff < 3600)   return Math.floor(diff / 60) + 'm ago'
+  if (diff < 86400)  return Math.floor(diff / 3600) + 'h ago'
+  if (diff < 172800) return 'Yesterday'
+  if (diff < 604800) return Math.floor(diff / 86400) + 'd ago'
+  return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+const LEAD_SOURCE_META = {
+  product: { badge: 'Lead',    icon: '🎯' },
+  manual:  { badge: 'Lead',    icon: '🎯' },
+  form:    { badge: 'Form',    icon: '📋' },
+  booking: { badge: 'Booking', icon: '📅' },
+  chat:    { badge: 'Chat',    icon: '💬' }
+}
+
+function leadSnippet(l) {
+  if (l.notes) return l.notes.split('\n')[0].slice(0, 100)
+  if (l.source === 'form')    return 'Submitted a contact form'
+  if (l.source === 'booking') return 'Booked an appointment'
+  if (l.source === 'chat')    return 'Started a chat conversation'
+  return 'Added as a new lead'
+}
+
 // ── Dashboard home — account-wide overview stats ─────────────────────────────
 exports.index = async (req, res) => {
   const user = req.session.user
 
-  const [siteRow, leadRow, formRow, bookingRow] = await Promise.all([
+  const [siteRow, leadRow, formRow, bookingRow, productRow, bookingSetupRow, firstSite, recentLeads] = await Promise.all([
     db.first('SELECT COUNT(*) AS c FROM ms_sites WHERE account_id = ?', [user.id]),
     db.first(
       `SELECT COUNT(*) AS c FROM ms_leads l
@@ -18,17 +46,69 @@ exports.index = async (req, res) => {
       `SELECT COUNT(*) AS c FROM ms_bookings b
        JOIN ms_sites s ON b.site_id = s.id
        WHERE s.account_id = ? AND b.status = 'confirmed'`, [user.id]
-    ).catch(() => ({ c: 0 }))
+    ).catch(() => ({ c: 0 })),
+    db.first('SELECT COUNT(*) AS c FROM ms_products WHERE account_id = ?', [user.id]).catch(() => ({ c: 0 })),
+    db.first(
+      `SELECT COUNT(*) AS c FROM ms_booking_events be
+       JOIN ms_sites s ON be.site_id = s.id
+       WHERE s.account_id = ? AND be.is_active = 1`, [user.id]
+    ).catch(() => ({ c: 0 })),
+    db.first('SELECT title, subdomain FROM ms_sites WHERE account_id = ? ORDER BY id ASC LIMIT 1', [user.id]).catch(() => null),
+    db.query(
+      `SELECT l.name, l.source, l.notes, l.created_at, s.title AS site_title
+       FROM ms_leads l
+       JOIN ms_sites s ON l.site_id = s.id
+       WHERE s.account_id = ?
+       ORDER BY l.created_at DESC
+       LIMIT 4`, [user.id]
+    ).catch(() => [])
   ])
+
+  const siteCount    = (siteRow    && siteRow.c)    || 0
+  const leadCount    = (leadRow    && leadRow.c)    || 0
+  const formCount    = (formRow    && formRow.c)    || 0
+  const bookingCount = (bookingRow && bookingRow.c) || 0
+  const productCount = (productRow && productRow.c) || 0
+  const bookingSetUp = ((bookingSetupRow && bookingSetupRow.c) || 0) > 0
+
+  const stepDone = {
+    site:    siteCount    > 0,
+    form:    formCount    > 0,
+    product: productCount > 0,
+    booking: bookingSetUp
+  }
+  // "Connect your leads" (Google Sheets sync) isn't built yet, so it's shown as a bonus
+  // row but doesn't count toward the checklist total — otherwise it could never be 100%.
+  const totalSteps     = Object.keys(stepDone).length
+  const completedSteps = Object.values(stepDone).filter(Boolean).length
+
+  const baseDomain = process.env.BASE_DOMAIN || 'pagezapper.com'
+  const siteUrl    = firstSite ? `https://${firstSite.subdomain}.${baseDomain}` : null
+
+  const activity = (recentLeads || []).map(l => {
+    const meta = LEAD_SOURCE_META[l.source] || LEAD_SOURCE_META.manual
+    return {
+      icon:       meta.icon,
+      badge:      meta.badge,
+      badgeClass: meta.badge.toLowerCase(),
+      name:       l.name || 'Someone',
+      snippet:    leadSnippet(l),
+      site_title: l.site_title,
+      time:       timeAgo(l.created_at)
+    }
+  })
 
   res.render('dashboard/overview.njk', {
     title: 'Dashboard',
     user,
     activePage: 'dashboard',
-    siteCount:    (siteRow    && siteRow.c)    || 0,
-    leadCount:    (leadRow    && leadRow.c)    || 0,
-    formCount:    (formRow    && formRow.c)    || 0,
-    bookingCount: (bookingRow && bookingRow.c) || 0,
+    siteCount, leadCount, formCount, bookingCount, productCount,
+    stepDone,
+    completedSteps,
+    totalSteps,
+    siteUrl,
+    firstSiteName: firstSite ? firstSite.title : null,
+    activity,
     flash_success: req.flash('success')
   })
 }

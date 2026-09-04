@@ -4,6 +4,8 @@
 .sidebar-logo{font-family:"DM Serif Display",serif;font-size:20px;padding:26px 24px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--ink);display:block;font-weight:600;}
 .sidebar-logo em{font-style:italic;color:var(--blue);}
 .sidebar-nav{padding:18px 12px;flex:1;overflow-y:auto;}
+.nav-group{margin-bottom:16px;}
+.nav-group-label{font-size:10.5px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--ink-faint);padding:0 14px;margin-bottom:6px;}
 .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--radius);font-size:14px;color:var(--ink-muted);text-decoration:none;transition:all 0.15s;margin-bottom:2px;font-weight:500;}
 .nav-item:hover{background:var(--off);color:var(--ink);}
 .nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:600;}
@@ -21,6 +23,8 @@
   .layout{flex-direction:column;}
   .sidebar{width:100%;height:auto;position:relative;box-shadow:none;}
   .sidebar-nav{display:flex;gap:4px;overflow-x:auto;padding:10px 12px;flex-wrap:nowrap;}
+  .nav-group{display:contents;}
+  .nav-group-label{display:none;}
   .nav-item{margin-bottom:0;white-space:nowrap;}
   .nav-sub{display:none;}
   .sidebar-bottom{display:none;}
@@ -29,44 +33,63 @@
 <aside class="sidebar">
   <a class="sidebar-logo" href="/">page<em>zaper</em></a>
   <nav class="sidebar-nav">
-    <a class="nav-item {% if activePage == 'dashboard' %}active{% endif %}" href="/dashboard">🏠 Dashboard</a>
-    <a class="nav-item {% if activePage == 'minisites' %}active{% endif %}" href="/dashboard/sites">✨ Mini Site</a>
-    <a class="nav-item {% if activePage == 'products' or activePage == 'collections' %}active{% endif %}" href="/dashboard/products">📦 Catalogue</a>
-    {% if activePage == 'products' or activePage == 'collections' %}
-    <div class="nav-sub">
-      <a class="nav-item {% if activePage == 'products' and activeTab == 'product' %}active{% endif %}" href="/dashboard/products?tab=product">🛍 Products</a>
-      <a class="nav-item {% if activePage == 'products' and activeTab == 'service' %}active{% endif %}" href="/dashboard/products?tab=service">🛠 Services</a>
-      <a class="nav-item {% if activePage == 'products' and activeTab == 'job' %}active{% endif %}" href="/dashboard/products?tab=job">💼 Jobs</a>
-      <a class="nav-item {% if activePage == 'products' and activeTab == 'property' %}active{% endif %}" href="/dashboard/products?tab=property">🏠 Properties</a>
-      <a class="nav-item {% if activePage == 'galleries' %}active{% endif %}" href="/dashboard/galleries">🖼 Galleries</a>
-      <a class="nav-item {% if activePage == 'collections' %}active{% endif %}" href="/dashboard/products/collections">🗂 Collections</a>
+    <div class="nav-group">
+      <a class="nav-item {% if activePage == 'dashboard' %}active{% endif %}" href="/dashboard">🏠 Dashboard</a>
     </div>
-    {% endif %}
-    <a class="nav-item {% if activePage == 'website' %}active{% endif %}" href="/dashboard/website">🌐 Website</a>
-    {% if activePage == 'website' %}
-    <div class="nav-sub">
-      <a class="nav-item {% if websiteSubPage == 'pages' %}active{% endif %}" href="/dashboard/website">🗂 All Websites</a>
-      {% if websiteId %}
-      <a class="nav-item {% if websiteSubPage == 'editor' %}active{% endif %}" href="/dashboard/website/{{ websiteId }}/editor">✏️ Editor</a>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Sell</div>
+      <a class="nav-item {% if activePage == 'minisites' %}active{% endif %}" href="/dashboard/sites">✨ Mini Site</a>
+      <a class="nav-item {% if activePage == 'products' or activePage == 'collections' %}active{% endif %}" href="/dashboard/products">📦 Catalogue</a>
+      {% if activePage == 'products' or activePage == 'collections' %}
+      <div class="nav-sub">
+        <a class="nav-item {% if activePage == 'products' and activeTab == 'product' %}active{% endif %}" href="/dashboard/products?tab=product">🛍 Products</a>
+        <a class="nav-item {% if activePage == 'products' and activeTab == 'service' %}active{% endif %}" href="/dashboard/products?tab=service">🛠 Services</a>
+        <a class="nav-item {% if activePage == 'products' and activeTab == 'job' %}active{% endif %}" href="/dashboard/products?tab=job">💼 Jobs</a>
+        <a class="nav-item {% if activePage == 'products' and activeTab == 'property' %}active{% endif %}" href="/dashboard/products?tab=property">🏠 Properties</a>
+        <a class="nav-item {% if activePage == 'galleries' %}active{% endif %}" href="/dashboard/galleries">🖼 Galleries</a>
+        <a class="nav-item {% if activePage == 'collections' %}active{% endif %}" href="/dashboard/products/collections">🗂 Collections</a>
+      </div>
+      {% endif %}
+      <a class="nav-item {% if activePage == 'website' %}active{% endif %}" href="/dashboard/website">🌐 Website</a>
+      {% if activePage == 'website' %}
+      <div class="nav-sub">
+        <a class="nav-item {% if websiteSubPage == 'pages' %}active{% endif %}" href="/dashboard/website">🗂 All Websites</a>
+        {% if websiteId %}
+        <a class="nav-item {% if websiteSubPage == 'editor' %}active{% endif %}" href="/dashboard/website/{{ websiteId }}/editor">✏️ Editor</a>
+        {% endif %}
+      </div>
       {% endif %}
     </div>
-    {% endif %}
-    <a class="nav-item {% if activePage == 'forms' %}active{% endif %}" href="/dashboard/forms">📋 Forms</a>
-    <a class="nav-item {% if activePage == 'booking' %}active{% endif %}" href="/dashboard/booking">📅 Booking</a>
-    {% if bookingSiteId %}
-    <div class="nav-sub">
-      <a class="nav-item {% if bookingPage == 'overview' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}">📊 Overview</a>
-      <a class="nav-item {% if bookingPage == 'events' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}/events">🎯 Event Types</a>
-      <a class="nav-item {% if bookingPage == 'availability' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}/availability">📅 Availability</a>
-      <a class="nav-item {% if bookingPage == 'list' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}/list">📋 All Bookings</a>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Engage</div>
+      <a class="nav-item {% if activePage == 'forms' %}active{% endif %}" href="/dashboard/forms">📋 Forms</a>
+      <a class="nav-item {% if activePage == 'booking' %}active{% endif %}" href="/dashboard/booking">📅 Booking</a>
+      {% if bookingSiteId %}
+      <div class="nav-sub">
+        <a class="nav-item {% if bookingPage == 'overview' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}">📊 Overview</a>
+        <a class="nav-item {% if bookingPage == 'events' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}/events">🎯 Event Types</a>
+        <a class="nav-item {% if bookingPage == 'availability' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}/availability">📅 Availability</a>
+        <a class="nav-item {% if bookingPage == 'list' %}active{% endif %}" href="/dashboard/booking/{{ bookingSiteId }}/list">📋 All Bookings</a>
+      </div>
+      {% endif %}
+      <a class="nav-item {% if activePage == 'chat' %}active{% endif %}" href="/dashboard/chat">💬 Chat{% if unreadTotal and unreadTotal > 0 %}<span class="nav-badge">{{ unreadTotal }}</span>{% endif %}</a>
+      <a class="nav-item {% if activePage == 'leads' %}active{% endif %}" href="/dashboard/leads">🎯 Leads</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Manage</div>
+      <a class="nav-item {% if activePage == 'media' %}active{% endif %}" href="/dashboard/media">🖼 Media</a>
+      <a class="nav-item {% if activePage == 'analytics' %}active{% endif %}" href="/dashboard/analytics">📊 Analytics</a>
+      <a class="nav-item {% if activePage == 'settings' %}active{% endif %}" href="/dashboard/settings">⚙️ Settings</a>
+    </div>
+
+    {% if user.is_admin %}
+    <div class="nav-group">
+      <a class="nav-item" href="/admin" style="border-top:1px solid var(--border);padding-top:14px;">🔧 Admin</a>
     </div>
     {% endif %}
-    <a class="nav-item {% if activePage == 'chat' %}active{% endif %}" href="/dashboard/chat">💬 Chat{% if unreadTotal and unreadTotal > 0 %}<span class="nav-badge">{{ unreadTotal }}</span>{% endif %}</a>
-    <a class="nav-item {% if activePage == 'leads' %}active{% endif %}" href="/dashboard/leads">🎯 Leads</a>
-    <a class="nav-item {% if activePage == 'media' %}active{% endif %}" href="/dashboard/media">🖼 Media</a>
-    <a class="nav-item {% if activePage == 'analytics' %}active{% endif %}" href="/dashboard/analytics">📊 Analytics</a>
-    <a class="nav-item {% if activePage == 'settings' %}active{% endif %}" href="/dashboard/settings">⚙️ Settings</a>
-    {% if user.is_admin %}<a class="nav-item" href="/admin" style="margin-top:12px;border-top:1px solid var(--border);padding-top:14px;">🔧 Admin</a>{% endif %}
   </nav>
   <div class="sidebar-bottom">
     <div class="user-chip">
